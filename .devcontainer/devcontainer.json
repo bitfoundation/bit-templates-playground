@@ -17,8 +17,7 @@
         "ms-dotnettools.vscode-dotnet-runtime",
         "kevin-chatham.aspnetcorerazor-html-css-class-completion",
         "ms-dotnettools.csharp",
-        "yy0931.vscode-sqlite3-editor",
-        "ms-dotnettools.csdevkit"
+        "yy0931.vscode-sqlite3-editor"
       ]
     }
   },
