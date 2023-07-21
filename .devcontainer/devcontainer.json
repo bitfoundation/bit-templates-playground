@@ -17,7 +17,8 @@
         "ms-dotnettools.vscode-dotnet-runtime",
         "kevin-chatham.aspnetcorerazor-html-css-class-completion",
         "ms-dotnettools.csharp",
-        "yy0931.vscode-sqlite3-editor"
+        "yy0931.vscode-sqlite3-editor",
+        "ms-dotnettools.csdevkit"
       ]
     }
   },
@@ -33,6 +34,8 @@
   },
   "forwardPorts": [
     4030,
-    5030
+    4031,
+    5030,
+    5031
   ]
 }
