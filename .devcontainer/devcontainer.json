@@ -23,11 +23,19 @@
     }
   },
   "portsAttributes": {
-    "4000": {
+    "4030": {
       "label": "Application",
       "onAutoForward": "openPreview"
     },
-    "5000": {
+    "4031": {
+      "label": "Application",
+      "onAutoForward": "openPreview"
+    },
+    "5030": {
+      "label": "Api",
+      "onAutoForward": "openPreview"
+    },
+    "5031": {
       "label": "Api",
       "onAutoForward": "openPreview"
     }
