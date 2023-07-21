@@ -1,0 +1,48 @@
+{
+  "name": "Bit Templates Playground",
+  "image": "mcr.microsoft.com/devcontainers/dotnet:0-7.0",
+  "hostRequirements": {
+    "cpus": 4
+  },
+  "waitFor": "onCreateCommand",
+  "onCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs && sudo npm i sass -g && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef && dotnet ef database update --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj",
+  "customizations": {
+    "codespaces": {
+      "openFiles": [
+        "src/Client/Core/Pages/Home/HomePage.razor"
+      ]
+    },
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.vscode-dotnet-runtime",
+        "kevin-chatham.aspnetcorerazor-html-css-class-completion",
+        "ms-dotnettools.csharp",
+        "yy0931.vscode-sqlite3-editor"
+      ]
+    }
+  },
+  "portsAttributes": {
+    "4030": {
+      "label": "Application",
+      "onAutoForward": "openPreview"
+    },
+    "4031": {
+      "label": "Application",
+      "onAutoForward": "openPreview"
+    },
+    "5030": {
+      "label": "Api",
+      "onAutoForward": "openPreview"
+    },
+    "5031": {
+      "label": "Api",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "forwardPorts": [
+    4030,
+    4031,
+    5030,
+    5031
+  ]
+}
