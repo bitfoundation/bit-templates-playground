@@ -1,4 +1,4 @@
-# Bit BlazorUI Playground
+# Bit Templates Playground
 
 With [GitHub Codespaces](https://github.com/features/codespaces), you can access the ultimate online development platform, right in your browser - no downloads or installations required!
 
