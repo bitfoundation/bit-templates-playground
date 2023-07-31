@@ -14,7 +14,7 @@ public partial class ServerSideAuthTokenProvider : IAuthTokenProvider
                                                                       .GetType("Microsoft.AspNetCore.Components.Server.Circuits.RemoteJSRuntime")
                                                                      ?.GetProperty("IsInitialized");
 
-    public async Task<string?> GetAcccessTokenAsync()
+    public async Task<string?> GetAccessTokenAsync()
     {
         var isInitialized = (bool)(IsInitializedProp?.GetValue(_jsRuntime) ?? false);
 
@@ -36,7 +36,7 @@ public class ServerSideAuthTokenProvider : IAuthTokenProvider
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<string?> GetAcccessTokenAsync()
+    public async Task<string?> GetAccessTokenAsync()
     {
         await Task.CompletedTask;
         return _httpContextAccessor.HttpContext?.Request.Cookies["access_token"];
