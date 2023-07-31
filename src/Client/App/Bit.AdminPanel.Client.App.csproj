@@ -16,7 +16,7 @@
 
 		<!-- App Identifier -->
 		<ApplicationId>com.bitplatform.Bit.AdminPanel.Template</ApplicationId>
-		<ApplicationIdGuid>59BFE2A2-3410-482A-840C-D123E07237B6</ApplicationIdGuid>
+		<ApplicationIdGuid>773C2843-0DDA-418C-8852-05743B7042D9</ApplicationIdGuid>
 
 		<!-- Versions -->
 		<ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -86,14 +86,14 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-		<PackageReference Include="Bit.BlazorUI" Version="5.2.0-pre-05" />
-		<PackageReference Include="Bit.BlazorUI.Icons" Version="5.2.0-pre-05" />
-		<PackageReference Include="Bit.BlazorUI.Assets" Version="5.2.0-pre-05" />
-		<PackageReference Include="Bit.CodeAnalyzers" Version="5.2.0-pre-05">
+		<PackageReference Include="Bit.BlazorUI" Version="5.2.0" />
+		<PackageReference Include="Bit.BlazorUI.Icons" Version="5.2.0" />
+		<PackageReference Include="Bit.BlazorUI.Assets" Version="5.2.0" />
+		<PackageReference Include="Bit.CodeAnalyzers" Version="5.2.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Bit.SourceGenerators" Version="5.2.0-pre-05">
+		<PackageReference Include="Bit.SourceGenerators" Version="5.2.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
