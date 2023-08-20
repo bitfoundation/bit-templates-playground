@@ -1,6 +1,6 @@
 {
     "profiles": {
-        "Bit.AdminPanel.Server.Api": {
+        "Bit.AdminPanel.Server.Api-Swagger": {
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,

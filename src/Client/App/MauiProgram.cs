@@ -1,6 +1,6 @@
 ﻿
 using System.Reflection;
-using Bit.AdminPanel.Client.Core;
+using Bit.AdminPanel.Client.Core.Shared;
 using Microsoft.Extensions.FileProviders;
 
 namespace Bit.AdminPanel.Client.App;

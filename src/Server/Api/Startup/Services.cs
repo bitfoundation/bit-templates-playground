@@ -19,7 +19,7 @@ public static class Services
     {
         // Services being registered here can get injected into controllers and services in Api project.
 
-        var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
+        var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
 
         services.AddSharedServices();
 
@@ -99,8 +99,6 @@ public static class Services
         services.AddScoped(sp => sp.GetRequiredService<IOptionsSnapshot<AppSettings>>().Value);
 
         services.AddEndpointsApiExplorer();
-
-        services.AddAutoMapper(typeof(Program).Assembly);
 
         services.AddSwaggerGen();
 
