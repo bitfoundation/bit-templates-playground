@@ -52,7 +52,7 @@ public class Middlewares
                 // https://bitplatform.dev/bit.adminpanel/cache-mechanism
                 ctx.Context.Response.GetTypedHeaders().CacheControl = new CacheControlHeaderValue()
                 {
-                    MaxAge = TimeSpan.FromDays(365),
+                    MaxAge = TimeSpan.FromDays(7),
                     Public = true
                 };
             }
@@ -60,8 +60,8 @@ public class Middlewares
 
         app.UseRouting();
 
-        // 0.0.0.0 is for the Blazor Hybrid mode (Android, iOS, Windows apps)
-        app.UseCors(options => options.WithOrigins("https://localhost:4031", "https://0.0.0.0", "app://0.0.0.0").AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+        app.UseCors(options => options.WithOrigins("https://localhost:4031" /*BlazorServer*/, "http://localhost:8001" /*BlazorElectron*/, "https://0.0.0.0" /*BlazorHybrid*/, "app://0.0.0.0" /*BlazorHybrid*/)
+            .AllowAnyHeader().AllowAnyMethod().AllowCredentials());
 
         app.UseResponseCaching();
         app.UseAuthentication();
@@ -83,12 +83,12 @@ public class Middlewares
 
         app.UseSwaggerUI(options =>
         {
-            options.InjectJavascript("/swagger/swagger-utils.js");
+            options.InjectJavascript($"/swagger/swagger-utils.js?v={Environment.TickCount64}");
         });
 
         app.MapControllers().RequireAuthorization();
 
-        var appsettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>();
+        var appsettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
 
         var healthCheckSettings = appsettings.HealthCheckSettings;
 

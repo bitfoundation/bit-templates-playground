@@ -1,5 +1,5 @@
 ﻿
-namespace Bit.AdminPanel.Client.Core;
+namespace Bit.AdminPanel.Client.Core.Shared;
 
 public partial class Footer
 {

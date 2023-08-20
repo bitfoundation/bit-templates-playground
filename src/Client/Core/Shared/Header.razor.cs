@@ -1,7 +1,7 @@
 ﻿using Bit.AdminPanel.Shared.Dtos.Account;
 using Microsoft.AspNetCore.Components.Routing;
 
-namespace Bit.AdminPanel.Client.Core;
+namespace Bit.AdminPanel.Client.Core.Shared;
 
 public partial class Header : IDisposable
 {
