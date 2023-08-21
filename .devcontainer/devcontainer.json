@@ -5,7 +5,7 @@
     "cpus": 4
   },
   "waitFor": "onCreateCommand",
-  "onCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef && dotnet ef database update --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj",
+  "onCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef && dotnet ef database update --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj && dotnet build src/Client/Web/Bit.AdminPanel.Client.Web.csproj",
   "customizations": {
     "codespaces": {
       "openFiles": [
@@ -17,7 +17,8 @@
         "ms-dotnettools.vscode-dotnet-runtime",
         "kevin-chatham.aspnetcorerazor-html-css-class-completion",
         "ms-dotnettools.csharp",
-        "yy0931.vscode-sqlite3-editor"
+        "yy0931.vscode-sqlite3-editor",
+        "glenn2223.live-sass"
       ]
     }
   },
