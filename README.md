@@ -16,6 +16,6 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 4- Confirm your email at https://ethereal.email/messages using `alexane.haley34@ethereal.email` `bcpMpqB7eEMUVU5RNU` user/pass.
 
-5- Press `Ctrl + Shift + P`` and run `watch sass`
+5- Press `Ctrl + Shift + P` and run `watch sass`
 
 Done!
