@@ -10,9 +10,9 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 1- Press `Ctrl + Shift + P` and run `watch sass`
 
-2- Open new terminal in vscode and run `dotnet watch --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj`Client/Web/Bit.AdminPanel.Client.Web.csproj`
+2- Open new terminal in vscode and run `dotnet watch --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj`
 
-3- Open another terminal in vscode and run `dotnet watch --project src/
+3- Open another terminal in vscode and run `dotnet watch --project src/Client/Web/Bit.AdminPanel.Client.Web.csproj`
 
 4- Sign up using any email address you want
 
