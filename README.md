@@ -20,13 +20,11 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 4- Sign up using any email address you want
 
-5- Open your database by double clicking on `src/Server/Api/Bit.AdminPanelDb.db`
+6- To view your data, double click on `src/Server/Api/Bit.AdminPanelDb.db`
 
-7- To view your data, double click on `src/Server/Api/Bit.AdminPanelDb.db`
+7- In your `Users` table, change `EmailConfirmed` from `0` to `1`
 
-8- In your `Users` table, change `EmailConfirmed` from `0` to `1`
-
-9- Sign in and explorer admin panel features!
+8- Sign in and explorer admin panel features!
 
 Done!
 
