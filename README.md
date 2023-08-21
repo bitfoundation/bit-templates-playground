@@ -14,8 +14,8 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 3- Sign up using any email address you want
 
-4- Confirm your email at https://ethereal.email/messages using `alexane.haley34@ethereal.email` username and `bcpMpqB7eEMUVU5RNU` password
+4- Confirm your email at https://ethereal.email/messages using `alexane.haley34@ethereal.email` `bcpMpqB7eEMUVU5RNU` user/pass.
 
-5- Press Ctrl + Shift + P and run `watch sass`
+5- Press `Ctrl + Shift + P`` and run `watch sass`
 
 Done!
