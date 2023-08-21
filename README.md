@@ -8,9 +8,9 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 **Instructions:**
 
-1- Open new terminal in vscode and run `cd src/Client/Web/ && dotnet watch``
+1- Open new terminal in vscode and run `cd src/Client/Web/ && dotnet watch`
 
-2- Open another terminal in vscode and run `cd src/Server/Api/ && dotnet watch``
+2- Open another terminal in vscode and run `cd src/Server/Api/ && dotnet watch`
 
 3- Sign up using any email address you want
 
