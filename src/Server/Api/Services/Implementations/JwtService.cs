@@ -2,8 +2,8 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.IdentityModel.Tokens;
-using Bit.AdminPanel.Server.Api.Models.Account;
-using Bit.AdminPanel.Shared.Dtos.Account;
+using Bit.AdminPanel.Server.Api.Models.Identity;
+using Bit.AdminPanel.Shared.Dtos.Identity;
 
 namespace Bit.AdminPanel.Server.Api.Services.Implementations;
 

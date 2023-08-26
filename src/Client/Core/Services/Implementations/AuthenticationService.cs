@@ -1,4 +1,4 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Account;
+﻿using Bit.AdminPanel.Shared.Dtos.Identity;
 
 namespace Bit.AdminPanel.Client.Core.Services.Implementations;
 

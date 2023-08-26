@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.Core.Pages;
+﻿namespace Bit.AdminPanel.Client.Core.Pages.Home;
 
 public partial class ProductsCountPerCategotyWidget
 {

@@ -1,12 +1,12 @@
 ﻿using Bit.AdminPanel.Server.Api.Models.Products;
 
-namespace Bit.AdminPanel.Server.Api.Data.Configurations.Account;
+namespace Bit.AdminPanel.Server.Api.Data.Configurations.Identity;
 
 public class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        DateTime baseDate = DateTime.Parse("2023-07-28");
+        DateTime baseDate = DateTime.Parse("2023-08-26");
 
         builder.HasData(
                 new Product() { Id = 1, Name = "Mustang", Price = 27155, Description = "The Ford Mustang is ranked #1 in Sports Cars", CreatedOn = baseDate.AddDays(-10), CategoryId = 1 },

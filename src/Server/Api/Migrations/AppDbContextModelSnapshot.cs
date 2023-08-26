@@ -14,9 +14,60 @@ namespace Bit.AdminPanel.Server.Api.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.9");
+            modelBuilder.HasAnnotation("ProductVersion", "7.0.10");
 
-            modelBuilder.Entity("Bit.AdminPanel.Server.Api.Models.Account.Role", b =>
+            modelBuilder.Entity("Bit.AdminPanel.Server.Api.Models.Categories.Category", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Color")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Color = "#FFCD56",
+                            Name = "Ford"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Color = "#FF6384",
+                            Name = "Nissan"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Color = "#4BC0C0",
+                            Name = "Benz"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Color = "#FF9124",
+                            Name = "BMW"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Color = "#2B88D8",
+                            Name = "Tesla"
+                        });
+                });
+
+            modelBuilder.Entity("Bit.AdminPanel.Server.Api.Models.Identity.Role", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -43,7 +94,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                     b.ToTable("Roles", (string)null);
                 });
 
-            modelBuilder.Entity("Bit.AdminPanel.Server.Api.Models.Account.User", b =>
+            modelBuilder.Entity("Bit.AdminPanel.Server.Api.Models.Identity.User", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -124,56 +175,26 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         .HasDatabaseName("UserNameIndex");
 
                     b.ToTable("Users", (string)null);
-                });
-
-            modelBuilder.Entity("Bit.AdminPanel.Server.Api.Models.Categories.Category", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Color")
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(64)
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Categories");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Color = "#FFCD56",
-                            Name = "Ford"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Color = "#FF6384",
-                            Name = "Nissan"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Color = "#4BC0C0",
-                            Name = "Benz"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Color = "#FF9124",
-                            Name = "BMW"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Color = "#2B88D8",
-                            Name = "Tesla"
+                            AccessFailedCount = 0,
+                            BirthDate = 1306790461440000060L,
+                            ConcurrencyStamp = "645de26c-90de-4473-962b-53a45dc138a8",
+                            Email = "test@bitplatform.dev",
+                            EmailConfirmed = true,
+                            FullName = "Bit.AdminPanel test account",
+                            Gender = 2,
+                            LockoutEnabled = false,
+                            NormalizedEmail = "TEST@BITPLATFORM.DEV",
+                            NormalizedUserName = "TEST@BITPLATFORM.DEV",
+                            PasswordHash = "AQAAAAIAAYagAAAAEEBIVA08n9vf5AfQcqzOXK1a9sFLEAtskEo6IC3A0yd9rRHREKqs91llzZpE4t1rrw==",
+                            PhoneNumberConfirmed = false,
+                            SecurityStamp = "c52637fe-c82f-4954-a18f-e2bd8a026144",
+                            TwoFactorEnabled = false,
+                            UserName = "test@bitplatform.dev"
                         });
                 });
 
@@ -212,7 +233,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
-                            CreatedOn = 1307128430592000120L,
+                            CreatedOn = 1307192131584000120L,
                             Description = "The Ford Mustang is ranked #1 in Sports Cars",
                             Name = "Mustang",
                             Price = 27155m
@@ -221,7 +242,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 2,
                             CategoryId = 1,
-                            CreatedOn = 1307119583232000120L,
+                            CreatedOn = 1307183284224000120L,
                             Description = "The Ford GT is a mid-engine two-seater sports car manufactured and marketed by American automobile manufacturer",
                             Name = "GT",
                             Price = 500000m
@@ -230,7 +251,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 3,
                             CategoryId = 1,
-                            CreatedOn = 1307101888512000120L,
+                            CreatedOn = 1307165589504000120L,
                             Description = "Ford Ranger is a nameplate that has been used on multiple model lines of pickup trucks sold by Ford worldwide.",
                             Name = "Ranger",
                             Price = 25000m
@@ -239,7 +260,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 4,
                             CategoryId = 1,
-                            CreatedOn = 1307093041152000120L,
+                            CreatedOn = 1307156742144000120L,
                             Description = "Raptor is a SCORE off-road trophy truck living in a asphalt world",
                             Name = "Raptor",
                             Price = 53205m
@@ -248,7 +269,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 5,
                             CategoryId = 1,
-                            CreatedOn = 1307084193792000120L,
+                            CreatedOn = 1307147894784000120L,
                             Description = "The Ford Maverick is a compact pickup truck produced by Ford Motor Company.",
                             Name = "Maverick",
                             Price = 22470m
@@ -257,7 +278,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 6,
                             CategoryId = 2,
-                            CreatedOn = 1307128430592000120L,
+                            CreatedOn = 1307192131584000120L,
                             Description = "A powerful convertible sports car",
                             Name = "Roadster",
                             Price = 42800m
@@ -266,7 +287,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 7,
                             CategoryId = 2,
-                            CreatedOn = 1307119583232000120L,
+                            CreatedOn = 1307183284224000120L,
                             Description = "A perfectly adequate family sedan with sharp looks",
                             Name = "Altima",
                             Price = 24550m
@@ -275,7 +296,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 8,
                             CategoryId = 2,
-                            CreatedOn = 1307101888512000120L,
+                            CreatedOn = 1307165589504000120L,
                             Description = "Legendary supercar with AWD, 4 seats, a powerful V6 engine and the latest tech",
                             Name = "GT-R",
                             Price = 113540m
@@ -284,7 +305,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 9,
                             CategoryId = 2,
-                            CreatedOn = 1307084193792000120L,
+                            CreatedOn = 1307147894784000120L,
                             Description = "A new smart SUV",
                             Name = "Juke",
                             Price = 28100m
@@ -293,7 +314,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 10,
                             CategoryId = 3,
-                            CreatedOn = 1307128430592000120L,
+                            CreatedOn = 1307192131584000120L,
                             Description = "",
                             Name = "H247",
                             Price = 54950m
@@ -302,7 +323,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 11,
                             CategoryId = 3,
-                            CreatedOn = 1307119583232000120L,
+                            CreatedOn = 1307183284224000120L,
                             Description = "",
                             Name = "V297",
                             Price = 103360m
@@ -311,7 +332,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 12,
                             CategoryId = 3,
-                            CreatedOn = 1307084193792000120L,
+                            CreatedOn = 1307147894784000120L,
                             Description = "",
                             Name = "R50",
                             Price = 2000000m
@@ -320,7 +341,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 13,
                             CategoryId = 4,
-                            CreatedOn = 1307128430592000120L,
+                            CreatedOn = 1307192131584000120L,
                             Description = "",
                             Name = "M550i",
                             Price = 77790m
@@ -329,7 +350,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 14,
                             CategoryId = 4,
-                            CreatedOn = 1307119583232000120L,
+                            CreatedOn = 1307183284224000120L,
                             Description = "",
                             Name = "540i",
                             Price = 60945m
@@ -338,7 +359,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 15,
                             CategoryId = 4,
-                            CreatedOn = 1307110735872000120L,
+                            CreatedOn = 1307174436864000120L,
                             Description = "",
                             Name = "530e",
                             Price = 56545m
@@ -347,7 +368,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 16,
                             CategoryId = 4,
-                            CreatedOn = 1307101888512000120L,
+                            CreatedOn = 1307165589504000120L,
                             Description = "",
                             Name = "530i",
                             Price = 55195m
@@ -356,7 +377,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 17,
                             CategoryId = 4,
-                            CreatedOn = 1307093041152000120L,
+                            CreatedOn = 1307156742144000120L,
                             Description = "",
                             Name = "M850i",
                             Price = 100045m
@@ -365,7 +386,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 18,
                             CategoryId = 4,
-                            CreatedOn = 1307084193792000120L,
+                            CreatedOn = 1307147894784000120L,
                             Description = "",
                             Name = "X7",
                             Price = 77980m
@@ -374,7 +395,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 19,
                             CategoryId = 4,
-                            CreatedOn = 1307075346432000120L,
+                            CreatedOn = 1307139047424000120L,
                             Description = "",
                             Name = "IX",
                             Price = 87000m
@@ -383,7 +404,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 20,
                             CategoryId = 5,
-                            CreatedOn = 1307128430592000120L,
+                            CreatedOn = 1307192131584000120L,
                             Description = "rapid acceleration and dynamic handling",
                             Name = "Model 3",
                             Price = 61990m
@@ -392,7 +413,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 21,
                             CategoryId = 5,
-                            CreatedOn = 1307119583232000120L,
+                            CreatedOn = 1307183284224000120L,
                             Description = "finishes near the top of our luxury electric car rankings.",
                             Name = "Model S",
                             Price = 135000m
@@ -401,7 +422,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 22,
                             CategoryId = 5,
-                            CreatedOn = 1307110735872000120L,
+                            CreatedOn = 1307174436864000120L,
                             Description = "Heart-pumping acceleration, long drive range",
                             Name = "Model X",
                             Price = 138890m
@@ -410,7 +431,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
                         {
                             Id = 23,
                             CategoryId = 5,
-                            CreatedOn = 1307084193792000120L,
+                            CreatedOn = 1307147894784000120L,
                             Description = "extensive driving range, lots of standard safety features",
                             Name = "Model Y",
                             Price = 67790m
@@ -529,7 +550,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
-                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Account.Role", null)
+                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Identity.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -538,7 +559,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<int>", b =>
                 {
-                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Account.User", null)
+                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -547,7 +568,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<int>", b =>
                 {
-                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Account.User", null)
+                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -556,13 +577,13 @@ namespace Bit.AdminPanel.Server.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<int>", b =>
                 {
-                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Account.Role", null)
+                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Identity.Role", null)
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Account.User", null)
+                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -571,7 +592,7 @@ namespace Bit.AdminPanel.Server.Api.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<int>", b =>
                 {
-                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Account.User", null)
+                    b.HasOne("Bit.AdminPanel.Server.Api.Models.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

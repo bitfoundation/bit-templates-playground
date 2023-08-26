@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Primitives;
 using MimeTypes;
-using Bit.AdminPanel.Server.Api.Models.Account;
+using Bit.AdminPanel.Server.Api.Models.Identity;
 using SystemFile = System.IO.File;
 using ImageMagick;
 

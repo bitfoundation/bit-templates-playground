@@ -1,4 +1,4 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Account;
+﻿using Bit.AdminPanel.Shared.Dtos.Identity;
 using Bit.AdminPanel.Shared.Dtos.Categories;
 using Bit.AdminPanel.Shared.Dtos.Dashboard;
 using Bit.AdminPanel.Shared.Dtos.Products;

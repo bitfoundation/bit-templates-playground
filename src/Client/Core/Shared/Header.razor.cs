@@ -1,4 +1,4 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Account;
+﻿using Bit.AdminPanel.Shared.Dtos.Identity;
 using Microsoft.AspNetCore.Components.Routing;
 
 namespace Bit.AdminPanel.Client.Core.Shared;

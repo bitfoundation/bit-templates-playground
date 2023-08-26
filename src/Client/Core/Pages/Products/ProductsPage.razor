@@ -1,6 +1,5 @@
 ﻿@page "/products"
 @using Bit.AdminPanel.Shared.Dtos.Products
-@namespace Bit.AdminPanel.Client.Core.Pages
 @inherits AppComponentBase
 
 <PageTitle>@Localizer[nameof(AppStrings.ProductsPageTitle)]</PageTitle>
@@ -41,4 +40,4 @@
 </div>
 
 <CreateEditProductModal @ref="_modal" OnSave="WrapHandled(RefreshData)" />
-<ConfirmMessageBox />
+<ConfirmMessageBox @ref=_confirmMessageBox />
