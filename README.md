@@ -18,14 +18,8 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 `dotnet watch --project src/Client/Web/Bit.AdminPanel.Client.Web.csproj`
 
-4- Sign up using any email address you want
-
-6- To view your data, double click on `src/Server/Api/Bit.AdminPanelDb.db`
-
-7- In your `Users` table, change `EmailConfirmed` from `0` to `1`
-
-8- Sign in and explorer admin panel features!
+4- Sign in using `test@bitplatform.dev` and `123456` and explorer admin panel features!
 
 Done!
 
-Note: In order to view `confirmation email`, you can download it from `src/Server/Api/bin/Debug/net7.0/sent-emails`, then you can view it using any [eml viewer](https://msgeml.com/)
+Note: In order to view sign-up's `confirmation email`, read [Email settings docs](https://bitplatform.dev/templates/settings).
