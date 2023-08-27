@@ -1,6 +1,6 @@
 ﻿using Bit.AdminPanel.Shared.Dtos.Products;
 
-namespace Bit.AdminPanel.Client.Core.Pages;
+namespace Bit.AdminPanel.Client.Core.Pages.Products;
 
 public partial class CreateEditProductModal
 {

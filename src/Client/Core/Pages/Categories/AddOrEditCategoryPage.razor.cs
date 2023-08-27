@@ -1,6 +1,6 @@
 ﻿using Bit.AdminPanel.Shared.Dtos.Categories;
 
-namespace Bit.AdminPanel.Client.Core.Pages;
+namespace Bit.AdminPanel.Client.Core.Pages.Categories;
 
 [Authorize]
 public partial class AddOrEditCategoryPage

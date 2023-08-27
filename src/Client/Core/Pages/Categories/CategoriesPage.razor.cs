@@ -1,6 +1,6 @@
 ﻿using Bit.AdminPanel.Shared.Dtos.Categories;
 
-namespace Bit.AdminPanel.Client.Core.Pages;
+namespace Bit.AdminPanel.Client.Core.Pages.Categories;
 
 [Authorize]
 public partial class CategoriesPage
@@ -8,6 +8,7 @@ public partial class CategoriesPage
     private bool _isLoading;
     private string _categoryNameFilter = string.Empty;
 
+    ConfirmMessageBox _confirmMessageBox = default!;
     private BitDataGrid<CategoryDto>? _dataGrid;
     private BitDataGridItemsProvider<CategoryDto> _categoriesProvider = default!;
     private BitDataGridPaginationState _pagination = new() { ItemsPerPage = 10 };
@@ -90,7 +91,7 @@ public partial class CategoriesPage
 
     private async Task DeleteCategory(CategoryDto category)
     {
-        var confirmed = await ConfirmMessageBox.Show(Localizer.GetString(nameof(AppStrings.AreYouSureWannaDeleteCategory), category.Name ?? string.Empty), 
+        var confirmed = await _confirmMessageBox.Show(Localizer.GetString(nameof(AppStrings.AreYouSureWannaDeleteCategory), category.Name ?? string.Empty), 
                                                      Localizer[nameof(AppStrings.DeleteCategory)]);
 
         if (confirmed)

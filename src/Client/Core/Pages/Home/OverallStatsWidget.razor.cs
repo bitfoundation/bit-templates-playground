@@ -1,6 +1,6 @@
 ﻿using Bit.AdminPanel.Shared.Dtos.Dashboard;
 
-namespace Bit.AdminPanel.Client.Core.Pages;
+namespace Bit.AdminPanel.Client.Core.Pages.Home;
 
 public partial class OverallStatsWidget
 {

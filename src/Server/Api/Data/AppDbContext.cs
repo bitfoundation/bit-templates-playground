@@ -1,4 +1,4 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Account;
+﻿using Bit.AdminPanel.Server.Api.Models.Identity;
 using Bit.AdminPanel.Server.Api.Models.Categories;
 using Bit.AdminPanel.Server.Api.Models.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
