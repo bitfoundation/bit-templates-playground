@@ -31,13 +31,13 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Bit.Bup" Version="5.5.0-pre-02" />
-		<PackageReference Include="Bit.Bswup" Version="5.5.0-pre-02" />
-		<PackageReference Include="Bit.CodeAnalyzers" Version="5.5.0-pre-02">
+		<PackageReference Include="Bit.Bup" Version="5.5.0" />
+		<PackageReference Include="Bit.Bswup" Version="5.5.0" />
+		<PackageReference Include="Bit.CodeAnalyzers" Version="5.5.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-		<PackageReference Include="Bit.SourceGenerators" Version="5.5.0-pre-02">
+		<PackageReference Include="Bit.SourceGenerators" Version="5.5.0">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -59,7 +59,6 @@
 		<BlazorWebAssemblyLazyLoad Include="Newtonsoft.Json.dll" />
 		<BlazorWebAssemblyLazyLoad Include="System.Private.Xml.dll" />
 		<BlazorWebAssemblyLazyLoad Include="System.Data.Common.dll" />
-		<BlazorWebAssemblyLazyLoad Include="Riok.Mapperly.Abstractions.dll" />
 	</ItemGroup>
 
 	<ItemGroup Condition=" '$(UseElectron)' == 'true' ">

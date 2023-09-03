@@ -5,5 +5,5 @@ namespace Bit.AdminPanel.Client.App.Platforms.MacCatalyst;
 [Register(nameof(AppDelegate))]
 public class AppDelegate : MauiUIApplicationDelegate
 {
-    protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiAppBuilder().Build();
+    protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
 }
