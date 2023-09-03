@@ -1,6 +1,9 @@
 ﻿
 namespace Bit.AdminPanel.Client.Core.Shared;
 
+/// <summary>
+/// https://learn.microsoft.com/en-us/aspnet/core/blazor/fundamentals/handle-errors
+/// </summary>
 public partial class AppErrorBoundary
 {
     private bool _showException;

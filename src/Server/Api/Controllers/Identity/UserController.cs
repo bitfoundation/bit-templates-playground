@@ -1,7 +1,7 @@
 ﻿using Bit.AdminPanel.Server.Api.Models.Identity;
 using Bit.AdminPanel.Shared.Dtos.Identity;
 
-namespace Bit.AdminPanel.Server.Api.Controllers;
+namespace Bit.AdminPanel.Server.Api.Controllers.Identity;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
@@ -23,7 +23,7 @@ public partial class UserController : AppControllerBase
     }
 
     [HttpPut]
-    public async Task Update(EditUserDto userDto, CancellationToken cancellationToken)
+    public async Task<UserDto> Update(EditUserDto userDto, CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
 
@@ -35,6 +35,8 @@ public partial class UserController : AppControllerBase
         userDto.Patch(user);
 
         await _userManager.UpdateAsync(user);
+
+        return await GetCurrentUser(cancellationToken);
     }
 
     [HttpDelete]
