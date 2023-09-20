@@ -1,8 +1,8 @@
-﻿using Bit.AdminPanel.Server.Api.Models;
-using Bit.AdminPanel.Server.Api.Models.Categories;
-using Bit.AdminPanel.Shared.Dtos.Categories;
+﻿using Bit.TemplatePlayground.Server.Api.Models;
+using Bit.TemplatePlayground.Server.Api.Models.Categories;
+using Bit.TemplatePlayground.Shared.Dtos.Categories;
 
-namespace Bit.AdminPanel.Server.Api.Controllers;
+namespace Bit.TemplatePlayground.Server.Api.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]

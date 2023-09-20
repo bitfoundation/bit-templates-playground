@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Server.Api.Controllers;
+﻿namespace Bit.TemplatePlayground.Server.Api.Controllers;
 
 public partial class AppControllerBase : ControllerBase
 {

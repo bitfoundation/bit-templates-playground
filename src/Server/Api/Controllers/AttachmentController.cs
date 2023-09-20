@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Primitives;
 using MimeTypes;
-using Bit.AdminPanel.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using SystemFile = System.IO.File;
 using ImageMagick;
 
-namespace Bit.AdminPanel.Server.Api.Controllers;
+namespace Bit.TemplatePlayground.Server.Api.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]

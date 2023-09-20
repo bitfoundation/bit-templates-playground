@@ -1,5 +1,5 @@
-﻿using Bit.AdminPanel.Client.App;
-using Bit.AdminPanel.Client.App.Services;
+﻿using Bit.TemplatePlayground.Client.App;
+using Bit.TemplatePlayground.Client.App.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

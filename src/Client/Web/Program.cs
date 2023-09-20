@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.Web;
+﻿namespace Bit.TemplatePlayground.Client.Web;
 
 public partial class Program
 {

@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Dashboard;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 
-namespace Bit.AdminPanel.Client.Core.Pages.Home;
+namespace Bit.TemplatePlayground.Client.Core.Pages.Home;
 
 public partial class OverallStatsWidget
 {

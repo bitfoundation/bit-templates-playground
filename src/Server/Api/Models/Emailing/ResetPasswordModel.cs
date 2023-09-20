@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Server.Api.Resources;
+﻿using Bit.TemplatePlayground.Server.Api.Resources;
 
-namespace Bit.AdminPanel.Server.Api.Models.Emailing;
+namespace Bit.TemplatePlayground.Server.Api.Models.Emailing;
 
 public class ResetPasswordModel
 {

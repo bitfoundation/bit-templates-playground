@@ -121,7 +121,7 @@
     <value>Panneau d'administration</value>
   </data>
   <data name="ConfirmationEmailSubject" xml:space="preserve">
-    <value>Bit.AdminPanel - Confirmez votre adresse e-mail</value>
+    <value>Bit.TemplatePlayground - Confirmez votre adresse e-mail</value>
   </data>
   <data name="ConfirmEmail" xml:space="preserve">
     <value>Confirmez votre email</value>
@@ -130,11 +130,11 @@
     <value>Ou copiez le lien ci-dessous dans la barre d'adresse de votre navigateur :</value>
   </data>
   <data name="EmailConfirmationMessageBody" xml:space="preserve">
-    <value>Vous recevez ce message car vous vous êtes récemment inscrit pour un compte Bit.AdminPanel.
+    <value>Vous recevez ce message car vous vous êtes récemment inscrit pour un compte Bit.TemplatePlayground.
                      Confirmez votre adresse e-mail en cliquant sur le bouton ci-dessous.</value>
   </data>
   <data name="ResetPasswordEmailSubject" xml:space="preserve">
-    <value>Bit.AdminPanel - Réinitialisez votre mot de passe</value>
+    <value>Bit.TemplatePlayground - Réinitialisez votre mot de passe</value>
   </data>
   <data name="ResetPasswordHello" xml:space="preserve">
     <value>Bonjour {0}</value>

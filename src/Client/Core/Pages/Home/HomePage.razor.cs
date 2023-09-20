@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.Core.Pages.Home;
+﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Home;
 
 [Authorize]
 public partial class HomePage

@@ -1,6 +1,6 @@
 {
     "profiles": {
-        "Bit.AdminPanel.Server.Api-Swagger": {
+        "Bit.TemplatePlayground.Server.Api-Swagger": {
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,
@@ -11,7 +11,7 @@
             }
         },
         // This configuration allows debugging the Blazor Web Assembly
-        "Bit.AdminPanel.Server.Api-BlazorWebAssembly": {
+        "Bit.TemplatePlayground.Server.Api-BlazorWebAssembly": {
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,

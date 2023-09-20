@@ -5,7 +5,7 @@
     "cpus": 4
   },
   "waitFor": "onCreateCommand",
-  "onCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef && dotnet ef database update --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj && dotnet build src/Client/Web/Bit.AdminPanel.Client.Web.csproj",
+  "onCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef --version 7.0.11 && dotnet ef database update --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj && dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj",
   "customizations": {
     "codespaces": {
       "openFiles": [
@@ -45,5 +45,8 @@
     4031,
     5030,
     5031
-  ]
+  ], 
+  "remoteEnv": {
+    "ASPNETCORE_ENVIRONMENT": "Development"
+ }
 }

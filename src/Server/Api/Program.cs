@@ -6,12 +6,16 @@ if (OperatingSystem.IsWindows())
 {
     builder.WebHost.UseUrls("https://localhost:5031", "http://localhost:5030", "https://*:5031", "http://*:5030");
 }
+else
+{
+    builder.WebHost.UseUrls("https://localhost:5031", "http://localhost:5030");
+}
 #endif
 
-Bit.AdminPanel.Server.Api.Startup.Services.Add(builder.Services, builder.Environment, builder.Configuration);
+Bit.TemplatePlayground.Server.Api.Startup.Services.Add(builder.Services, builder.Environment, builder.Configuration);
 
 var app = builder.Build();
 
-Bit.AdminPanel.Server.Api.Startup.Middlewares.Use(app, builder.Environment, builder.Configuration);
+Bit.TemplatePlayground.Server.Api.Startup.Middlewares.Use(app, builder.Environment, builder.Configuration);
 
 app.Run();

@@ -1,6 +1,6 @@
 ﻿#if BlazorServer
 
-namespace Bit.AdminPanel.Client.Web.Startup;
+namespace Bit.TemplatePlayground.Client.Web.Startup;
 
 public class Middlewares
 {

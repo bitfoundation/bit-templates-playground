@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Shared.Dtos.Products;
+﻿namespace Bit.TemplatePlayground.Shared.Dtos.Products;
 
 [DtoResourceType(typeof(AppStrings))]
 public class ProductDto

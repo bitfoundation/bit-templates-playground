@@ -1,17 +1,17 @@
 ﻿using System.IO.Compression;
 using System.Net.Mail;
-using Bit.AdminPanel.Server.Api.Services.Implementations;
+using Bit.TemplatePlayground.Server.Api.Services.Implementations;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.DependencyInjection;
 #if BlazorWebAssembly
-using Bit.AdminPanel.Client.Web.Services.Implementations;
-using Bit.AdminPanel.Client.Core.Services.Implementations;
+using Bit.TemplatePlayground.Client.Web.Services.Implementations;
+using Bit.TemplatePlayground.Client.Core.Services.Implementations;
 using Microsoft.AspNetCore.Components;
 #endif
 
-namespace Bit.AdminPanel.Server.Api.Startup;
+namespace Bit.TemplatePlayground.Server.Api.Startup;
 
 public static class Services
 {

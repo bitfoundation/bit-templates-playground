@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Products;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Products;
 
-namespace Bit.AdminPanel.Client.Core.Pages.Products;
+namespace Bit.TemplatePlayground.Client.Core.Pages.Products;
 
 [Authorize]
 public partial class ProductsPage

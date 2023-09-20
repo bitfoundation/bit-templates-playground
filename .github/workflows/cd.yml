@@ -1,12 +1,12 @@
-name: Bit.AdminPanel CD
+name: Bit.TemplatePlayground CD
 
 # https://bitplatform.dev/templates/dev-ops
 
 env:
   WEB_APP_DEPLOYMENT_TYPE: 'Spa'
-  API_SERVER_ADDRESS: 'https://bit.adminpanel.bitplatform.dev/api/'
+  API_SERVER_ADDRESS: 'https://bit.templateplayground.bitplatform.dev/api/'
   APP_SERVICE_NAME: 'app-service-ad-test'
-  IOS_CODE_SIGN_PROVISION: 'Bit.AdminPanel'
+  IOS_CODE_SIGN_PROVISION: 'Bit.TemplatePlayground'
 
 on:
   workflow_dispatch:
@@ -37,23 +37,23 @@ jobs:
         node-version: 18
 
     - name: Switch to blazor web assembly
-      run:  sed -i 's/Microsoft.NET.Sdk.Web/Microsoft.NET.Sdk.BlazorWebAssembly/g' src/Client/Web/Bit.AdminPanel.Client.Web.csproj
+      run:  sed -i 's/Microsoft.NET.Sdk.Web/Microsoft.NET.Sdk.BlazorWebAssembly/g' src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj
 
     - name: Restore workloads
       run: >
         dotnet workload install wasm-experimental &&
-        dotnet workload restore src/Client/Web/Bit.AdminPanel.Client.Web.csproj -p:BlazorMode=BlazorWebAssembly -p:WebAppDeploymentType="${{ env.WEB_APP_DEPLOYMENT_TYPE }}"
+        dotnet workload restore src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj -p:BlazorMode=BlazorWebAssembly -p:WebAppDeploymentType="${{ env.WEB_APP_DEPLOYMENT_TYPE }}"
       
     - name: Build (To generate CSS/JS files)
-      run: dotnet build src/Server/Api/Bit.AdminPanel.Server.Api.csproj -p:BlazorMode=BlazorWebAssembly -p:WebAppDeploymentType="${{ env.WEB_APP_DEPLOYMENT_TYPE }}" -p:Configuration=Release
+      run: dotnet build src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj -p:BlazorMode=BlazorWebAssembly -p:WebAppDeploymentType="${{ env.WEB_APP_DEPLOYMENT_TYPE }}" -p:Configuration=Release
 
     - name: Publish
-      run: dotnet publish src/Server/Api/Bit.AdminPanel.Server.Api.csproj -p:BlazorMode=BlazorWebAssembly -p:WebAppDeploymentType="${{ env.WEB_APP_DEPLOYMENT_TYPE }}" -p:Configuration=Release --self-contained -r linux-x64 -o ${{env.DOTNET_ROOT}}/api-web
+      run: dotnet publish src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj -p:BlazorMode=BlazorWebAssembly -p:WebAppDeploymentType="${{ env.WEB_APP_DEPLOYMENT_TYPE }}" -p:Configuration=Release --self-contained -r linux-x64 -o ${{env.DOTNET_ROOT}}/api-web
 
     - name: Build migrations bundle
       run: |
-        dotnet tool install --global dotnet-ef --version 7.0.10
-        dotnet ef migrations bundle --self-contained -r linux-x64 --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj
+        dotnet tool install --global dotnet-ef --version 7.0.11
+        dotnet ef migrations bundle --self-contained -r linux-x64 --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj
 
     - name: Upload ef migrations bundle
       uses: actions/upload-artifact@v3
@@ -150,13 +150,13 @@ jobs:
       run: dotnet workload install maui
 
     - name: Restore workloads
-      run: dotnet workload restore src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-windows10.0.19041.0
+      run: dotnet workload restore src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-windows10.0.19041.0
   
     - name: Build (To generate CSS/JS files)
-      run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:WindowsPackageType=None -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:GenerateAppxPackageOnBuild=false -p:RuntimeIdentifier=win10-x86 -f net7.0-windows10.0.19041.0
+      run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:WindowsPackageType=None -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:GenerateAppxPackageOnBuild=false -p:RuntimeIdentifier=win10-x86 -f net7.0-windows10.0.19041.0
   
     - name: Build exe
-      run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:WindowsPackageType=None -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:GenerateAppxPackageOnBuild=false -p:RuntimeIdentifier=win10-x86 -f net7.0-windows10.0.19041.0
+      run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:WindowsPackageType=None -p:SelfContained=true -p:WindowsAppSDKSelfContained=true -p:GenerateAppxPackageOnBuild=false -p:RuntimeIdentifier=win10-x86 -f net7.0-windows10.0.19041.0
   
     - name: Upload artifact
       uses: actions/upload-artifact@v2
@@ -186,7 +186,7 @@ jobs:
       uses: timheuer/base64-to-file@v1
       with:
           fileDir: './src/Client/App/'
-          fileName: 'Bit.AdminPanel.keystore'
+          fileName: 'Bit.TemplatePlayground.keystore'
           encodedString: ${{ secrets.ANDROID_RELEASE_KEYSTORE_FILE_BASE64 }}
   
     - name: Update appsettings.json api server address
@@ -200,16 +200,16 @@ jobs:
       run: dotnet workload install maui
 
     - name: Restore workloads
-      run: dotnet workload restore src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-android
+      run: dotnet workload restore src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-android
   
     - name: Build (To generate CSS/JS files)
-      run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:RunAOTCompilation=false -f net7.0-android
+      run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:RunAOTCompilation=false -f net7.0-android
   
     - name: Build aab
-      run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:AndroidPackageFormat=aab -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="Bit.AdminPanel.keystore" -p:AndroidSigningKeyAlias=Bit.AdminPanel -p:AndroidSigningKeyPass="${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}" -p:AndroidSigningStorePass="${{ secrets.ANDROID_RELEASE_SIGNING_PASSWORD }}" -f net7.0-android
+      run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:AndroidPackageFormat=aab -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="Bit.TemplatePlayground.keystore" -p:AndroidSigningKeyAlias=Bit.TemplatePlayground -p:AndroidSigningKeyPass="${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}" -p:AndroidSigningStorePass="${{ secrets.ANDROID_RELEASE_SIGNING_PASSWORD }}" -f net7.0-android
   
     - name: Build apk
-      run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="Bit.AdminPanel.keystore" -p:AndroidSigningKeyAlias=Bit.AdminPanel -p:AndroidSigningKeyPass="${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}" -p:AndroidSigningStorePass="${{ secrets.ANDROID_RELEASE_SIGNING_PASSWORD }}" -f net7.0-android
+      run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:AndroidKeyStore=true -p:AndroidSigningKeyStore="Bit.TemplatePlayground.keystore" -p:AndroidSigningKeyAlias=Bit.TemplatePlayground -p:AndroidSigningKeyPass="${{ secrets.ANDROID_RELEASE_KEYSTORE_PASSWORD }}" -p:AndroidSigningStorePass="${{ secrets.ANDROID_RELEASE_SIGNING_PASSWORD }}" -f net7.0-android
   
     - name: Upload artifact
       uses: actions/upload-artifact@v2
@@ -246,13 +246,13 @@ jobs:
        run: dotnet workload install maui
 
      - name: Restore workloads
-       run: dotnet workload restore src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-maccatalyst
+       run: dotnet workload restore src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-maccatalyst
    
      - name: Build (To generate CSS/JS files)
-       run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -f net7.0-maccatalyst
+       run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -f net7.0-maccatalyst
    
      - name: Build pkg
-       run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:CreatePackage=true -f net7.0-maccatalyst
+       run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:CreatePackage=true -f net7.0-maccatalyst
    
      - name: Upload artifact
        uses: actions/upload-artifact@v2
@@ -289,7 +289,7 @@ jobs:
       run: dotnet workload install maui
 
     - name: Restore workloads
-      run: dotnet workload restore src/Client/App/Bit.AdminPanel.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-ios
+      run: dotnet workload restore src/Client/App/Bit.TemplatePlayground.Client.App.csproj -p:BlazorMode=BlazorHybrid -f net7.0-ios
   
     - name: Extract iOS code signing certificate from env
       uses: timheuer/base64-to-file@v1
@@ -307,16 +307,16 @@ jobs:
     - name: Download Apple Provisioning Profiles
       uses: Apple-Actions/download-provisioning-profiles@v1
       with:
-        bundle-id: 'com.bitplatform.Bit.AdminPanel.Template'
+        bundle-id: 'com.bitplatform.Bit.TemplatePlayground.Template'
         issuer-id: ${{ secrets.APPSTORE_API_KEY_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_API_KEY_PRIVATE_KEY }}
 
     - name: Build (To generate CSS/JS files)
-      run: dotnet build src/Client/App/Bit.AdminPanel.Client.App.csproj -m:1 -p:BlazorMode=BlazorHybrid -p:Configuration=Release -f net7.0-ios
+      run: dotnet build src/Client/App/Bit.TemplatePlayground.Client.App.csproj -m:1 -p:BlazorMode=BlazorHybrid -p:Configuration=Release -f net7.0-ios
   
     - name: Build ipa
-      run: dotnet publish src/Client/App/Bit.AdminPanel.Client.App.csproj -m:1 -p:RuntimeIdentifier=ios-arm64 -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:ArchiveOnBuild=true -p:CodesignKey="iPhone Distribution" -p:CodesignProvision="${{ env.IOS_CODE_SIGN_PROVISION }}" -p:ApplicationDisplayVersion="${{ vars.APPLICATION_DISPLAY_VERSION }}" -p:ApplicationVersion="${{ vars.APPLICATION_VERSION }}" -f net7.0-ios
+      run: dotnet publish src/Client/App/Bit.TemplatePlayground.Client.App.csproj -m:1 -p:RuntimeIdentifier=ios-arm64 -p:BlazorMode=BlazorHybrid -p:Configuration=Release -p:ArchiveOnBuild=true -p:CodesignKey="iPhone Distribution" -p:CodesignProvision="${{ env.IOS_CODE_SIGN_PROVISION }}" -p:ApplicationDisplayVersion="${{ vars.APPLICATION_DISPLAY_VERSION }}" -p:ApplicationVersion="${{ vars.APPLICATION_VERSION }}" -f net7.0-ios
 
     - name: Upload artifact
       uses: actions/upload-artifact@v2
@@ -358,10 +358,10 @@ jobs:
        run: awk '/<BlazorMode>/{sub(">.*</", ">BlazorElectron</")}1' src/Directory.Build.props > temp.xml && mv temp.xml src/Directory.Build.props
 
      - name: Restore workloads
-       run: dotnet workload restore src/Client/Web/Bit.AdminPanel.Client.Web.csproj
+       run: dotnet workload restore src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj
    
      - name: Build (To generate CSS/JS files)
-       run: dotnet build src/Client/Web/Bit.AdminPanel.Client.Web.csproj -p:Configuration=Release
+       run: dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj -p:Configuration=Release
    
      - name: Build app image
        run: cd src/Client/Web/ && dotnet electronize build /target linux

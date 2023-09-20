@@ -2,7 +2,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Components.Routing;
 
-namespace Bit.AdminPanel.Client.Core;
+namespace Bit.TemplatePlayground.Client.Core;
 
 public partial class App
 {

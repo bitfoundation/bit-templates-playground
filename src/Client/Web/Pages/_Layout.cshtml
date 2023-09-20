@@ -1,9 +1,9 @@
 ﻿@using Bit.BlazorUI
-@using Bit.AdminPanel.Shared.Infra
+@using Bit.TemplatePlayground.Shared.Infra
 @using Microsoft.AspNetCore.Components.Web
 @using RenderMode = Microsoft.AspNetCore.Mvc.Rendering.RenderMode
 
-@namespace Bit.AdminPanel.Client.Web.Pages
+@namespace Bit.TemplatePlayground.Client.Web.Pages
 @inject IHttpContextAccessor ContextAccessor
 @addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
 
@@ -49,7 +49,7 @@
     <meta charset="utf-8" />
     <meta name="theme-color">
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="The Bit.AdminPanel is built with ASP.NET Core, Identity, Web API, and EF Core for the server-side, and Blazor for the client-side. It allows you to build Android, iOS, Windows, Linux and Web applications from a single codebase." />
+    <meta name="description" content="The Bit.TemplatePlayground is built with ASP.NET Core, Identity, Web API, and EF Core for the server-side, and Blazor for the client-side. It allows you to build Android, iOS, Windows, Linux and Web applications from a single codebase." />
     <link rel="icon" href="~/favicon.ico" type="image/x-icon" asp-append-version=true>
     <component type="typeof(HeadOutlet)" render-mode="@renderMode" />
     <link rel="apple-touch-icon" sizes="512x512" href="images/icons/bit-icon-512.png" />
@@ -57,34 +57,18 @@
     {
         <link rel="manifest" href="manifest.json">
     }
-    @if (isElectron)
-    {
-        <style>
-            * {
-                -webkit-user-drag: none;
-                overscroll-behavior: none;
-            }
-
-                *:not(input) {
-                    -webkit-user-select: none;
-                    -moz-user-select: none;
-                    -ms-user-select: none;
-                    user-select: none;
-                }
-        </style>
-    }
 </head>
 <body class="@BitCss.Class.Color.Background.Primary @BitCss.Class.Color.Foreground.Primary">
     <div id="app-container">
         @if (isSpa || isPwa || noPrerender)
         {
-            <component type="typeof(Bit.AdminPanel.Client.Core.Shared.LoadingComponent)" param-Color="@("#000")" render-mode="@RenderMode.Static" />
+            <component type="typeof(Bit.TemplatePlayground.Client.Core.Shared.LoadingComponent)" param-Color="@("#000")" render-mode="@RenderMode.Static" />
         }
         <link rel="stylesheet" href="_content/Bit.BlazorUI/styles/bit.blazorui.css" asp-append-version=true />
         <link rel="stylesheet" href="_content/Bit.BlazorUI.Icons/styles/bit.blazorui.icons.css" asp-append-version=true />
         <link rel="stylesheet" href="_content/Bit.BlazorUI.Assets/styles/bit.blazorui.assets.css" asp-append-version=true />
-        <link rel="stylesheet" href="_content/Bit.AdminPanel.Client.Core/styles/app.css" asp-append-version=true />
-        <link rel="stylesheet" href="_content/Bit.AdminPanel.Client.Core/Bit.AdminPanel.Client.Core.bundle.scp.css" asp-append-version=true />
+        <link rel="stylesheet" href="_content/Bit.TemplatePlayground.Client.Core/styles/app.css" asp-append-version=true />
+        <link rel="stylesheet" href="_content/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.bundle.scp.css" asp-append-version=true />
         @RenderBody()
         <link rel="stylesheet" href="_content/Bit.BlazorUI.Extras/styles/bit.blazorui.extras.css" asp-append-version=true />
     </div>
@@ -140,7 +124,7 @@
         <script src="_content/Bit.BlazorUI.Extras/scripts/bit.blazorui.extras.js" asp-append-version=true></script>
     }
 
-    <script src="_content/Bit.AdminPanel.Client.Core/scripts/app.js" asp-append-version=true></script>
+    <script src="_content/Bit.TemplatePlayground.Client.Core/scripts/app.js" asp-append-version=true></script>
 
     @if ((isSpaPrerendered || isPwaPrerendered) && !noPrerender)
     {

@@ -1,7 +1,7 @@
 ﻿using System.Text;
 using System.Text.Json;
 
-namespace Bit.AdminPanel.Client.Core.Services.Implementations;
+namespace Bit.TemplatePlayground.Client.Core.Services.Implementations;
 
 public partial class AppAuthenticationStateProvider : AuthenticationStateProvider
 {

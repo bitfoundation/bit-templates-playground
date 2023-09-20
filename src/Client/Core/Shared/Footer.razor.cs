@@ -1,5 +1,5 @@
 ﻿
-namespace Bit.AdminPanel.Client.Core.Shared;
+namespace Bit.TemplatePlayground.Client.Core.Shared;
 
 public partial class Footer
 {
@@ -35,8 +35,8 @@ public partial class Footer
         NavigationManager.ForceReload();
     }
 
-    private static List<BitDropdownItem> GetCultures()
+    private static List<BitDropdownItem<string>> GetCultures()
     {
-        return CultureInfoManager.SupportedCultures.Select(sc => new BitDropdownItem { Value = sc.code, Text = sc.name }).ToList();
+        return CultureInfoManager.SupportedCultures.Select(sc => new BitDropdownItem<string> { Value = sc.code, Text = sc.name }).ToList();
     }
 }

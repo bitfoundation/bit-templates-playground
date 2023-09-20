@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Shared.Dtos.Identity;
+﻿namespace Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 [DtoResourceType(typeof(AppStrings))]
 public class EditUserDto

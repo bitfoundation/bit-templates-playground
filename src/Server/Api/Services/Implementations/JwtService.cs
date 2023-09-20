@@ -2,10 +2,10 @@
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.IdentityModel.Tokens;
-using Bit.AdminPanel.Server.Api.Models.Identity;
-using Bit.AdminPanel.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
-namespace Bit.AdminPanel.Server.Api.Services.Implementations;
+namespace Bit.TemplatePlayground.Server.Api.Services.Implementations;
 
 public partial class JwtService : IJwtService
 {

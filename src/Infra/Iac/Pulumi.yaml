@@ -1,3 +1,3 @@
-﻿name: Bit.AdminPanel.Iac
+﻿name: Bit.TemplatePlayground.Iac
 runtime: dotnet
-description: Bit.AdminPanel infrastructure as a code
+description: Bit.TemplatePlayground infrastructure as a code

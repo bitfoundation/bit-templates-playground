@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Products;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Products;
 
-namespace Bit.AdminPanel.Server.Api.Models.Categories;
+namespace Bit.TemplatePlayground.Server.Api.Models.Categories;
 
 public class Category
 {

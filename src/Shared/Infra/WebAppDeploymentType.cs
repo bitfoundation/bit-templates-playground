@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Shared.Infra;
+﻿namespace Bit.TemplatePlayground.Shared.Infra;
 
 public enum WebAppDeploymentType
 {

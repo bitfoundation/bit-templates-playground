@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.App.Services;
+﻿namespace Bit.TemplatePlayground.Client.App.Services;
 
 /// <summary>
 /// More info at <see cref="IBitDeviceCoordinator"/>

@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.Core.Services.Contracts;
+﻿namespace Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 /// <summary>
 /// Contract for Publish/Subscribe pattern.

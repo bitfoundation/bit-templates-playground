@@ -1,7 +1,7 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Products;
-using Bit.AdminPanel.Shared.Dtos.Products;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Products;
+using Bit.TemplatePlayground.Shared.Dtos.Products;
 
-namespace Bit.AdminPanel.Server.Api.Controllers;
+namespace Bit.TemplatePlayground.Server.Api.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]

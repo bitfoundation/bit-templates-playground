@@ -4,7 +4,7 @@
         <type fullname="*" />
     </assembly>
 
-    <assembly fullname="Bit.AdminPanel.Client.Core">
+    <assembly fullname="Bit.TemplatePlayground.Client.Core">
         <type fullname="*" />
     </assembly>
 
@@ -12,11 +12,11 @@
         <type fullname="*" />
     </assembly>
 
-    <assembly fullname="Bit.AdminPanel.Client.App">
+    <assembly fullname="Bit.TemplatePlayground.Client.App">
         <type fullname="*" />
     </assembly>
 
-    <assembly fullname="Bit.AdminPanel.Shared">
+    <assembly fullname="Bit.TemplatePlayground.Shared">
         <type fullname="*" />
     </assembly>
 

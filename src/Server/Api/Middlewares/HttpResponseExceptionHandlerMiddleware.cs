@@ -1,7 +1,7 @@
 ﻿using System.Net;
 using System.Reflection;
 
-namespace Bit.AdminPanel.Server.Api.Middlewares;
+namespace Bit.TemplatePlayground.Server.Api.Middlewares;
 
 public class HttpResponseExceptionHandlerMiddleware
 {

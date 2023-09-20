@@ -1,4 +1,4 @@
-﻿using Bit.AdminPanel.Server.Api.Middlewares;
+﻿using Bit.TemplatePlayground.Server.Api.Middlewares;
 
 namespace Microsoft.AspNetCore.Builder;
 

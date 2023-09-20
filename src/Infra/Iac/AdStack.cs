@@ -18,7 +18,7 @@ using VaultSkuArgs = Pulumi.AzureNative.KeyVault.Inputs.SkuArgs;
 using VaultSkuName = Pulumi.AzureNative.KeyVault.SkuName;
 using WebAppManagedServiceIdentityArgs = Pulumi.AzureNative.Web.Inputs.ManagedServiceIdentityArgs;
 
-namespace Bit.AdminPanel.Iac;
+namespace Bit.TemplatePlayground.Iac;
 
 public class AdStack : Stack
 {
@@ -131,7 +131,7 @@ public class AdStack : Stack
                 NetFrameworkVersion = "v7.0",
                 FtpsState = FtpsState.Disabled,
                 LinuxFxVersion = "DOTNETCORE|7.0",
-                AppCommandLine = "dotnet Bit.AdminPanel.Server.Api.dll",
+                AppCommandLine = "dotnet Bit.TemplatePlayground.Server.Api.dll",
                 AppSettings = new()
                 {
                     new NameValuePairArgs { Name = "ApplicationInsights__InstrumentationKey", Value = appInsights.InstrumentationKey },
@@ -268,7 +268,7 @@ public class AdStack : Stack
                 Value = Output.Tuple(sqlServer.Name, sqlDatabase.Name, sqlDatabaseDbAdminPassword).Apply(t =>
                 {
                     (string _sqlServer, string _sqlDatabase, string _sqlDatabasePassword) = t;
-                    return $"Data Source=tcp:{_sqlServer}.database.windows.net;Initial Catalog={_sqlDatabase};User ID={sqlDatabaseDbAdminId};Password={_sqlDatabasePassword};Application Name=Bit.AdminPanel;Encrypt=True;";
+                    return $"Data Source=tcp:{_sqlServer}.database.windows.net;Initial Catalog={_sqlDatabase};User ID={sqlDatabaseDbAdminId};Password={_sqlDatabasePassword};Application Name=Bit.TemplatePlayground;Encrypt=True;";
                 })
             }
         });

@@ -1,15 +1,15 @@
 {
-  "executable": "Bit.AdminPanel.Client.Web",
+  "executable": "Bit.TemplatePlayground.Client.Web",
   "splashscreen": {
     "imageFile": ""
   },
-  "name": "Bit.AdminPanel",
+  "name": "Bit.TemplatePlayground",
   "author": "",
   "singleInstance": true,
   "environment": "Production",
   "build": {
-    "appId": "com.Bit.AdminPanel.Client.Web.app",
-    "productName": "Bit.AdminPanel.Client.Web",
+    "appId": "com.Bit.TemplatePlayground.Client.Web.app",
+    "productName": "Bit.TemplatePlayground.Client.Web",
     "copyright": "Copyright © 2023",
     "buildVersion": "1.0.0",
     "compression": "maximum",

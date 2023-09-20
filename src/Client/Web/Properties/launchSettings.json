@@ -1,6 +1,6 @@
 {
     "profiles": {
-        "Bit.AdminPanel.Client.Web": {
+        "Bit.TemplatePlayground.Client.Web": {
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,
@@ -9,7 +9,7 @@
             },
             "applicationUrl": "https://localhost:4031;http://localhost:4030"
         },
-        "Bit.AdminPanel.Client.Web.Electron": {
+        "Bit.TemplatePlayground.Client.Web.Electron": {
             "commandName": "Executable",
             "executablePath": "dotnet",
             "commandLineArgs": "electronize start",

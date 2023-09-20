@@ -1,6 +1,6 @@
 ﻿[assembly: XamlCompilation(XamlCompilationOptions.Compile)]
 
-namespace Bit.AdminPanel.Client.App;
+namespace Bit.TemplatePlayground.Client.App;
 
 public partial class App
 {

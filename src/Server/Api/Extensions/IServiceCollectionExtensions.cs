@@ -5,9 +5,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using Bit.AdminPanel.Server.Api;
-using Bit.AdminPanel.Server.Api.Models.Identity;
-using Bit.AdminPanel.Server.Api.Services.Implementations;
+using Bit.TemplatePlayground.Server.Api;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Server.Api.Services.Implementations;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -108,8 +108,8 @@ public static class IServiceCollectionExtensions
     {
         services.AddSwaggerGen(options =>
         {
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.AdminPanel.Server.Api.xml"));
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.AdminPanel.Shared.xml"));
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Server.Api.xml"));
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Shared.xml"));
 
             options.OperationFilter<ODataOperationFilter>();
 
@@ -153,7 +153,7 @@ public static class IServiceCollectionExtensions
 
         services.AddHealthChecksUI(setupSettings: setup =>
         {
-            setup.AddHealthCheckEndpoint("Bit.AdminPanelHealthChecks", env.IsDevelopment() ? "https://localhost:5031/healthz" : "/healthz");
+            setup.AddHealthCheckEndpoint("Bit.TemplatePlaygroundHealthChecks", env.IsDevelopment() ? "https://localhost:5031/healthz" : "/healthz");
         }).AddInMemoryStorage();
 
         var healthChecksBuilder = services.AddHealthChecks()

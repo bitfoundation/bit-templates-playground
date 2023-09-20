@@ -86,18 +86,18 @@ pulumi config set azure-native:tenantId
 pulumi config set azure-native:subscriptionId
 
 # Provide SQL server's admin user/pass
-pulumi config set Bit.AdminPanel.Iac:sql-server-ad-db-admin-id
-pulumi config set Bit.AdminPanel.Iac:sql-server-ad-db-admin-password --secret
+pulumi config set Bit.TemplatePlayground.Iac:sql-server-ad-db-admin-id
+pulumi config set Bit.TemplatePlayground.Iac:sql-server-ad-db-admin-password --secret
 
 # Provide SMTP server's host, port, user, pass and default email sender.
-pulumi config set Bit.AdminPanel.Iac:default-email-from
-pulumi config set Bit.AdminPanel.Iac:email-server-host
-pulumi config set Bit.AdminPanel.Iac:email-server-port
-pulumi config set Bit.AdminPanel.Iac:email-server-userName
-pulumi config set Bit.AdminPanel.Iac:email-server-password --secret
+pulumi config set Bit.TemplatePlayground.Iac:default-email-from
+pulumi config set Bit.TemplatePlayground.Iac:email-server-host
+pulumi config set Bit.TemplatePlayground.Iac:email-server-port
+pulumi config set Bit.TemplatePlayground.Iac:email-server-userName
+pulumi config set Bit.TemplatePlayground.Iac:email-server-password --secret
 
 # Create and provide an identity certificate password
-pulumi config set Bit.AdminPanel.Iac:identity-certificate-password --secret
+pulumi config set Bit.TemplatePlayground.Iac:identity-certificate-password --secret
 ```
 
 9- Create azure resources using:

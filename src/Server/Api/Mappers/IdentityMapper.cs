@@ -1,8 +1,8 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Identity;
-using Bit.AdminPanel.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Riok.Mapperly.Abstractions;
 
-namespace Bit.AdminPanel.Server.Api.Mappers;
+namespace Bit.TemplatePlayground.Server.Api.Mappers;
 
 /// <summary>
 /// More info at Server/Api/Mappers/README.md

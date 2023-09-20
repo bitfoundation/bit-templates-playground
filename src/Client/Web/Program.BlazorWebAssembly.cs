@@ -1,10 +1,10 @@
-﻿using Bit.AdminPanel.Client.Core.Shared;
+﻿using Bit.TemplatePlayground.Client.Core.Shared;
 #if BlazorWebAssembly
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Services;
 #endif
 
-namespace Bit.AdminPanel.Client.Web;
+namespace Bit.TemplatePlayground.Client.Web;
 
 public partial class Program
 {
@@ -13,7 +13,7 @@ public partial class Program
     {
         var builder = WebAssemblyHostBuilder.CreateDefault();
 
-        builder.Configuration.AddJsonStream(typeof(MainLayout).Assembly.GetManifestResourceStream("Bit.AdminPanel.Client.Core.appsettings.json")!);
+        builder.Configuration.AddJsonStream(typeof(MainLayout).Assembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.json")!);
 
         var apiServerAddressConfig = builder.Configuration.GetApiServerAddress();
 
