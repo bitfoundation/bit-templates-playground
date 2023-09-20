@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Shared.Attributes;
+﻿namespace Bit.TemplatePlayground.Shared.Attributes;
 
 /// <summary>
 /// Gets or sets the resource type to use for error message and localizations lookups.

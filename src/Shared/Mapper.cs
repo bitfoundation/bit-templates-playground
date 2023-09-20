@@ -1,9 +1,9 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Categories;
-using Bit.AdminPanel.Shared.Dtos.Identity;
-using Bit.AdminPanel.Shared.Dtos.Products;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Riok.Mapperly.Abstractions;
 
-namespace Bit.AdminPanel.Shared;
+namespace Bit.TemplatePlayground.Shared;
 
 /// <summary>
 /// Patching methods help you patch the DTO you have received from the server (for example, after calling an Update api) 

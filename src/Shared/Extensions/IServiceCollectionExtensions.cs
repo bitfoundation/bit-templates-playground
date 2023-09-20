@@ -1,4 +1,4 @@
-﻿using Bit.AdminPanel.Shared.Services.Implementations;
+﻿using Bit.TemplatePlayground.Shared.Services.Implementations;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

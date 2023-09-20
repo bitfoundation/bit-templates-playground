@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Server.Api.Models.Identity;
+﻿namespace Bit.TemplatePlayground.Server.Api.Models.Identity;
 
 public class Role : IdentityRole<int>
 {

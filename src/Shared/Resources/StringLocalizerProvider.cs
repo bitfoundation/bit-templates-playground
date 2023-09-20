@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
 
-namespace Bit.AdminPanel.Shared.Resources;
+namespace Bit.TemplatePlayground.Shared.Resources;
 public static class StringLocalizerProvider
 {
     public static IStringLocalizer ProvideLocalizer(Type dtoType, IStringLocalizerFactory factory)

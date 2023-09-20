@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bit.AdminPanel.Server.Api.Resources {
+namespace Bit.TemplatePlayground.Server.Api.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Bit.AdminPanel.Server.Api.Resources {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bit.AdminPanel.Server.Api.Resources.EmailStrings", typeof(EmailStrings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bit.TemplatePlayground.Server.Api.Resources.EmailStrings", typeof(EmailStrings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,7 +61,7 @@ namespace Bit.AdminPanel.Server.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Bit.AdminPanel.
+        ///   Looks up a localized string similar to Bit.TemplatePlayground.
         /// </summary>
         public static string AppName {
             get {
@@ -70,7 +70,7 @@ namespace Bit.AdminPanel.Server.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Bit.AdminPanel - Confirm your email address.
+        ///   Looks up a localized string similar to Bit.TemplatePlayground - Confirm your email address.
         /// </summary>
         public static string ConfirmationEmailSubject {
             get {
@@ -97,7 +97,7 @@ namespace Bit.AdminPanel.Server.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You&apos;re receiving this message because recently you have signed up for a Bit.AdminPanel account.
+        ///   Looks up a localized string similar to You&apos;re receiving this message because recently you have signed up for a Bit.TemplatePlayground account.
         ///                    Confirm your email address by clicking the button below..
         /// </summary>
         public static string EmailConfirmationMessageBody {
@@ -107,7 +107,7 @@ namespace Bit.AdminPanel.Server.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Bit.AdminPanel - Reset your password.
+        ///   Looks up a localized string similar to Bit.TemplatePlayground - Reset your password.
         /// </summary>
         public static string ResetPasswordEmailSubject {
             get {
@@ -152,7 +152,7 @@ namespace Bit.AdminPanel.Server.Api.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Welcome to Bit.AdminPanel!.
+        ///   Looks up a localized string similar to Welcome to Bit.TemplatePlayground!.
         /// </summary>
         public static string WelcomeToApp {
             get {

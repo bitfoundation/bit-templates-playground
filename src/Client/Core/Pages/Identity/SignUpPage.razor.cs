@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
-namespace Bit.AdminPanel.Client.Core.Pages.Identity;
+namespace Bit.TemplatePlayground.Client.Core.Pages.Identity;
 
 public partial class SignUpPage
 {

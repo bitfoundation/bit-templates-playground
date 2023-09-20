@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Categories;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Categories;
 
-namespace Bit.AdminPanel.Server.Api.Data.Configurations.Identity;
+namespace Bit.TemplatePlayground.Server.Api.Data.Configurations.Identity;
 
 public class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {

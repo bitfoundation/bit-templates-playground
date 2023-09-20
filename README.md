@@ -12,11 +12,11 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 2- Open new terminal in vscode and run:
 
-`dotnet watch --project src/Server/Api/Bit.AdminPanel.Server.Api.csproj`
+`dotnet watch --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj`
 
 3- Open another terminal in vscode and run:
 
-`dotnet watch --project src/Client/Web/Bit.AdminPanel.Client.Web.csproj`
+`dotnet watch --project src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj`
 
 4- Sign in using `test@bitplatform.dev` and `123456` and explorer admin panel features!
 

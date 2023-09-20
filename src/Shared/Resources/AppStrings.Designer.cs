@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Bit.AdminPanel.Shared.Resources {
+namespace Bit.TemplatePlayground.Shared.Resources {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace Bit.AdminPanel.Shared.Resources {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bit.AdminPanel.Shared.Resources.AppStrings", typeof(AppStrings).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Bit.TemplatePlayground.Shared.Resources.AppStrings", typeof(AppStrings).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

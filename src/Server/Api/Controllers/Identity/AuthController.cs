@@ -1,11 +1,11 @@
 ﻿using System.Web;
 using FluentEmail.Core;
-using Bit.AdminPanel.Server.Api.Resources;
-using Bit.AdminPanel.Server.Api.Models.Identity;
-using Bit.AdminPanel.Shared.Dtos.Identity;
-using Bit.AdminPanel.Server.Api.Models.Emailing;
+using Bit.TemplatePlayground.Server.Api.Resources;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.Emailing;
 
-namespace Bit.AdminPanel.Server.Api.Controllers;
+namespace Bit.TemplatePlayground.Server.Api.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController, AllowAnonymous]
@@ -89,7 +89,7 @@ public partial class AuthController : AppControllerBase
         var result = await _fluentEmail
             .To(user.Email, user.DisplayName)
             .Subject(_emailLocalizer[EmailStrings.ConfirmationEmailSubject])
-            .UsingTemplateFromEmbedded("Bit.AdminPanel.Server.Api.Resources.EmailConfirmation.cshtml",
+            .UsingTemplateFromEmbedded("Bit.TemplatePlayground.Server.Api.Resources.EmailConfirmation.cshtml",
                 new EmailConfirmationModel
                 {
                     ConfirmationLink = confirmationLink,
@@ -135,7 +135,7 @@ public partial class AuthController : AppControllerBase
         var result = await _fluentEmail
             .To(user.Email, user.DisplayName)
             .Subject(_emailLocalizer[EmailStrings.ResetPasswordEmailSubject])
-            .UsingTemplateFromEmbedded("Bit.AdminPanel.Server.Api.Resources.ResetPassword.cshtml",
+            .UsingTemplateFromEmbedded("Bit.TemplatePlayground.Server.Api.Resources.ResetPassword.cshtml",
                                     new ResetPasswordModel
                                     {
                                         DisplayName = user.DisplayName,

@@ -4,7 +4,7 @@ using Android.Runtime;
 [assembly: UsesPermission(Android.Manifest.Permission.Internet)]
 [assembly: UsesPermission(Android.Manifest.Permission.AccessNetworkState)]
 
-namespace Bit.AdminPanel.Client.App.Platforms.Android;
+namespace Bit.TemplatePlayground.Client.App.Platforms.Android;
 
 [Application(
 #if DEBUG

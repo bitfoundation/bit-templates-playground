@@ -1,5 +1,5 @@
 ﻿using Pulumi;
-using Bit.AdminPanel.Iac;
+using Bit.TemplatePlayground.Iac;
 
 public class Program
 {

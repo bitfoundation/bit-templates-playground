@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Server.Api;
+﻿namespace Bit.TemplatePlayground.Server.Api;
 
 public class AppSettings
 {

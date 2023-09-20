@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Shared.Services.Contracts;
+﻿namespace Bit.TemplatePlayground.Shared.Services.Contracts;
 
 public interface IAuthTokenProvider
 {

@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using Bit.AdminPanel.Server.Api.Models.Categories;
+using Bit.TemplatePlayground.Server.Api.Models.Categories;
 
-namespace Bit.AdminPanel.Server.Api.Models.Products;
+namespace Bit.TemplatePlayground.Server.Api.Models.Products;
 
 public class Product
 {

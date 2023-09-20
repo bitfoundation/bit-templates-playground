@@ -1,9 +1,9 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Identity;
-using Bit.AdminPanel.Server.Api.Models.Categories;
-using Bit.AdminPanel.Server.Api.Models.Products;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.Categories;
+using Bit.TemplatePlayground.Server.Api.Models.Products;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace Bit.AdminPanel.Server.Api.Data;
+namespace Bit.TemplatePlayground.Server.Api.Data;
 
 public class AppDbContext : IdentityDbContext<User, Role, int>
 {

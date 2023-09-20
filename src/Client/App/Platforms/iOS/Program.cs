@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace Bit.AdminPanel.Client.App.Platforms.iOS;
+namespace Bit.TemplatePlayground.Client.App.Platforms.iOS;
 
 public class Program
 {

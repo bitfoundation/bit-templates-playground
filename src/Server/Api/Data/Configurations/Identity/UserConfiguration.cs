@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Identity;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
 
-namespace Bit.AdminPanel.Server.Api.Data.Configurations.Identity;
+namespace Bit.TemplatePlayground.Server.Api.Data.Configurations.Identity;
 
 public class UserConfiguration : IEntityTypeConfiguration<User>
 {
@@ -14,7 +14,7 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             EmailConfirmed = true,
             Gender = Gender.Other,
             BirthDate = new DateTime(2023, 1, 1),
-            FullName = "Bit.AdminPanel test account",
+            FullName = "Bit.TemplatePlayground test account",
             UserName = userName,
             Email = userName,
             NormalizedUserName = userName.ToUpperInvariant(),

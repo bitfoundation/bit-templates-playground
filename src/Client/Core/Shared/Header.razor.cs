@@ -1,7 +1,7 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Microsoft.AspNetCore.Components.Routing;
 
-namespace Bit.AdminPanel.Client.Core.Shared;
+namespace Bit.TemplatePlayground.Client.Core.Shared;
 
 public partial class Header : IDisposable
 {

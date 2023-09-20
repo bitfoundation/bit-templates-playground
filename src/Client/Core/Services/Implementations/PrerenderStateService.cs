@@ -1,5 +1,5 @@
 ﻿
-namespace Bit.AdminPanel.Client.Core.Services.Implementations;
+namespace Bit.TemplatePlayground.Client.Core.Services.Implementations;
 
 /// <summary>
 /// For more information <see cref="IPrerenderStateService"/> docs.

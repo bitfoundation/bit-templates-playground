@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.Core.Pages.Identity;
+﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Identity;
 
 public partial class EmailConfirmationPage
 {

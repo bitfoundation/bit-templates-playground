@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Server.Api.Services.Implementations;
+﻿namespace Bit.TemplatePlayground.Server.Api.Services.Implementations;
 
 public partial class UserInformationProvider : IUserInformationProvider
 {

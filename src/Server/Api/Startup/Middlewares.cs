@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.Net.Http.Headers;
 
-namespace Bit.AdminPanel.Server.Api.Startup;
+namespace Bit.TemplatePlayground.Server.Api.Startup;
 
 public class Middlewares
 {

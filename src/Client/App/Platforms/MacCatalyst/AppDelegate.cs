@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace Bit.AdminPanel.Client.App.Platforms.MacCatalyst;
+namespace Bit.TemplatePlayground.Client.App.Platforms.MacCatalyst;
 
 [Register(nameof(AppDelegate))]
 public class AppDelegate : MauiUIApplicationDelegate

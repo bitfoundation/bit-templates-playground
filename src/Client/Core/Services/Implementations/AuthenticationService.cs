@@ -1,6 +1,6 @@
-﻿using Bit.AdminPanel.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
-namespace Bit.AdminPanel.Client.Core.Services.Implementations;
+namespace Bit.TemplatePlayground.Client.Core.Services.Implementations;
 
 public partial class AuthenticationService : IAuthenticationService
 {

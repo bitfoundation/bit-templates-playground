@@ -1,9 +1,9 @@
 ﻿#if BlazorServer
 using System.IO.Compression;
 using Microsoft.AspNetCore.ResponseCompression;
-using Bit.AdminPanel.Client.Web.Services.Implementations;
+using Bit.TemplatePlayground.Client.Web.Services.Implementations;
 
-namespace Bit.AdminPanel.Client.Web.Startup;
+namespace Bit.TemplatePlayground.Client.Web.Startup;
 
 public static class Services
 {

@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace Bit.AdminPanel.Client.Core.Shared;
+namespace Bit.TemplatePlayground.Client.Core.Shared;
 
 /// <summary>
 /// This component is used during prerendering to determine the value of the StatusCode parameter for the returned HTTP response.

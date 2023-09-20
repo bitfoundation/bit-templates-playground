@@ -1,7 +1,7 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Identity;
-using Bit.AdminPanel.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
-namespace Bit.AdminPanel.Server.Api.Controllers.Identity;
+namespace Bit.TemplatePlayground.Server.Api.Controllers.Identity;
 
 [Route("api/[controller]/[action]")]
 [ApiController]

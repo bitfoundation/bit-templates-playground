@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.Core.Services.Contracts;
+﻿namespace Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 /// <summary>
 /// This service simplifies the process of persisting application state in Pre-Rendering mode

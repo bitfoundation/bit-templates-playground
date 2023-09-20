@@ -2,7 +2,7 @@
 using Microsoft.Maui;
 using Microsoft.Maui.Hosting;
 
-namespace Bit.AdminPanel.Client.App;
+namespace Bit.TemplatePlayground.Client.App;
 
 class Program : MauiApplication
 {

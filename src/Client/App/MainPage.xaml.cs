@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.App;
+﻿namespace Bit.TemplatePlayground.Client.App;
 
 public partial class MainPage
 {

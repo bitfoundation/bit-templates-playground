@@ -1,7 +1,7 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Identity;
-using Bit.AdminPanel.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
-namespace Bit.AdminPanel.Server.Api.Services.Contracts;
+namespace Bit.TemplatePlayground.Server.Api.Services.Contracts;
 
 public interface IJwtService
 {

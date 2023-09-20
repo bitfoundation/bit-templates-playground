@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Server.Api.Services.Contracts;
+﻿namespace Bit.TemplatePlayground.Server.Api.Services.Contracts;
 
 public interface IUserInformationProvider
 {

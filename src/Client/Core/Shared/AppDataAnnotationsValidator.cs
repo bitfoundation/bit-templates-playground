@@ -1,10 +1,10 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 using Microsoft.AspNetCore.Components.Forms;
-using Bit.AdminPanel.Shared.Attributes;
-using Bit.AdminPanel.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Attributes;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
-namespace Bit.AdminPanel.Client.Core.Shared;
+namespace Bit.TemplatePlayground.Client.Core.Shared;
 
 /// <summary>
 /// To implement forms where each error is displayed according to the language chosen by the user, you can use the <see cref="DtoResourceTypeAttribute"/>

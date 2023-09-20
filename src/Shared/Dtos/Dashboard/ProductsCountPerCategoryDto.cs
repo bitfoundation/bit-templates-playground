@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Shared.Dtos.Dashboard;
+﻿namespace Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 
 public class ProductsCountPerCategoryDto
 {

@@ -2,7 +2,7 @@
 using System.Reflection;
 #endif
 
-namespace Bit.AdminPanel.Client.Web.Services.Implementations;
+namespace Bit.TemplatePlayground.Client.Web.Services.Implementations;
 
 /// <summary>
 /// The <see cref="ClientSideAuthTokenProvider"/> reads the token from the cookie,

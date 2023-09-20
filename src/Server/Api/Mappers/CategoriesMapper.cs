@@ -1,8 +1,8 @@
-﻿using Bit.AdminPanel.Server.Api.Models.Categories;
-using Bit.AdminPanel.Shared.Dtos.Categories;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Categories;
+using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Riok.Mapperly.Abstractions;
 
-namespace Bit.AdminPanel.Server.Api.Mappers;
+namespace Bit.TemplatePlayground.Server.Api.Mappers;
 
 /// <summary>
 /// More info at Server/Api/Mappers/README.md

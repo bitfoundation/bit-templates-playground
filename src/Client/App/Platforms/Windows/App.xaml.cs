@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.App.Platforms.Windows;
+﻿namespace Bit.TemplatePlayground.Client.App.Platforms.Windows;
 
 public partial class App
 {

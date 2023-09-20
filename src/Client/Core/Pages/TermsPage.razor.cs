@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Client.Core.Pages;
+﻿namespace Bit.TemplatePlayground.Client.Core.Pages;
 
 public partial class TermsPage
 {

@@ -221,7 +221,7 @@ ModelManifest.xml
 
 profile.arm.json
 
-# Bit.AdminPanel
+# Bit.TemplatePlayground
 *.map
 *Resource.designer.cs
 /**/*.css
@@ -231,4 +231,4 @@ custom.aprof
 
 /src/Client/Core/wwwroot/scripts/app*.js
 
-/src/Server/Api/Bit.AdminPanelDb.db*
+/src/Server/Api/Bit.TemplatePlaygroundDb.db*

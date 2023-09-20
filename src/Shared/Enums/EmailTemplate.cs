@@ -1,4 +1,4 @@
-﻿namespace Bit.AdminPanel.Shared.Enums;
+﻿namespace Bit.TemplatePlayground.Shared.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter<EmailTemplate>))]
 public enum EmailTemplate

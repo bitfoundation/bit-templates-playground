@@ -1,8 +1,8 @@
 ﻿<Application
-    x:Class="Bit.AdminPanel.Client.App.App"
+    x:Class="Bit.TemplatePlayground.Client.App.App"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:app="clr-namespace:Bit.AdminPanel.Client.App"
+    xmlns:app="clr-namespace:Bit.TemplatePlayground.Client.App"
     xmlns:ios="clr-namespace:Microsoft.Maui.Controls.PlatformConfiguration.iOSSpecific;assembly=Microsoft.Maui.Controls">
     <Application.Resources>
         <ResourceDictionary>

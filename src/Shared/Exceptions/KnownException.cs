@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace Bit.AdminPanel.Shared.Exceptions;
+namespace Bit.TemplatePlayground.Shared.Exceptions;
 
 [Serializable]
 public abstract class KnownException : ApplicationException

@@ -8,10 +8,10 @@ if (OperatingSystem.IsWindows())
 }
 #endif
 
-Bit.AdminPanel.Server.Api.Startup.Services.Add(builder.Services, builder.Environment, builder.Configuration);
+Bit.TemplatePlayground.Server.Api.Startup.Services.Add(builder.Services, builder.Environment, builder.Configuration);
 
 var app = builder.Build();
 
-Bit.AdminPanel.Server.Api.Startup.Middlewares.Use(app, builder.Environment, builder.Configuration);
+Bit.TemplatePlayground.Server.Api.Startup.Middlewares.Use(app, builder.Environment, builder.Configuration);
 
 app.Run();

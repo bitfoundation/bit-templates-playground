@@ -1,9 +1,9 @@
 ﻿
 using System.Reflection;
-using Bit.AdminPanel.Client.Core.Shared;
+using Bit.TemplatePlayground.Client.Core.Shared;
 using Microsoft.Extensions.FileProviders;
 
-namespace Bit.AdminPanel.Client.App;
+namespace Bit.TemplatePlayground.Client.App;
 
 public static class MauiProgram
 {

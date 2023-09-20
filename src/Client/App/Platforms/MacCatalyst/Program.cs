@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace Bit.AdminPanel.Client.App.Platforms.MacCatalyst;
+namespace Bit.TemplatePlayground.Client.App.Platforms.MacCatalyst;
 
 public class Program
 {

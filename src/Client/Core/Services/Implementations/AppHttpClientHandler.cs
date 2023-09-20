@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 using System.Globalization;
 #endif
 
-namespace Bit.AdminPanel.Client.Core.Services.Implementations;
+namespace Bit.TemplatePlayground.Client.Core.Services.Implementations;
 
 public partial class AppHttpClientHandler : HttpClientHandler
 {
