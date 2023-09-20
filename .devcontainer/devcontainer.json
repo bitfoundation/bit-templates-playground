@@ -45,5 +45,8 @@
     4031,
     5030,
     5031
-  ]
+  ], 
+  "remoteEnv": {
+    "ASPNETCORE_ENVIRONMENT": "Development"
+ }
 }
