@@ -16,7 +16,7 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.bitplatform.Bit.TemplatePlayground.Template</ApplicationId>
-        <ApplicationIdGuid>73E4BE29-BCCC-4018-B9DE-231918FD09B4</ApplicationIdGuid>
+        <ApplicationIdGuid>C213DBF0-CB2E-48FD-A195-69556F481A83</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -87,14 +87,14 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
-        <PackageReference Include="Bit.BlazorUI" Version="5.6.0" />
-        <PackageReference Include="Bit.BlazorUI.Icons" Version="5.6.0" />
-        <PackageReference Include="Bit.BlazorUI.Assets" Version="5.6.0" />
-        <PackageReference Include="Bit.CodeAnalyzers" Version="5.6.0">
+        <PackageReference Include="Bit.BlazorUI" Version="5.6.1" />
+        <PackageReference Include="Bit.BlazorUI.Icons" Version="5.6.1" />
+        <PackageReference Include="Bit.BlazorUI.Assets" Version="5.6.1" />
+        <PackageReference Include="Bit.CodeAnalyzers" Version="5.6.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="5.6.0">
+        <PackageReference Include="Bit.SourceGenerators" Version="5.6.1">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

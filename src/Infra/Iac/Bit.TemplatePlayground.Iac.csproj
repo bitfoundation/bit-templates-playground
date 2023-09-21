@@ -12,7 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\..\Shared\Bit.TemplatePlayground.Shared.csproj" />
+        <ProjectReference Include="..\..\Shared\Bit.TemplatePlayground.Shared.csproj" />
     </ItemGroup>
 
 </Project>
