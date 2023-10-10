@@ -45,6 +45,7 @@
         5030,
         5031
     ],
+    "userEnvProbe": "loginInteractiveShell",
     "remoteEnv": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ROOT": "$HOME/.dotnet",
