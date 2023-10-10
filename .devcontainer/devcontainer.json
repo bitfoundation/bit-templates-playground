@@ -1,6 +1,5 @@
 {
     "name": "Bit Templates Playground",
-    "image": "mcr.microsoft.com/dotnet/nightly/sdk:8.0",
     "hostRequirements": {
         "cpus": 4
     },
