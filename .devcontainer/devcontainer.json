@@ -1,11 +1,11 @@
 {
     "name": "Bit Templates Playground",
-    "image": "mcr.microsoft.com/dotnet/sdk:8.0.100-rc.1-jammy",
+    "image": "mcr.microsoft.com/dotnet/nightly/sdk:8.0",
     "hostRequirements": {
         "cpus": 4
     },
     "waitFor": "onCreateCommand",
-    "onCreateCommand": "curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash - && sudo apt-get install -y nodejs && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef --version 8.0.0-rc.1.23419.6 && dotnet ef database update --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj && dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj",
+    "onCreateCommand": "sudo apk add --update nodejs npm && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef --version 8.0.0-rc.1.23419.6 && dotnet ef database update --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj && dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj",
     "customizations": {
         "codespaces": {
             "openFiles": [
