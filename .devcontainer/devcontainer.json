@@ -5,7 +5,7 @@
         "cpus": 4
     },
     "waitFor": "onCreateCommand",
-    "onCreateCommand": "sudo apk add --update nodejs npm && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef --version 8.0.0-rc.1.23419.6 && dotnet ef database update --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj && dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj",
+    "onCreateCommand": "RUN set -ex && apk --no-cache add sudo && sudo apk add --update nodejs npm && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef --version 8.0.0-rc.1.23419.6 && dotnet ef database update --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj && dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj",
     "customizations": {
         "codespaces": {
             "openFiles": [
