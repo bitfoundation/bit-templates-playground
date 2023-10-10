@@ -1,5 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Shared;
-#if BlazorWebAssembly
+﻿#if BlazorWebAssembly
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Services;
 #endif

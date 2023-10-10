@@ -1,5 +1,4 @@
-﻿using System.Globalization;
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Bit.TemplatePlayground.Shared.Infra;
 

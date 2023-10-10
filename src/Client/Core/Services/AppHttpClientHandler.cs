@@ -1,10 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-#if MultilingualEnabled && (BlazorServer || BlazorHybrid)
-using System.Globalization;
-#endif
 
-namespace Bit.TemplatePlayground.Client.Core.Services.Implementations;
+namespace Bit.TemplatePlayground.Client.Core.Services;
 
 public partial class AppHttpClientHandler : HttpClientHandler
 {

@@ -1,5 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Models;
-using Bit.TemplatePlayground.Server.Api.Models.Categories;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Categories;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers;

@@ -5,7 +5,7 @@ using Microsoft.IdentityModel.Tokens;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
-namespace Bit.TemplatePlayground.Server.Api.Services.Implementations;
+namespace Bit.TemplatePlayground.Server.Api.Services;
 
 public partial class JwtService : IJwtService
 {

@@ -7,7 +7,7 @@ using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
-using Bit.TemplatePlayground.Server.Api.Services.Implementations;
+using Bit.TemplatePlayground.Server.Api.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
