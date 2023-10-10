@@ -4,7 +4,7 @@
     "hostRequirements": {
         "cpus": 4
     },
-    // "onCreateCommand": "apt-get update && apt-get install -y ca-certificates curl gnupg && mkdir -p /etc/apt/keyrings && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && apt-get install nodejs -y && dotnet dev-certs https --trust && cd src/Server/Api/ && dotnet tool restore && dotnet ef database update --project Bit.TemplatePlayground.Server.Api.csproj && dotnet build ../../Client/Web/Bit.TemplatePlayground.Client.Web.csproj",
+    "onCreateCommand": "apt-get update && apt-get install -y ca-certificates curl gnupg && mkdir -p /etc/apt/keyrings && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && apt-get -y install nodejs && dotnet dev-certs https --trust && dotnet tool install dotnet-ef --global --version 8.0.0-rc.1.23419.6 && export PATH=\"$PATH:/root/.dotnet/tools\" && dotnet-ef database update --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj && dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj",
     "waitFor": "onCreateCommand",
     "customizations": {
         "codespaces": {
@@ -47,6 +47,7 @@
         5031
     ],
     "remoteEnv": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "PATH": "$PATH:/root/.dotnet/tools"
     }
 }
