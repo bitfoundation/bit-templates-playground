@@ -47,6 +47,7 @@
         5031
     ],
     "remoteEnv": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "PATH": "$PATH:/root/.dotnet/tools"
     }
 }
