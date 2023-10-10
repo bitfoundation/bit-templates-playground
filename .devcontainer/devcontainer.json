@@ -47,7 +47,6 @@
         5031
     ],
     "remoteEnv": {
-        "ASPNETCORE_ENVIRONMENT": "Development",
-        "HOME": "/tmp"
+        "ASPNETCORE_ENVIRONMENT": "Development"
     }
 }
