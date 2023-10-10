@@ -3,6 +3,8 @@
     "hostRequirements": {
         "cpus": 4
     },
+    "onCreateCommand": "build.sh",
+    "waitFor": "onCreateCommand",
     "customizations": {
         "codespaces": {
             "openFiles": [
@@ -43,7 +45,8 @@
         5030,
         5031
     ],
-    "remoteEnv": {
+    "containerUser": "root",
+    "containerEnv": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "DOTNET_ROOT": "$HOME/.dotnet",
         "PATH": "$HOME/.dotnet:/$HOME/.dotnet/tools:$PATH"
