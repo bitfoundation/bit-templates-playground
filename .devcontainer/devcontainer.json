@@ -3,8 +3,7 @@
     "hostRequirements": {
         "cpus": 4
     },
-    "onCreateCommand": "build.sh",
-    "waitFor": "onCreateCommand",
+    "initializeCommand": [ ".devcontainer/build.sh" ],
     "customizations": {
         "codespaces": {
             "openFiles": [
