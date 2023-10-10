@@ -1,6 +1,5 @@
 ﻿
 using System.Reflection;
-using Bit.TemplatePlayground.Client.Core.Shared;
 using Microsoft.Extensions.FileProviders;
 
 namespace Bit.TemplatePlayground.Client.App;

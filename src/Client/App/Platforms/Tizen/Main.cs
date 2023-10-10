@@ -1,8 +1,4 @@
-﻿using System;
-using Microsoft.Maui;
-using Microsoft.Maui.Hosting;
-
-namespace Bit.TemplatePlayground.Client.App;
+﻿namespace Bit.TemplatePlayground.Client.App;
 
 class Program : MauiApplication
 {

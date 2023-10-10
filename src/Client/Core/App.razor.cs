@@ -1,13 +1,11 @@
-﻿using System.Globalization;
-using System.Reflection;
-using Microsoft.AspNetCore.Components.Routing;
+﻿using Microsoft.AspNetCore.Components.Routing;
 
 namespace Bit.TemplatePlayground.Client.Core;
 
 public partial class App
 {
 #if BlazorWebAssembly && !BlazorHybrid
-    private List<Assembly> _lazyLoadedAssemblies = new();
+    private List<System.Reflection.Assembly> _lazyLoadedAssemblies = new();
     [AutoInject] private Microsoft.AspNetCore.Components.WebAssembly.Services.LazyAssemblyLoader _assemblyLoader = default!;
     [AutoInject] private AuthenticationStateProvider _authenticationStateProvider = default!;
 #endif
@@ -112,7 +110,7 @@ public partial class App
             var isAuthenticated = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User?.Identity?.IsAuthenticated is true;
             if (isAuthenticated)
             {
-                var assemblies = await _assemblyLoader.LoadAssembliesAsync(new[] { "Newtonsoft.Json.dll", "System.Private.Xml.dll", "System.Data.Common.dll" });
+                var assemblies = await _assemblyLoader.LoadAssembliesAsync(new[] { "Newtonsoft.Json.wasm", "System.Private.Xml.wasm", "System.Data.Common.wasm" });
                 _lazyLoadedAssemblies.AddRange(assemblies);
             }
         }

@@ -1,7 +1,7 @@
 ﻿#if BlazorServer
 using System.IO.Compression;
 using Microsoft.AspNetCore.ResponseCompression;
-using Bit.TemplatePlayground.Client.Web.Services.Implementations;
+using Bit.TemplatePlayground.Client.Web.Services;
 
 namespace Bit.TemplatePlayground.Client.Web.Startup;
 

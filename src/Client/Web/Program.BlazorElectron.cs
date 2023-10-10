@@ -1,6 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Shared;
-
-#if BlazorElectron
+﻿#if BlazorElectron
 using ElectronNET.API;
 using ElectronNET.API.Entities;
 #endif

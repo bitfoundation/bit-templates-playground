@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Services.Implementations;
+﻿namespace Bit.TemplatePlayground.Client.Core.Services;
 
 public static class PubSubMessages
 {
