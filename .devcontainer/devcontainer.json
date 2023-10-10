@@ -1,6 +1,6 @@
 {
     "name": "Bit Templates Playground",
-    "image": "mcr.microsoft.com/dotnet/sdk:8.0-rc1-focal",
+    "image": "mcr.microsoft.com/dotnet/sdk:8.0.100-rc.1-jammy",
     "hostRequirements": {
         "cpus": 4
     },
