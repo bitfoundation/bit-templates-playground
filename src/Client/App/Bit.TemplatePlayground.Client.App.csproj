@@ -16,7 +16,7 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.bitplatform.Bit.TemplatePlayground.Template</ApplicationId>
-        <ApplicationIdGuid>B3CC4D37-6CF6-496B-8485-5EF012657E0C</ApplicationIdGuid>
+        <ApplicationIdGuid>2CF3C9D5-3732-41B7-95A7-77338B8C8474</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -65,7 +65,7 @@
 
         <!-- App icon for all platforms -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#0065EF" />
-        
+
         <!-- Customize App icon for Android -->
         <MauiIcon Condition="$(TargetFramework.Contains('-android'))" Update="Resources\AppIcon\appicon.svg" Color="#0065EF" ForegroundScale="0.68" />
 
@@ -83,14 +83,14 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.BlazorUI" Version="6.0.0" />
-        <PackageReference Include="Bit.BlazorUI.Icons" Version="6.0.0" />
-        <PackageReference Include="Bit.BlazorUI.Assets" Version="6.0.0" />
-        <PackageReference Include="Bit.CodeAnalyzers" Version="6.0.0">
+        <PackageReference Include="Bit.BlazorUI" Version="7.0.0" />
+        <PackageReference Include="Bit.BlazorUI.Icons" Version="7.0.0" />
+        <PackageReference Include="Bit.BlazorUI.Assets" Version="7.0.0" />
+        <PackageReference Include="Bit.CodeAnalyzers" Version="7.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="6.0.0">
+        <PackageReference Include="Bit.SourceGenerators" Version="7.0.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -102,10 +102,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.0-rc.1.9171" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.0-rc.1.9171" />
-        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.0-rc.1.9171" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.0-rc.1.9171" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.0-rc.2.9373" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.0-rc.2.9373" />
+        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.0-rc.2.9373" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.0-rc.2.9373" />
     </ItemGroup>
 
     <!-- Build Properties must be defined within these property groups to ensure successful publishing
