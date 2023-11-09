@@ -10,15 +10,9 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 1- Press `Ctrl + Shift + P` and run `watch sass`
 
-2- Open new terminal in vscode and run:
+2- Press `Ctrl + Shift + D` and choose `Watch Api and Web` as active debug profile and click on start debuggin button (F5)
 
-`dotnet watch --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj`
-
-3- Open another terminal in vscode and run:
-
-`dotnet watch --project src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj`
-
-4- Sign in using `test@bitplatform.dev` and `123456` and explorer admin panel features!
+3- Sign in using `test@bitplatform.dev` and `123456` and explorer admin panel features!
 
 Done!
 
