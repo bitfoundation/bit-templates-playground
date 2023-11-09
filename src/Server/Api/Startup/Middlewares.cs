@@ -64,7 +64,7 @@ public class Middlewares
         }.SetDefaultCulture(CultureInfoManager.DefaultCulture.code));
 #endif
 
-        app.UseHttpResponseExceptionHandler();
+        app.UseExceptionHandler("/", createScopeForErrors: true);
 
         app.UseSwagger();
 
@@ -75,9 +75,9 @@ public class Middlewares
 
         app.MapControllers().RequireAuthorization();
 
-        var appsettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
+        var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
 
-        var healthCheckSettings = appsettings.HealthCheckSettings;
+        var healthCheckSettings = appSettings.HealthCheckSettings;
 
         if (healthCheckSettings.EnableHealthChecks)
         {

@@ -8,11 +8,11 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Pulumi.AzureNative" Version="2.11.0" />
+        <PackageReference Include="Pulumi.AzureNative" Version="2.15.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Shared\Bit.TemplatePlayground.Shared.csproj" />
+      <ProjectReference Include="..\..\Shared\Bit.TemplatePlayground.Shared.csproj" />
     </ItemGroup>
 
 </Project>

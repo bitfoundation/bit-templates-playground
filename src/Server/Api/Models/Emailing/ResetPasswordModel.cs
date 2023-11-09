@@ -1,6 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Resources;
-
-namespace Bit.TemplatePlayground.Server.Api.Models.Emailing;
+﻿namespace Bit.TemplatePlayground.Server.Api.Models.Emailing;
 
 public class ResetPasswordModel
 {
@@ -9,6 +7,4 @@ public class ResetPasswordModel
     public string? ResetPasswordLink { get; set; }
 
     public Uri? HostUri { get; set; }
-
-    public IStringLocalizer<EmailStrings> EmailLocalizer { get; set; } = default!;
 }
