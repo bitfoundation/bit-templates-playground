@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Mail;
 using Bit.TemplatePlayground.Server.Api.Services;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.ResponseCompression;
@@ -24,6 +25,7 @@ public static class Services
         services.AddSharedServices();
 
         services.AddScoped<IUserInformationProvider, UserInformationProvider>();
+        services.AddExceptionHandler<ApiExceptionHandler>();
 
 #if BlazorWebAssembly
         services.AddTransient<IAuthTokenProvider, ServerSideAuthTokenProvider>();
@@ -108,8 +110,9 @@ public static class Services
 
         services.AddHealthChecks(env, configuration);
 
-        var fluentEmailServiceBuilder = services.AddFluentEmail(appSettings.EmailSettings.DefaultFromEmail, appSettings.EmailSettings.DefaultFromName)
-            .AddRazorRenderer();
+        services.AddScoped<HtmlRenderer>();
+
+        var fluentEmailServiceBuilder = services.AddFluentEmail(appSettings.EmailSettings.DefaultFromEmail, appSettings.EmailSettings.DefaultFromName);
 
         if (appSettings.EmailSettings.UseLocalFolderForEmails)
         {
