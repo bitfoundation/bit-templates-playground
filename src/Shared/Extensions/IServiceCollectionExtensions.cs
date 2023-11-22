@@ -6,9 +6,9 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddSharedServices(this IServiceCollection services)
     {
-        // Services being registered here can get injected everywhere (Api, Web, Android, iOS, Windows, and Mac)
+        // Services being registered here can get injected everywhere (Api, Web, Android, iOS, Windows, macOS and Linux)
 
-        services.AddSingleton<IDateTimeProvider, DateTimeProvider>();
+        services.AddTransient<IDateTimeProvider, DateTimeProvider>();
 
         services.AddAuthorizationCore();
 

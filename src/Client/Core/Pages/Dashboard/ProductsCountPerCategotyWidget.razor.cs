@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Home;
+﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Dashboard;
 
 public partial class ProductsCountPerCategotyWidget
 {
@@ -30,12 +30,11 @@ public partial class ProductsCountPerCategotyWidget
         {
             _isLoading = true;
 
-            var data = await PrerenderStateService.GetValue($"{nameof(HomePage)}-{nameof(ProductsCountPerCategotyWidget)}",
+            var data = await PrerenderStateService.GetValue($"{nameof(DashboardPage)}-{nameof(ProductsCountPerCategotyWidget)}",
                                 async () => await HttpClient.GetFromJsonAsync($"Dashboard/GetProductsCountPerCategotyStats",
-                                    AppJsonContext.Default.ListProductsCountPerCategoryDto)) ?? new();
+                                    AppJsonContext.Default.ListProductsCountPerCategoryDto)) ?? [];
 
-            BitChartBarDataset<int> chartDataSet = new BitChartBarDataset<int>();
-            chartDataSet.AddRange(data.Select(d => d.ProductCount));
+            BitChartBarDataset<int> chartDataSet = [.. data.Select(d => d.ProductCount)];
             chartDataSet.BackgroundColor = data.Select(d => d.CategoryColor ?? string.Empty).ToArray();
             _config.Data.Datasets.Add(chartDataSet);
             _config.Data.Labels.AddRange(data.Select(d => d.CategoryName ?? string.Empty));

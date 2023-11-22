@@ -12,20 +12,20 @@ namespace Bit.TemplatePlayground.Client.Web.Services;
 #if BlazorServer
 public partial class ServerSideAuthTokenProvider : IAuthTokenProvider
 {
-    [AutoInject] private IJSRuntime _jsRuntime = default!;
     [AutoInject] private IHttpContextAccessor _httpContextAccessor = default!;
+    [AutoInject] private IJSRuntime _jsRuntime = default!;
 
-    private static readonly PropertyInfo? IsInitializedProp = Assembly.Load("Microsoft.AspNetCore.Components.Server")
-                                                                      .GetType("Microsoft.AspNetCore.Components.Server.Circuits.RemoteJSRuntime")
-                                                                     ?.GetProperty("IsInitialized");
+    private static readonly PropertyInfo IsInitializedProp = Assembly.Load("Microsoft.AspNetCore.Components.Server")!
+                                                                .GetType("Microsoft.AspNetCore.Components.Server.Circuits.RemoteJSRuntime")!
+                                                                .GetProperty("IsInitialized")!;
+
+    public bool IsInitialized => (bool)IsInitializedProp.GetValue(_jsRuntime)!;
 
     public async Task<string?> GetAccessTokenAsync()
     {
-        var isInitialized = (bool)(IsInitializedProp?.GetValue(_jsRuntime) ?? false);
-
-        if (isInitialized)
+        if (IsInitialized)
         {
-            return await _jsRuntime.InvokeAsync<string>("App.getCookie", "access_token");
+            return await _jsRuntime.GetCookie("access_token");
         }
 
         return _httpContextAccessor.HttpContext?.Request.Cookies["access_token"];
@@ -41,9 +41,10 @@ public class ServerSideAuthTokenProvider : IAuthTokenProvider
         _httpContextAccessor = httpContextAccessor;
     }
 
+    public bool IsInitialized => false;
+
     public async Task<string?> GetAccessTokenAsync()
     {
-        await Task.CompletedTask;
         return _httpContextAccessor.HttpContext?.Request.Cookies["access_token"];
     }
 }

@@ -17,7 +17,7 @@
             "cwd": "${workspaceFolder}/src/Server/Api",
             "program": "dotnet",
             "args": [
-                "watch",
+                "run",
                 "--project",
                 ".",
                 "verbose"

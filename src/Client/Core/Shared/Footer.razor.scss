@@ -1,5 +1,4 @@
-﻿@import '../Styles/abstracts/_vars.scss';
-@import '../Styles/abstracts/_functions.scss';
+﻿@import '../Styles/abstracts/_functions.scss';
 @import '../Styles/abstracts/_media-queries.scss';
 @import '../Styles/abstracts/_bit-css-variables.scss';
 
@@ -9,7 +8,6 @@
     align-items: center;
     justify-content: center;
     flex-flow: column nowrap;
-    border-top: rem2(1px) solid $bit-color-border-secondary;
 
     .bit-ios & {
         padding-bottom: env(safe-area-inset-bottom);
@@ -18,62 +16,28 @@
 
 .footer-content {
     width: 100%;
+    gap: rem2(4px);
     display: flex;
-    margin-left: auto;
-    margin-right: auto;
+    position: relative;
+    padding: rem2(4px) 0;
     align-items: center;
-    flex-flow: row nowrap;
-    height: rem2($HeaderHeight);
-    justify-content: space-between;
-    padding: 0 rem2($LargeScreenPadding);
-    max-width: rem2($LargeScreenMaxWidth);
+    min-height: rem2(54px);
+    justify-content: center;
+    flex-flow: column nowrap;
 
-    @include md {
-        padding: 0 rem2($MediumScreenPadding);
-        max-width: rem2($MediumScreenMaxWidth);
-    }
-
-    @include sm {
-        padding: 0 rem2($SmallScreenPadding);
-        max-width: rem2($SmallScreenMaxWidth);
+    @include lt-xl {
+        min-height: rem2(50px);
     }
 }
 
-.footer-email {
-    font-weight: 400;
-    font-size: rem2(12px);
-    line-height: rem2(16px);
-
-    @include sm {
-        font-size: rem2(10px);
-        line-height: rem2(12px);
-    }
+.footer-contact {
+    font-size: rem2(14px);
+    line-height: rem2(20px);
 }
 
 .footer-copyright {
-    font-weight: 400;
-    font-size: rem2(10px);
-    line-height: rem2(12px);
-    color: $bit-color-primary-main;
-
-    @include sm {
-        display: none;
-    }
-}
-
-.text--red {
-    color: red;
-}
-
-.footer-txt-group {
-    .footer-copyright {
-        display: none;
-
-        @include sm {
-            margin-bottom: rem2(4px);
-            display: inline-block !important;
-        }
-    }
+    font-size: rem2(12px);
+    line-height: rem2(20px);
 }
 
 .footer-social-lnk-grp {
@@ -84,31 +48,69 @@
 }
 
 .social-lnk {
-    width: rem2(24px);
-    height: rem2(24px);
-    margin: 0 rem2(6px);
-    border-radius: 50%;
+    width: rem2(32px);
+    height: rem2(32px);
+    background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    border: rem2(0.5px) solid $bit-color-border-primary;
+
+    svg path {
+        fill: $bit-color-foreground-secondary;
+    }
 }
 
-.twitter-lnk {
-    background-size: rem2(13px) rem2(11px);
-    background-image: url('images/icons/twitter-icon.svg');
+.text--red {
+    color: $bit-color-state-required;
 }
 
-.youtube-lnk {
-    background-size: rem2(12px) rem2(9px);
-    background-image: url('images/icons/youtube-icon.svg');
+::deep {
+    .culture-drp {
+        left: rem2(5px);
+        width: rem2(105px);
+        position: absolute;
+        background-color: white;
+
+        @include sm {
+            position: static;
+        }
+    }
 }
 
-.linkedin-lnk {
-    background-size: rem2(11px) rem2(11px);
-    background-image: url('images/icons/linkedin-icon.svg');
+.toggle-theme-btn {
+    right: rem2(12px);
+    position: absolute;
+    padding: 0;
+    border: none;
+    cursor: pointer;
+    height: rem2(35px);
+    min-width: rem2(35px);
+    border-radius: 50%;
+    color: $bit-color-primary-text;
+    background-color: $bit-color-primary-main;
+
+    .icon-container {
+        height: 100%;
+        display: flex;
+        flex-wrap: nowrap;
+        align-items: center;
+        justify-content: center;
+
+        .bit-icon {
+            margin: 0 rem2(4px);
+        }
+    }
+
+    &.dark-theme {
+        .icon-container {
+            padding: 2px 0px 0 1px;
+        }
+    }
 }
 
-.github-lnk {
-    background-size: rem2(11px) rem2(12px);
-    background-image: url('images/icons/github-icon.svg');
+.theme-dark .light-theme {
+    display: none;
+}
+
+.theme-light .dark-theme {
+    display: none;
 }

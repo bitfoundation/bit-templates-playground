@@ -1,6 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
-using Bit.TemplatePlayground.Shared.Dtos.Products;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Riok.Mapperly.Abstractions;
 
 namespace Bit.TemplatePlayground.Shared;
@@ -17,7 +15,5 @@ namespace Bit.TemplatePlayground.Shared;
 [Mapper(UseDeepCloning = true)]
 public static partial class Mapper
 {
-    public static partial void Patch(this CategoryDto source, CategoryDto destination);
-    public static partial void Patch(this ProductDto source, ProductDto destination);
     public static partial void Patch(this UserDto source, UserDto destination);
 }

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Home;
+﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Dashboard;
 
 public partial class ProductsSalesWidget
 {
@@ -29,12 +29,11 @@ public partial class ProductsSalesWidget
         {
             _isLoading = true;
 
-            var data = await PrerenderStateService.GetValue($"{nameof(HomePage)}-{nameof(ProductsSalesWidget)}", 
-                                async () => await HttpClient.GetFromJsonAsync($"Dashboard/GetProductsSalesStats", 
-                                    AppJsonContext.Default.ListProductSaleStatDto)) ?? new();
+            var data = await PrerenderStateService.GetValue($"{nameof(DashboardPage)}-{nameof(ProductsSalesWidget)}",
+                                async () => await HttpClient.GetFromJsonAsync($"Dashboard/GetProductsSalesStats",
+                                    AppJsonContext.Default.ListProductSaleStatDto)) ?? [];
 
-            BitChartBarDataset<decimal> chartDataSet = new BitChartBarDataset<decimal>();
-            chartDataSet.AddRange(data.Select(d => d.SaleAmount));
+            BitChartBarDataset<decimal> chartDataSet = [.. data.Select(d => d.SaleAmount)];
             chartDataSet.BackgroundColor = data.Select(d => d.CategoryColor ?? string.Empty).ToArray();
             _config.Data.Datasets.Add(chartDataSet);
             _config.Data.Labels.AddRange(data.Select(d => d.ProductName ?? string.Empty));

@@ -7,15 +7,15 @@ public partial class MainLayout : IDisposable
     private bool _disposed;
     private bool _isMenuOpen;
     private bool _isUserAuthenticated;
-    private ErrorBoundary _errorBoundaryRef = default!;
+    private ErrorBoundary ErrorBoundaryRef = default!;
 
-    [AutoInject] private IPrerenderStateService _stateService = default!;
+    [AutoInject] private IPrerenderStateService _prerenderStateService = default!;
 
     [AutoInject] private IExceptionHandler _exceptionHandler = default!;
 
     [AutoInject] private AppAuthenticationStateProvider _authStateProvider = default!;
 
-    [AutoInject] private IJSRuntime _jsRuntime = default!;
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
 
     protected override void OnParametersSet()
     {
@@ -32,7 +32,7 @@ public partial class MainLayout : IDisposable
         {
             _authStateProvider.AuthenticationStateChanged += VerifyUserIsAuthenticatedOrNot;
 
-            _isUserAuthenticated = await _stateService.GetValue($"{nameof(MainLayout)}-IsUserAuthenticated", _authStateProvider.IsUserAuthenticatedAsync);
+            _isUserAuthenticated = await _prerenderStateService.GetValue($"{nameof(MainLayout)}-isUserAuthenticated", async () => (await AuthenticationStateTask).User.IsAuthenticated());
 
             await base.OnInitializedAsync();
         }
@@ -46,7 +46,7 @@ public partial class MainLayout : IDisposable
     {
         try
         {
-            _isUserAuthenticated = await _authStateProvider.IsUserAuthenticatedAsync();
+            _isUserAuthenticated = (await task).User.IsAuthenticated();
         }
         catch (Exception ex)
         {
@@ -58,11 +58,9 @@ public partial class MainLayout : IDisposable
         }
     }
 
-    private async Task ToggleMenuHandler()
+    private void ToggleMenuHandler()
     {
         _isMenuOpen = !_isMenuOpen;
-
-        await _jsRuntime.SetBodyOverflow(_isMenuOpen);
     }
 
     public void Dispose()
@@ -73,7 +71,7 @@ public partial class MainLayout : IDisposable
 
     protected virtual void Dispose(bool disposing)
     {
-        if (_disposed || disposing is false) return;
+        if (_disposed) return;
 
         _authStateProvider.AuthenticationStateChanged -= VerifyUserIsAuthenticatedOrNot;
 

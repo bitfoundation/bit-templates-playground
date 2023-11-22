@@ -1,7 +1,7 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
-using Bit.TemplatePlayground.Shared.Dtos.Categories;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 using Bit.TemplatePlayground.Shared.Dtos.Products;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Shared.Dtos;
 
@@ -23,7 +23,8 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(List<CategoryDto>))]
 [JsonSerializable(typeof(PagedResult<CategoryDto>))]
 [JsonSerializable(typeof(SignInRequestDto))]
-[JsonSerializable(typeof(SignInResponseDto))]
+[JsonSerializable(typeof(TokenResponseDto))]
+[JsonSerializable(typeof(RefreshRequestDto))]
 [JsonSerializable(typeof(SignUpRequestDto))]
 [JsonSerializable(typeof(EditUserDto))]
 [JsonSerializable(typeof(RestErrorInfo))]

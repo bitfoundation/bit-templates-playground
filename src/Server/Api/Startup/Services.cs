@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.OData;
 using Microsoft.AspNetCore.ResponseCompression;
 #if BlazorWebAssembly
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 using Bit.TemplatePlayground.Client.Web.Services;
 using Bit.TemplatePlayground.Client.Core.Services;
 using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.WebAssembly.Services;
+using Microsoft.JSInterop;
 #endif
 
 namespace Bit.TemplatePlayground.Server.Api.Startup;
@@ -24,7 +27,6 @@ public static class Services
 
         services.AddSharedServices();
 
-        services.AddScoped<IUserInformationProvider, UserInformationProvider>();
         services.AddExceptionHandler<ApiExceptionHandler>();
 
 #if BlazorWebAssembly
@@ -32,25 +34,23 @@ public static class Services
         services.AddClientSharedServices();
         services.AddClientWebServices();
 
-        // In the Pre-Rendering mode, the configured HttpClient will use the access_token provided by the cookie in the request, so the pre-rendered content would be fitting for the current user.
-        services.AddHttpClient("WebAssemblyPreRenderingHttpClient")
-            .ConfigurePrimaryHttpMessageHandler<AppHttpClientHandler>()
-            .ConfigureHttpClient((sp, httpClient) =>
-            {
-                NavigationManager navManager = sp.GetRequiredService<IHttpContextAccessor>().HttpContext!.RequestServices.GetRequiredService<NavigationManager>();
-                httpClient.BaseAddress = new Uri($"{navManager.BaseUri}api/");
-            });
-        services.AddScoped<Microsoft.AspNetCore.Components.WebAssembly.Services.LazyAssemblyLoader>();
-
-        services.AddScoped(sp =>
+        services.AddTransient(sp =>
         {
-            IHttpClientFactory httpClientFactory = sp.GetRequiredService<IHttpClientFactory>();
-            return httpClientFactory.CreateClient("WebAssemblyPreRenderingHttpClient");
-            // this is for pre rendering of blazor client/wasm
-            // for other usages of http client, for example calling 3rd party apis, either use services.AddHttpClient("NamedHttpClient") or services.AddHttpClient<TypedHttpClient>();
+            Uri.TryCreate(configuration.GetApiServerAddress(), UriKind.RelativeOrAbsolute, out var apiServerAddress);
+
+            if (apiServerAddress!.IsAbsoluteUri is false)
+            {
+                apiServerAddress = new Uri($"{sp.GetRequiredService<IHttpContextAccessor>().HttpContext!.Request.GetBaseUrl()}{apiServerAddress}");
+            }
+
+            return new HttpClient(sp.GetRequiredService<RequestHeadersDelegationHandler>())
+            {
+                BaseAddress = apiServerAddress
+            };
         });
+
+        services.AddTransient<LazyAssemblyLoader>();
         services.AddRazorPages();
-        services.AddMvcCore();
 #endif
 
         
@@ -81,7 +81,7 @@ public static class Services
         services.AddResponseCompression(opts =>
         {
             opts.EnableForHttps = true;
-            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" }).ToArray();
+            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]).ToArray();
             opts.Providers.Add<BrotliCompressionProvider>();
             opts.Providers.Add<GzipCompressionProvider>();
         })
@@ -98,7 +98,7 @@ public static class Services
 
         services.Configure<AppSettings>(configuration.GetSection(nameof(AppSettings)));
 
-        services.AddScoped(sp => sp.GetRequiredService<IOptionsSnapshot<AppSettings>>().Value);
+        services.AddTransient(sp => sp.GetRequiredService<IOptionsSnapshot<AppSettings>>().Value);
 
         services.AddEndpointsApiExplorer();
 
@@ -106,11 +106,9 @@ public static class Services
 
         services.AddIdentity(configuration);
 
-        services.AddJwt(configuration);
-
         services.AddHealthChecks(env, configuration);
 
-        services.AddScoped<HtmlRenderer>();
+        services.AddTransient<HtmlRenderer>();
 
         var fluentEmailServiceBuilder = services.AddFluentEmail(appSettings.EmailSettings.DefaultFromEmail, appSettings.EmailSettings.DefaultFromName);
 

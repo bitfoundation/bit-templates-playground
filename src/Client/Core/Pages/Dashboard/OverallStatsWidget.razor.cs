@@ -1,6 +1,6 @@
 ﻿using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 
-namespace Bit.TemplatePlayground.Client.Core.Pages.Home;
+namespace Bit.TemplatePlayground.Client.Core.Pages.Dashboard;
 
 public partial class OverallStatsWidget
 {
@@ -18,7 +18,7 @@ public partial class OverallStatsWidget
 
         try
         {
-            _data = await PrerenderStateService.GetValue($"{nameof(HomePage)}-{nameof(OverallStatsWidget)}",
+            _data = await PrerenderStateService.GetValue($"{nameof(DashboardPage)}-{nameof(OverallStatsWidget)}",
                             async () => await HttpClient.GetFromJsonAsync($"Dashboard/GetOverallAnalyticsStatsData",
                                 AppJsonContext.Default.OverallAnalyticsStatsDataDto)) ?? new();
         }

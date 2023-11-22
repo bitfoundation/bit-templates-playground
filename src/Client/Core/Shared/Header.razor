@@ -1,51 +1,19 @@
 ﻿@inherits AppComponentBase
 
-<header class="main-header">
-    <div class="header-main-container">
-        <div class="header-content-container left-section">
-            <BitIconButton Class="header-menu-btn" IconName="@BitIconName.CollapseMenu" OnClick="WrapHandled(ToggleMenu)" AriaLabel="Header menu button" />
-            <a class="header-logo" href="/" aria-label="Homepage"></a>
-            <BitBreadcrumb Items="_currentBreadcrumbItems" Class="header-breadcrumb" />
-        </div>
-
-        <button @onclick="WrapHandled(ToggleTheme)" class="toggle-theme-btn dark-theme" title="Turn on light">
-            <span class="icon-container"><i class="bit-icon bit-icon--Sunny"></i></span>
-        </button>
-        <button @onclick="WrapHandled(ToggleTheme)" class="toggle-theme-btn light-theme" title="Turn off light">
-            <span class="icon-container"><i class="bit-icon bit-icon--ClearNight"></i></span>
-        </button>
-
-        <div class="header-content-container" @onclick=@ToggleHeaderDropdown>
-            <BitPersona ImageUrl="@_profileImageUrl"
-                        Size=@BitPersonaSize.Size32
-                        Text="@(string.IsNullOrWhiteSpace(_user.FullName) ? _user.UserName : _user.FullName)"
-                        Presence="BitPersonaPresenceStatus.Online" />
-            <BitIcon Style="font-size:12px" IconName="@(_isHeaderDrpDownOpen ? BitIconName.ChevronUp : BitIconName.ChevronDown)" />
-
-            @if (_isHeaderDrpDownOpen)
-            {
-                <div class="header-drp-overlay"></div>
-
-                <section class="header-drp-wrapper" @onclick:stopPropagation="true">
-                    <div class="user-info-container">
-                        <BitPersona ImageUrl="@_profileImageUrl"
-                                    Size="@BitPersonaSize.Size48"
-                                    Text="@(string.IsNullOrWhiteSpace(_user.FullName) ? _user.UserName : _user.FullName)"
-                                    SecondaryText="@_user.UserName"
-                                    Presence="BitPersonaPresenceStatus.Online" />
-                    </div>
-
-                    <BitActionButton IconName="@BitIconName.Edit" AriaLabel="EditProfile" OnClick="WrapHandled(OpenEditProfilePage)">
-                        @Localizer[nameof(AppStrings.EditProfileTitle)]
-                    </BitActionButton>
-
-                    <BitActionButton IconName="@BitIconName.SignOut" AriaLabel="SignOut" OnClick="WrapHandled(OpenSignOutModal)">
-                        @Localizer[nameof(AppStrings.SignOut)]
-                    </BitActionButton>
-                </section>
-            }
-        </div>
+<header class="header">
+    <div class="header-contact">
+        @if (_isUserAuthenticated)
+        {
+            <BitIconButton Class="header-menu" IconName="@BitIconName.CollapseMenu" OnClick=ToggleMenu />
+        }
+        <a class="logo-lnk" href="/"></a>
+    </div>
+    <div class="header-contact">
+        @if (!_isUserAuthenticated)
+        {
+            <BitActionButton Class="header-item" IconName="@BitIconName.EntityExtraction" Href="/terms" Target="_self">@Localizer[nameof(AppStrings.TermsTitle)]</BitActionButton>
+            <BitActionButton Class="header-item" IconName="@BitIconName.AddFriend" Href="/sign-up" Target="_self">@Localizer[nameof(AppStrings.SignUp)]</BitActionButton>
+            <BitActionButton Class="header-item" IconName="@BitIconName.Signin" Href="/sign-in" Target="_self">@Localizer[nameof(AppStrings.SignIn)]</BitActionButton>
+        }
     </div>
 </header>
-
-<SignOutConfirmModal @bind-IsOpen="_isSignOutModalOpen"></SignOutConfirmModal>

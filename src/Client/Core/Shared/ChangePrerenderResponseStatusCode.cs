@@ -7,13 +7,11 @@ namespace Bit.TemplatePlayground.Client.Core.Shared;
 /// </summary>
 public partial class ChangePrerenderResponseStatusCode : AppComponentBase
 {
-    [Parameter]
-    public HttpStatusCode StatusCode { get; set; }
+    [Parameter] public HttpStatusCode StatusCode { get; set; }
 
     private static readonly Type? _httpContextAccessorType = Type.GetType("Microsoft.AspNetCore.Http.IHttpContextAccessor, Microsoft.AspNetCore.Http.Abstractions");
 
-    [AutoInject]
-    public IServiceProvider _serviceProvider = default!;
+    [AutoInject] public IServiceProvider _serviceProvider = default!;
 
     protected override Task OnInitAsync()
     {

@@ -4,20 +4,21 @@ namespace Bit.TemplatePlayground.Client.Core.Pages.Identity;
 
 public partial class SignUpPage
 {
-    public bool _isLoading;
-    public bool _isSignedUp;
-    public string? _signUpMessage;
-    public BitMessageBarType _signUpMessageType;
-    public SignUpRequestDto _signUpModel = new();
+    private bool _isLoading;
+    private bool _isSignedUp;
+    private string? _signUpMessage;
+    private BitMessageBarType _signUpMessageType;
+    private SignUpRequestDto _signUpModel = new();
 
-    protected async override Task OnAfterFirstRenderAsync()
+
+    protected override async Task OnAfterFirstRenderAsync()
     {
-        if (await AuthenticationStateProvider.IsUserAuthenticatedAsync())
+        await base.OnAfterFirstRenderAsync();
+
+        if ((await AuthenticationStateTask).User.IsAuthenticated())
         {
             NavigationManager.NavigateTo("/");
         }
-
-        await base.OnAfterFirstRenderAsync();
     }
 
     private async Task DoSignUp()
@@ -29,7 +30,7 @@ public partial class SignUpPage
 
         try
         {
-            await HttpClient.PostAsJsonAsync("Auth/SignUp", _signUpModel, AppJsonContext.Default.SignUpRequestDto);
+            await HttpClient.PostAsJsonAsync("Identity/SignUp", _signUpModel, AppJsonContext.Default.SignUpRequestDto);
 
             _isSignedUp = true;
         }
@@ -58,7 +59,7 @@ public partial class SignUpPage
 
         try
         {
-            await HttpClient.PostAsJsonAsync("Auth/SendConfirmationEmail", new() { Email = _signUpModel.Email }, AppJsonContext.Default.SendConfirmationEmailRequestDto);
+            await HttpClient.PostAsJsonAsync("Identity/SendConfirmationEmail", new() { Email = _signUpModel.Email }, AppJsonContext.Default.SendConfirmationEmailRequestDto);
 
             _signUpMessageType = BitMessageBarType.Success;
             _signUpMessage = Localizer[nameof(AppStrings.ResendConfirmationLinkMessage)];

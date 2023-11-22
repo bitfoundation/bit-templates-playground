@@ -1,17 +1,33 @@
-﻿@inherits AppComponentBase
+﻿@inherits AppComponentBase;
 
 @if (IsMenuOpen)
 {
-    <div class="menu-shadow" @onclick=CloseNavMenu></div>
+    <div class="menu-overlay" @onclick=CloseMenu></div>
 }
 
-<section class="nav-menu @(IsMenuOpen ? null : "nav-menu--closed")">
-    <div class="menu-content">
-        <div class="menu-top-row"></div>
-        <BitNav Items="_navItems"
-                Class="bit-nav-menu"
-                AriaLabel="NavMenu"
-                DefaultSelectedItem="_navItems[0]"
-                OnItemClick="(BitNavItem item) => HandleOnItemClick(item)" />
+<section class="main-container @(IsMenuOpen ? null : "main-container--closed")">
+    <div class="top-container">
+        <BitPersona Class="persona"
+                    Text="@_user.FullName"
+                    ImageUrl="@_profileImageUrl"
+                    Size=@BitPersonaSize.Size48
+                    SecondaryText="@_user.UserName"
+                    Presence="BitPersonaPresenceStatus.Online"
+                    OnImageClick=GoToEditProfile>
+            <ImageOverlayFragment>
+                <span>@Localizer[nameof(AppStrings.Edit)]</span>
+            </ImageOverlayFragment>
+        </BitPersona>
+        <br />
+        <BitActionButton IconName="@BitIconName.SignOut" OnClick=DoSignOut>
+            @Localizer[nameof(AppStrings.SignOut)]
+        </BitActionButton>
     </div>
+    <BitNav Items="_navItems"
+            AriaLabel="NavMenu"
+            DefaultSelectedItem="_navItems[0]"
+            OnItemClick="(BitNavItem item) => CloseMenu()">
+    </BitNav>
 </section>
+
+<SignOutConfirmModal @bind-IsOpen=_isSignOutModalOpen></SignOutConfirmModal>

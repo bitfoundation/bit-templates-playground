@@ -9,7 +9,7 @@ public partial class AddOrEditProductModal
     private bool _isLoading;
     private bool _isSaving;
     private ProductDto _product = new();
-    private List<BitDropdownItem<string>> _allCategoryList = new();
+    private List<BitDropdownItem<string>> _allCategoryList = [];
     private string _selectedCategoyId = string.Empty;
 
     [Parameter] public EventCallback OnSave { get; set; }
@@ -23,7 +23,7 @@ public partial class AddOrEditProductModal
     {
         await InvokeAsync(() =>
         {
-            _ = JsRuntime.SetBodyOverflow(true);
+            _ = JSRuntime.SetBodyOverflow(true);
 
             _isOpen = true;
             _product = product;
@@ -41,7 +41,7 @@ public partial class AddOrEditProductModal
         {
             var categoryList = await PrerenderStateService.GetValue($"{nameof(ProductsPage)}-AllCategoryList",
                                         async () => await HttpClient.GetFromJsonAsync("Category/Get",
-                                            AppJsonContext.Default.ListCategoryDto)) ?? new();
+                                            AppJsonContext.Default.ListCategoryDto)) ?? [];
 
             _allCategoryList = categoryList.Select(c => new BitDropdownItem<string>()
             {
@@ -75,7 +75,7 @@ public partial class AddOrEditProductModal
 
             _isOpen = false;
 
-            await JsRuntime.SetBodyOverflow(false);
+            await JSRuntime.SetBodyOverflow(false);
         }
         finally
         {
@@ -89,6 +89,6 @@ public partial class AddOrEditProductModal
     {
         _isOpen = false;
 
-        await JsRuntime.SetBodyOverflow(false);
+        await JSRuntime.SetBodyOverflow(false);
     }
 }

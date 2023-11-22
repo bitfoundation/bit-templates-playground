@@ -7,17 +7,17 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
-namespace Bit.TemplatePlayground.Server.Api.Migrations
+namespace Bit.TemplatePlayground.Server.Api.Data.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20230920195959_InitialMigration")]
+    [Migration("20231122175600_InitialMigration")]
     partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "7.0.11");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
 
             modelBuilder.Entity("Bit.TemplatePlayground.Server.Api.Models.Categories.Category", b =>
                 {
@@ -185,17 +185,17 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                             Id = 1,
                             AccessFailedCount = 0,
                             BirthDate = 1306790461440000060L,
-                            ConcurrencyStamp = "2d516fa0-5d1d-4c2f-8fdf-a12901a81107",
+                            ConcurrencyStamp = "ae209e4e-1401-4e10-b8c7-cdd62871f181",
                             Email = "test@bitplatform.dev",
                             EmailConfirmed = true,
                             FullName = "Bit.TemplatePlayground test account",
                             Gender = 2,
-                            LockoutEnabled = false,
+                            LockoutEnabled = true,
                             NormalizedEmail = "TEST@BITPLATFORM.DEV",
                             NormalizedUserName = "TEST@BITPLATFORM.DEV",
-                            PasswordHash = "AQAAAAIAAYagAAAAEGOD8iNXQ7y87GUBkb86s9FlPq1zElgs0xidaW2/VIXzA5t+AUJ7UAYB24tHqbhzvw==",
+                            PasswordHash = "AQAAAAIAAYagAAAAEAfqQ2WWaMftx62DMUSGQy52CRg3R5ZjjhpwsEYW8HxWt7SfzSWbA1m/C510G828DQ==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8eecc946-5dd4-4086-93bc-bd804b4a7dc0",
+                            SecurityStamp = "9cd0a3f1-7be9-42d4-bed2-6397a91b948d",
                             TwoFactorEnabled = false,
                             UserName = "test@bitplatform.dev"
                         });
@@ -236,7 +236,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 1,
                             CategoryId = 1,
-                            CreatedOn = 1307236368384000120L,
+                            CreatedOn = 1307347845120000060L,
                             Description = "The Ford Mustang is ranked #1 in Sports Cars",
                             Name = "Mustang",
                             Price = 27155m
@@ -245,7 +245,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 2,
                             CategoryId = 1,
-                            CreatedOn = 1307227521024000120L,
+                            CreatedOn = 1307338997760000060L,
                             Description = "The Ford GT is a mid-engine two-seater sports car manufactured and marketed by American automobile manufacturer",
                             Name = "GT",
                             Price = 500000m
@@ -254,7 +254,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 3,
                             CategoryId = 1,
-                            CreatedOn = 1307209826304000120L,
+                            CreatedOn = 1307321303040000120L,
                             Description = "Ford Ranger is a nameplate that has been used on multiple model lines of pickup trucks sold by Ford worldwide.",
                             Name = "Ranger",
                             Price = 25000m
@@ -263,7 +263,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 4,
                             CategoryId = 1,
-                            CreatedOn = 1307200978944000120L,
+                            CreatedOn = 1307312455680000120L,
                             Description = "Raptor is a SCORE off-road trophy truck living in a asphalt world",
                             Name = "Raptor",
                             Price = 53205m
@@ -272,7 +272,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 5,
                             CategoryId = 1,
-                            CreatedOn = 1307192131584000120L,
+                            CreatedOn = 1307303608320000120L,
                             Description = "The Ford Maverick is a compact pickup truck produced by Ford Motor Company.",
                             Name = "Maverick",
                             Price = 22470m
@@ -281,7 +281,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 6,
                             CategoryId = 2,
-                            CreatedOn = 1307236368384000120L,
+                            CreatedOn = 1307347845120000060L,
                             Description = "A powerful convertible sports car",
                             Name = "Roadster",
                             Price = 42800m
@@ -290,7 +290,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 7,
                             CategoryId = 2,
-                            CreatedOn = 1307227521024000120L,
+                            CreatedOn = 1307338997760000060L,
                             Description = "A perfectly adequate family sedan with sharp looks",
                             Name = "Altima",
                             Price = 24550m
@@ -299,7 +299,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 8,
                             CategoryId = 2,
-                            CreatedOn = 1307209826304000120L,
+                            CreatedOn = 1307321303040000120L,
                             Description = "Legendary supercar with AWD, 4 seats, a powerful V6 engine and the latest tech",
                             Name = "GT-R",
                             Price = 113540m
@@ -308,7 +308,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 9,
                             CategoryId = 2,
-                            CreatedOn = 1307192131584000120L,
+                            CreatedOn = 1307303608320000120L,
                             Description = "A new smart SUV",
                             Name = "Juke",
                             Price = 28100m
@@ -317,7 +317,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 10,
                             CategoryId = 3,
-                            CreatedOn = 1307236368384000120L,
+                            CreatedOn = 1307347845120000060L,
                             Description = "",
                             Name = "H247",
                             Price = 54950m
@@ -326,7 +326,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 11,
                             CategoryId = 3,
-                            CreatedOn = 1307227521024000120L,
+                            CreatedOn = 1307338997760000060L,
                             Description = "",
                             Name = "V297",
                             Price = 103360m
@@ -335,7 +335,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 12,
                             CategoryId = 3,
-                            CreatedOn = 1307192131584000120L,
+                            CreatedOn = 1307303608320000120L,
                             Description = "",
                             Name = "R50",
                             Price = 2000000m
@@ -344,7 +344,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 13,
                             CategoryId = 4,
-                            CreatedOn = 1307236368384000120L,
+                            CreatedOn = 1307347845120000060L,
                             Description = "",
                             Name = "M550i",
                             Price = 77790m
@@ -353,7 +353,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 14,
                             CategoryId = 4,
-                            CreatedOn = 1307227521024000120L,
+                            CreatedOn = 1307338997760000060L,
                             Description = "",
                             Name = "540i",
                             Price = 60945m
@@ -362,7 +362,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 15,
                             CategoryId = 4,
-                            CreatedOn = 1307218673664000120L,
+                            CreatedOn = 1307330150400000060L,
                             Description = "",
                             Name = "530e",
                             Price = 56545m
@@ -371,7 +371,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 16,
                             CategoryId = 4,
-                            CreatedOn = 1307209826304000120L,
+                            CreatedOn = 1307321303040000120L,
                             Description = "",
                             Name = "530i",
                             Price = 55195m
@@ -380,7 +380,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 17,
                             CategoryId = 4,
-                            CreatedOn = 1307200978944000120L,
+                            CreatedOn = 1307312455680000120L,
                             Description = "",
                             Name = "M850i",
                             Price = 100045m
@@ -389,7 +389,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 18,
                             CategoryId = 4,
-                            CreatedOn = 1307192131584000120L,
+                            CreatedOn = 1307303608320000120L,
                             Description = "",
                             Name = "X7",
                             Price = 77980m
@@ -398,7 +398,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 19,
                             CategoryId = 4,
-                            CreatedOn = 1307183284224000120L,
+                            CreatedOn = 1307294760960000120L,
                             Description = "",
                             Name = "IX",
                             Price = 87000m
@@ -407,7 +407,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 20,
                             CategoryId = 5,
-                            CreatedOn = 1307236368384000120L,
+                            CreatedOn = 1307347845120000060L,
                             Description = "rapid acceleration and dynamic handling",
                             Name = "Model 3",
                             Price = 61990m
@@ -416,7 +416,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 21,
                             CategoryId = 5,
-                            CreatedOn = 1307227521024000120L,
+                            CreatedOn = 1307338997760000060L,
                             Description = "finishes near the top of our luxury electric car rankings.",
                             Name = "Model S",
                             Price = 135000m
@@ -425,7 +425,7 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 22,
                             CategoryId = 5,
-                            CreatedOn = 1307218673664000120L,
+                            CreatedOn = 1307330150400000060L,
                             Description = "Heart-pumping acceleration, long drive range",
                             Name = "Model X",
                             Price = 138890m
@@ -434,11 +434,28 @@ namespace Bit.TemplatePlayground.Server.Api.Migrations
                         {
                             Id = 23,
                             CategoryId = 5,
-                            CreatedOn = 1307192131584000120L,
+                            CreatedOn = 1307303608320000120L,
                             Description = "extensive driving range, lots of standard safety features",
                             Name = "Model Y",
                             Price = 67790m
                         });
+                });
+
+            modelBuilder.Entity("Microsoft.AspNetCore.DataProtection.EntityFrameworkCore.DataProtectionKey", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("FriendlyName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Xml")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("DataProtectionKeys");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>

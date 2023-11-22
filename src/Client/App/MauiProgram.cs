@@ -1,5 +1,6 @@
 ﻿
 using System.Reflection;
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 using Microsoft.Extensions.FileProviders;
 
 namespace Bit.TemplatePlayground.Client.App;
@@ -17,7 +18,7 @@ public static class MauiProgram
 
         builder
             .UseMauiApp<App>()
-            .Configuration.AddJsonFile(new EmbeddedFileProvider(assembly), "appsettings.json", optional: false, false);
+            .Configuration.AddClientConfigurations();
 
         var services = builder.Services;
 
@@ -26,13 +27,15 @@ public static class MauiProgram
         services.AddBlazorWebViewDeveloperTools();
 #endif
 
-        services.AddScoped(sp =>
-        {
-            HttpClient httpClient = new(sp.GetRequiredService<AppHttpClientHandler>())
-            {
-                BaseAddress = new Uri(sp.GetRequiredService<IConfiguration>().GetApiServerAddress())
-            };
+        Uri.TryCreate(builder.Configuration.GetApiServerAddress(), UriKind.Absolute, out var apiServerAddress);
 
+        services.AddTransient(sp =>
+        {
+            var handler = sp.GetRequiredService<RequestHeadersDelegationHandler>();
+            HttpClient httpClient = new(handler)
+            {
+                BaseAddress = apiServerAddress
+            };
             return httpClient;
         });
 

@@ -2,21 +2,7 @@
 
 public partial class SignOutConfirmModal
 {
-    private bool isOpen;
-
-    [Parameter]
-    public bool IsOpen
-    {
-        get => isOpen;
-        set
-        {
-            if (value == isOpen) return;
-
-            isOpen = value;
-
-            _ = IsOpenChanged.InvokeAsync(value);
-        }
-    }
+    [Parameter] public bool IsOpen { get; set; }
 
     [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
 
@@ -24,12 +10,14 @@ public partial class SignOutConfirmModal
     {
         IsOpen = false;
 
-        await JsRuntime.SetBodyOverflow(false);
+        await IsOpenChanged.InvokeAsync(false);
     }
 
     private async Task SignOut()
     {
-        await AuthenticationService.SignOut();
+        await JSRuntime.RemoveAuthTokens();
+
+        await AuthenticationStateProvider.RaiseAuthenticationStateHasChanged();
 
         await CloseModal();
     }

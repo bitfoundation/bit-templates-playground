@@ -15,10 +15,7 @@ public class Middlewares
             app.UseDeveloperExceptionPage();
 
 #if BlazorWebAssembly
-            if (env.IsDevelopment())
-            {
-                app.UseWebAssemblyDebugging();
-            }
+            app.UseWebAssemblyDebugging();
 #endif
         }
 
@@ -45,10 +42,8 @@ public class Middlewares
             }
         });
 
-        app.UseRouting();
-
         app.UseCors(options => options.WithOrigins("https://localhost:4031" /*BlazorServer*/, "http://localhost:8001" /*BlazorElectron*/, "https://0.0.0.0" /*BlazorHybrid*/, "app://0.0.0.0" /*BlazorHybrid*/)
-            .AllowAnyHeader().AllowAnyMethod().AllowCredentials());
+            .AllowAnyHeader().AllowAnyMethod());
 
         app.UseResponseCaching();
         app.UseAuthentication();

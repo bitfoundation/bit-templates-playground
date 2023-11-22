@@ -4,10 +4,10 @@ namespace Bit.TemplatePlayground.Client.Core.Pages.Identity;
 
 public partial class ForgotPasswordPage
 {
-    public bool _isLoading;
-    public string? _forgotPasswordMessage;
-    public BitMessageBarType _forgotPasswordMessageType;
-    public SendResetPasswordEmailRequestDto _forgotPasswordModel = new();
+    private bool _isLoading;
+    private string? _forgotPasswordMessage;
+    private BitMessageBarType _forgotPasswordMessageType;
+    private SendResetPasswordEmailRequestDto _forgotPasswordModel = new();
 
     private async Task DoSubmit()
     {
@@ -18,16 +18,17 @@ public partial class ForgotPasswordPage
 
         try
         {
-            await HttpClient.PostAsJsonAsync("Auth/SendResetPasswordEmail", _forgotPasswordModel, AppJsonContext.Default.SendResetPasswordEmailRequestDto);
+            await HttpClient.PostAsJsonAsync("Identity/SendResetPasswordEmail", _forgotPasswordModel, AppJsonContext.Default.SendResetPasswordEmailRequestDto);
 
             _forgotPasswordMessageType = BitMessageBarType.Success;
 
-            _forgotPasswordMessage = @Localizer[nameof(AppStrings.ResetPasswordLinkSentMessage)];
+            _forgotPasswordMessage = Localizer[nameof(AppStrings.ResetPasswordLinkSentMessage)];
         }
         catch (KnownException e)
         {
-            _forgotPasswordMessage = e.Message;
             _forgotPasswordMessageType = BitMessageBarType.Error;
+
+            _forgotPasswordMessage = e.Message;
         }
         finally
         {

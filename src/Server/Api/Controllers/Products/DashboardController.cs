@@ -53,7 +53,7 @@ public partial class DashboardController : AppControllerBase
 
         if (productsTotalCount == 0)
         {
-            return new List<ProductPercentagePerCategoryDto>();
+            return [];
         }
 
         return await DbContext.Categories

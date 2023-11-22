@@ -2,13 +2,15 @@
 
 <div class="status-bar">Bit.TemplatePlayground</div>
 
-<div class="main @(_isUserAuthenticated is false ? "main--full-page" : null)">
-    @if (_isUserAuthenticated)
-    {
-        <Header OnToggleMenu=@ToggleMenuHandler />
-        <NavMenu @bind-IsMenuOpen=@_isMenuOpen />
-    }
-    <div class="site-content">
+<Header OnToggleMenu=ToggleMenuHandler />
+
+@if (_isUserAuthenticated)
+{
+    <NavMenu @bind-IsMenuOpen=_isMenuOpen />
+}
+
+<div class="main @(_isUserAuthenticated ? "main--authenticated" : null)">
+    <div class="main-content">
         <AppErrorBoundary>
             @Body
         </AppErrorBoundary>

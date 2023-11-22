@@ -2,21 +2,7 @@
 
 public partial class DeleteAccountConfirmModal
 {
-    private bool isOpen;
-
-    [Parameter]
-    public bool IsOpen
-    {
-        get => isOpen;
-        set
-        {
-            if (value == isOpen) return;
-
-            isOpen = value;
-
-            _ = IsOpenChanged.InvokeAsync(value);
-        }
-    }
+    [Parameter] public bool IsOpen { get; set; }
 
     [Parameter] public EventCallback<bool> IsOpenChanged { get; set; }
 
@@ -24,14 +10,16 @@ public partial class DeleteAccountConfirmModal
     {
         IsOpen = false;
 
-        await JsRuntime.SetBodyOverflow(false);
+        await IsOpenChanged.InvokeAsync(false);
     }
 
     private async Task DeleteAccount()
     {
         await HttpClient.DeleteAsync("User/Delete");
 
-        await AuthenticationService.SignOut();
+        await JSRuntime.RemoveAuthTokens();
+
+        await AuthenticationStateProvider.RaiseAuthenticationStateHasChanged();
 
         await CloseModal();
     }

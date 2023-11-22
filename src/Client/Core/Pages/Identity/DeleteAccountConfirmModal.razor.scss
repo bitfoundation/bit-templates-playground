@@ -1,53 +1,35 @@
 ﻿@import '../../Styles/abstracts/_functions.scss';
 @import '../../Styles/abstracts/_media-queries.scss';
-@import '../../Styles/abstracts/_bit-css-variables.scss';
 
-.main-container {
+.modal-body {
     display: flex;
-    width: rem2(560px);
+    position: relative;
     align-items: center;
+    justify-content: center;
     flex-flow: column nowrap;
-    justify-content: flex-start;
-    padding: rem2(16px) rem2(24px);
-    background-color: $bit-color-background-primary;
+    padding: rem2(28px) rem2(110px);
 
-    @include sm {
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        position: fixed;
-        border-radius: rem2(8px) rem2(8px) 0 0;
+    @include lt-lg {
+        padding: rem2(28px) rem2(47px);
     }
 }
 
-.header {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-flow: row nowrap;
-    margin-bottom: rem2(20px);
-    justify-content: space-between;
+.modal-close-btn-container {
+    top: 0;
+    right: 0;
+    position: absolute;
 }
 
-.title {
+.modal-title {
     color: #dc0000;
     font-weight: 600;
-    font-size: rem2(20px);
-    line-height: rem2(28px);
+    font-size: rem2(24px);
+    line-height: rem2(40px);
+    margin-bottom: rem2(12px);
 }
 
-.body {
-    width: 100%;
-    font-weight: 400;
-    font-size: rem2(14px);
-    line-height: rem2(20px);
-    margin-bottom: rem2(16px);
-}
-
-.btn-group {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    flex-flow: row nowrap;
-    justify-content: flex-end;
+.modal-desc {
+    font-size: rem2(18px);
+    line-height: rem2(24px);
+    margin-bottom: rem2(36px);
 }
