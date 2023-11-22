@@ -4,24 +4,23 @@ namespace Bit.TemplatePlayground.Client.Core.Pages.Identity;
 
 public partial class SignInPage
 {
-    public bool _isLoading;
-    public string? _signInMessage;
-    public BitMessageBarType _signInMessageType;
-    public SignInRequestDto _signInModel = new();
+    private bool _isLoading;
+    private string? _signInMessage;
+    private BitMessageBarType _signInMessageType;
+    private SignInRequestDto _signInModel = new();
 
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public string? RedirectUrl { get; set; }
+    [SupplyParameterFromQuery(Name = "redirect-url"), Parameter] public string? RedirectUrl { get; set; }
 
-    protected async override Task OnAfterFirstRenderAsync()
+    protected override async Task OnAfterFirstRenderAsync()
     {
-        if (await AuthenticationStateProvider.IsUserAuthenticatedAsync())
+        await base.OnAfterFirstRenderAsync();
+
+        if ((await AuthenticationStateTask).User.IsAuthenticated())
         {
             NavigationManager.NavigateTo("/");
         }
-
-        await base.OnAfterFirstRenderAsync();
     }
+
     private async Task DoSignIn()
     {
         if (_isLoading) return;
@@ -31,14 +30,20 @@ public partial class SignInPage
 
         try
         {
-            await AuthenticationService.SignIn(_signInModel);
+            var result = await (await HttpClient.PostAsJsonAsync("Identity/SignIn", _signInModel, AppJsonContext.Default.SignInRequestDto))
+                .Content.ReadFromJsonAsync(AppJsonContext.Default.TokenResponseDto);
+
+            await JSRuntime.StoreAuthToken(result!, _signInModel.RememberMe);
+
+            await AuthenticationStateProvider.RaiseAuthenticationStateHasChanged();
 
             NavigationManager.NavigateTo(RedirectUrl ?? "/");
         }
         catch (KnownException e)
         {
-            _signInMessage = e.Message;
             _signInMessageType = BitMessageBarType.Error;
+
+            _signInMessage = e.Message;
         }
         finally
         {

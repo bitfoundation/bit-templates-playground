@@ -1,4 +1,5 @@
 ﻿#if BlazorWebAssembly
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.AspNetCore.Components.WebAssembly.Services;
 #endif
@@ -12,14 +13,25 @@ public partial class Program
     {
         var builder = WebAssemblyHostBuilder.CreateDefault();
 
-        builder.Configuration.AddJsonStream(typeof(MainLayout).Assembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.json")!);
+        builder.Configuration.AddClientConfigurations();
 
-        var apiServerAddressConfig = builder.Configuration.GetApiServerAddress();
+        Uri.TryCreate(builder.Configuration.GetApiServerAddress(), UriKind.RelativeOrAbsolute, out var apiServerAddress);
 
-        var apiServerAddress = new Uri($"{builder.HostEnvironment.BaseAddress}{apiServerAddressConfig}");
+        if (apiServerAddress!.IsAbsoluteUri is false)
+        {
+            apiServerAddress = new Uri($"{builder.HostEnvironment.BaseAddress}{apiServerAddress}");
+        }
 
-        builder.Services.AddSingleton(sp => new HttpClient(sp.GetRequiredService<AppHttpClientHandler>()) { BaseAddress = apiServerAddress });
-        builder.Services.AddScoped<LazyAssemblyLoader>();
+        builder.Services.AddTransient(sp =>
+        {
+            var handler = sp.GetRequiredService<RequestHeadersDelegationHandler>();
+            HttpClient httpClient = new(handler)
+            {
+                BaseAddress = apiServerAddress
+            };
+            return httpClient;
+        });
+        builder.Services.AddTransient<LazyAssemblyLoader>();
         builder.Services.AddTransient<IAuthTokenProvider, ClientSideAuthTokenProvider>();
 
         builder.Services.AddSharedServices();

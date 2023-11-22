@@ -82,12 +82,12 @@
             <ValidationMessage For="() => _category.Color" />
         </div>
 
-        <BitLoadingButton IsLoading="_isSaving"
-                          ButtonStyle="BitButtonStyle.Primary"
-                          ButtonType="BitButtonType.Submit"
-                          AriaLabel="Category">
+        <BitButton IsLoading="_isSaving"
+                   ButtonStyle="BitButtonStyle.Primary"
+                   ButtonType="BitButtonType.Submit"
+                   AriaLabel="Category">
             @Localizer[nameof(AppStrings.Save)]
-        </BitLoadingButton>
+        </BitButton>
 
     </EditForm>
 </div>

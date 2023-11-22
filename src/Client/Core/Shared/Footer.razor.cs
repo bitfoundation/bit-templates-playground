@@ -1,8 +1,10 @@
-﻿
-namespace Bit.TemplatePlayground.Client.Core.Shared;
+﻿namespace Bit.TemplatePlayground.Client.Core.Shared;
 
 public partial class Footer
 {
+    [AutoInject] private BitThemeManager _bitThemeManager = default!;
+    [AutoInject] private IBitDeviceCoordinator _bitDeviceCoordinator { get; set; } = default!;
+
     private BitDropdownItem<string>[] _cultures = default!;
 
     protected override Task OnInitAsync()
@@ -13,14 +15,14 @@ public partial class Footer
         return base.OnInitAsync();
     }
 
-#if MultilingualEnabled
 
-    protected async override Task OnAfterFirstRenderAsync()
+#if MultilingualEnabled
+    protected override async Task OnAfterFirstRenderAsync()
     {
 #if BlazorHybrid
         var preferredCultureCookie = Preferences.Get(".AspNetCore.Culture", null);
 #else
-        var preferredCultureCookie = await JsRuntime.InvokeAsync<string?>("window.App.getCookie", ".AspNetCore.Culture");
+        var preferredCultureCookie = await JSRuntime.GetCookie(".AspNetCore.Culture");
 #endif
         SelectedCulture = CultureInfoManager.GetCurrentCulture(preferredCultureCookie);
 
@@ -39,9 +41,14 @@ public partial class Footer
 #if BlazorHybrid
         Preferences.Set(".AspNetCore.Culture", cultureCookie);
 #else
-        await JsRuntime.InvokeVoidAsync("window.App.setCookie", ".AspNetCore.Culture", cultureCookie, 30 * 24 * 3600);
+        await JSRuntime.SetCookie(".AspNetCore.Culture", cultureCookie, 30 * 24 * 3600, rememberMe: true);
 #endif
 
         NavigationManager.Refresh(forceReload: true);
+    }
+
+    private async Task ToggleTheme()
+    {
+        await _bitDeviceCoordinator.ApplyTheme(await _bitThemeManager.ToggleDarkLightAsync() == "dark");
     }
 }

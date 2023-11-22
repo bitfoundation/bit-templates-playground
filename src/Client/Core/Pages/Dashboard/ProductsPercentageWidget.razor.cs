@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Home;
+﻿namespace Bit.TemplatePlayground.Client.Core.Pages.Dashboard;
 
 public partial class ProductsPercentageWidget
 {
@@ -24,12 +24,11 @@ public partial class ProductsPercentageWidget
 
         try
         {
-            var data = await PrerenderStateService.GetValue($"{nameof(HomePage)}-{nameof(ProductsPercentageWidget)}",
+            var data = await PrerenderStateService.GetValue($"{nameof(DashboardPage)}-{nameof(ProductsPercentageWidget)}",
                                 async () => await HttpClient.GetFromJsonAsync($"Dashboard/GetProductsPercentagePerCategoryStats",
-                                    AppJsonContext.Default.ListProductPercentagePerCategoryDto)) ?? new();
+                                    AppJsonContext.Default.ListProductPercentagePerCategoryDto)) ?? [];
 
-            BitChartPieDataset<float> chartDataSet = new BitChartPieDataset<float>();
-            chartDataSet.AddRange(data!.Select(d => d.ProductPercentage));
+            BitChartPieDataset<float> chartDataSet = [.. data!.Select(d => d.ProductPercentage)];
             chartDataSet.BackgroundColor = data.Select(d => d.CategoryColor ?? string.Empty).ToArray();
             _config.Data.Datasets.Add(chartDataSet);
             _config.Data.Labels.AddRange(data.Select(d => d.CategoryName ?? string.Empty));

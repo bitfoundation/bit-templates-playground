@@ -1,160 +1,69 @@
-﻿@import '../Styles/abstracts/_vars.scss';
-@import '../Styles/abstracts/_functions.scss';
+﻿@import '../Styles/abstracts/_functions.scss';
 @import '../Styles/abstracts/_media-queries.scss';
 @import '../Styles/abstracts/_bit-css-variables.scss';
 
-.main-header {
+.header {
     top: 0;
+    width: 100%;
     z-index: 100;
     display: flex;
     position: fixed;
-    flex-flow: column;
-    min-height: rem2($HeaderHeight);
-    width: calc(100% - $NavMenuWidth);
-    padding-top: var(--bit-status-bar-height);
-    background-color: $bit-color-background-primary;
-    border-bottom: rem2(1px) solid $bit-color-border-secondary;
-
-    @include lt-lg {
-        width: 100%;
-    }
-
-    .bit-ios & {
-        padding-top: env(safe-area-inset-top);
-    }
-}
-
-.header-main-container {
-    width: 100%;
-    flex-grow: 1;
-    display: flex;
-    margin-left: auto;
-    margin-right: auto;
     align-items: center;
     flex-flow: row nowrap;
-    min-height: rem2($HeaderHeight);
+    min-height: rem2(48px);
+    padding-left: rem2(16px);
+    padding-right: rem2(16px);
+    padding-bottom: rem2(7px);
     justify-content: space-between;
-    padding: 0 rem2($LargeScreenPadding);
-    max-width: rem2($LargeScreenMaxWidth);
+    box-shadow: $bit-box-shadow-callout;
+    background-color: $bit-color-background-primary;
+    padding-top: calc(rem2(7px) + var(--bit-status-bar-height));
+}
 
-    @include md {
-        padding: 0 rem2($MediumScreenPadding);
-        max-width: rem2($MediumScreenMaxWidth);
-    }
-
-    @include sm {
-        padding: 0 rem2($SmallScreenPadding);
-        max-width: rem2($SmallScreenMaxWidth);
+.bit-ios {
+    .header {
+        padding-top: calc(rem2(7px) + env(safe-area-inset-top));
     }
 }
 
-.header-content-container {
-    height: 100%;
-    display: flex;
+.logo-lnk {
     cursor: pointer;
-    position: relative;
-    align-items: center;
-    flex-flow: row nowrap;
-}
-
-.left-section {
-    flex-grow: 1;
-}
-
-.header-logo {
-    cursor: pointer;
-    width: rem2(30px);
-    height: rem2(20px);
-    margin-right: rem2(24px);
+    width: rem2(24px);
+    height: rem2(24px);
+    min-width: rem2(24px);
+    border-radius: rem2(4px);
     background-size: contain;
     background-position: center;
     background-repeat: no-repeat;
     background-image: url('images/bit-logo.svg');
+}
 
-    @include gt-md {
-        display: none;
-    }
+.header-contact {
+    display: flex;
+    align-items: center;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
 }
 
 ::deep {
-    .header-breadcrumb {
-        @include sm {
-            display: none;
-        }
-    }
-
-    .header-menu-btn {
+    .header-menu {
+        display: none;
         margin-right: rem2(12px);
 
-        @include gt-md {
-            display: none;
-        }
-    }
-}
-
-.header-drp-wrapper {
-    right: 0;
-    display: flex;
-    top: rem2(40px);
-    cursor: default;
-    width: rem2(224px);
-    height: rem2(200px);
-    position: absolute;
-    padding: 0 rem2(8px);
-    align-items: flex-start;
-    border-radius: rem2(2px);
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-    box-shadow: $bit-box-shadow-callout;
-    background: $bit-color-background-secondary;
-}
-
-.user-info-container {
-    width: 100%;
-    display: flex;
-    height: rem2(100px);
-    padding: 0 rem2(2px);
-    align-items: center;
-    flex-flow: row nowrap;
-    margin-bottom: rem2(10px);
-    justify-content: flex-start;
-    border-bottom: rem2(1px) solid $bit-color-border-secondary;
-}
-
-.toggle-theme-btn {
-    padding: 0;
-    border: none;
-    cursor: pointer;
-    height: rem2(32px);
-    border-radius: 50%;
-    min-width: rem2(32px);
-    margin-right: rem2(10px);
-    color: $bit-color-primary-text;
-    background-color: $bit-color-primary-main;
-
-    .icon-container {
-        height: 100%;
-        display: flex;
-        flex-wrap: nowrap;
-        align-items: center;
-        justify-content: center;
-
-        .bit-icon {
-            margin: 0 rem2(4px);
+        @include lt-lg {
+            display: block;
         }
     }
 
-    &.dark-theme {
-        .icon-container {
-            padding: 2px 0px 0 1px;
+    .header-item {
+        padding: rem2(4px) rem2(16px);
+
+        @include lt-lg {
+            padding: rem2(4px) rem2(8px);
+        }
+
+        @include lt-md {
+            padding: rem2(4px) rem2(4px);
         }
     }
-}
-
-.theme-dark .light-theme {
-    display: none;
-}
-
-.theme-light .dark-theme {
-    display: none;
 }

@@ -5,9 +5,9 @@ namespace Bit.TemplatePlayground.Client.Core.Pages.Identity;
 [Authorize]
 public partial class EditProfilePage
 {
-    private bool _isLoading;
+    private bool _isSaving;
     private bool _isRemoving;
-    private bool _isLoadingData;
+    private bool _isLoading;
     private string? _profileImageUrl;
     private string? _profileImageError;
     private string? _editProfileMessage;
@@ -20,7 +20,7 @@ public partial class EditProfilePage
 
     protected override async Task OnInitAsync()
     {
-        _isLoadingData = true;
+        _isLoading = true;
 
         try
         {
@@ -34,42 +34,40 @@ public partial class EditProfilePage
         }
         finally
         {
-            _isLoadingData = false;
+            _isLoading = false;
         }
+
+        await base.OnInitAsync();
     }
 
     private async Task LoadEditProfileData()
     {
-        _user = await PrerenderStateService.GetValue($"{nameof(EditProfilePage)}-{nameof(_user)}", GetCurrentUser) ?? new();
+        _user = await GetCurrentUser() ?? new();
 
         UpdateEditProfileData();
     }
 
     private async Task RefreshProfileData()
     {
-        _user = await GetCurrentUser() ?? new();
-
-        UpdateEditProfileData();
+        await LoadEditProfileData();
 
         PubSubService.Publish(PubSubMessages.PROFILE_UPDATED, _user);
     }
 
     private void UpdateEditProfileData()
     {
+        _userToEdit.Gender = _user.Gender;
         _userToEdit.FullName = _user.FullName;
         _userToEdit.BirthDate = _user.BirthDate;
-        _userToEdit.Gender = _user.Gender;
     }
 
-    private Task<UserDto?> GetCurrentUser() => HttpClient.GetFromJsonAsync("User/GetCurrentUser", AppJsonContext.Default.UserDto);
-
-    private async Task GoBack() => await JsRuntime.GoBack();
+    private Task<UserDto?> GetCurrentUser() => PrerenderStateService.GetValue($"{nameof(EditProfilePage)}-{nameof(_user)}", () => HttpClient.GetFromJsonAsync("User/GetCurrentUser", AppJsonContext.Default.UserDto));
 
     private async Task DoSave()
     {
-        if (_isLoading) return;
+        if (_isSaving) return;
 
-        _isLoading = true;
+        _isSaving = true;
         _editProfileMessage = null;
 
         try
@@ -84,20 +82,20 @@ public partial class EditProfilePage
             PubSubService.Publish(PubSubMessages.PROFILE_UPDATED, _user);
 
             _editProfileMessageType = BitMessageBarType.Success;
-
             _editProfileMessage = Localizer[nameof(AppStrings.ProfileUpdatedSuccessfullyMessage)];
         }
         catch (KnownException e)
         {
-            _editProfileMessage = e.Message;
             _editProfileMessageType = BitMessageBarType.Error;
+
+            _editProfileMessage = e.Message;
         }
         finally
         {
-            _isLoading = false;
+            _isSaving = false;
         }
     }
-    
+
     private async Task RemoveProfileImage()
     {
         if (_isRemoving) return;

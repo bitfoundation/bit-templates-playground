@@ -20,16 +20,16 @@ using WebAppManagedServiceIdentityArgs = Pulumi.AzureNative.Web.Inputs.ManagedSe
 
 namespace Bit.TemplatePlayground.Iac;
 
-public class AdStack : Stack
+public class BpStack : Stack
 {
-    public AdStack()
+    public BpStack()
     {
         string stackName = Pulumi.Deployment.Instance.StackName;
 
         Config pulumiConfig = new();
 
-        var sqlDatabaseDbAdminId = pulumiConfig.Require("sql-server-ad-db-admin-id");
-        var sqlDatabaseDbAdminPassword = pulumiConfig.RequireSecret("sql-server-ad-db-admin-password");
+        var sqlDatabaseDbAdminId = pulumiConfig.Require("sql-server-bp-db-admin-id");
+        var sqlDatabaseDbAdminPassword = pulumiConfig.RequireSecret("sql-server-bp-db-admin-password");
 
         var defaultEmailFrom = pulumiConfig.Require("default-email-from");
         var emailServerHost = pulumiConfig.Require("email-server-host");
@@ -39,22 +39,22 @@ public class AdStack : Stack
 
         var identityCertificatePassword = pulumiConfig.RequireSecret("identity-certificate-password");
 
-        ResourceGroup resourceGroup = new($"ad-{stackName}", new ResourceGroupArgs
+        ResourceGroup resourceGroup = new($"bp-{stackName}", new ResourceGroupArgs
         {
-            ResourceGroupName = $"ad-{stackName}"
-        }, options: new() { ImportId = $"/subscriptions/{GetClientConfig.InvokeAsync().GetAwaiter().GetResult().SubscriptionId}/resourceGroups/ad-prod" });
+            ResourceGroupName = $"bp-{stackName}"
+        }, options: new() { ImportId = $"/subscriptions/{GetClientConfig.InvokeAsync().GetAwaiter().GetResult().SubscriptionId}/resourceGroups/bp-prod" });
 
-        Workspace appInsightsWorkspace = new($"insights-wkspc-ad-{stackName}", new()
+        Workspace appInsightsWorkspace = new($"insights-wkspc-bp-{stackName}", new()
         {
-            WorkspaceName = $"insights-wkspc-ad-{stackName}",
+            WorkspaceName = $"insights-wkspc-bp-{stackName}",
             ResourceGroupName = resourceGroup.Name,
             Location = resourceGroup.Location,
             RetentionInDays = 30
         });
 
-        AppInsights appInsights = new($"app-insights-ad-{stackName}", new()
+        AppInsights appInsights = new($"app-insights-bp-{stackName}", new()
         {
-            ResourceName = $"app-insights-ad-{stackName}",
+            ResourceName = $"app-insights-bp-{stackName}",
             ResourceGroupName = resourceGroup.Name,
             Location = resourceGroup.Location,
             ApplicationType = AppInsightsWebApplicationType.Web,
@@ -68,18 +68,18 @@ public class AdStack : Stack
             }).Apply(workspace => workspace.Id)
         });
 
-        SqlServer sqlServer = new($"sql-server-ad-{stackName}", new()
+        SqlServer sqlServer = new($"sql-server-bp-{stackName}", new()
         {
-            ServerName = $"sql-server-ad-{stackName}",
+            ServerName = $"sql-server-bp-{stackName}",
             ResourceGroupName = resourceGroup.Name,
             Location = resourceGroup.Location,
             AdministratorLogin = sqlDatabaseDbAdminId,
             AdministratorLoginPassword = sqlDatabaseDbAdminPassword
         });
 
-        SqlDatabase sqlDatabase = new($"sql-database-ad-{stackName}", new()
+        SqlDatabase sqlDatabase = new($"sql-database-bp-{stackName}", new()
         {
-            DatabaseName = $"sql-database-ad-{stackName}",
+            DatabaseName = $"sql-database-bp-{stackName}",
             ResourceGroupName = resourceGroup.Name,
             Location = resourceGroup.Location,
             ServerName = sqlServer.Name,
@@ -91,9 +91,9 @@ public class AdStack : Stack
             }
         });
 
-        AppServicePlan appServicePlan = new($"app-plan-ad-{stackName}", new()
+        AppServicePlan appServicePlan = new($"app-plan-bp-{stackName}", new()
         {
-            Name = $"app-plan-ad-{stackName}",
+            Name = $"app-plan-bp-{stackName}",
             ResourceGroupName = resourceGroup.Name,
             Location = resourceGroup.Location,
             Kind = "Linux",
@@ -108,14 +108,14 @@ public class AdStack : Stack
             }
         });
 
-        string vaultName = $"vault-ad-{stackName}";
+        string vaultName = $"vault-bp-{stackName}";
         string sqlDatabaseConnectionStringSecretName = $"sql-connection-secret";
         string emailServerPasswordSecretName = "email-server-password-secret";
         string identityCertificatePasswordSecretName = "identity-certificate-password-secret";
 
-        WebApp webApp = new($"app-service-ad-{stackName}", new()
+        WebApp webApp = new($"app-service-bp-{stackName}", new()
         {
-            Name = $"app-service-ad-{stackName}",
+            Name = $"app-service-bp-{stackName}",
             ResourceGroupName = resourceGroup.Name,
             Location = resourceGroup.Location,
             ServerFarmId = appServicePlan.Id,
@@ -132,8 +132,8 @@ public class AdStack : Stack
                 FtpsState = FtpsState.Disabled,
                 LinuxFxVersion = "DOTNETCORE|8.0",
                 AppCommandLine = "dotnet Bit.TemplatePlayground.Server.Api.dll",
-                AppSettings = new()
-                {
+                AppSettings =
+                [
                     new NameValuePairArgs { Name = "ApplicationInsights__InstrumentationKey", Value = appInsights.InstrumentationKey },
                     new NameValuePairArgs { Name = "APPINSIGHTS_INSTRUMENTATIONKEY", Value = appInsights.InstrumentationKey },
                     new NameValuePairArgs { Name = "ASPNETCORE_ENVIRONMENT", Value = stackName == "test" ? "Test" : "Production" },
@@ -157,19 +157,19 @@ public class AdStack : Stack
                     },
                     new NameValuePairArgs
                     {
-                        Name = "AppSettings__JwtSettings__IdentityCertificatePassword",
+                        Name = "AppSettings__IdentitySettings__IdentityCertificatePassword",
                         Value = $"@Microsoft.KeyVault(VaultName={vaultName};SecretName={identityCertificatePasswordSecretName})"
                     },
-                },
-                ConnectionStrings = new()
-                {
+                ],
+                ConnectionStrings =
+                [
                     new ConnStringInfoArgs
                     {
                         Name = "SqlServerConnectionString",
                         Type = ConnectionStringType.SQLAzure,
                         ConnectionString = $"@Microsoft.KeyVault(VaultName={vaultName};SecretName={sqlDatabaseConnectionStringSecretName})"
                     }
-                }
+                ]
             }
         });
 
@@ -201,7 +201,7 @@ public class AdStack : Stack
             return string.Empty;
         });
 
-        Vault vault = new Vault($"vault-ad-{stackName}", new()
+        Vault vault = new Vault($"vault-bp-{stackName}", new()
         {
             ResourceGroupName = resourceGroup.Name,
             Location = resourceGroup.Location,
@@ -216,8 +216,7 @@ public class AdStack : Stack
                 EnableSoftDelete = false,
                 AccessPolicies = new List<AccessPolicyEntryArgs>
                 {
-                    new AccessPolicyEntryArgs
-                    {
+                    new() {
                         TenantId = Output.Create(GetClientConfig.InvokeAsync()).Apply(clientConfig => clientConfig.TenantId),
                         ObjectId = Output.Tuple(resourceGroup.Name, webApp.Name).Apply(t =>
                         {

@@ -1,7 +1,8 @@
 ﻿#if BlazorServer
 using System.IO.Compression;
-using Microsoft.AspNetCore.ResponseCompression;
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 using Bit.TemplatePlayground.Client.Web.Services;
+using Microsoft.AspNetCore.ResponseCompression;
 
 namespace Bit.TemplatePlayground.Client.Web.Startup;
 
@@ -9,11 +10,13 @@ public static class Services
 {
     public static void Add(IServiceCollection services, IConfiguration configuration)
     {
-        services.AddScoped(sp =>
+        services.AddTransient(sp =>
         {
-            HttpClient httpClient = new(sp.GetRequiredService<AppHttpClientHandler>())
+            Uri.TryCreate(configuration.GetApiServerAddress(), UriKind.Absolute, out var apiServerAddress);
+            var handler = sp.GetRequiredService<RequestHeadersDelegationHandler>();
+            HttpClient httpClient = new(handler)
             {
-                BaseAddress = new Uri(sp.GetRequiredService<IConfiguration>().GetApiServerAddress())
+                BaseAddress = apiServerAddress
             };
 
             return httpClient;
@@ -25,7 +28,7 @@ public static class Services
         services.AddResponseCompression(opts =>
         {
             opts.EnableForHttps = true;
-            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new[] { "application/octet-stream" }).ToArray();
+            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]).ToArray();
             opts.Providers.Add<BrotliCompressionProvider>();
             opts.Providers.Add<GzipCompressionProvider>();
         })

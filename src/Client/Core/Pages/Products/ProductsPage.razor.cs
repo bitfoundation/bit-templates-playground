@@ -60,10 +60,11 @@ public partial class ProductsPage
 
                 var data = await HttpClient.GetFromJsonAsync(url, AppJsonContext.Default.PagedResultProductDto);
 
-                return BitDataGridItemsProviderResult.From(data!.Items!, (int)data!.TotalCount);
+                return BitDataGridItemsProviderResult.From(await data!.Items!.ToListAsync(), (int)data!.TotalCount);
             }
-            catch
+            catch (Exception exp)
             {
+                ExceptionHandler.Handle(exp);
                 return BitDataGridItemsProviderResult.From(new List<ProductDto> { }, 0);
             }
             finally
@@ -92,7 +93,7 @@ public partial class ProductsPage
 
     private async Task DeleteProduct(ProductDto product)
     {
-        var confirmed = await _confirmMessageBox.Show(Localizer.GetString(nameof(AppStrings.AreYouSureWannaDeleteProduct), product.Name ?? string.Empty), 
+        var confirmed = await _confirmMessageBox.Show(Localizer.GetString(nameof(AppStrings.AreYouSureWannaDeleteProduct), product.Name ?? string.Empty),
                                                      Localizer[nameof(AppStrings.DeleteProduct)]);
 
         if (confirmed)

@@ -7,96 +7,127 @@
     width: 100%;
     display: flex;
     min-height: 100vh;
+    flex-flow: column;
     position: relative;
-    flex-flow: column nowrap;
-    justify-content: flex-start;
-    padding-top: rem2($HeaderHeight);
-    padding-left: rem2($NavMenuWidth);
     background-color: $bit-color-background-secondary;
-
-    @include lt-lg {
-        padding-left: 0;
-    }
-}
-
-.main--full-page {
-    padding: 0;
-    min-height: 100%;
-
-    .site-content {
-        height: calc(100vh - 49px);
-        padding: var(--bit-status-bar-height) 0 0 0;
-
-        .bit-ios & {
-            padding-top: env(safe-area-inset-top);
-            height: calc(100vh - 49px - env(safe-area-inset-bottom));
-        }
-
-        @media screen and (max-height:700px) {
-            display: flex;
-            align-items: center;
-            height: unset !important;
-            min-height: calc(100vh - 49px - var(--bit-status-bar-height));
-
-            .bit-ios & {
-                min-height: calc(100vh - 49px - env(safe-area-inset-bottom));
-            }
-        }
-    }
-}
-
-.site-content {
-    width: 100%;
-    margin-left: auto;
-    margin-right: auto;
-    min-height: calc(100vh - 103px);
-    padding: 0 rem2($LargeScreenPadding);
-    max-width: rem2($LargeScreenMaxWidth);
-    padding-top: calc(rem2(32px) + var(--bit-status-bar-height));
-    padding-bottom: rem2(32px);
+    padding-top: calc(rem2(48px) + var(--bit-status-bar-height));
 
     .bit-ios & {
-        padding-top: calc(rem2(32px) + env(safe-area-inset-top));
-        min-height: calc(100vh - 103px - env(safe-area-inset-bottom));
+        padding-top: calc(rem2(48px) + env(safe-area-inset-top));
     }
+}
 
-    @include md {
-        padding: 0 rem2($MediumScreenPadding);
-        max-width: rem2($MediumScreenMaxWidth);
-        padding-top: calc(rem2(32px) + var(--bit-status-bar-height));
-        padding-bottom: rem2(32px);
+.main--authenticated {
+    display: flex;
+    flex-flow: column;
+    margin-left: rem2($navMenuWidth);
+    width: calc(100% - rem2($navMenuWidth));
 
-        .bit-ios & {
-            padding-top: calc(rem2(32px) + env(safe-area-inset-top));
-        }
+    @include lt-lg {
+        width: 100%;
+        margin-left: 0;
     }
+}
 
-    @include sm {
-        padding: 0 rem2($SmallScreenPadding);
-        max-width: rem2($SmallScreenMaxWidth);
-        padding-top: calc(rem2(16px) + var(--bit-status-bar-height));
-        padding-bottom: rem2(16px);
-
-        .bit-ios & {
-            padding-top: calc(rem2(16px) + env(safe-area-inset-top));
-        }
-    }
+.main-content {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 ::deep {
-    a {
-        text-decoration: none;
+    .form {
+        width: 100%;
+        display: flex;
+        position: relative;
+        text-align: center;
+        align-items: center;
+        max-width: rem2(608px);
+        border-radius: rem2(4px);
+        justify-content: center;
+        flex-flow: column nowrap;
+        padding: rem2(48px) rem2(5px);
+        box-shadow: $bit-box-shadow-callout;
+        background-color: $bit-color-background-primary;
+
+        @include lg {
+            padding: rem2(48px) rem2(5px);
+        }
+
+        @include md {
+            padding: rem2(48px) rem2(5px);
+        }
+
+        @include sm {
+            padding: rem2(32px) rem2(14px);
+        }
     }
 
+    .form-title {
+        font-weight: 600;
+        font-size: rem2(28px);
+        line-height: rem2(44px);
+        margin-bottom: rem2(25px);
+
+        @include lg {
+            font-size: rem2(24px);
+            line-height: rem2(36px);
+        }
+
+        @include md {
+            font-size: rem2(22px);
+            line-height: rem2(36px);
+        }
+
+        @include sm {
+            font-size: rem2(20px);
+            line-height: rem2(32px);
+        }
+    }
+
+    .form-input-container {
+        width: 100%;
+        display: flex;
+        text-align: start;
+        max-width: rem2(340px);
+        flex-flow: column nowrap;
+        margin-bottom: rem2(21px);
+
+        @include lt-xl {
+            max-width: rem2(300px);
+        }
+
+        @include sm {
+            max-width: 100%;
+        }
+    }
+
+    .form-input-error,
     .validation-message {
+        text-align: left;
+        font-size: rem2(12px);
+        line-height: rem2(16px);
         color: $bit-color-state-error;
+    }
+
+    .form-submit-button {
+        margin-top: rem2(20px);
+        margin-bottom: rem2(10px);
+    }
+
+    .form-message-bar {
+        top: 0;
+        left: 0;
+        position: absolute;
+        border-radius: rem2(4px) rem2(4px) 0 0;
     }
 }
 
 .status-bar {
     top: 0;
     width: 100%;
-    z-index: 1101;
+    z-index: 101;
     display: none;
     position: fixed;
     overflow: hidden;
@@ -104,14 +135,13 @@
     align-items: center;
     font-size: rem2(14px);
     justify-content: center;
-    color: $bit-color-primary-main;
+    background-color: $bit-color-background-primary;
 }
 
 .bit-windows, .bit-macos {
     .status-bar {
         display: flex;
         background-color: transparent;
-        color: $bit-color-primary-main;
         height: var(--bit-status-bar-height);
     }
 }

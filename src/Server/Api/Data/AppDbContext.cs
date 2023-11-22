@@ -1,16 +1,15 @@
 ﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Models.Categories;
 using Bit.TemplatePlayground.Server.Api.Models.Products;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bit.TemplatePlayground.Server.Api.Data;
 
-public class AppDbContext : IdentityDbContext<User, Role, int>
+public class AppDbContext(DbContextOptions<AppDbContext> options) 
+    : IdentityDbContext<User, Role, int>(options), IDataProtectionKeyContext
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options)
-        : base(options)
-    {
-    }
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
     public DbSet<Category> Categories { get; set; }
     public DbSet<Product> Products { get; set; }

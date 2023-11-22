@@ -3,25 +3,13 @@
 @import '../Styles/abstracts/_bit-css-variables.scss';
 
 .main-container {
+    flex-grow: 1;
     display: flex;
-    width: rem2(560px);
     align-items: center;
     flex-flow: column nowrap;
     justify-content: flex-start;
     padding: rem2(16px) rem2(24px);
     background-color: $bit-color-background-primary;
-
-    .bit-ios & {
-        padding-bottom: calc(rem2(16px) + env(safe-area-inset-bottom));
-    }
-
-    @include sm {
-        left: 0;
-        bottom: 0;
-        width: 100%;
-        position: fixed;
-        border-radius: rem2(8px) rem2(8px) 0 0;
-    }
 }
 
 .header {

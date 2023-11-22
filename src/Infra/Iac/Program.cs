@@ -1,7 +1,7 @@
-﻿using Pulumi;
-using Bit.TemplatePlayground.Iac;
+﻿using Bit.TemplatePlayground.Iac;
+using Pulumi;
 
 public class Program
 {
-    static Task<int> Main() => Deployment.RunAsync<AdStack>();
+    static Task<int> Main() => Deployment.RunAsync<BpStack>();
 }

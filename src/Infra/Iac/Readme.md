@@ -25,26 +25,26 @@ az provider register --namespace 'Microsoft.KeyVault'
 
 ```
 
-2- Create ad-prod resource group
+2- Create bp-prod resource group
 
 ```
-az group create --name ad-prod --location eastus
+az group create --name bp-prod --location eastus
 ```
 
 Notes:
-* `ad` is an abbreviation for Admin, use the acronym of your choice and replace ad with that (for example abc) using exact match - case sensitive find and replace in this file and AdStack.cs.
+* `bp` is an abbreviation for Bit.TemplatePlayground, use the acronym of your choice and replace bp with that (for example abc) using exact match - case sensitive find and replace in this file and AdStack.cs.
 * You can use any location supported by azure cloud (run `az account list-locations -o table` to see full list of locations)
 
 3- Create [service principals](https://docs.microsoft.com/en-us/azure/active-directory/develop/app-objects-and-service-principals) for prod using followings:
 
 ```
-az ad sp create-for-rbac -n "ad-prod" --role Contributor --scopes /subscriptions/{subscriptionId}/resourceGroups/ad-prod
+az bp sp create-for-rbac -n "bp-prod" --role Contributor --scopes /subscriptions/{subscriptionId}/resourceGroups/bp-prod
 ```
 
 Notes:
 
 * Replace `{subscriptionId}` with [your own subscription id](https://docs.microsoft.com/en-us/azure/media-services/latest/setup-azure-subscription-how-to)
-* Running `az ad sp` will return a json like response that contains `appId`l, `password` and `tenant`. Store them somewhere safe.
+* Running `az bp sp` will return a json like response that contains `appId`l, `password` and `tenant`. Store them somewhere safe.
 
 4- Create the stacks folder first, then create `prod` folder in the `stacks` folder.
 
@@ -86,8 +86,8 @@ pulumi config set azure-native:tenantId
 pulumi config set azure-native:subscriptionId
 
 # Provide SQL server's admin user/pass
-pulumi config set Bit.TemplatePlayground.Iac:sql-server-ad-db-admin-id
-pulumi config set Bit.TemplatePlayground.Iac:sql-server-ad-db-admin-password --secret
+pulumi config set Bit.TemplatePlayground.Iac:sql-server-bp-db-admin-id
+pulumi config set Bit.TemplatePlayground.Iac:sql-server-bp-db-admin-password --secret
 
 # Provide SMTP server's host, port, user, pass and default email sender.
 pulumi config set Bit.TemplatePlayground.Iac:default-email-from

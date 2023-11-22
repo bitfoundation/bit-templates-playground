@@ -7,15 +7,11 @@ public partial class ResetPasswordPage
     private bool _isLoading;
     private string? _resetPasswordMessage;
     private BitMessageBarType _resetPasswordMessageType;
-    private readonly ResetPasswordRequestDto _resetPasswordModel = new();
+    private ResetPasswordRequestDto _resetPasswordModel = new();
 
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public string? Email { get; set; }
+    [Parameter][SupplyParameterFromQuery] public string? Email { get; set; }
 
-    [Parameter]
-    [SupplyParameterFromQuery]
-    public string? Token { get; set; }
+    [Parameter][SupplyParameterFromQuery] public string? Token { get; set; }
 
     protected override async Task OnInitAsync()
     {
@@ -25,15 +21,16 @@ public partial class ResetPasswordPage
         await base.OnInitAsync();
     }
 
-    protected async override Task OnAfterFirstRenderAsync()
+    protected override async Task OnAfterFirstRenderAsync()
     {
-        if (await AuthenticationStateProvider.IsUserAuthenticatedAsync())
+        await base.OnAfterFirstRenderAsync();
+
+        if ((await AuthenticationStateTask).User.IsAuthenticated())
         {
             NavigationManager.NavigateTo("/");
         }
-
-        await base.OnAfterFirstRenderAsync();
     }
+
     private async Task DoSubmit()
     {
         if (_isLoading) return;
@@ -43,24 +40,17 @@ public partial class ResetPasswordPage
 
         try
         {
-            await HttpClient.PostAsJsonAsync("Auth/ResetPassword", _resetPasswordModel, AppJsonContext.Default.ResetPasswordRequestDto);
+            await HttpClient.PostAsJsonAsync("Identity/ResetPassword", _resetPasswordModel, AppJsonContext.Default.ResetPasswordRequestDto);
 
             _resetPasswordMessageType = BitMessageBarType.Success;
 
             _resetPasswordMessage = Localizer[nameof(AppStrings.PasswordChangedSuccessfullyMessage)];
-
-            await AuthenticationService.SignIn(new SignInRequestDto
-            {
-                UserName = Email,
-                Password = _resetPasswordModel.Password
-            });
-
-            NavigationManager.NavigateTo("/");
         }
         catch (KnownException e)
         {
-            _resetPasswordMessage = e.Message;
             _resetPasswordMessageType = BitMessageBarType.Error;
+
+            _resetPasswordMessage = e.Message;
         }
         finally
         {

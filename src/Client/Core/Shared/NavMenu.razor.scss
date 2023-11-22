@@ -1,44 +1,26 @@
 ﻿@import '../Styles/abstracts/_vars.scss';
-@import '../Styles/abstracts/_colors.scss';
 @import '../Styles/abstracts/_functions.scss';
 @import '../Styles/abstracts/_media-queries.scss';
 @import '../Styles/abstracts/_bit-css-variables.scss';
 
-.nav-menu {
-    top: 0;
+.main-container {
     left: 0;
-    outline: 0;
-    height: 100vh;
-    z-index: 1000;
+    z-index: 16;
     display: flex;
-    flex: 1 0 auto;
-    flex-shrink: 0;
     position: fixed;
-    box-shadow: none;
-    overflow-y: auto;
-    align-items: center;
-    flex-direction: column;
-    width: rem2($NavMenuWidth);
-    padding-bottom: rem2(24px);
-    max-width: rem2($NavMenuWidth);
-    justify-content: space-between;
-    padding-top: var(--bit-status-bar-height);
+    min-height: 100%;
+    flex-flow: column nowrap;
+    width: rem2($navMenuWidth);
+    justify-content: flex-start;
     background-color: $bit-color-background-primary;
+    padding-top: calc(rem2(48px) + var(--bit-status-bar-height));
 
     .bit-ios & {
-        padding-top: env(safe-area-inset-top);
-    }
-
-    @include lt-lg {
-        top: 0;
-        inset: 0;
-        height: 100vh;
-        z-index: 1200;
-        position: fixed;
+        padding-top: calc(rem2(48px) + env(safe-area-inset-top));
     }
 }
 
-.nav-menu--closed {
+.main-container--closed {
     display: none;
 
     @include gt-md {
@@ -46,14 +28,24 @@
     }
 }
 
-.menu-shadow {
-    top: 0;
+.top-container {
+    width: 100%;
+    display: flex;
+    padding: rem2(18px) 0;
+    flex-flow: column nowrap;
+    margin-bottom: rem2(20px);
+    justify-content: flex-start;
+    border-bottom: rem2(1px) solid $bit-color-border-secondary;
+}
+
+.menu-overlay {
     left: 0;
     width: 100%;
-    height: 100vh;
-    z-index: 1101;
+    z-index: 15;
     display: none;
+    top: rem2(48px);
     position: fixed;
+    height: calc(100vh - #{rem2(48px)});
     background-color: rgba(0, 0, 0, 0.5);
 
     @include lt-lg {
@@ -61,22 +53,13 @@
     }
 }
 
-.menu-content {
-    width: 100%;
-}
-
-.menu-top-row {
-    width: 100%;
-    height: rem2(calc($HeaderHeight + 1px));
-    background-repeat: no-repeat;
-    background-size: rem2(30px) rem2(20px);
-    background-image: url('images/bit-logo.svg');
-    background-position: top rem2(16px) left rem2(16px);
-    border-bottom: rem2(1px) solid $bit-color-border-secondary;
-}
-
 ::deep {
-    .bit-nav-menu {
-        padding-top: rem2(32px);
+    a {
+        text-decoration: none;
+    }
+
+    .persona {
+        margin: auto;
+        max-width: rem2(calc($navMenuWidth - 20px));
     }
 }

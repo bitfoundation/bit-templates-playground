@@ -11,7 +11,7 @@ public partial class App
 #endif
 
     [AutoInject] private IJSRuntime _jsRuntime = default!;
-    [AutoInject] private IBitDeviceCoordinator _bitDeviceCoordinator { get; set; } = default!;
+    [AutoInject] private IBitDeviceCoordinator _bitDeviceCoordinator = default!;
 
 #if BlazorHybrid && MultilingualEnabled
     private bool _cultureHasNotBeenSet = true;
@@ -107,17 +107,15 @@ public partial class App
 #endif
 
 #if BlazorWebAssembly && !BlazorHybrid
-        if ((args.Path is "/" or "") && _lazyLoadedAssemblies.Any(asm => asm.GetName().Name == "Newtonsoft.Json") is false)
+        if ((args.Path is "dashboard") && _lazyLoadedAssemblies.Any(asm => asm.GetName().Name == "Newtonsoft.Json") is false)
         {
             var isAuthenticated = (await _authenticationStateProvider.GetAuthenticationStateAsync()).User?.Identity?.IsAuthenticated is true;
             if (isAuthenticated)
             {
-                var assemblies = await _assemblyLoader.LoadAssembliesAsync(new[] { "Newtonsoft.Json.wasm", "System.Private.Xml.wasm", "System.Data.Common.wasm" });
+                var assemblies = await _assemblyLoader.LoadAssembliesAsync(["Newtonsoft.Json.wasm", "System.Private.Xml.wasm", "System.Data.Common.wasm"]);
                 _lazyLoadedAssemblies.AddRange(assemblies);
             }
         }
 #endif
-
-        await Task.CompletedTask;
     }
 }

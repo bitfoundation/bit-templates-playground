@@ -2,7 +2,7 @@
 
 public partial class AppComponentBase : ComponentBase
 {
-    [AutoInject] protected IJSRuntime JsRuntime = default!;
+    [AutoInject] protected IJSRuntime JSRuntime = default!;
 
     [AutoInject] protected HttpClient HttpClient = default!;
 
@@ -24,11 +24,11 @@ public partial class AppComponentBase : ComponentBase
 
     [AutoInject] protected IStringLocalizer<AppStrings> Localizer = default!;
 
-    [AutoInject] protected IAuthenticationService AuthenticationService = default!;
-
     [AutoInject] protected IExceptionHandler ExceptionHandler { get; set; } = default!;
 
     [AutoInject] protected AppAuthenticationStateProvider AuthenticationStateProvider = default!;
+
+    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
 
     protected sealed override async Task OnInitializedAsync()
     {

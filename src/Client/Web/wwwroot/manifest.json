@@ -13,7 +13,7 @@
     "short_name": "bit Bit.TemplatePlayground",
     "prefer_related_applications": false,
     "display_override": [ "window-controls-overlay" ],
-    "description": "bit Bit.TemplatePlayground is a project template that includes all the necessary parts to create a fully-featured admin/management website.",
+    "description": "bit Bit.TemplatePlayground is a project template that includes all the necessary parts to create a fully-featured web app.",
     "features": [
         "Cross Platform",
         "fast",

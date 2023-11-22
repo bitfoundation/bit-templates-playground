@@ -4,8 +4,8 @@ name: Bit.TemplatePlayground CD
 
 env:
   WEB_APP_DEPLOYMENT_TYPE: 'Spa'
-  API_SERVER_ADDRESS: 'https://bit.templateplayground.bitplatform.dev/api/'
-  APP_SERVICE_NAME: 'app-service-ad-test'
+  API_SERVER_ADDRESS: 'https://bp.bitplatform.dev/api/'
+  APP_SERVICE_NAME: 'app-service-bp-test'
   IOS_CODE_SIGN_PROVISION: 'Bit.TemplatePlayground'
 
 on:
@@ -35,6 +35,13 @@ jobs:
     - uses: actions/setup-node@v3
       with:
         node-version: 18
+        
+    - name: Update appsettings.json api server address
+      uses: microsoft/variable-substitution@v1 
+      with:
+        files: 'src/Client/Core/appsettings.json'
+      env:
+        ApiServerAddress: ${{ env.API_SERVER_ADDRESS }}
 
     - name: Switch to blazor web assembly
       run:  sed -i 's/Microsoft.NET.Sdk.Web/Microsoft.NET.Sdk.BlazorWebAssembly/g' src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj
@@ -90,7 +97,7 @@ jobs:
           files: 'appsettings.json'
         env:
           ConnectionStrings.SqlServerConnectionString: ${{ secrets.DB_CONNECTION_STRING }}
-          AppSettings.JwtSettings.IdentityCertificatePassword: ${{ secrets.API_IDENTITY_CERTIFICATE_PASSWORD }}
+          AppSettings.IdentitySettings.IdentityCertificatePassword: ${{ secrets.API_IDENTITY_CERTIFICATE_PASSWORD }}
 
       - name: Delete IdentityCertificate.pfx
         run: |
@@ -262,6 +269,10 @@ jobs:
       with:
         global-json-file: global.json
 
+    - uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '15'
+
     - uses: actions/setup-node@v3
       with:
         node-version: 18
@@ -292,7 +303,7 @@ jobs:
     - name: Download Apple Provisioning Profiles
       uses: Apple-Actions/download-provisioning-profiles@v1
       with:
-        bundle-id: 'com.bitplatform.Bit.TemplatePlayground.Template'
+        bundle-id: 'com.bitplatform.BP.Template'
         issuer-id: ${{ secrets.APPSTORE_API_KEY_ISSUER_ID }}
         api-key-id: ${{ secrets.APPSTORE_API_KEY_ID }}
         api-private-key: ${{ secrets.APPSTORE_API_KEY_PRIVATE_KEY }}

@@ -59,10 +59,11 @@ public partial class CategoriesPage
 
                 var data = await HttpClient.GetFromJsonAsync(url, AppJsonContext.Default.PagedResultCategoryDto) ?? new();
 
-                return BitDataGridItemsProviderResult.From(data.Items!, (int)data.TotalCount);
+                return BitDataGridItemsProviderResult.From(await data.Items!.ToListAsync()!, (int)data.TotalCount);
             }
-            catch
+            catch (Exception exp)
             {
+                ExceptionHandler.Handle(exp);
                 return BitDataGridItemsProviderResult.From(new List<CategoryDto> { }, 0);
             }
             finally
@@ -91,7 +92,7 @@ public partial class CategoriesPage
 
     private async Task DeleteCategory(CategoryDto category)
     {
-        var confirmed = await _confirmMessageBox.Show(Localizer.GetString(nameof(AppStrings.AreYouSureWannaDeleteCategory), category.Name ?? string.Empty), 
+        var confirmed = await _confirmMessageBox.Show(Localizer.GetString(nameof(AppStrings.AreYouSureWannaDeleteCategory), category.Name ?? string.Empty),
                                                      Localizer[nameof(AppStrings.DeleteCategory)]);
 
         if (confirmed)
