@@ -10,7 +10,7 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 1- Press `Ctrl + Shift + P` and run `watch sass`
 
-2- Run `cd src/Bit.TemplatePlayground.Server && dotnet watch` command in vscode terminal.
+2- Run `cd src/Bit.TemplatePlayground.Server && dotnet run` command in vscode terminal.
 
 3- Sign in using `test@bitplatform.dev` and `123456` and explorer admin panel features!
 
