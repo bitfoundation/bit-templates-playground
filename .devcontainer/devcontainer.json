@@ -3,12 +3,12 @@
     "hostRequirements": {
         "cpus": 4
     },
-    "onCreateCommand": "wget https://download.visualstudio.microsoft.com/download/pr/5226a5fa-8c0b-474f-b79a-8984ad7c5beb/3113ccbf789c9fd29972835f0f334b7a/dotnet-sdk-8.0.100-linux-x64.tar.gz -O $HOME/dotnet.tar.gz && export DOTNET_ROOT=$HOME/.dotnet && mkdir -p \"$DOTNET_ROOT\" && tar zxf $HOME/dotnet.tar.gz -C \"$DOTNET_ROOT\" && export PATH=$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH && dotnet dev-certs https --trust && dotnet tool install --global dotnet-ef --version 8.0.0 && dotnet ef database update --project src/Server/Api/Bit.TemplatePlayground.Server.Api.csproj && dotnet build src/Client/Web/Bit.TemplatePlayground.Client.Web.csproj -t:BeforeBuildTasks --no-restore",
+    "onCreateCommand": "wget https://download.visualstudio.microsoft.com/download/pr/5226a5fa-8c0b-474f-b79a-8984ad7c5beb/3113ccbf789c9fd29972835f0f334b7a/dotnet-sdk-8.0.100-linux-x64.tar.gz -O $HOME/dotnet.tar.gz && export DOTNET_ROOT=$HOME/.dotnet && mkdir -p \"$DOTNET_ROOT\" && tar zxf $HOME/dotnet.tar.gz -C \"$DOTNET_ROOT\" && export PATH=$DOTNET_ROOT:$DOTNET_ROOT/tools:$PATH && dotnet dev-certs https --trust && sudo dotnet workload install wasm-tools wasm-experimental && dotnet tool install --global dotnet-ef --version 8.0.0 && dotnet ef database update --project src/Bit.TemplatePlayground.Server/Bit.TemplatePlayground.Server.csproj && dotnet build src/Client/Bit.TemplatePlayground.Client.Web/Bit.TemplatePlayground.Client.Web.csproj -t:BeforeBuildTasks --no-restore",
     "waitFor": "onCreateCommand",
     "customizations": {
         "codespaces": {
             "openFiles": [
-                "src/Client/Core/Pages/HomePage.razor"
+                "src/Client/Bit.TemplatePlayground.Client.Core/Components/Pages/HomePage.razor"
             ]
         },
         "vscode": {
