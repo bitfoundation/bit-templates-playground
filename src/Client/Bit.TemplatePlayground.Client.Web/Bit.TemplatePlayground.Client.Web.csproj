@@ -47,5 +47,10 @@
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
     </ItemGroup>
 
+        <ItemGroup>
+        <BlazorWebAssemblyLazyLoad Include="Newtonsoft.Json.wasm" />
+        <BlazorWebAssemblyLazyLoad Include="System.Private.Xml.wasm" />
+        <BlazorWebAssemblyLazyLoad Include="System.Data.Common.wasm" />
+    </ItemGroup>
         
 </Project>

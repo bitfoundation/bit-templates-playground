@@ -119,4 +119,58 @@
         "minify": { "enabled": false },
         "options": { "sourceMap": false }
     },
+    {
+        "outputFile": "Components/Pages/Categories/AddOrEditCategoryPage.razor.css",
+        "inputFile": "Components/Pages/Categories/AddOrEditCategoryPage.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Categories/CategoriesPage.razor.css",
+        "inputFile": "Components/Pages/Categories/CategoriesPage.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Dashboard/DashboardPage.razor.css",
+        "inputFile": "Components/Pages/Dashboard/DashboardPage.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Dashboard/OverallStatsWidget.razor.css",
+        "inputFile": "Components/Pages/Dashboard/OverallStatsWidget.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Dashboard/ProductsCountPerCategotyWidget.razor.css",
+        "inputFile": "Components/Pages/Dashboard/ProductsCountPerCategotyWidget.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Dashboard/ProductsPercentageWidget.razor.css",
+        "inputFile": "Components/Pages/Dashboard/ProductsPercentageWidget.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Dashboard/ProductsSalesWidget.razor.css",
+        "inputFile": "Components/Pages/Dashboard/ProductsSalesWidget.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Products/AddOrEditProductModal.razor.css",
+        "inputFile": "Components/Pages/Products/AddOrEditProductModal.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Products/ProductsPage.razor.css",
+        "inputFile": "Components/Pages/Products/ProductsPage.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    }
 ]

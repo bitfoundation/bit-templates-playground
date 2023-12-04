@@ -30,6 +30,27 @@ public partial class NavMenu : IDisposable
             },
             new BitNavItem
             {
+                Text = Localizer[nameof(AppStrings.ProductCategory)],
+                IconName = BitIconName.Product,
+                IsExpanded = true,
+                ChildItems =
+                [
+                    new() {
+                        Text = Localizer[nameof(AppStrings.Dashboard)],
+                        Url = "/dashboard",
+                    },
+                    new() {
+                        Text = Localizer[nameof(AppStrings.Products)],
+                        Url = "/products",
+                    },
+                    new() {
+                        Text = Localizer[nameof(AppStrings.Categories)],
+                        Url = "/categories",
+                    },
+                ]
+            },
+            new BitNavItem
+            {
                 Text = Localizer[nameof(AppStrings.EditProfileTitle)],
                 IconName = BitIconName.EditContact,
                 Url = "/edit-profile",

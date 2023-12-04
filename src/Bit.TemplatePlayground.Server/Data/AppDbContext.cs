@@ -1,4 +1,6 @@
-﻿using Bit.TemplatePlayground.Server.Models.Identity;
+﻿using Bit.TemplatePlayground.Server.Models.Categories;
+using Bit.TemplatePlayground.Server.Models.Products;
+using Bit.TemplatePlayground.Server.Models.Identity;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -9,6 +11,8 @@ public class AppDbContext(DbContextOptions<AppDbContext> options)
 {
     public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
 
+    public DbSet<Category> Categories { get; set; }
+    public DbSet<Product> Products { get; set; }
 
     protected override void OnModelCreating(ModelBuilder builder)
     {

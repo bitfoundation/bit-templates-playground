@@ -16,7 +16,7 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.bitplatform.BP.Template</ApplicationId>
-        <ApplicationIdGuid>80999750-C62E-4B09-AE5A-9CD5083B708D</ApplicationIdGuid>
+        <ApplicationIdGuid>1950F26F-830A-4E57-B91A-386E4BA38F43</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -39,6 +39,7 @@
     <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Configuration)' == 'Release'">
         <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
         <EnableSGenConc>True</EnableSGenConc>
+                <MtouchInterpreter>all</MtouchInterpreter>
             </PropertyGroup>
 
     <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
