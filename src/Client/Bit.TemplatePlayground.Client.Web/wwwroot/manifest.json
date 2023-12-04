@@ -1,0 +1,42 @@
+{
+    "dir": "ltr",
+    "lang": "en",
+    "scope": "/",
+    "start_url": "/",
+    "orientation": "any",
+    "id": "bitBit.TemplatePlayground",
+    "display": "standalone",
+    "theme_color": "#2EA3FF",
+    "related_applications": [],
+    "name": "bit Bit.TemplatePlayground",
+    "background_color": "#0D1117",
+    "short_name": "bit Bit.TemplatePlayground",
+    "prefer_related_applications": false,
+    "display_override": [ "window-controls-overlay" ],
+    "description": "bit Bit.TemplatePlayground is a project template that includes all the necessary parts to create a fully-featured web app.",
+    "features": [
+        "Cross Platform",
+        "fast",
+        "simple"
+    ],
+    "categories": [
+        "utilities"
+    ],
+    "icons": [
+        {
+            "sizes": "512x512",
+            "type": "image/png",
+            "src": "images/icons/bit-icon-512.png"
+        }
+    ],
+    "shortcuts": [
+        {
+            "name": "Terms",
+            "url": "/terms"
+        },
+        {
+            "name": "EditProfile",
+            "url": "/edit-profile"
+        }
+    ]
+}
