@@ -5,7 +5,7 @@ namespace Bit.TemplatePlayground.Shared.Exceptions;
 public class ConflictException : RestException
 {
     public ConflictException()
-        : this(nameof(AppStrings.ConflicException))
+        : this(nameof(AppStrings.ConflictException))
     {
     }
 

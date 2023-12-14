@@ -1,9 +1,12 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
+﻿using Bit.TemplatePlayground.Client.Core.Controllers.Dashboard;
+using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Dashboard;
 
 public partial class OverallStatsWidget
 {
+    [AutoInject] IDashboardController dashboardController = default!;
+
     private bool isLoading;
     private OverallAnalyticsStatsDataResponseDto data = new();
 
@@ -18,9 +21,7 @@ public partial class OverallStatsWidget
 
         try
         {
-            data = await PrerenderStateService.GetValue($"{nameof(DashboardPage)}-{nameof(OverallStatsWidget)}",
-                            async () => await HttpClient.GetFromJsonAsync($"Dashboard/GetOverallAnalyticsStatsData",
-                                AppJsonContext.Default.OverallAnalyticsStatsDataResponseDto, CurrentCancellationToken)) ?? new();
+            data = await dashboardController.GetOverallAnalyticsStatsData(CurrentCancellationToken);
         }
         finally
         {

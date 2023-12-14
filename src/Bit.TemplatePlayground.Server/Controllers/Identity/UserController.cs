@@ -1,11 +1,12 @@
-﻿using Bit.TemplatePlayground.Server.Models.Identity;
+﻿using Bit.TemplatePlayground.Client.Core.Controllers.Identity;
+using Bit.TemplatePlayground.Server.Models.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Server.Controllers.Identity;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
-public partial class UserController : AppControllerBase
+public partial class UserController : AppControllerBase, IUserController
 {
     [AutoInject] private UserManager<User> userManager = default!;
 

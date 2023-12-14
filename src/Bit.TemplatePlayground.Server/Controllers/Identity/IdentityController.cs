@@ -1,4 +1,5 @@
 ﻿using System.Web;
+using Bit.TemplatePlayground.Client.Core.Controllers.Identity;
 using Bit.TemplatePlayground.Server.Components;
 using Bit.TemplatePlayground.Server.Models.Emailing;
 using Bit.TemplatePlayground.Server.Models.Identity;
@@ -13,7 +14,7 @@ namespace Bit.TemplatePlayground.Server.Controllers.Identity;
 
 [Microsoft.AspNetCore.Mvc.Route("api/[controller]/[action]")]
 [ApiController, AllowAnonymous]
-public partial class IdentityController : AppControllerBase
+public partial class IdentityController : AppControllerBase, IIdentityController
 {
     [AutoInject] private UserManager<User> userManager = default!;
 
@@ -150,7 +151,7 @@ public partial class IdentityController : AppControllerBase
         return Redirect(url);
     }
 
-    [HttpPost]
+    [HttpPost, ProducesResponseType<TokenResponseDto>(statusCode: 200)]
     public async Task SignIn(SignInRequestDto signInRequest)
     {
         signInManager.AuthenticationScheme = IdentityConstants.BearerScheme;
@@ -246,7 +247,7 @@ public partial class IdentityController : AppControllerBase
     }
 
     [HttpPost]
-    public async Task ResetPassword(ResetPasswordRequestDto resetPasswordRequest)
+    public async Task ResetPassword(ResetPasswordRequestDto resetPasswordRequest, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByEmailAsync(resetPasswordRequest.Email!);
 

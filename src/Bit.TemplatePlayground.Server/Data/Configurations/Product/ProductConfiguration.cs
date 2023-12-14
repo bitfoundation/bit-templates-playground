@@ -6,7 +6,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
     {
-        DateTime baseDate = DateTime.Parse("2023-12-04");
+        DateTime baseDate = DateTime.Parse("2023-12-14");
 
         builder.HasData(
                 new() { Id = 1, Name = "Mustang", Price = 27155, Description = "The Ford Mustang is ranked #1 in Sports Cars", CreatedOn = baseDate.AddDays(-10), CategoryId = 1 },

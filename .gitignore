@@ -231,4 +231,4 @@ custom.aprof
 
 /src/Client/Bit.TemplatePlayground.Client.Core/wwwroot/scripts/app*.js
 
-/src/Bit.TemplatePlayground.Server/Bit.TemplatePlaygroundDb.db*
+/src/Bit.TemplatePlayground.Server/*.db*

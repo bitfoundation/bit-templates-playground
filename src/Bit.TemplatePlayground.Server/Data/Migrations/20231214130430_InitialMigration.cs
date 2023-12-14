@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
+﻿#nullable disable
 
 #pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
 
@@ -238,29 +236,29 @@ public partial class InitialMigration : Migration
             columns: new[] { "Id", "CategoryId", "CreatedOn", "Description", "Name", "Price" },
             values: new object[,]
             {
-                { 1, 1, 1307369078784000060L, "The Ford Mustang is ranked #1 in Sports Cars", "Mustang", 27155m },
-                { 2, 1, 1307360231424000060L, "The Ford GT is a mid-engine two-seater sports car manufactured and marketed by American automobile manufacturer", "GT", 500000m },
-                { 3, 1, 1307342536704000060L, "Ford Ranger is a nameplate that has been used on multiple model lines of pickup trucks sold by Ford worldwide.", "Ranger", 25000m },
-                { 4, 1, 1307333689344000060L, "Raptor is a SCORE off-road trophy truck living in a asphalt world", "Raptor", 53205m },
-                { 5, 1, 1307324841984000060L, "The Ford Maverick is a compact pickup truck produced by Ford Motor Company.", "Maverick", 22470m },
-                { 6, 2, 1307369078784000060L, "A powerful convertible sports car", "Roadster", 42800m },
-                { 7, 2, 1307360231424000060L, "A perfectly adequate family sedan with sharp looks", "Altima", 24550m },
-                { 8, 2, 1307342536704000060L, "Legendary supercar with AWD, 4 seats, a powerful V6 engine and the latest tech", "GT-R", 113540m },
-                { 9, 2, 1307324841984000060L, "A new smart SUV", "Juke", 28100m },
-                { 10, 3, 1307369078784000060L, "", "H247", 54950m },
-                { 11, 3, 1307360231424000060L, "", "V297", 103360m },
-                { 12, 3, 1307324841984000060L, "", "R50", 2000000m },
-                { 13, 4, 1307369078784000060L, "", "M550i", 77790m },
-                { 14, 4, 1307360231424000060L, "", "540i", 60945m },
-                { 15, 4, 1307351384064000060L, "", "530e", 56545m },
-                { 16, 4, 1307342536704000060L, "", "530i", 55195m },
-                { 17, 4, 1307333689344000060L, "", "M850i", 100045m },
-                { 18, 4, 1307324841984000060L, "", "X7", 77980m },
-                { 19, 4, 1307315994624000120L, "", "IX", 87000m },
-                { 20, 5, 1307369078784000060L, "rapid acceleration and dynamic handling", "Model 3", 61990m },
-                { 21, 5, 1307360231424000060L, "finishes near the top of our luxury electric car rankings.", "Model S", 135000m },
-                { 22, 5, 1307351384064000060L, "Heart-pumping acceleration, long drive range", "Model X", 138890m },
-                { 23, 5, 1307324841984000060L, "extensive driving range, lots of standard safety features", "Model Y", 67790m }
+                { 1, 1, 1307386773504000060L, "The Ford Mustang is ranked #1 in Sports Cars", "Mustang", 27155m },
+                { 2, 1, 1307377926144000060L, "The Ford GT is a mid-engine two-seater sports car manufactured and marketed by American automobile manufacturer", "GT", 500000m },
+                { 3, 1, 1307360231424000060L, "Ford Ranger is a nameplate that has been used on multiple model lines of pickup trucks sold by Ford worldwide.", "Ranger", 25000m },
+                { 4, 1, 1307351384064000060L, "Raptor is a SCORE off-road trophy truck living in a asphalt world", "Raptor", 53205m },
+                { 5, 1, 1307342536704000060L, "The Ford Maverick is a compact pickup truck produced by Ford Motor Company.", "Maverick", 22470m },
+                { 6, 2, 1307386773504000060L, "A powerful convertible sports car", "Roadster", 42800m },
+                { 7, 2, 1307377926144000060L, "A perfectly adequate family sedan with sharp looks", "Altima", 24550m },
+                { 8, 2, 1307360231424000060L, "Legendary supercar with AWD, 4 seats, a powerful V6 engine and the latest tech", "GT-R", 113540m },
+                { 9, 2, 1307342536704000060L, "A new smart SUV", "Juke", 28100m },
+                { 10, 3, 1307386773504000060L, "", "H247", 54950m },
+                { 11, 3, 1307377926144000060L, "", "V297", 103360m },
+                { 12, 3, 1307342536704000060L, "", "R50", 2000000m },
+                { 13, 4, 1307386773504000060L, "", "M550i", 77790m },
+                { 14, 4, 1307377926144000060L, "", "540i", 60945m },
+                { 15, 4, 1307369078784000060L, "", "530e", 56545m },
+                { 16, 4, 1307360231424000060L, "", "530i", 55195m },
+                { 17, 4, 1307351384064000060L, "", "M850i", 100045m },
+                { 18, 4, 1307342536704000060L, "", "X7", 77980m },
+                { 19, 4, 1307333689344000060L, "", "IX", 87000m },
+                { 20, 5, 1307386773504000060L, "rapid acceleration and dynamic handling", "Model 3", 61990m },
+                { 21, 5, 1307377926144000060L, "finishes near the top of our luxury electric car rankings.", "Model S", 135000m },
+                { 22, 5, 1307369078784000060L, "Heart-pumping acceleration, long drive range", "Model X", 138890m },
+                { 23, 5, 1307342536704000060L, "extensive driving range, lots of standard safety features", "Model Y", 67790m }
             });
 
         migrationBuilder.CreateIndex(

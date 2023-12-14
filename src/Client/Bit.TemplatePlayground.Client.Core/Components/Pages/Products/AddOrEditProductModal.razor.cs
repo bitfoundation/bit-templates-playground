@@ -1,9 +1,13 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Products;
+﻿using Bit.TemplatePlayground.Client.Core.Controllers.Categories;
+using Bit.TemplatePlayground.Client.Core.Controllers.Product;
+using Bit.TemplatePlayground.Shared.Dtos.Products;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Products;
 
 public partial class AddOrEditProductModal
 {
+    [AutoInject] ICategoryController categoryController = default!;
+    [AutoInject] IProductController productController = default!;
 
     private bool isOpen;
     private bool isLoading;
@@ -39,9 +43,7 @@ public partial class AddOrEditProductModal
 
         try
         {
-            var categoryList = await PrerenderStateService.GetValue($"{nameof(ProductsPage)}-AllCategoryList",
-                                        async () => await HttpClient.GetFromJsonAsync("Category/Get",
-                                            AppJsonContext.Default.ListCategoryDto, CurrentCancellationToken)) ?? [];
+            var categoryList = await (await categoryController.Get(CurrentCancellationToken)).ToListAsync(CurrentCancellationToken);
 
             allCategoryList = categoryList.Select(c => new BitDropdownItem<string>()
             {
@@ -66,11 +68,11 @@ public partial class AddOrEditProductModal
         {
             if (product.Id == 0)
             {
-                await HttpClient.PostAsJsonAsync("Product/Create", product, AppJsonContext.Default.ProductDto, CurrentCancellationToken);
+                await productController.Create(product, CurrentCancellationToken);
             }
             else
             {
-                await HttpClient.PutAsJsonAsync("Product/Update", product, AppJsonContext.Default.ProductDto, CurrentCancellationToken);
+                await productController.Update(product, CurrentCancellationToken);
             }
 
             isOpen = false;

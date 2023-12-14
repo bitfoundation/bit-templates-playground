@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
-    
+
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <!--If you don't need to use the time zone and your app is in WASM format, you can reduce the output size of the app by disabling the time zone.-->
         <BlazorEnableTimeZoneSupport>true</BlazorEnableTimeZoneSupport>
         <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
-                <!-- To change MultilingualEnabled's value, checkout Directory.Build.props -->
+        <!-- To change MultilingualEnabled's value, checkout Directory.Build.props -->
         <InvariantGlobalization Condition="'$(MultilingualEnabled)' == 'false'">true</InvariantGlobalization>
         <HybridGlobalization Condition="'$(MultilingualEnabled)' == 'true'">true</HybridGlobalization>
         <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
@@ -15,7 +15,7 @@
         <BlazorCacheBootResources Condition=" '$(PwaEnabled)' == 'true' ">false</BlazorCacheBootResources>
         <NoDefaultLaunchSettingsFile>true</NoDefaultLaunchSettingsFile>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
-            </PropertyGroup>
+    </PropertyGroup>
 
     <ItemGroup Condition=" '$(PwaEnabled)' == 'true' ">
         <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
@@ -27,12 +27,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.Bswup" Version="8.2.0" />
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.2.0">
+        <PackageReference Include="Bit.Bswup" Version="8.4.0" />
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.4.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.2.0">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.4.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -47,10 +47,8 @@
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
     </ItemGroup>
 
-        <ItemGroup>
+    <ItemGroup>
         <BlazorWebAssemblyLazyLoad Include="Newtonsoft.Json.wasm" />
-        <BlazorWebAssemblyLazyLoad Include="System.Private.Xml.wasm" />
-        <BlazorWebAssemblyLazyLoad Include="System.Data.Common.wasm" />
     </ItemGroup>
-        
+
 </Project>

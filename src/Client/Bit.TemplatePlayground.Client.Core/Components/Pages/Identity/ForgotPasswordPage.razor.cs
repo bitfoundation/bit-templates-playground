@@ -1,9 +1,12 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Client.Core.Controllers.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity;
 
 public partial class ForgotPasswordPage
 {
+    [AutoInject] IIdentityController identityController = default!;
+
     private bool isLoading;
     private string? forgotPasswordMessage;
     private BitMessageBarType forgotPasswordMessageType;
@@ -18,7 +21,7 @@ public partial class ForgotPasswordPage
 
         try
         {
-            await HttpClient.PostAsJsonAsync("Identity/SendResetPasswordEmail", forgotPasswordModel, AppJsonContext.Default.SendResetPasswordEmailRequestDto, CurrentCancellationToken);
+            await identityController.SendResetPasswordEmail(forgotPasswordModel, CurrentCancellationToken);
 
             forgotPasswordMessageType = BitMessageBarType.Success;
 

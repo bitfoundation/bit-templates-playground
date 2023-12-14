@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Web;
+using Bit.TemplatePlayground.Client.Core.Services;
 using Bit.TemplatePlayground.Server.Components;
 using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Components.Endpoints;
@@ -11,9 +13,25 @@ namespace Bit.TemplatePlayground.Server.Startup;
 
 public class Middlewares
 {
+    /// <summary>
+    /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0#middleware-order
+    /// </summary>
     public static void Use(WebApplication app, IHostEnvironment env, IConfiguration configuration)
     {
         app.UseForwardedHeaders();
+
+        if (AppRenderMode.MultilingualEnabled)
+        {
+            var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => CultureInfoManager.CreateCultureInfo(sc.code)).ToArray();
+            app.UseRequestLocalization(new RequestLocalizationOptions
+            {
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures,
+                ApplyCurrentCultureToResponseHeaders = true
+            }.SetDefaultCulture(CultureInfoManager.DefaultCulture.code));
+        }
+
+        app.UseExceptionHandler("/", createScopeForErrors: true);
 
         if (env.IsDevelopment())
         {
@@ -22,7 +40,6 @@ public class Middlewares
         else
         {
             app.UseHttpsRedirection();
-            app.UseResponseCompression();
         }
 
         Configure_401_403_404_Pages(app);
@@ -43,22 +60,17 @@ public class Middlewares
         app.UseCors(options => options.WithOrigins("https://0.0.0.0" /*BlazorHybrid*/, "app://0.0.0.0" /*BlazorHybrid*/)
             .AllowAnyHeader().AllowAnyMethod());
 
-        app.UseResponseCaching();
         app.UseAuthentication();
         app.UseAuthorization();
-        app.UseAntiforgery();
 
-#if MultilingualEnabled
-        var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => CultureInfoManager.CreateCultureInfo(sc.code)).ToArray();
-        app.UseRequestLocalization(new RequestLocalizationOptions
+        if (env.IsDevelopment() is false)
         {
-            SupportedCultures = supportedCultures,
-            SupportedUICultures = supportedCultures,
-            ApplyCurrentCultureToResponseHeaders = true
-        }.SetDefaultCulture(CultureInfoManager.DefaultCulture.code));
-#endif
+            app.UseResponseCompression();
+        }
 
-        app.UseExceptionHandler("/", createScopeForErrors: true);
+        app.UseResponseCaching();
+
+        app.UseAntiforgery();
 
         app.UseSwagger();
 
@@ -66,6 +78,12 @@ public class Middlewares
         {
             options.InjectJavascript($"/swagger/swagger-utils.js?v={Environment.TickCount64}");
         });
+
+        app.MapGet("/api/minimal-api-sample/{routeParameter}", (string routeParameter, [FromQuery] string queryStringParameter) => new
+        {
+            RouteParameter = routeParameter,
+            QueryStringParameter = queryStringParameter
+        }).WithTags("Test");
 
         app.MapControllers().RequireAuthorization();
 
@@ -82,17 +100,22 @@ public class Middlewares
 
             app.MapHealthChecksUI(options =>
             {
-                options.UseRelativeApiPath = 
-                    options.UseRelativeResourcesPath = 
+                options.UseRelativeApiPath =
+                    options.UseRelativeResourcesPath =
                         options.UseRelativeWebhookPath = false;
             });
         }
 
         // Handle the rest of requests with blazor
-        app.MapRazorComponents<App>()
+        var blazorApp = app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode()
             .AddInteractiveWebAssemblyRenderMode()
             .AddAdditionalAssemblies(AssemblyLoadContext.Default.Assemblies.Where(asm => asm.GetName().Name?.Contains("Bit.TemplatePlayground") is true).Except([Assembly.GetExecutingAssembly()]).ToArray());
+
+        if (AppRenderMode.PrerenderEnabled is false)
+        {
+            blazorApp.AllowAnonymous(); // Server may not check authorization for pages when there's no pre rendering, let the client handle it.
+        }
     }
 
     /// <summary>
@@ -133,7 +156,10 @@ public class Middlewares
                 {
                     bool is403 = httpContext.Response.StatusCode is 403;
 
-                    httpContext.Response.Redirect($"/not-authorized?redirect-url={httpContext.Request.GetEncodedPathAndQuery()}&isForbidden={(is403 ? "true" : "false")}");
+                    var qs = HttpUtility.ParseQueryString(httpContext.Request.QueryString.Value ?? string.Empty);
+                    qs.Remove("try_refreshing_token");
+                    var redirectUrl = UriHelper.BuildRelative(httpContext.Request.PathBase, httpContext.Request.Path, new QueryString(qs.ToString()));
+                    httpContext.Response.Redirect($"/not-authorized?redirect-url={redirectUrl}&isForbidden={(is403 ? "true" : "false")}");
                 }
                 else if (httpContext.Response.StatusCode is 404 &&
                     httpContext.GetEndpoint() is null /* Please be aware that certain endpoints, particularly those associated with web API actions, may intentionally return a 404 error. */)
