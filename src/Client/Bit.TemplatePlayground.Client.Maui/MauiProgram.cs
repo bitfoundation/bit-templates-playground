@@ -1,6 +1,5 @@
 ﻿
 using System.Reflection;
-using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 using Bit.TemplatePlayground.Client.Maui.Services;
 
 namespace Bit.TemplatePlayground.Client.Maui;
@@ -9,6 +8,8 @@ public static class MauiProgram
 {
     public static MauiApp CreateMauiApp()
     {
+        AppRenderMode.IsBlazorHybrid = true;
+
         var builder = MauiApp.CreateBuilder();
         var assembly = typeof(MainLayout).GetTypeInfo().Assembly;
 
@@ -29,7 +30,7 @@ public static class MauiProgram
 
         services.AddTransient(sp =>
         {
-            var handler = sp.GetRequiredService<RequestHeadersDelegationHandler>();
+            var handler = sp.GetRequiredKeyedService<HttpMessageHandler>("DefaultMessageHandler");
             HttpClient httpClient = new(handler)
             {
                 BaseAddress = apiServerAddress

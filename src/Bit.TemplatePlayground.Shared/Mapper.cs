@@ -16,4 +16,6 @@ namespace Bit.TemplatePlayground.Shared;
 public static partial class Mapper
 {
     public static partial void Patch(this UserDto source, UserDto destination);
+    public static partial void Patch(this EditUserDto source, UserDto destination);
+    public static partial void Patch(this UserDto source, EditUserDto destination);
 }

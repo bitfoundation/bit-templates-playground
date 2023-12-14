@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infra;
+﻿namespace Bit.TemplatePlayground.Shared.Services;
 public class CultureInfoManager
 {
     public static (string name, string code) DefaultCulture { get; } = ("English", "en-US");

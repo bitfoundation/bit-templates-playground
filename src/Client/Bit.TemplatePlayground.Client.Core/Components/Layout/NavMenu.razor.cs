@@ -1,9 +1,12 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Client.Core.Controllers.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
 public partial class NavMenu : IDisposable
 {
+    [AutoInject] IUserController userController = default!;
+
     private bool disposed;
     private bool isSignOutModalOpen;
     private string? profileImageUrl;
@@ -74,11 +77,10 @@ public partial class NavMenu : IDisposable
             StateHasChanged();
         });
 
-        user = await PrerenderStateService.GetValue($"{nameof(NavMenu)}-{nameof(user)}", async () =>
-            await HttpClient.GetFromJsonAsync("User/GetCurrentUser", AppJsonContext.Default.UserDto, CurrentCancellationToken)) ?? new();
+        user = await userController.GetCurrentUser(CurrentCancellationToken);
 
-        var access_token = await PrerenderStateService.GetValue($"{nameof(NavMenu)}-access_token", AuthTokenProvider.GetAccessTokenAsync);
-        profileImageUrlBase = $"{Configuration.GetApiServerAddress()}Attachment/GetProfileImage?access_token={access_token}&file=";
+        var access_token = await PrerenderStateService.GetValue(AuthTokenProvider.GetAccessTokenAsync);
+        profileImageUrlBase = $"{Configuration.GetApiServerAddress()}api/Attachment/GetProfileImage?access_token={access_token}&file=";
 
         SetProfileImageUrl();
     }

@@ -1,4 +1,6 @@
 ﻿
+using System.Runtime.CompilerServices;
+
 namespace Bit.TemplatePlayground.Client.Core.Services;
 
 /// <summary>
@@ -14,6 +16,19 @@ public class PrerenderStateService : IPrerenderStateService, IAsyncDisposable
     {
         subscription = persistentComponentState?.RegisterOnPersisting(PersistAsJson, AppRenderMode.Current);
         this.persistentComponentState = persistentComponentState;
+    }
+
+    public async Task<T?> GetValue<T>(Func<Task<T?>> factory,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
+    {
+        if (AppRenderMode.PrerenderEnabled is false)
+            return await factory();
+
+        string key = $"{filePath.Split('\\').LastOrDefault()} {memberName} {lineNumber}";
+
+        return await GetValue(key, factory);
     }
 
     public async Task<T?> GetValue<T>(string key, Func<Task<T?>> factory)

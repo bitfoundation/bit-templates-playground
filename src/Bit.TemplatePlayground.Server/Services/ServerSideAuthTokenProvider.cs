@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using Bit.TemplatePlayground.Client.Core.Services;
 using Microsoft.JSInterop;
+using Bit.TemplatePlayground.Client.Core.Services;
 
 namespace Bit.TemplatePlayground.Server.Services;
 

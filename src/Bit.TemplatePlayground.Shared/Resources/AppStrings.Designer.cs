@@ -307,9 +307,9 @@ namespace Bit.TemplatePlayground.Shared.Resources {
         /// <summary>
         ///   Looks up a localized string similar to Request could not be processed because of conflict in the request.
         /// </summary>
-        public static string ConflicException {
+        public static string ConflictException {
             get {
-                return ResourceManager.GetString("ConflicException", resourceCulture);
+                return ResourceManager.GetString("ConflictException", resourceCulture);
             }
         }
         
@@ -787,6 +787,15 @@ namespace Bit.TemplatePlayground.Shared.Resources {
         public static string NotReceivedConfirmationEmailMessage {
             get {
                 return ResourceManager.GetString("NotReceivedConfirmationEmailMessage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Offline Edit profile.
+        /// </summary>
+        public static string OfflineEditProfileTitle {
+            get {
+                return ResourceManager.GetString("OfflineEditProfileTitle", resourceCulture);
             }
         }
         

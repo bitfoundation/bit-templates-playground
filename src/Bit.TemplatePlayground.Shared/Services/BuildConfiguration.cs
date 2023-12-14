@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infra;
+﻿namespace Bit.TemplatePlayground.Shared.Services;
 
 public static class BuildConfiguration
 {
