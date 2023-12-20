@@ -28,4 +28,4 @@ jobs:
         node-version: 18
       
     - name: Build
-      run: dotnet build Bit.TemplatePlayground.sln -c Release-c Release-c Release-c Release-c Release-c Release
+      run: dotnet build Bit.TemplatePlayground.sln -c Release -p:EnableWindowsTargeting=true

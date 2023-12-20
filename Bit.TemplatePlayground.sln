@@ -23,7 +23,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bit.TemplatePlayground.Clie
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bit.TemplatePlayground.Client.Web", "src\Client\Bit.TemplatePlayground.Client.Web\Bit.TemplatePlayground.Client.Web.csproj", "{13D6A40B-8B8B-41F0-AB62-3F5F1CB58A1B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bit.TemplatePlayground.Client.Maui", "src\Client\Bit.TemplatePlayground.Client.Maui\\Bit.TemplatePlayground.Client.Maui.csproj", "{22816913-64D5-4AE8-9B34-6F188B71FAD1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bit.TemplatePlayground.Client.Maui", "src\Client\Bit.TemplatePlayground.Client.Maui\Bit.TemplatePlayground.Client.Maui.csproj", "{22816913-64D5-4AE8-9B34-6F188B71FAD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3E577755-186F-4E63-8153-B8DE890015C9}"
 EndProject
