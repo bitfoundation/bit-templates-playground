@@ -16,7 +16,7 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.bitplatform.BP.Template</ApplicationId>
-        <ApplicationIdGuid>E8AEFFEE-EE43-439D-9763-AC1C6F1FD534</ApplicationIdGuid>
+        <ApplicationIdGuid>032F62D0-988C-4308-80C1-FC0D44F96B79</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -82,14 +82,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.BlazorUI" Version="8.4.0" />
-        <PackageReference Include="Bit.BlazorUI.Icons" Version="8.4.0" />
-        <PackageReference Include="Bit.BlazorUI.Assets" Version="8.4.0" />
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.4.0">
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.5.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.4.0">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.5.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

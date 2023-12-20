@@ -8,5 +8,10 @@ public static class IConfigurationBuilderExtensions
     {
         var assembly = Assembly.Load("Bit.TemplatePlayground.Client.Core");
         builder.AddJsonStream(assembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.json")!);
+
+        if (BuildConfiguration.IsDebug())
+        {
+            builder.AddJsonStream(assembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.Development.json")!);
+        }
     }
 }

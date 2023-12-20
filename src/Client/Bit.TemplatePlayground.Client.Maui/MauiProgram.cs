@@ -11,7 +11,6 @@ public static class MauiProgram
         AppRenderMode.IsBlazorHybrid = true;
 
         var builder = MauiApp.CreateBuilder();
-        var assembly = typeof(MainLayout).GetTypeInfo().Assembly;
 
         builder
             .UseMauiApp<App>()
@@ -37,8 +36,6 @@ public static class MauiProgram
             };
             return httpClient;
         });
-
-        services.AddTransient<IStorageService, MauiStorageService>();
 
         services.AddClientMauiServices();
 

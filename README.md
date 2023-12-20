@@ -8,12 +8,17 @@ Experience lightning-fast speeds and seamless integration as you dive into the w
 
 **Instructions:**
 
-1- Press `Ctrl + Shift + P` and run `watch sass`
+1- Press `F1` and run `watch sass`
 
 2- Run `cd src/Bit.TemplatePlayground.Server && dotnet run` command in vscode terminal.
 
 3- Sign in using `test@bitplatform.dev` and `123456` and explorer admin panel features!
 
 Done!
+
+This sample project gets created by the following command:
+```bash
+dotnet new install Bit.Boilerplate && dotnet new bit-bp --name Bit.TemplatePlayground --database sqlite --sample adminpanel
+```
 
 Note: In order to view sign-up's `confirmation email`, read [Email settings docs](https://bitplatform.dev/templates/settings).
