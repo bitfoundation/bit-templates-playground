@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Web;
+﻿﻿using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Client.Core.Services;
 
@@ -15,10 +15,18 @@ public static class AppRenderMode
         BuildConfiguration.IsDebug() ? BlazorServer /*For better development experience*/ : Auto;
 
     public static bool PwaEnabled { get; } =
+#if PwaEnabled
+        true;
+#else
     false;
+#endif
 
     public static bool MultilingualEnabled { get; } =
+#if MultilingualEnabled
+    true;
+#else
     false;
+#endif
 
     /// <summary>
     /// Is running under .NET MAUI?

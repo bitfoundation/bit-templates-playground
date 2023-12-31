@@ -23,7 +23,7 @@ public class PrerenderStateService : IPrerenderStateService, IAsyncDisposable
         [CallerMemberName] string memberName = "",
         [CallerFilePath] string filePath = "")
     {
-        if (AppRenderMode.PrerenderEnabled is false)
+        if (AppRenderMode.PrerenderEnabled is false || AppRenderMode.IsBlazorHybrid)
             return await factory();
 
         string key = $"{filePath.Split('\\').LastOrDefault()} {memberName} {lineNumber}";
@@ -33,7 +33,7 @@ public class PrerenderStateService : IPrerenderStateService, IAsyncDisposable
 
     public async Task<T?> GetValue<T>(string key, Func<Task<T?>> factory)
     {
-        if (AppRenderMode.PrerenderEnabled is false)
+        if (AppRenderMode.PrerenderEnabled is false || AppRenderMode.IsBlazorHybrid)
             return await factory();
 
         if (persistentComponentState!.TryTakeFromJson(key, out T? value)) return value;
@@ -45,7 +45,7 @@ public class PrerenderStateService : IPrerenderStateService, IAsyncDisposable
 
     void Persist<T>(string key, T value)
     {
-        if (AppRenderMode.PrerenderEnabled is false)
+        if (AppRenderMode.PrerenderEnabled is false || AppRenderMode.IsBlazorHybrid)
             return;
 
         values.TryRemove(key, out object? _);
@@ -62,7 +62,7 @@ public class PrerenderStateService : IPrerenderStateService, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (AppRenderMode.PrerenderEnabled is false)
+        if (AppRenderMode.PrerenderEnabled is false || AppRenderMode.IsBlazorHybrid)
             return;
 
         subscription?.Dispose();
