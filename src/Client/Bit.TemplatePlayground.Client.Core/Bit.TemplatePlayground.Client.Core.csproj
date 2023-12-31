@@ -16,15 +16,16 @@
         <Content Remove="appsettings*.json" />
         <EmbeddedResource Include="appsettings*.json" />
 
-        <PackageReference Include="Bit.BlazorUI" Version="8.5.0" />
-        <PackageReference Include="Bit.BlazorUI.Icons" Version="8.5.0" />
-        <PackageReference Include="Bit.BlazorUI.Assets" Version="8.5.0" />
-        <PackageReference Include="Bit.BlazorUI.Extras" Version="8.5.0" />
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.5.0">
+        <PackageReference Include="Bit.Butil" Version="8.6.0" />
+        <PackageReference Include="Bit.BlazorUI" Version="8.6.0" />
+        <PackageReference Include="Bit.BlazorUI.Icons" Version="8.6.0" />
+        <PackageReference Include="Bit.BlazorUI.Assets" Version="8.6.0" />
+        <PackageReference Include="Bit.BlazorUI.Extras" Version="8.6.0" />
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.6.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.5.0">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.6.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -38,6 +39,7 @@
         <Using Include="Microsoft.AspNetCore.Components" />
         <Using Include="Microsoft.AspNetCore.Authorization" />
         <Using Include="Microsoft.AspNetCore.Components.Authorization" />
+        <Using Include="Bit.Butil" />
         <Using Include="Bit.BlazorUI" />
         <Using Include="Bit.TemplatePlayground.Shared" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
