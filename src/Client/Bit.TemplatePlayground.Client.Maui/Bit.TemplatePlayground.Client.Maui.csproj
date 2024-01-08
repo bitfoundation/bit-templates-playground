@@ -16,7 +16,7 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.bitplatform.BP.Template</ApplicationId>
-        <ApplicationIdGuid>288A1F2E-962A-4822-979A-49BBCD49BDEF</ApplicationIdGuid>
+        <ApplicationIdGuid>883B9990-9141-487F-A885-8875B9A6987B</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -39,8 +39,8 @@
     <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Configuration)' == 'Release'">
         <MtouchEnableSGenConc>true</MtouchEnableSGenConc>
         <EnableSGenConc>True</EnableSGenConc>
-                <MtouchInterpreter>all</MtouchInterpreter>
-            </PropertyGroup>
+        <MtouchInterpreter>all</MtouchInterpreter>
+    </PropertyGroup>
 
     <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
         <AndroidAotProfile Condition="Exists('custom.aprof')" Include="custom.aprof" />
@@ -64,7 +64,7 @@
 
         <!-- App icon for all platforms -->
         <MauiIcon Include="Resources\AppIcon\appicon.svg" Color="#0065EF" />
-        
+
         <!-- Customize App icon for Android -->
         <MauiIcon Condition="$(TargetFramework.Contains('-android'))" Update="Resources\AppIcon\appicon.svg" Color="#0065EF" ForegroundScale="0.68" />
 
@@ -82,11 +82,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.6.0">
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.6.0">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.7.0">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
