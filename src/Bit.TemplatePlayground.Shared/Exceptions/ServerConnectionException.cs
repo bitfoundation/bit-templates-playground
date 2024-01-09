@@ -1,5 +1,5 @@
 ﻿namespace Bit.TemplatePlayground.Shared.Exceptions;
-public class ServerConnectionException : UnknownException
+public class ServerConnectionException : KnownException
 {
     public ServerConnectionException()
         : base(nameof(AppStrings.ServerConnectionException))
