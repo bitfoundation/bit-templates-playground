@@ -881,6 +881,15 @@ namespace Bit.TemplatePlayground.Shared.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Products count.
+        /// </summary>
+        public static string ProductsCount {
+            get {
+                return ResourceManager.GetString("ProductsCount", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Products count per category chart.
         /// </summary>
         public static string ProductsCountPerCategoryChart {

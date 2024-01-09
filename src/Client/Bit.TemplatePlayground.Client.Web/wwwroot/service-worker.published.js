@@ -1,4 +1,4 @@
-// bit version: 8.6.0
+// bit version: 8.7.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 self.assetsInclude = [];
@@ -6,7 +6,7 @@ self.assetsExclude = [
     /bit\.blazorui\.fluent\.css$/,
     /bit\.blazorui\.fluent-dark\.css$/,
     /bit\.blazorui\.fluent-light\.css$/,
-    /Bit.TemplatePlayground\.Client\.Web\.styles\.css$/
+    /Bit\.TemplatePlayground\.Client\.Web\.styles\.css$/
 ];
 self.externalAssets = [
     {
