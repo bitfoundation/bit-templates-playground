@@ -1,5 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Bit.TemplatePlayground.Server.Models.Categories;
+﻿using Bit.TemplatePlayground.Server.Models.Categories;
 
 namespace Bit.TemplatePlayground.Server.Models.Products;
 
@@ -17,7 +16,6 @@ public class Product
     [MaxLength(512)]
     public string? Description { get; set; }
 
-    [NotNull]
     public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
 
     [ForeignKey(nameof(CategoryId))]
