@@ -14,4 +14,4 @@ var app = builder.Build();
 
 Bit.TemplatePlayground.Server.Startup.Middlewares.Use(app, builder.Environment, builder.Configuration);
 
-app.Run();
+await app.RunAsync();
