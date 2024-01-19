@@ -18,16 +18,23 @@
     </PropertyGroup>
 
     <ItemGroup Condition=" '$(PwaEnabled)' == 'true' ">
-        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.js" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(BlazorWebAssemblyStandalone)' == 'false' ">
+        <Content Remove="wwwroot\index.html" />
+        <None Remove="Properties\launchSettings.json" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.Bswup" Version="8.7.0" />
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.0">
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.1" PrivateAssets="all" />
+        <PackageReference Include="Bit.Bswup" Version="8.7.2" />
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.7.0">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.7.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -37,6 +44,7 @@
         <ProjectReference Include="..\Bit.TemplatePlayground.Client.Core\Bit.TemplatePlayground.Client.Core.csproj" />
 
         <Using Include="Microsoft.JSInterop" />
+        <Using Include="Bit.TemplatePlayground.Client.Core" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
