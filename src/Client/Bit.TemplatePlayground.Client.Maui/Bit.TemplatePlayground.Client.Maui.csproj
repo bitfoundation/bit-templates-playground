@@ -16,7 +16,7 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.bitplatform.BP.Template</ApplicationId>
-        <ApplicationIdGuid>117D023E-2091-4953-BFA1-6C20993632FD</ApplicationIdGuid>
+        <ApplicationIdGuid>83F738B0-B37E-4579-9053-3494FBC61C51</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -82,11 +82,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.2">
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.3-pre-02">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.7.2">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.7.3-pre-02">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -98,10 +98,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.3" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.3" />
-        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.3" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.3" />
+        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.6" />
+        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.6" />
+        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.6" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.6" />
     </ItemGroup>
 
     <!-- Build Properties must be defined within these property groups to ensure successful publishing

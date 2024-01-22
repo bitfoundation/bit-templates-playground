@@ -18,7 +18,7 @@ Done!
 
 This sample project gets created by the following command:
 ```bash
-dotnet new install Bit.Boilerplate && dotnet new bit-bp --name Bit.TemplatePlayground --database sqlite --sample admin
+dotnet new install Bit.Boilerplate && dotnet new bit-bp --name Bit.TemplatePlayground --database sqlite --sample admin --windows
 ```
 
 Note: In order to view sign-up's `confirmation email`, read [Email settings docs](https://bitplatform.dev/templates/settings).
