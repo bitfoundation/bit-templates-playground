@@ -72,7 +72,7 @@ public static class Services
 
         services.AddSwaggerGen();
 
-        services.AddIdentity(configuration);
+        services.AddIdentity(configuration, env);
 
         services.AddHealthChecks(env, configuration);
 

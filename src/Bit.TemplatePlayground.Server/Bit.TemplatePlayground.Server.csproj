@@ -6,11 +6,11 @@
 
     <ItemGroup>
         <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.5.0" />
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.3-pre-02">
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.4">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.7.3-pre-02">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.7.4">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -89,7 +89,7 @@
     <PropertyGroup>
         <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
         <EnableSdkContainerDebugging>True</EnableSdkContainerDebugging>
-        <UserSecretsId>FE92E501-E967-44A7-9182-3BED39CD2546</UserSecretsId>
+        <UserSecretsId>21D250BE-CAF7-44E4-8DAC-AFA502B0E2F2</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <DockerfileContext>..\..</DockerfileContext>
     </PropertyGroup>
