@@ -5,9 +5,9 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static class IServiceCollectionExtensions
 {
-    public static IServiceCollection AddClientSharedServices(this IServiceCollection services)
+    public static IServiceCollection AddClientCoreProjectServices(this IServiceCollection services)
     {
-        // Services registered in this class can be injected in client side (Web, Android, iOS, Windows, macOS)
+        // Services being registered here can get injected in client side (Web, Android, iOS, Windows, macOS) and server side (during pre rendering)
 
         services.TryAddTransient<IPrerenderStateService, PrerenderStateService>();
 
@@ -21,8 +21,8 @@ public static class IServiceCollectionExtensions
         services.TryAddTransient<ExceptionDelegatingHandler>();
         services.TryAddTransient<HttpClientHandler>();
 
-        services.AddScoped<AuthenticationStateProvider, AuthenticationManager>();
-        services.AddScoped(sp => (AuthenticationManager)sp.GetRequiredService<AuthenticationStateProvider>());
+        services.AddScoped<AuthenticationStateProvider, AuthenticationManager>(); // Use 'Add' instead of 'TryAdd' to override the aspnetcore's default AuthenticationStateProvider.
+        services.TryAddScoped(sp => (AuthenticationManager)sp.GetRequiredService<AuthenticationStateProvider>());
 
         services.TryAddTransient<MessageBoxService>();
         services.TryAddTransient<LazyAssemblyLoader>();
@@ -32,8 +32,9 @@ public static class IServiceCollectionExtensions
 
         services.AddBitButilServices();
         services.AddBitBlazorUIServices();
-        services.AddSharedServices();
 
+
+        services.AddSharedProjectServices();
         return services;
     }
 

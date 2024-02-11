@@ -1,0 +1,11 @@
+{
+  "solution": {
+    "path": "Bit.TemplatePlayground.sln",
+    "projects": [
+      "src\\Bit.TemplatePlayground.Server\\Bit.TemplatePlayground.Server.csproj",
+      "src\\Bit.TemplatePlayground.Shared\\Bit.TemplatePlayground.Shared.csproj",
+      "src\\Client\\Bit.TemplatePlayground.Client.Core\\Bit.TemplatePlayground.Client.Core.csproj",
+      "src\\Client\\Bit.TemplatePlayground.Client.Web\\Bit.TemplatePlayground.Client.Web.csproj"
+    ]
+  }
+}

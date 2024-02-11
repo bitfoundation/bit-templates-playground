@@ -1,9 +1,8 @@
 {
     "profiles": {
-        "Bit.TemplatePlayground.Server-Swagger": {
+        "Bit.TemplatePlayground.Server": {
             "commandName": "Project",
             "launchBrowser": true,
-            "launchUrl": "swagger",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },

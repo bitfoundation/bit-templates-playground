@@ -3,21 +3,24 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Web;
 using Bit.TemplatePlayground.Client.Core.Services;
-using Bit.TemplatePlayground.Server.Components;
-using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Components.Endpoints;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http.Extensions;
 
-namespace Bit.TemplatePlayground.Server.Startup;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using HealthChecks.UI.Client;
 
-public class Middlewares
+namespace Bit.TemplatePlayground.Server;
+
+public static partial class Program
 {
     /// <summary>
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0#middleware-order
     /// </summary>
-    public static void Use(WebApplication app, IHostEnvironment env, IConfiguration configuration)
+    public static void ConfiureMiddlewares(this WebApplication app)
     {
+        var configuration = app.Configuration;
+        var env = app.Environment;
+
         app.UseForwardedHeaders();
 
         if (AppRenderMode.MultilingualEnabled)
@@ -71,6 +74,7 @@ public class Middlewares
 
         app.UseAntiforgery();
 
+
         app.UseSwagger();
 
         app.UseSwaggerUI(options =>
@@ -84,6 +88,7 @@ public class Middlewares
             QueryStringParameter = queryStringParameter
         }).WithTags("Test");
 
+
         app.MapGet("/.well-known/apple-app-site-association", async () =>
         {
             // https://branch.io/resources/aasa-validator/ 
@@ -91,6 +96,7 @@ public class Middlewares
             var path = Path.Combine("wwwroot/.well-known", "apple-app-site-association");
             return Results.Stream(File.OpenRead(path), contentType, "apple-app-site-association");
         }).ExcludeFromDescription();
+
 
         app.MapControllers().RequireAuthorization();
 
@@ -113,8 +119,9 @@ public class Middlewares
             });
         }
 
+
         // Handle the rest of requests with blazor
-        var blazorApp = app.MapRazorComponents<App>()
+        var blazorApp = app.MapRazorComponents<Bit.TemplatePlayground.Server.Components.App>()
             .AddInteractiveServerRenderMode()
             .AddInteractiveWebAssemblyRenderMode()
             .AddAdditionalAssemblies(AssemblyLoadContext.Default.Assemblies.Where(asm => asm.GetName().Name?.Contains("Bit.TemplatePlayground") is true).Except([Assembly.GetExecutingAssembly()]).ToArray());

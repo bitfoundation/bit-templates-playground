@@ -16,7 +16,7 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.bitplatform.BP.Template</ApplicationId>
-        <ApplicationIdGuid>EA281D77-3592-4C09-9567-B1E5E79754D7</ApplicationIdGuid>
+        <ApplicationIdGuid>44861962-8347-470D-AC06-050D17A7F686</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
@@ -82,11 +82,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.4">
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.7.4">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.7.5">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>

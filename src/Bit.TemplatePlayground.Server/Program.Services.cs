@@ -1,21 +1,133 @@
-﻿using System.Security.Cryptography.X509Certificates;
-using Bit.TemplatePlayground.Server;
-using Bit.TemplatePlayground.Server.Models.Identity;
+﻿using System.IO.Compression;
 using Bit.TemplatePlayground.Server.Services;
+using Bit.TemplatePlayground.Client.Web;
+using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.ResponseCompression;
+using System.Net.Mail;
+using System.Net;
+using System.Security.Cryptography.X509Certificates;
+using Bit.TemplatePlayground.Server.Models.Identity;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.OData;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.SwaggerGen;
 
-namespace Microsoft.Extensions.DependencyInjection;
+namespace Bit.TemplatePlayground.Server;
 
-public static class IServiceCollectionExtensions
+public static partial class Program
 {
-    public static void AddBlazor(this IServiceCollection services, IConfiguration configuration)
+    private static void ConfigureServices(this WebApplicationBuilder builder)
     {
-        services.AddTransient<IAuthTokenProvider, ServerSideAuthTokenProvider>();
+        // Services being registered here can get injected in server project only.
 
-        services.AddTransient(sp =>
+        var services = builder.Services;
+        var configuration = builder.Configuration;
+        var env = builder.Environment;
+
+        services.AddExceptionHandler<ServerExceptionHandler>();
+
+        services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders = ForwardedHeaders.All;
+            options.ForwardedHostHeaderName = "X-Host";
+        });
+
+        services.AddResponseCaching();
+
+        services.AddHttpContextAccessor();
+
+        services.AddResponseCompression(opts =>
+        {
+            opts.EnableForHttps = true;
+            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]).ToArray();
+            opts.Providers.Add<BrotliCompressionProvider>();
+            opts.Providers.Add<GzipCompressionProvider>();
+        })
+            .Configure<BrotliCompressionProviderOptions>(opt => opt.Level = CompressionLevel.Fastest)
+            .Configure<GzipCompressionProviderOptions>(opt => opt.Level = CompressionLevel.Fastest);
+
+
+        var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
+
+        services.AddCors();
+
+        services
+            .AddControllers()
+            .AddOData(options => options.EnableQueryFeatures())
+            .AddDataAnnotationsLocalization(options => options.DataAnnotationLocalizerProvider = StringLocalizerProvider.ProvideLocalizer)
+            .ConfigureApiBehaviorOptions(options =>
+            {
+                options.InvalidModelStateResponseFactory = context =>
+                {
+                    throw new ResourceValidationException(context.ModelState.Select(ms => (ms.Key, ms.Value!.Errors.Select(e => new LocalizedString(e.ErrorMessage, e.ErrorMessage)).ToArray())).ToArray());
+                };
+            });
+
+        services.AddDbContext<AppDbContext>(options =>
+        {
+            options.UseSqlite(configuration.GetConnectionString("SqliteConnectionString"), dbOptions =>
+            {
+                dbOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
+            });
+        });
+
+        services.Configure<AppSettings>(configuration.GetSection(nameof(AppSettings)));
+
+        services.TryAddTransient(sp => sp.GetRequiredService<IOptionsSnapshot<AppSettings>>().Value);
+
+        services.AddEndpointsApiExplorer();
+
+        services.AddSwaggerGen();
+
+        AddIdentity(builder);
+
+        AddHealthChecks(builder);
+
+        services.TryAddTransient<HtmlRenderer>();
+
+        var fluentEmailServiceBuilder = services.AddFluentEmail(appSettings.EmailSettings.DefaultFromEmail, appSettings.EmailSettings.DefaultFromName);
+
+        if (appSettings.EmailSettings.UseLocalFolderForEmails)
+        {
+            var sentEmailsFolderPath = Path.Combine(AppContext.BaseDirectory, "sent-emails");
+
+            Directory.CreateDirectory(sentEmailsFolderPath);
+
+            fluentEmailServiceBuilder.AddSmtpSender(() => new SmtpClient
+            {
+                DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
+                PickupDirectoryLocation = sentEmailsFolderPath
+            });
+        }
+        else
+        {
+            if (appSettings.EmailSettings.HasCredential)
+            {
+                fluentEmailServiceBuilder.AddSmtpSender(() => new(appSettings.EmailSettings.Host, appSettings.EmailSettings.Port)
+                {
+                    Credentials = new NetworkCredential(appSettings.EmailSettings.UserName, appSettings.EmailSettings.Password),
+                    EnableSsl = true
+                });
+            }
+            else
+            {
+                fluentEmailServiceBuilder.AddSmtpSender(appSettings.EmailSettings.Host, appSettings.EmailSettings.Port);
+            }
+        }
+
+        AddBlazor(builder);
+
+    }
+
+    private static void AddBlazor(WebApplicationBuilder builder)
+    {
+        var services = builder.Services;
+        var configuration = builder.Configuration;
+
+        services.TryAddTransient<IAuthTokenProvider, ServerSideAuthTokenProvider>();
+
+        services.TryAddTransient(sp =>
         {
             Uri.TryCreate(configuration.GetApiServerAddress(), UriKind.RelativeOrAbsolute, out var apiServerAddress);
 
@@ -36,11 +148,14 @@ public static class IServiceCollectionExtensions
 
         services.AddMvc();
 
-        services.AddClientWebServices();
+       services.AddClientWebProjectServices();
     }
 
-    public static void AddIdentity(this IServiceCollection services, IConfiguration configuration, IWebHostEnvironment hostEnv)
+    private static void AddIdentity(WebApplicationBuilder builder)
     {
+        var services = builder.Services;
+        var configuration = builder.Configuration;
+        var env = builder.Environment;
         var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
         var settings = appSettings.IdentitySettings;
 
@@ -48,7 +163,7 @@ public static class IServiceCollectionExtensions
         var certificate = new X509Certificate2(certificatePath, appSettings.IdentitySettings.IdentityCertificatePassword, OperatingSystem.IsWindows() ? X509KeyStorageFlags.EphemeralKeySet : X509KeyStorageFlags.DefaultKeySet);
 
         bool isTestCertificate = certificate.Thumbprint is "55140A8C935AB5202949071E5781E6946CD60606"; // The default test certificate is still in use
-        if (isTestCertificate && hostEnv.IsDevelopment() is false)
+        if (isTestCertificate && env.IsDevelopment() is false)
         {
             throw new InvalidOperationException(@"The default test certificate is still in use. Please replace it with a new one by running the 'dotnet dev-certs https --export-path IdentityCertificate.pfx --password P@ssw0rdP@ssw0rd' command (or your preferred method for generating PFX files) in the server project's folder.");
         }
@@ -118,8 +233,10 @@ public static class IServiceCollectionExtensions
         services.AddAuthorization();
     }
 
-    public static void AddSwaggerGen(this IServiceCollection services)
+    private static void AddSwaggerGen(WebApplicationBuilder builder)
     {
+        var services = builder.Services;
+
         services.AddSwaggerGen(options =>
         {
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Server.xml"));
@@ -155,14 +272,18 @@ public static class IServiceCollectionExtensions
         });
     }
 
-    public static IServiceCollection AddHealthChecks(this IServiceCollection services, IWebHostEnvironment env, IConfiguration configuration)
+    private static void AddHealthChecks(WebApplicationBuilder builder)
     {
+        var configuration = builder.Configuration;
+        var services = builder.Services;
+        var env = builder.Environment;
+
         var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
 
         var healthCheckSettings = appSettings.HealthCheckSettings;
 
         if (healthCheckSettings.EnableHealthChecks is false)
-            return services;
+            return;
 
         services.AddHealthChecksUI(setupSettings: setup =>
         {
@@ -191,7 +312,6 @@ public static class IServiceCollectionExtensions
                     }
                 });
         }
-
-        return services;
     }
+
 }
