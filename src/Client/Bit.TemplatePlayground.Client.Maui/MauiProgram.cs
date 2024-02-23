@@ -1,4 +1,5 @@
 ﻿using Bit.TemplatePlayground.Client.Core;
+using Maui.AppStores;
 using Microsoft.Maui.LifecycleEvents;
 
 namespace Bit.TemplatePlayground.Client.Maui;
@@ -13,6 +14,7 @@ public static partial class MauiProgram
 
         builder
             .UseMauiApp<App>()
+            .UseAppStoreInfo()
             .Configuration.AddClientConfigurations();
 
         builder.ConfigureServices();

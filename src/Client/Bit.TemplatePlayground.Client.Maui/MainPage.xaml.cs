@@ -1,19 +1,40 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui;
+﻿using Maui.AppStores;
+
+namespace Bit.TemplatePlayground.Client.Maui;
 
 public partial class MainPage
 {
     private readonly IExceptionHandler exceptionHandler;
     private readonly IBitDeviceCoordinator deviceCoordinator;
+    private readonly IStorageService storageService;
 
-    public MainPage(IExceptionHandler exceptionHandler, IBitDeviceCoordinator deviceCoordinator)
+    public MainPage(IExceptionHandler exceptionHandler,
+        IBitDeviceCoordinator deviceCoordinator,
+        IPubSubService pubSubService,
+        IStorageService storageService)
     {
         this.exceptionHandler = exceptionHandler;
         this.deviceCoordinator = deviceCoordinator;
+        this.storageService = storageService;
 
         InitializeComponent();
 
         SetupBlazorWebView();
         SetupStatusBar();
+
+        pubSubService.Subscribe(PubSubMessages.PROFILE_UPDATED, async _ =>
+        {
+            // It's an opportune moment to request a store review. (:
+
+            await Dispatcher.DispatchAsync(async () =>
+            {
+                if ((await storageService.GetItem("StoreReviewRequested")) is not "true")
+                {
+                    await storageService.SetItem("StoreReviewRequested", "true");
+                    await Plugin.StoreReview.CrossStoreReview.Current.RequestReview(testMode: BuildConfiguration.IsDebug());
+                }
+            });
+        });
     }
 
     private void SetupBlazorWebView()
@@ -100,5 +121,39 @@ public partial class MainPage
                 exceptionHandler.Handle(exp);
             }
         });
+    }
+
+    protected override async void OnAppearing()
+    {
+        try
+        {
+            base.OnAppearing();
+
+            await CheckForUpdates();
+        }
+        catch (Exception exp)
+        {
+            exceptionHandler.Handle(exp);
+        }
+    }
+
+    private async Task CheckForUpdates()
+    {
+        await Task.Delay(TimeSpan.FromSeconds(3)); // No rush to check for updates.
+
+        if (await AppStoreInfo.Current.IsUsingLatestVersionAsync() is false)
+        {
+            if (await storageService.GetItem($"{AppInfo.Version}_UpdateFromVersionIsRequested") is not "true")
+            {
+                await storageService.SetItem($"{AppInfo.Version}_UpdateFromVersionIsRequested", "true");
+
+                // It's an opportune moment to request an update. (:
+                // https://github.com/oscoreio/Maui.AppStoreInfo
+                if (await DisplayAlert(AppStrings.NewVersionIsAvailable, AppStrings.UpdateToNewVersion, AppStrings.Yes, AppStrings.No) is true)
+                {
+                    await AppStoreInfo.Current.OpenApplicationInStoreAsync();
+                }
+            }
+        }
     }
 }
