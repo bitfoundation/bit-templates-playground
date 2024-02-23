@@ -446,6 +446,12 @@ Please confirm your email by clicking on the link.</value>
     <data name="Update" xml:space="preserve">
     <value>Update</value>
   </data>
+    <data name="NewVersionIsAvailable" xml:space="preserve">
+    <value>New version is available</value>
+  </data>
+    <data name="UpdateToNewVersion" xml:space="preserve">
+    <value>Would you like to update to the new version?</value>
+  </data>
     <data name="ProductsCount" xml:space="preserve">
     <value>Products count</value>
   </data>

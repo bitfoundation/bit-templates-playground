@@ -5,15 +5,15 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.5">
+        <PackageReference Include="Bit.CodeAnalyzers" Version="8.7.6-pre-08">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Bit.SourceGenerators" Version="8.7.5">
+        <PackageReference Include="Bit.SourceGenerators" Version="8.7.6-pre-08">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.2" />
     </ItemGroup>
 
     <ItemGroup>
@@ -25,22 +25,22 @@
     <ItemGroup>
         <PackageReference Include="Magick.NET-Q16-AnyCPU" Version="13.5.0" />
         <PackageReference Include="FluentEmail.Smtp" Version="3.0.2" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" Version="8.0.2" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.2" />
         <PackageReference Include="Microsoft.AspNetCore.OData" Version="8.2.4" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.1">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.1" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.1">
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.2" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.2">
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.1" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" Version="8.0.2" />
         <PackageReference Include="MimeTypeMapOfficial" Version="1.0.17" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
         <PackageReference Include="AspNetCore.HealthChecks.System" Version="8.0.0" />
@@ -88,7 +88,7 @@
     <PropertyGroup>
         <RuntimeIdentifiers>linux-x64</RuntimeIdentifiers>
         <EnableSdkContainerDebugging>True</EnableSdkContainerDebugging>
-        <UserSecretsId>65C62680-719C-4F56-9BF7-88F34AF733EF</UserSecretsId>
+        <UserSecretsId>EA80D8A2-32BF-4458-BE56-9EA429E6C1BC</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
         <DockerfileContext>..\..</DockerfileContext>
     </PropertyGroup>
