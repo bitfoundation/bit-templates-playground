@@ -190,6 +190,9 @@
     <data name="EditProfileTitle" xml:space="preserve">
     <value>Edit profile</value>
   </data>
+    <data name="NotFoundText" xml:space="preserve">
+    <value>There is nothing here.</value>
+  </data>
     <data name="FullName" xml:space="preserve">
     <value>FullName</value>
   </data>
@@ -263,7 +266,7 @@
     <value>Title</value>
   </data>
     <data name="AreYouSureWannaDelete" xml:space="preserve">
-    <value>Are you sure you want to delete {0}</value>
+    <value>Are you sure you want to delete {0}?</value>
   </data>
     <data name="Home" xml:space="preserve">
     <value>Home</value>
@@ -451,6 +454,9 @@ Please confirm your email by clicking on the link.</value>
   </data>
     <data name="UpdateToNewVersion" xml:space="preserve">
     <value>Would you like to update to the new version?</value>
+  </data>
+    <data name="AboutTitle" xml:space="preserve">
+    <value>About</value>
   </data>
     <data name="ProductsCount" xml:space="preserve">
     <value>Products count</value>

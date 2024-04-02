@@ -11,7 +11,19 @@ public static class IConfigurationBuilderExtensions
 
         if (BuildConfiguration.IsDebug())
         {
-            builder.AddJsonStream(assembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.Development.json")!);
+            var settings = assembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.Development.json");
+            if (settings is not null)
+            {
+                builder.AddJsonStream(settings);
+            }
+        }
+        else
+        {
+            var settings = assembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.Production.json");
+            if (settings is not null)
+            {
+                builder.AddJsonStream(settings);
+            }
         }
     }
 }

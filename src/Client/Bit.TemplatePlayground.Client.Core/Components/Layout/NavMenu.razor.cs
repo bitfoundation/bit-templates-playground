@@ -1,9 +1,8 @@
-﻿using Bit.TemplatePlayground.Client.Core.Controllers.Identity;
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
-public partial class NavMenu : IDisposable
+public partial class NavMenu
 {
     private bool disposed;
     private bool isSignOutModalOpen;
@@ -23,13 +22,13 @@ public partial class NavMenu : IDisposable
     {
         navItems =
         [
-            new BitNavItem
+            new()
             {
                 Text = Localizer[nameof(AppStrings.Home)],
                 IconName = BitIconName.Home,
                 Url = "/",
             },
-            new BitNavItem
+            new()
             {
                 Text = Localizer[nameof(AppStrings.ProductCategory)],
                 IconName = BitIconName.Product,
@@ -50,19 +49,33 @@ public partial class NavMenu : IDisposable
                     },
                 ]
             },
-            new BitNavItem
+            new()
             {
                 Text = Localizer[nameof(AppStrings.EditProfileTitle)],
                 IconName = BitIconName.EditContact,
                 Url = "/edit-profile",
             },
-            new BitNavItem
+            new()
             {
                 Text = Localizer[nameof(AppStrings.TermsTitle)],
                 IconName = BitIconName.EntityExtraction,
                 Url = "/terms",
             }
         ];
+
+        if (AppRenderMode.IsBlazorHybrid)
+        {
+            // Presently, the About page is absent from the Client/Core project, rendering it inaccessible on the web platform.
+            // In order to exhibit a sample page that grants direct access to native functionalities without dependence on dependency injection (DI) or publish-subscribe patterns,
+            // about page is integrated within Blazor hybrid projects like Client/Maui.
+
+            navItems.Add(new()
+            {
+                Text = Localizer[nameof(AppStrings.AboutTitle)],
+                IconName = BitIconName.HelpMirrored,
+                Url = "/about",
+            });
+        }
 
         unsubscribe = PubSubService.Subscribe(PubSubMessages.PROFILE_UPDATED, async payload =>
         {
@@ -114,14 +127,10 @@ public partial class NavMenu : IDisposable
         await IsMenuOpenChanged.InvokeAsync(false);
     }
 
-    public override void Dispose()
+    protected override async ValueTask DisposeAsync(bool disposing)
     {
-        Dispose(true);
-        GC.SuppressFinalize(this);
-    }
+        await base.DisposeAsync(disposing);
 
-    protected virtual void Dispose(bool disposing)
-    {
         if (disposed || disposing is false) return;
 
         unsubscribe?.Invoke();
