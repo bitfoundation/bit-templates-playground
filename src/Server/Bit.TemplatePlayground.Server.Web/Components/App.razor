@@ -1,8 +1,15 @@
 ﻿@using Bit.TemplatePlayground.Client.Web.Components
+@using Microsoft.AspNetCore.Components.Routing
+@attribute [StreamRendering(enabled: true)]
 
 @{
     var noPrerender = HttpContext.Request.Query["no-prerender"].Count > 0;
-    var renderMode = noPrerender ? AppRenderMode.NoPrerenderBlazorWebAssembly : AppRenderMode.Current;
+    var renderMode = noPrerender ? noPrerenderBlazorWebAssembly : serverWebSettings.WebAppRender.RenderMode;
+    if (HttpContext.AcceptsInteractiveRouting() is false)
+    {
+        // https://learn.microsoft.com/en-us/aspnet/core/release-notes/aspnetcore-9.0?view=aspnetcore-9.0#add-static-server-side-rendering-ssr-pages-to-a-globally-interactive-blazor-web-app
+        renderMode = null;
+    }
 }
 
 <!DOCTYPE html>
@@ -13,24 +20,22 @@
 
     <meta charset="utf-8" />
     <meta name="theme-color">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="description" content="@localizer[nameof(AppStrings.DescriptionMetaTagValue)]" />
 
-    <script>
+    <Script>
         // disable auto-zoom of iOS Safari when focusing an input
         (/iPad|iPhone|iPod/.test(navigator.userAgent)) &&
-            (document.querySelector('meta[name="viewport"]').content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0')
-    </script>
+            (document.querySelector('meta[name="viewport"]').content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover')
+    </Script>
 
-    <link rel="preconnect" href="https://www.google.com">
-    <link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 
-    <link rel="preconnect" href="https://use-your-server-url-here.com">@* for PWA *@
+    <Link rel="preconnect" href="https://use-your-server-url-here.com" />@* for PWA *@
 
     <Link rel="icon" href="favicon.ico" type="image/x-icon" />
     <HeadOutlet @rendermode=renderMode />
     <Link rel="apple-touch-icon" sizes="512x512" href="images/icons/bit-icon-512.png" />
-    @if (AppRenderMode.PwaEnabled)
+    @if (serverWebSettings.WebAppRender.PwaEnabled)
     {
         <Link rel="manifest" href="manifest.json" />
     }
@@ -43,19 +48,21 @@
     <Link rel="stylesheet" href="_content/Bit.BlazorUI.Assets/styles/bit.blazorui.assets.css" />
     <Link rel="stylesheet" href="_content/Bit.BlazorUI.Extras/styles/bit.blazorui.extras.css" />
     <Link rel="stylesheet" href="_content/Bit.TemplatePlayground.Client.Core/styles/app.css" />
-    <Link rel="stylesheet" href="_content/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.bundle.scp.css" />
+    <Link rel="stylesheet" href="Bit.TemplatePlayground.Server.Web.styles.css" />
 
-    @if (AppRenderMode.PrerenderEnabled is false || noPrerender)
+    @if (renderMode != null && (serverWebSettings.WebAppRender.PrerenderEnabled is false || noPrerender))
     {
-        <LoadingComponent />
+        <LoadingComponent @rendermode="null" />
     }
 
     <Routes @rendermode=renderMode />
 
     @if (HttpContext.Request.IsCrawlerClient() is false)
     {
-        <Script src="_framework/blazor.web.js" autostart="false"></Script>
-        @if (AppRenderMode.PwaEnabled)
+        <Script src="_framework/blazor.web.js?ver=9.0.0" autostart="false"></Script>
+        <!-- Ensure that the version of `blazor.web.js` matches the version specified in `service-worker.published.js`.
+             This alignment is necessary for the PWA functionality of the Blazor app to work correctly. -->
+        @if (serverWebSettings.WebAppRender.PwaEnabled)
         {
             <Script src="_content/Bit.Bswup/bit-bswup.js"></Script>
             <Script src="_content/Bit.Bswup/bit-bswup.progress.js"></Script>

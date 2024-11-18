@@ -1,12 +1,14 @@
-﻿using System.Text.Json;
+﻿using System.Runtime.CompilerServices;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
 public partial class AppComponentBase : ComponentBase, IAsyncDisposable
 {
-    [CascadingParameter] public Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
-
-
+    /// <summary>
+    /// <inheritdoc cref="Parameters.IsOnline"/>
+    /// </summary>
+    [CascadingParameter(Name = Parameters.IsOnline)] protected bool? IsOnline { get; set; }
+    [CascadingParameter] protected Task<AuthenticationState> AuthenticationStateTask { get; set; } = default!;
 
     [AutoInject] protected IJSRuntime JSRuntime = default!;
 
@@ -22,9 +24,9 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     [AutoInject] protected IPrerenderStateService PrerenderStateService = default!;
 
     /// <summary>
-    /// <inheritdoc cref="IPubSubService"/>
+    /// <inheritdoc cref="Services.PubSubService"/>
     /// </summary>
-    [AutoInject] protected IPubSubService PubSubService = default!;
+    [AutoInject] protected PubSubService PubSubService = default!;
 
     [AutoInject] protected IConfiguration Configuration = default!;
 
@@ -38,13 +40,20 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
 
     [AutoInject] protected AuthenticationManager AuthenticationManager = default!;
 
+    [AutoInject] protected SnackBarService SnackBarService = default!;
+
+    [AutoInject] protected ITelemetryContext TelemetryContext = default!;
+
+    /// <summary>
+    /// <inheritdoc cref="AbsoluteServerAddressProvider" />
+    /// </summary>
+    [AutoInject] protected AbsoluteServerAddressProvider AbsoluteServerAddress { get; set; } = default!;
 
 
     private readonly CancellationTokenSource cts = new();
     protected CancellationToken CurrentCancellationToken => cts.Token;
 
-    protected bool InPrerenderSession => JSRuntime.IsInitialized() is false;
-
+    protected bool InPrerenderSession => AppPlatform.IsBlazorHybrid is false && JSRuntime.IsInitialized() is false;
 
     protected sealed override void OnInitialized()
     {
@@ -60,7 +69,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
         }
         catch (Exception exp)
         {
-            ExceptionHandler.Handle(exp);
+            HandleException(exp);
         }
     }
 
@@ -82,7 +91,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
         }
         catch (Exception exp)
         {
-            ExceptionHandler.Handle(exp);
+            HandleException(exp);
         }
     }
 
@@ -105,7 +114,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
             }
             catch (Exception exp)
             {
-                ExceptionHandler.Handle(exp);
+                HandleException(exp);
             }
         }
 
@@ -124,7 +133,10 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Executes passed action while catching all possible exceptions to prevent app crash.
     /// </summary>
-    public virtual Action WrapHandled(Action action)
+    public virtual Action WrapHandled(Action action,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
     {
         return () =>
         {
@@ -134,7 +146,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
             }
             catch (Exception exp)
             {
-                ExceptionHandler.Handle(exp);
+                HandleException(exp, null, lineNumber, memberName, filePath);
             }
         };
     }
@@ -142,7 +154,10 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Executes passed action while catching all possible exceptions to prevent app crash.
     /// </summary>
-    public virtual Action<T> WrapHandled<T>(Action<T> func)
+    public virtual Action<T> WrapHandled<T>(Action<T> func,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
     {
         return (e) =>
         {
@@ -152,7 +167,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
             }
             catch (Exception exp)
             {
-                ExceptionHandler.Handle(exp);
+                HandleException(exp, null, lineNumber, memberName, filePath);
             }
         };
     }
@@ -160,7 +175,10 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Executes passed function while catching all possible exceptions to prevent app crash.
     /// </summary>
-    public virtual Func<Task> WrapHandled(Func<Task> func)
+    public virtual Func<Task> WrapHandled(Func<Task> func,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
     {
         return async () =>
         {
@@ -170,7 +188,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
             }
             catch (Exception exp)
             {
-                ExceptionHandler.Handle(exp);
+                HandleException(exp, null, lineNumber, memberName, filePath);
             }
         };
     }
@@ -178,7 +196,10 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Executes passed function while catching all possible exceptions to prevent app crash.
     /// </summary>
-    public virtual Func<T, Task> WrapHandled<T>(Func<T, Task> func)
+    public virtual Func<T, Task> WrapHandled<T>(Func<T, Task> func,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
     {
         return async (e) =>
         {
@@ -188,7 +209,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
             }
             catch (Exception exp)
             {
-                ExceptionHandler.Handle(exp);
+                HandleException(exp, null, lineNumber, memberName, filePath);
             }
         };
     }
@@ -204,8 +225,26 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     {
         if (disposing)
         {
-            cts.Cancel();
-            cts.Dispose();
+            await PrerenderStateService.DisposeAsync();
+            cts?.Cancel();
+            cts?.Dispose();
         }
+    }
+
+    private void HandleException(Exception exp,
+        Dictionary<string, object?>? parameters = null,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
+    {
+        parameters ??= [];
+
+        if (AppPlatform.IsBlazorHybridOrBrowser is false)
+        {
+            parameters[nameof(InPrerenderSession)] = InPrerenderSession;
+        }
+        parameters["ComponentType"] = GetType().FullName;
+
+        ExceptionHandler.Handle(exp, parameters, lineNumber, memberName, filePath);
     }
 }

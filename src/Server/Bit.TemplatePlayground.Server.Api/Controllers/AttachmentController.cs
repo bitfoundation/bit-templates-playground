@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.StaticFiles;
-using Bit.TemplatePlayground.Server.Api.Models.Identity;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using FluentStorage.Blobs;
 using ImageMagick;
 
@@ -12,8 +11,6 @@ public partial class AttachmentController : AppControllerBase
     [AutoInject] private UserManager<User> userManager = default!;
 
     [AutoInject] private IWebHostEnvironment webHostEnvironment = default!;
-
-    [AutoInject] private IContentTypeProvider contentTypeProvider = default!;
 
     [AutoInject] private IBlobStorage blobStorage = default!;
 

@@ -1,35 +1,42 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net8.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
+        <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <IsPackable>false</IsPackable>
         <IsTestProject>true</IsTestProject>
+        <RunSettingsFilePath>$(MSBuildProjectDirectory)\.runsettings</RunSettingsFilePath>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="coverlet.collector" Version="6.0.2">
+        <PackageReference Include="coverlet.collector">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="FakeItEasy" Version="8.3.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.8" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
-        <PackageReference Include="MSTest.TestAdapter" Version="3.5.2" />
-        <PackageReference Include="MSTest.TestFramework" Version="3.5.2" />
+        <PackageReference Include="FakeItEasy" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Microsoft.Playwright.MSTest" />
+        <PackageReference Include="MSTest.TestAdapter" />
+        <PackageReference Include="MSTest.TestFramework" />
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Server\Bit.TemplatePlayground.Server.Web\Bit.TemplatePlayground.Server.Web.csproj" />
         <ProjectReference Include="..\Server\Bit.TemplatePlayground.Server.Api\Bit.TemplatePlayground.Server.Api.csproj" />
     </ItemGroup>
 
     <ItemGroup>
         <Using Include="System.Net.Http.Headers" />
         <Using Include="System.Net.Http.Json" />
+        <Using Include="Bit.TemplatePlayground.Shared" />
         <Using Include="Bit.TemplatePlayground.Shared.Enums" />
+        <Using Include="Microsoft.AspNetCore.Http" />
         <Using Include="Microsoft.AspNetCore.Components" />
         <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
+        <Using Include="Microsoft.Playwright" />
+        <Using Include="Microsoft.Playwright.MSTest" />
+        <Using Include="FakeItEasy" />
+        <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
     </ItemGroup>
+
 
 </Project>

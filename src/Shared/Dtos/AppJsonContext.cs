@@ -1,7 +1,7 @@
 ﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 using Bit.TemplatePlayground.Shared.Dtos.Products;
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 
 namespace Bit.TemplatePlayground.Shared.Dtos;
 
@@ -9,11 +9,13 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 /// https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-source-generator/
 /// </summary>
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
-[JsonSerializable(typeof(Dictionary<string, object>))]
-[JsonSerializable(typeof(UserDto))]
+[JsonSerializable(typeof(Dictionary<string, JsonElement>))]
+[JsonSerializable(typeof(string[]))]
+[JsonSerializable(typeof(RestErrorInfo))]
+[JsonSerializable(typeof(GitHubStats))]
+[JsonSerializable(typeof(NugetStatsDto))]
 [JsonSerializable(typeof(List<ProductsCountPerCategoryResponseDto>))]
 [JsonSerializable(typeof(OverallAnalyticsStatsDataResponseDto))]
-[JsonSerializable(typeof(List<ProductSaleStatResponseDto>))]
 [JsonSerializable(typeof(List<ProductPercentagePerCategoryResponseDto>))]
 [JsonSerializable(typeof(ProductDto))]
 [JsonSerializable(typeof(PagedResult<ProductDto>))]
@@ -21,25 +23,6 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(CategoryDto))]
 [JsonSerializable(typeof(PagedResult<CategoryDto>))]
 [JsonSerializable(typeof(List<CategoryDto>))]
-[JsonSerializable(typeof(IdentityRequestDto))]
-[JsonSerializable(typeof(SignInRequestDto))]
-[JsonSerializable(typeof(SignInResponseDto))]
-[JsonSerializable(typeof(TokenResponseDto))]
-[JsonSerializable(typeof(RefreshRequestDto))]
-[JsonSerializable(typeof(SignUpRequestDto))]
-[JsonSerializable(typeof(EditUserDto))]
-[JsonSerializable(typeof(RestErrorInfo))]
-[JsonSerializable(typeof(SendEmailTokenRequestDto))]
-[JsonSerializable(typeof(SendPhoneTokenRequestDto))]
-[JsonSerializable(typeof(ConfirmEmailRequestDto))]
-[JsonSerializable(typeof(ChangeEmailRequestDto))]
-[JsonSerializable(typeof(ConfirmPhoneRequestDto))]
-[JsonSerializable(typeof(ChangePhoneNumberRequestDto))]
-[JsonSerializable(typeof(SendResetPasswordTokenRequestDto))]
-[JsonSerializable(typeof(ResetPasswordRequestDto))]
-[JsonSerializable(typeof(TwoFactorAuthRequestDto))]
-[JsonSerializable(typeof(TwoFactorAuthResponseDto))]
-[JsonSerializable(typeof(List<UserSessionDto>))]
 public partial class AppJsonContext : JsonSerializerContext
 {
 }

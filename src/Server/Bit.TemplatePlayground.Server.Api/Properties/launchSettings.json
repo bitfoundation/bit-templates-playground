@@ -8,29 +8,29 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "dotnetRunMessages": true,
-            "applicationUrl": "http://localhost:5276"
+            "applicationUrl": "http://localhost:5054"
         },
         "WSL": {
             "commandName": "WSL2",
             "launchBrowser": true,
-            "launchUrl": "http://localhost:5276/swagger",
+            "launchUrl": "http://localhost:5054/swagger",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://localhost:5276"
+                "ASPNETCORE_URLS": "http://localhost:5054"
             }
         },
         "Docker": {
             "commandName": "SdkContainer",
             "launchBrowser": true,
             "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-            "DockerfileRunArguments": "-v C:\\DockerVolumes\\576F35E4-545E-4E95-9AB3-FF2FDC2F3F7C:/container_volume",
+            "DockerfileRunArguments": "-v C:\\DockerVolumes\\24A429BE-721E-4083-B988-0642D2427F70:/container_volume",
             "environmentVariables": {
-                "ASPNETCORE_HTTP_PORTS": "5276",
+                "ASPNETCORE_HTTP_PORTS": "5054",
                 "ConnectionStrings__SqliteConnectionString": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
             },
             "publishAllPorts": true,
             "useSSL": false,
-            "httpPort": 5276
+            "httpPort": 5054
         },
         "IIS Express": {
             "commandName": "IISExpress",
@@ -46,7 +46,7 @@
         "anonymousAuthentication": true,
         "iisExpress": {
             "applicationUrl": "http://localhost:57278/",
-            "httpPort": 5276
+            "httpPort": 5054
         }
     },
     "$schema": "http://json.schemastore.org/launchsettings.json"

@@ -1,10 +1,10 @@
 {
     "name": "Bit.TemplatePlayground",
-    "image": "mcr.microsoft.com/dotnet/sdk:8.0",
+    "image": "mcr.microsoft.com/dotnet/sdk:9.0",
     "hostRequirements": {
         "cpus": 4
     },
-    "onCreateCommand": "dotnet dev-certs https --trust && dotnet workload install wasm-tools",
+    "onCreateCommand": "dotnet workload install wasm-tools",
     "waitFor": "onCreateCommand",
     "customizations": {
         "codespaces": {
@@ -24,9 +24,9 @@
         }
     },
     "forwardPorts": [
-        4138,
+        4052,
         5000,
-        5276
+        5054
     ],
     "features": {
         "ghcr.io/devcontainers/features/node": {},

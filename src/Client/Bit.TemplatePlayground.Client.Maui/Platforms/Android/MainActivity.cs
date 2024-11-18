@@ -2,8 +2,8 @@
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Bit.TemplatePlayground.Client.Core;
 using Java.Net;
+using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
 
@@ -11,9 +11,10 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
                         DataSchemes = ["https", "http"],
                         DataHosts = ["use-your-server-url-here.com"],
                         // the following app links will be opened in app instead of browser if the app is installed on Android device.
-                        DataPaths = ["/"],
+                        DataPaths = [Urls.HomePage],
                         DataPathPrefixes = [
-                            Urls.ConfirmPage, Urls.ForgotPasswordPage, Urls.ProfilePage, Urls.ResetPasswordPage, Urls.SignInPage, Urls.SignUpPage, Urls.NotAuthorizedPage, Urls.NotFoundPage, Urls.TermsPage, Urls.AboutPage,
+                            "/en-US", "/en-GB", "/fa-IR", "/nl-NL",
+                            Urls.ConfirmPage, Urls.ForgotPasswordPage, Urls.SettingsPage, Urls.ResetPasswordPage, Urls.SignInPage, Urls.SignUpPage, Urls.NotAuthorizedPage, Urls.NotFoundPage, Urls.TermsPage, Urls.AboutPage,
                             Urls.AddOrEditCategoryPage, Urls.CategoriesPage, Urls.DashboardPage, Urls.ProductsPage,
                             ],
                         AutoVerify = true,
@@ -23,8 +24,12 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
     ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public partial class MainActivity : MauiAppCompatActivity
 {
+
     protected override void OnCreate(Bundle? savedInstanceState)
     {
+        // https://github.com/dotnet/maui/issues/24742
+        Theme?.ApplyStyle(Resource.Style.OptOutEdgeToEdgeEnforcement, force: false);
+
         base.OnCreate(savedInstanceState);
 
         var url = Intent?.DataString;
@@ -45,4 +50,5 @@ public partial class MainActivity : MauiAppCompatActivity
             _ = Routes.OpenUniversalLink(new URL(url).File ?? Urls.HomePage);
         }
     }
+
 }

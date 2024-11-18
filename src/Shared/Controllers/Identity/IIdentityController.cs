@@ -23,18 +23,18 @@ public interface IIdentityController : IAppController
     [HttpPost]
     Task ResetPassword(ResetPasswordRequestDto request, CancellationToken cancellationToken);
 
+    public const string RefreshUri = "api/Identity/Refresh";
     [HttpPost]
     Task<TokenResponseDto> Refresh(RefreshRequestDto request, CancellationToken cancellationToken) => default!;
 
     [HttpPost]
-    [NoRetryPolicy] // Please note that retrying requests with Google reCaptcha will not work, as the Google verification mechanism only accepts a captcha response once.
     Task SignUp(SignUpRequestDto request, CancellationToken cancellationToken);
 
     [HttpPost]
     Task<SignInResponseDto> SignIn(SignInRequestDto request, CancellationToken cancellationToken) => default!;
 
     [HttpPost]
-    Task SendTwoFactorToken(IdentityRequestDto request, CancellationToken cancellationToken);
+    Task SendTwoFactorToken(SignInRequestDto request, CancellationToken cancellationToken);
 
     [HttpPost("{?returnUrl}")]
     Task SendOtp(IdentityRequestDto request, string? returnUrl = null, CancellationToken cancellationToken = default);

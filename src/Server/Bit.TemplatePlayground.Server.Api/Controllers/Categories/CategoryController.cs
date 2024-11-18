@@ -1,11 +1,13 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
+﻿using Bit.TemplatePlayground.Server.Api.SignalR;
+using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Shared.Controllers.Categories;
 
-namespace Bit.TemplatePlayground.Server.Api.Controllers;
+namespace Bit.TemplatePlayground.Server.Api.Controllers.Categories;
 
 [ApiController, Route("api/[controller]/[action]")]
 public partial class CategoryController : AppControllerBase, ICategoryController
 {
+
     [HttpGet, EnableQuery]
     public IQueryable<CategoryDto> Get()
     {
@@ -20,11 +22,8 @@ public partial class CategoryController : AppControllerBase, ICategoryController
 
         var totalCount = await query.LongCountAsync(cancellationToken);
 
-        if (odataQuery.Skip is not null)
-            query = query.Skip(odataQuery.Skip.Value);
-
-        if (odataQuery.Top is not null)
-            query = query.Take(odataQuery.Top.Value);
+        query = query.SkipIf(odataQuery.Skip is not null, odataQuery.Skip!.Value)
+                     .TakeIf(odataQuery.Top is not null, odataQuery.Top!.Value);
 
         return new PagedResult<CategoryDto>(await query.ToArrayAsync(cancellationToken), totalCount);
     }
@@ -49,38 +48,36 @@ public partial class CategoryController : AppControllerBase, ICategoryController
 
         await DbContext.SaveChangesAsync(cancellationToken);
 
+
         return entityToAdd.Map();
     }
 
     [HttpPut]
     public async Task<CategoryDto> Update(CategoryDto dto, CancellationToken cancellationToken)
     {
-        var entityToUpdate = await DbContext.Categories.FirstOrDefaultAsync(t => t.Id == dto.Id, cancellationToken);
+        var entityToUpdate = dto.Map();
 
-        if (entityToUpdate is null)
-            throw new ResourceNotFoundException(Localizer[nameof(AppStrings.ProductCouldNotBeFound)]);
-
-        dto.Patch(entityToUpdate);
+        DbContext.Update(entityToUpdate);
 
         await DbContext.SaveChangesAsync(cancellationToken);
+
 
         return entityToUpdate.Map();
     }
 
-    [HttpDelete("{id}")]
-    public async Task Delete(Guid id, CancellationToken cancellationToken)
+    [HttpDelete("{id}/{concurrencyStamp}")]
+    public async Task Delete(Guid id, string concurrencyStamp, CancellationToken cancellationToken)
     {
         if (await DbContext.Products.AnyAsync(p => p.CategoryId == id, cancellationToken))
         {
             throw new BadRequestException(Localizer[nameof(AppStrings.CategoryNotEmpty)]);
         }
 
-        DbContext.Categories.Remove(new() { Id = id });
+        DbContext.Categories.Remove(new() { Id = id, ConcurrencyStamp = Convert.FromBase64String(Uri.UnescapeDataString(concurrencyStamp)) });
 
-        var affectedRows = await DbContext.SaveChangesAsync(cancellationToken);
+        await DbContext.SaveChangesAsync(cancellationToken);
 
-        if (affectedRows < 1)
-            throw new ResourceNotFoundException(Localizer[nameof(AppStrings.CategoryCouldNotBeFound)]);
     }
+
 }
 

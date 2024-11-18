@@ -1,41 +1,53 @@
-﻿using System.IO.Compression;
-using Microsoft.AspNetCore.ResponseCompression;
-using Bit.TemplatePlayground.Server.Api.Services;
-using System.Net;
+﻿using System.Net;
 using System.Net.Mail;
+using System.IO.Compression;
 using System.Text.RegularExpressions;
 using System.Security.Cryptography.X509Certificates;
-using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.OData;
 using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.ResponseCompression;
+using Twilio;
+using PhoneNumbers;
 using FluentStorage;
 using FluentStorage.Blobs;
-using Twilio;
+using FluentEmail.Core;
+using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Server.Api.Controllers;
-using System.Configuration;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Server.Api.Services.Identity;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
 public static partial class Program
 {
-    public static void ConfigureApiServices(this WebApplicationBuilder builder)
+    public static void AddServerApiProjectServices(this WebApplicationBuilder builder)
     {
         // Services being registered here can get injected in server project only.
-
+        var env = builder.Environment;
         var services = builder.Services;
         var configuration = builder.Configuration;
-        var env = builder.Environment;
+        var appSettings = configuration.Get<ServerApiSettings>()!;
+
+        services.AddScoped<EmailService>();
+        services.AddScoped<PhoneService>();
+        if (appSettings.Sms?.Configured is true)
+        {
+            TwilioClient.Init(appSettings.Sms.TwilioAccountSid, appSettings.Sms.TwilioAutoToken);
+        }
+
+        services.AddSingleton(_ => PhoneNumberUtil.GetInstance());
+        services.AddSingleton<IBlobStorage>(sp =>
+        {
+            var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
+            var attachmentsDirPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data");
+            Directory.CreateDirectory(attachmentsDirPath);
+            return StorageFactory.Blobs.DirectoryFiles(attachmentsDirPath);
+        });
 
         services.AddExceptionHandler<ServerExceptionHandler>();
-
-        services.AddOptions<ForwardedHeadersOptions>()
-            .Bind(configuration.GetRequiredSection("ForwardedHeaders"))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
 
         services.AddResponseCaching();
 
@@ -52,16 +64,19 @@ public static partial class Program
             .Configure<GzipCompressionProviderOptions>(opt => opt.Level = CompressionLevel.Fastest);
 
 
-        var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
-
         services.AddCors(builder =>
         {
             builder.AddDefaultPolicy(policy =>
             {
-                var webClientUrl = configuration.GetValue<string?>("WebClientUrl");
+                if (env.IsDevelopment() is false)
+                {
+                    policy.SetPreflightMaxAge(TimeSpan.FromDays(1)); // https://stackoverflow.com/a/74184331
+                }
 
-                policy.SetIsOriginAllowed(origin => 
-                            LocalhostOriginRegex().IsMatch(origin) ||
+                var webClientUrl = configuration.Get<ServerApiSettings>()!.WebClientUrl;
+
+                policy.SetIsOriginAllowed(origin =>
+                            AllowedOriginsRegex().IsMatch(origin) ||
                             (string.IsNullOrEmpty(webClientUrl) is false && string.Equals(origin, webClientUrl, StringComparison.InvariantCultureIgnoreCase)))
                       .AllowAnyHeader()
                       .AllowAnyMethod()
@@ -71,8 +86,11 @@ public static partial class Program
 
         services.AddAntiforgery();
 
+        services.ConfigureHttpJsonOptions(options => options.SerializerOptions.TypeInfoResolverChain.AddRange([AppJsonContext.Default, IdentityJsonContext.Default, ServerJsonContext.Default]));
+
         services
             .AddControllers()
+            .AddJsonOptions(options => options.JsonSerializerOptions.TypeInfoResolverChain.AddRange([AppJsonContext.Default, IdentityJsonContext.Default, ServerJsonContext.Default]))
             .AddApplicationPart(typeof(AppControllerBase).Assembly)
             .AddOData(options => options.EnableQueryFeatures())
             .AddDataAnnotationsLocalization(options => options.DataAnnotationLocalizerProvider = StringLocalizerProvider.ProvideLocalizer)
@@ -99,17 +117,17 @@ public static partial class Program
             });
         };
 
-        services.AddOptions<AppSettings>()
-            .Bind(configuration.GetRequiredSection(nameof(AppSettings)))
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
-
         services.AddOptions<IdentityOptions>()
-            .Bind(configuration.GetRequiredSection(nameof(AppSettings)).GetRequiredSection(nameof(AppSettings.Identity)))
+            .Bind(configuration.GetRequiredSection(nameof(ServerApiSettings.Identity)))
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-        services.TryAddTransient(sp => sp.GetRequiredService<IOptionsSnapshot<AppSettings>>().Value);
+        services.AddOptions<ServerApiSettings>()
+            .Bind(configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
+        services.AddSingleton(sp => configuration.Get<ServerApiSettings>()!);
 
         services.AddEndpointsApiExplorer();
 
@@ -117,11 +135,10 @@ public static partial class Program
 
         AddIdentity(builder);
 
-        services.TryAddTransient<IContentTypeProvider, FileExtensionContentTypeProvider>();
+        var emailSettings = appSettings.Email ?? throw new InvalidOperationException("Email settings are required.");
+        var fluentEmailServiceBuilder = services.AddFluentEmail(emailSettings.DefaultFromEmail);
 
-        var fluentEmailServiceBuilder = services.AddFluentEmail(appSettings.Email.DefaultFromEmail);
-
-        if (appSettings.Email.UseLocalFolderForEmails)
+        if (emailSettings.UseLocalFolderForEmails)
         {
             var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
             var sentEmailsFolderPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data", "sent-emails");
@@ -136,39 +153,24 @@ public static partial class Program
         }
         else
         {
-            if (appSettings.Email.HasCredential)
+            if (emailSettings.HasCredential)
             {
-                fluentEmailServiceBuilder.AddSmtpSender(() => new(appSettings.Email.Host, appSettings.Email.Port)
+                fluentEmailServiceBuilder.AddSmtpSender(() => new(emailSettings.Host, emailSettings.Port)
                 {
-                    Credentials = new NetworkCredential(appSettings.Email.UserName, appSettings.Email.Password),
+                    Credentials = new NetworkCredential(emailSettings.UserName, emailSettings.Password),
                     EnableSsl = true
                 });
             }
             else
             {
-                fluentEmailServiceBuilder.AddSmtpSender(appSettings.Email.Host, appSettings.Email.Port);
+                fluentEmailServiceBuilder.AddSmtpSender(emailSettings.Host, emailSettings.Port);
             }
         }
 
-        services.TryAddTransient<EmailService>();
-        services.TryAddTransient<SmsService>();
-        if (appSettings.Sms.Configured)
-        {
-            TwilioClient.Init(appSettings.Sms.TwilioAccountSid, appSettings.Sms.TwilioAutoToken);
-        }
 
-        services.TryAddSingleton(sp =>
+        services.AddHttpClient<NugetStatisticsHttpClient>(c =>
         {
-            var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
-            var attachmentsDirPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data");
-            Directory.CreateDirectory(attachmentsDirPath);
-            var connectionString = $"disk://path={attachmentsDirPath}";
-            return StorageFactory.Blobs.FromConnectionString(connectionString);
-        });
-
-        services.AddHttpClient<GoogleRecaptchaHttpClient>(c =>
-        {
-            c.BaseAddress = new Uri("https://www.google.com/recaptcha/");
+            c.BaseAddress = new Uri("https://azuresearch-usnc.nuget.org");
         });
     }
 
@@ -177,23 +179,16 @@ public static partial class Program
         var services = builder.Services;
         var configuration = builder.Configuration;
         var env = builder.Environment;
-        var appSettings = configuration.GetSection(nameof(AppSettings)).Get<AppSettings>()!;
+        var appSettings = configuration.Get<ServerApiSettings>()!;
         var identityOptions = appSettings.Identity;
 
         var certificatePath = Path.Combine(AppContext.BaseDirectory, "DataProtectionCertificate.pfx");
-        var certificate = new X509Certificate2(certificatePath, configuration.GetRequiredValue<string>("DataProtectionCertificatePassword"), OperatingSystem.IsWindows() ? X509KeyStorageFlags.EphemeralKeySet : X509KeyStorageFlags.DefaultKeySet);
-
-        bool isTestCertificate = certificate.Thumbprint is "55140A8C935AB5202949071E5781E6946CD60606"; // The default test certificate is still in use
-        if (isTestCertificate && env.IsDevelopment() is false)
-        {
-            throw new InvalidOperationException(@"The default test certificate is still in use. Please replace it with a new one by running the 'dotnet dev-certs https --export-path DataProtectionCertificate.pfx --password P@ssw0rdP@ssw0rd' command (or your preferred method for generating PFX files) in the server project's folder.");
-        }
+        var certificate = new X509Certificate2(certificatePath, appSettings.DataProtectionCertificatePassword, OperatingSystem.IsWindows() ? X509KeyStorageFlags.EphemeralKeySet : X509KeyStorageFlags.DefaultKeySet);
 
         services.AddDataProtection()
             .PersistKeysToDbContext<AppDbContext>()
             .ProtectKeysWithCertificate(certificate);
 
-        services.AddTransient<IUserConfirmation<User>, AppUserConfirmation>();
 
         services.AddIdentity<User, Role>()
             .AddEntityFrameworkStores<AppDbContext>()
@@ -201,6 +196,11 @@ public static partial class Program
             .AddErrorDescriber<AppIdentityErrorDescriber>()
             .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
             .AddApiEndpoints();
+
+        services.AddScoped<IUserConfirmation<User>, AppUserConfirmation>();
+        services.AddScoped(sp => (IUserEmailStore<User>)sp.GetRequiredService<IUserStore<User>>());
+        services.AddScoped(sp => (IUserPhoneNumberStore<User>)sp.GetRequiredService<IUserStore<User>>());
+        services.AddScoped(sp => (AppUserClaimsPrincipalFactory)sp.GetRequiredService<IUserClaimsPrincipalFactory<User>>());
 
         var authenticationBuilder = services.AddAuthentication(options =>
         {
@@ -286,7 +286,7 @@ public static partial class Program
 
         services.AddSwaggerGen(options =>
         {
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Server.Api.xml"));
+            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Server.Api.xml"), includeControllerXmlComments: true);
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Shared.xml"));
 
             options.OperationFilter<ODataOperationFilter>();
@@ -320,8 +320,8 @@ public static partial class Program
     }
 
     /// <summary>
-    /// For either Blazor Hybrid web view or localhost in dev environment.
+    /// For either Blazor Hybrid web view, localhost, dev tunnels etc in dev environment.
     /// </summary>
-    [GeneratedRegex(@"^(http|https|app):\/\/(localhost|0\.0\.0\.0|127\.0\.0\.1)(:\d+)?(\/.*)?$")]
-    private static partial Regex LocalhostOriginRegex();
+    [GeneratedRegex(@"^(http|https|app):\/\/(localhost|0\.0\.0\.0|0\.0\.0\.1|127\.0\.0\.1|.*?devtunnels\.ms|.*?github\.dev)(:\d+)?(\/.*)?$")]
+    private static partial Regex AllowedOriginsRegex();
 }

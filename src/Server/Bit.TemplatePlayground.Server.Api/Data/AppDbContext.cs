@@ -10,18 +10,19 @@ namespace Bit.TemplatePlayground.Server.Api.Data;
 public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<User, Role, Guid>(options), IDataProtectionKeyContext
 {
-    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; }
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
 
-    public DbSet<Category> Categories { get; set; }
-    public DbSet<Product> Products { get; set; }
+    public DbSet<Category> Categories { get; set; } = default!;
+    public DbSet<Product> Products { get; set; } = default!;
 
-    protected override void OnModelCreating(ModelBuilder builder)
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(builder);
+        base.OnModelCreating(modelBuilder);
 
-        builder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
+        modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
-        ConfigureIdentityTableNames(builder);
+        ConfigureIdentityTableNames(modelBuilder);
+
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
@@ -82,5 +83,6 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<IdentityUserClaim<Guid>>()
             .ToTable("UserClaims");
     }
+
 
 }

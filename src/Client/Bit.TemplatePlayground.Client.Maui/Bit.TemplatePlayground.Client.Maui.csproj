@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
-        <TargetFrameworks>net8.0-android;net8.0-ios;net8.0-maccatalyst</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net8.0-windows10.0.19041.0</TargetFrameworks>
-        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('linux'))">net8.0-android</TargetFrameworks>
+        <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net9.0-windows10.0.19041.0</TargetFrameworks>
+        <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('linux'))">net9.0-android</TargetFrameworks>
         <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
-        <!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
+        <!-- <TargetFrameworks>$(TargetFrameworks);net9.0-tizen</TargetFrameworks> -->
         <OutputType>Exe</OutputType>
         <UseMaui>true</UseMaui>
         <SingleProject>true</SingleProject>
@@ -16,14 +16,13 @@
 
         <!-- App Identifier -->
         <ApplicationId>com.companyname.bit.templateplayground</ApplicationId>
-        <ApplicationIdGuid>576F35E4-545E-4E95-9AB3-FF2FDC2F3F7C</ApplicationIdGuid>
 
         <!-- Versions -->
         <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
         <ApplicationVersion>1</ApplicationVersion>
 
         <!-- Required for C# Hot Reload -->
-        <UseInterpreter Condition="'$(Configuration)' == 'Debug'">True</UseInterpreter>
+        <UseInterpreter Condition="'$(Environment)' == 'Development'">True</UseInterpreter>
 
         <NoWarn>$(NoWarn);ClassWithoutModifierAnalyzer</NoWarn>
 
@@ -33,40 +32,45 @@
         </ResolveStaticWebAssetsInputsDependsOn>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Configuration)' == 'Release'">
+    <PropertyGroup Condition="$(TargetFramework.Contains('-android')) and '$(Environment)' == 'Production'">
         <EnableLLVM>true</EnableLLVM>
         <RuntimeIdentifiers Condition="'$(AndroidPackageFormat)' == 'apk'">android-arm64</RuntimeIdentifiers>
         <MauiUseDefaultAotProfile Condition="Exists('custom.aprof')">false</MauiUseDefaultAotProfile>
         <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$(TargetFramework.Contains('-ios'))">
+    <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Environment)' == 'Development'">
+        <CodesignEntitlements>Platforms/iOS/Entitlements.Development.plist</CodesignEntitlements>
         <EnableSGenConc>True</EnableSGenConc>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Configuration)' == 'Release'">
+    <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Environment)' == 'Production'">
+        <CodesignEntitlements>Platforms/iOS/Entitlements.Production.plist</CodesignEntitlements>
+        <EnableSGenConc>True</EnableSGenConc>
+        <!-- https://learn.microsoft.com/en-us/dotnet/maui/macios/interpreter -->
         <MtouchInterpreter>-all</MtouchInterpreter>
     </PropertyGroup>
 
     <!-- Build Properties must be defined within these property groups to ensure successful publishing
        to the Mac App Store. See: https://aka.ms/maui-publish-app-store#define-build-properties-in-your-project-file -->
-    <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Debug'">
-        <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Debug.plist</CodesignEntitlements>
+    <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Environment)' == 'Development'">
+        <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Development.plist</CodesignEntitlements>
     </PropertyGroup>
 
-    <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Configuration)' == 'Release'">
-        <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Release.plist</CodesignEntitlements>
+    <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Environment)' == 'Production'">
+        <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Production.plist</CodesignEntitlements>
         <UseHardenedRuntime>true</UseHardenedRuntime>
         <MtouchInterpreter>-all</MtouchInterpreter>
     </PropertyGroup>
 
-
     <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
+        <AndroidResource Include="Platforms\Android\Resources\**\styles.xml" />
+        <GoogleServicesJson Condition="Exists('Platforms\Android\google-services.json')" Include="Platforms\Android\google-services.json" />
         <AndroidAotProfile Condition="Exists('custom.aprof')" Include="custom.aprof" />
         <!-- Run the following commands to create custom.aprof file which improves the Android app performance -->
         <!-- dotnet add package Mono.AotProfiler.Android -->
-        <!-- dotnet build -t:BuildAndStartAotProfiling -f net8.0-android -p:UseInterpreter=false -->
-        <!-- dotnet build -t:FinishAotProfiling -f net8.0-android -->
+        <!-- dotnet build -t:BuildAndStartAotProfiling -f net9.0-android -p:UseInterpreter=false -->
+        <!-- dotnet build -t:FinishAotProfiling -f net9.0-android -->
         <!-- dotnet remove package Mono.AotProfiler.Android -->
     </ItemGroup>
 
@@ -78,6 +82,7 @@
 
         <Using Include="Microsoft.AspNetCore.Components.WebView.Maui" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Components.Pages" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
         <Using Include="Bit.TemplatePlayground.Shared" />
@@ -106,11 +111,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.11.0-pre-08" PrivateAssets="all" />
-        <PackageReference Include="Bit.SourceGenerators" Version="8.11.0-pre-08" PrivateAssets="all" />
         <Content Remove="compilerconfig.json" />
         <None Include="compilerconfig.json" />
-        <Content Remove="Properties\launchSettings.json" />
+        <Content Remove="appsettings*.json" />
+        <EmbeddedResource Include="appsettings*.json" />
     </ItemGroup>
 
     <ItemGroup>
@@ -118,19 +122,13 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="EmbedIO" Version="3.5.2" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="8.0.82" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="8.0.82" />
-        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.82" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="8.0.82" />
-        <PackageReference Include="Oscore.Maui.Android.InAppUpdates" Version="1.1.0" />
-        <PackageReference Include="Oscore.Maui.AppStoreInfo" Version="1.0.7" />
-        <PackageReference Include="Oscore.Maui.InAppReviews" Version="1.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.EventSource" Version="8.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="EmbedIO" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+        <PackageReference Include="Microsoft.Maui.Controls" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
+        <PackageReference Include="Microsoft.Extensions.Logging.EventLog" />
+        <PackageReference Include="Microsoft.Extensions.Logging.EventSource" />
+        <PackageReference Include="Newtonsoft.Json" />
     </ItemGroup>
 
     <Target Name="BeforeBuildTasks" AfterTargets="CoreCompile">
@@ -139,7 +137,14 @@
     </Target>
 
     <Target Name="BuildCssFiles">
-        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass .:. --style compressed --load-path=." StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
+        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass .:. --style compressed --load-path=. --silence-deprecation=import" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
+    </Target>
+
+    <!-- https://github.com/dotnet/runtime/issues/104599  -->
+    <Target Name="_FixAndroidAotInputs" DependsOnTargets="_AndroidAotInputs" BeforeTargets="_AndroidAotCompilation">
+        <ItemGroup Condition="$(EnableLLVM)">
+            <_AndroidAotInputs Remove="$(IntermediateLinkDir)**\System.Net.Sockets.dll" />
+        </ItemGroup>
     </Target>
 
 </Project>

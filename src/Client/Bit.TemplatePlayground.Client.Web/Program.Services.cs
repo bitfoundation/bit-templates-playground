@@ -1,5 +1,4 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Configuration;
+﻿using Microsoft.Extensions.Logging.Configuration;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Bit.TemplatePlayground.Client.Web.Services;
 
@@ -9,14 +8,14 @@ public static partial class Program
 {
     public static void ConfigureServices(this WebAssemblyHostBuilder builder)
     {
-        // Services being registered here can get injected in web project only.
-
         var services = builder.Services;
         var configuration = builder.Configuration;
+        // The following services are blazor web assembly only.
 
-        configuration.AddClientConfigurations();
-
+        builder.Logging.ConfigureLoggers();
         builder.Logging.AddConfiguration(configuration.GetSection("Logging"));
+
+        services.AddClientWebProjectServices(configuration);
 
         Uri.TryCreate(configuration.GetServerAddress(), UriKind.RelativeOrAbsolute, out var serverAddress);
 
@@ -25,19 +24,25 @@ public static partial class Program
             serverAddress = new Uri(new Uri(builder.HostEnvironment.BaseAddress), serverAddress);
         }
 
-        services.TryAddSingleton(sp => new HttpClient(sp.GetRequiredKeyedService<DelegatingHandler>("DefaultMessageHandler")) { BaseAddress = serverAddress });
-
-
-        services.AddClientWebProjectServices();
+        services.AddScoped(sp => new HttpClient(sp.GetRequiredService<HttpMessageHandler>()) { BaseAddress = serverAddress });
     }
 
-    public static void AddClientWebProjectServices(this IServiceCollection services)
+    public static void AddClientWebProjectServices(this IServiceCollection services, IConfiguration configuration)
     {
-        // Services being registered here can get injected in both web project and server (during prerendering).
+        services.AddClientCoreProjectServices(configuration);
+        // The following services work both in blazor web assembly and server side for pre-rendering and blazor server.
 
-        services.TryAddTransient<IBitDeviceCoordinator, WebDeviceCoordinator>();
-        services.TryAddTransient<IExceptionHandler, WebExceptionHandler>();
+        services.AddTransient<IPrerenderStateService, WebPrerenderStateService>();
 
-        services.AddClientCoreProjectServices();
+        services.AddScoped<IBitDeviceCoordinator, WebDeviceCoordinator>();
+        services.AddScoped<IExceptionHandler, WebExceptionHandler>();
+        services.AddScoped<IStorageService, BrowserStorageService>();
+
+        services.AddSingleton(sp => configuration.Get<ClientWebSettings>()!);
+
+        services.AddOptions<ClientWebSettings>()
+            .Bind(configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
     }
 }

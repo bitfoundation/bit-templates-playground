@@ -1,13 +1,13 @@
 ﻿using System.Net;
 using System.Web;
-using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Components.Endpoints;
+using Microsoft.AspNetCore.Localization.Routing;
 using Bit.TemplatePlayground.Shared;
-using Bit.TemplatePlayground.Client.Core.Services;
+
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -16,22 +16,32 @@ public static partial class Program
     /// <summary>
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0#middleware-order
     /// </summary>
-    private static void ConfiureMiddlewares(this WebApplication app)
+    public static void ConfigureMiddlewares(this WebApplication app)
     {
         var configuration = app.Configuration;
         var env = app.Environment;
 
-        app.UseForwardedHeaders();
+        var forwarededHeadersOptions = configuration.Get<ServerWebSettings>()!.ForwardedHeaders;
+
+        if (forwarededHeadersOptions is not null
+            && (app.Environment.IsDevelopment() || forwarededHeadersOptions.AllowedHosts.Any()))
+        {
+            // If the list is empty then all hosts are allowed. Failing to restrict this these values may allow an attacker to spoof links generated for reset password etc.
+            app.UseForwardedHeaders(forwarededHeadersOptions);
+        }
 
         if (CultureInfoManager.MultilingualEnabled)
         {
             var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => sc.Culture).ToArray();
-            app.UseRequestLocalization(new RequestLocalizationOptions
+            var options = new RequestLocalizationOptions
             {
                 SupportedCultures = supportedCultures,
                 SupportedUICultures = supportedCultures,
                 ApplyCurrentCultureToResponseHeaders = true
-            }.SetDefaultCulture(CultureInfoManager.DefaultCulture.Name));
+            };
+            options.SetDefaultCulture(CultureInfoManager.DefaultCulture.Name);
+            options.RequestCultureProviders.Insert(1, new RouteDataRequestCultureProvider() { Options = options });
+            app.UseRequestLocalization(options);
         }
 
         app.UseExceptionHandler("/", createScopeForErrors: true);
@@ -114,14 +124,17 @@ public static partial class Program
         app.MapControllers().RequireAuthorization();
 
         app.UseSiteMap();
-        
+
         // Handle the rest of requests with blazor
+        app.MapStaticAssets();
         var blazorApp = app.MapRazorComponents<Components.App>()
             .AddInteractiveServerRenderMode()
             .AddInteractiveWebAssemblyRenderMode()
-            .AddAdditionalAssemblies(AssemblyLoadContext.Default.Assemblies.Where(asm => asm.GetName().Name?.Contains("Bit.TemplatePlayground") is true).Except([Assembly.GetExecutingAssembly()]).ToArray());
+            .AddAdditionalAssemblies(AssemblyLoadContext.Default.Assemblies.Where(asm => asm.GetName().Name?.Contains("Bit.TemplatePlayground.Client") is true).ToArray());
 
-        if (AppRenderMode.PrerenderEnabled is false)
+        var webAppRenderMode = configuration.Get<ServerWebSettings>()!;
+
+        if (webAppRenderMode.WebAppRender.PrerenderEnabled is false)
         {
             blazorApp.AllowAnonymous(); // Server may not check authorization for pages when there's no pre rendering, let the client handle it.
         }
@@ -129,14 +142,11 @@ public static partial class Program
 
     private static void UseSiteMap(this WebApplication app)
     {
-        var urls = typeof(Urls)
-            .GetFields()
-            .Select(f => f.GetValue(null)!.ToString()!)
-            .ToList()!;
+        var urls = Urls.All!;
 
         urls = CultureInfoManager.MultilingualEnabled ?
-            urls.Union(CultureInfoManager.SupportedCultures.SelectMany(sc => urls.Select(url => $"{url}?culture={sc.Culture.Name}"))).ToList() :
-            urls;
+             urls.Union(CultureInfoManager.SupportedCultures.SelectMany(sc => urls.Select(url => $"{sc.Culture.Name}{url}"))).ToArray() :
+             urls;
 
         const string siteMapHeader = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<urlset\r\n      xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\"\r\n      xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"\r\n      xsi:schemaLocation=\"http://www.sitemaps.org/schemas/sitemap/0.9\r\n            http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd\">";
 
@@ -197,7 +207,7 @@ public static partial class Program
 
                     var qs = HttpUtility.ParseQueryString(httpContext.Request.QueryString.Value ?? string.Empty);
                     qs.Remove("try_refreshing_token");
-                    var returnUrl = UriHelper.BuildRelative(httpContext.Request.PathBase, httpContext.Request.Path, new QueryString(qs.ToString()));
+                    var returnUrl = UriHelper.BuildRelative(httpContext.Request.PathBase, httpContext.Request.Path, new QueryString($"?{qs}"));
                     httpContext.Response.Redirect($"{Urls.NotAuthorizedPage}?return-url={returnUrl}&isForbidden={(is403 ? "true" : "false")}");
                 }
                 else if (httpContext.Response.StatusCode is 404 &&

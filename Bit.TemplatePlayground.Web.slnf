@@ -2,11 +2,11 @@
   "solution": {
     "path": "Bit.TemplatePlayground.sln",
     "projects": [
-      "src\\Server\\Bit.TemplatePlayground.Server.Web\\Bit.TemplatePlayground.Server.Web.csproj",
-      "src\\Server\\Bit.TemplatePlayground.Server.Api\\Bit.TemplatePlayground.Server.Api.csproj",
-      "src\\Shared\\Bit.TemplatePlayground.Shared.csproj",
       "src\\Client\\Bit.TemplatePlayground.Client.Core\\Bit.TemplatePlayground.Client.Core.csproj",
       "src\\Client\\Bit.TemplatePlayground.Client.Web\\Bit.TemplatePlayground.Client.Web.csproj",
+      "src\\Server\\Bit.TemplatePlayground.Server.Api\\Bit.TemplatePlayground.Server.Api.csproj",
+      "src\\Server\\Bit.TemplatePlayground.Server.Web\\Bit.TemplatePlayground.Server.Web.csproj",
+      "src\\Shared\\Bit.TemplatePlayground.Shared.csproj",
       "src\\Tests\\Bit.TemplatePlayground.Tests.csproj"
     ]
   }

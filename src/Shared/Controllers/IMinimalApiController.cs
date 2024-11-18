@@ -1,9 +1,7 @@
-﻿using System.Text.Json;
-
-namespace Bit.TemplatePlayground.Shared.Controllers;
+﻿namespace Bit.TemplatePlayground.Shared.Controllers;
 
 public interface IMinimalApiController : IAppController
 {
     [HttpGet("api/minimal-api-sample/{routeParameter}{?queryStringParameter}")]
-    Task<JsonElement> MinimalApiSample(string routeParameter, string queryStringParameter, CancellationToken cancellationToken);
+    Task<JsonElement> MinimalApiSample(string routeParameter, string? queryStringParameter, CancellationToken cancellationToken);
 }

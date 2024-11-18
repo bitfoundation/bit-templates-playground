@@ -1,6 +1,5 @@
 ﻿using System.IO.Compression;
 using Microsoft.Net.Http.Headers;
-using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.ResponseCompression;
 using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Client.Web;
@@ -11,18 +10,29 @@ namespace Bit.TemplatePlayground.Server.Web;
 
 public static partial class Program
 {
-    private static void ConfigureServices(this WebApplicationBuilder builder)
+    public static void AddServerWebProjectServices(this WebApplicationBuilder builder)
     {
         // Services being registered here can get injected in server project only.
-
         var services = builder.Services;
         var configuration = builder.Configuration;
 
+        if (AppEnvironment.IsDev())
+        {
+            builder.Logging.AddDiagnosticLogger();
+        }
+
+        services.AddClientWebProjectServices(configuration);
+
+        services.AddSingleton(sp => configuration.Get<ServerWebSettings>()!);
+
+        builder.AddServerApiProjectServices();
+
+        services.AddOptions<ServerWebSettings>()
+            .Bind(configuration)
+            .ValidateDataAnnotations()
+            .ValidateOnStart();
+
         AddBlazor(builder);
-
-        builder.ConfigureApiServices();
-
-        services.AddClientWebProjectServices();
     }
 
     private static void AddBlazor(WebApplicationBuilder builder)
@@ -30,9 +40,8 @@ public static partial class Program
         var services = builder.Services;
         var configuration = builder.Configuration;
 
-        services.TryAddTransient<IAuthTokenProvider, ServerSideAuthTokenProvider>();
-
-        services.TryAddTransient(sp =>
+        services.AddScoped<IAuthTokenProvider, ServerSideAuthTokenProvider>();
+        services.AddScoped(sp =>
         {
             // This HTTP client is utilized during pre-rendering and within Blazor Auto/Server sessions for API calls. 
             // Key headers such as Authorization and AcceptLanguage headers are added in Client/Core/Services/HttpMessageHandlers. 
@@ -46,12 +55,12 @@ public static partial class Program
                 serverAddress = new Uri(currentRequest.GetBaseUrl(), serverAddress);
             }
 
-            var httpClient = new HttpClient(sp.GetRequiredKeyedService<DelegatingHandler>("DefaultMessageHandler"))
+            var httpClient = new HttpClient(sp.GetRequiredService<HttpMessageHandler>())
             {
                 BaseAddress = serverAddress
             };
 
-            var forwardedHeadersOptions = sp.GetRequiredService<IOptionsSnapshot<ForwardedHeadersOptions>>().Value;
+            var forwardedHeadersOptions = sp.GetRequiredService<ServerWebSettings>().ForwardedHeaders;
 
             foreach (var xHeader in currentRequest.Headers.Where(h => h.Key.StartsWith("X-", StringComparison.InvariantCultureIgnoreCase)))
             {

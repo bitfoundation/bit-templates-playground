@@ -2,11 +2,10 @@
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
-        <TargetFramework>net8.0-windows</TargetFramework>
+        <TargetFramework>net9.0-windows</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <UseWPF>true</UseWPF>
-        <UseWindowsForms>true</UseWindowsForms>
         <EnableWindowsTargeting>true</EnableWindowsTargeting>
         <RootNamespace>Bit.TemplatePlayground.Client.Windows</RootNamespace>
         <StartupObject>Bit.TemplatePlayground.Client.Windows.Program</StartupObject>
@@ -15,26 +14,26 @@
             BeforeBuildTasks;
             $(ResolveStaticWebAssetsInputsDependsOn)
         </ResolveStaticWebAssetsInputsDependsOn>
+        <NoWarn>$(NoWarn);WPF0001</NoWarn>
     </PropertyGroup>
 
     <ItemGroup>
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Components.Pages" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
         <Using Include="Bit.TemplatePlayground.Shared" />
         <Watch Remove="*.scss" />
 
-        <PackageReference Include="Bit.CodeAnalyzers" Version="8.11.0-pre-08" PrivateAssets="all" />
-        <PackageReference Include="Bit.SourceGenerators" Version="8.11.0-pre-08" PrivateAssets="all" />
-        <PackageReference Include="EmbedIO" Version="3.5.2" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.EventLog" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Extensions.Logging.EventSource" Version="8.0.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" Version="8.0.82" />
-        <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2739.15" />
-        <PackageReference Include="Velopack" Version="0.0.594" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="EmbedIO" />
+
+        <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+        <PackageReference Include="Microsoft.Extensions.Logging.EventLog" />
+        <PackageReference Include="Microsoft.Extensions.Logging.EventSource" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Wpf" />
+        <PackageReference Include="Microsoft.Web.WebView2" />
+        <PackageReference Include="Velopack" />
+        <PackageReference Include="Newtonsoft.Json" />
         <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\index.html" Link="wwwroot\index.html">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
@@ -49,6 +48,8 @@
 
     <ItemGroup>
         <Resource Include="Resources\**\*.*" />
+        <Content Remove="appsettings*.json" />
+        <EmbeddedResource Include="appsettings*.json" />
     </ItemGroup>
 
     <Target Name="BeforeBuildTasks" AfterTargets="CoreCompile">
@@ -56,7 +57,7 @@
     </Target>
 
     <Target Name="BuildCssFiles">
-        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass .:. --style compressed --load-path=." StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
+        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass .:. --style compressed --load-path=. --silence-deprecation=import" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
     </Target>
 
 </Project>

@@ -1,6 +1,5 @@
-﻿using Bit.TemplatePlayground.Client.Windows.Configuration;
-using Microsoft.Extensions.Options;
-using Velopack;
+﻿using Velopack;
+using Bit.TemplatePlayground.Client.Windows.Services;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 
@@ -9,7 +8,9 @@ public partial class Program
     [STAThread]
     public static void Main(string[] args)
     {
-        
+        AppPlatform.IsBlazorHybrid = true;
+        ITelemetryContext.Current = new WindowsTelemetryContext();
+
         // https://github.com/velopack/velopack
         VelopackApp.Build().Run();
         var application = new App();
@@ -18,7 +19,7 @@ public partial class Program
             var services = await App.Current.Dispatcher.InvokeAsync(() => ((MainWindow)App.Current.MainWindow).AppWebView.Services);
             try
             {
-                var windowsUpdateSettings = services.GetRequiredService<IOptionsSnapshot<WindowsUpdateSettings>>().Value;
+                var windowsUpdateSettings = services.GetRequiredService<ClientWindowsSettings>().WindowsUpdate;
                 if (string.IsNullOrEmpty(windowsUpdateSettings?.FilesUrl))
                 {
                     return;

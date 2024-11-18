@@ -227,5 +227,6 @@ custom.aprof
 /src/**/App_Data/*
 
 /src/Client/Bit.TemplatePlayground.Client.Core/wwwroot/scripts/app*.js
+/src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/Android/google-services.json
 
 .env

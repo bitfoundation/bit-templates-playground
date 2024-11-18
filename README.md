@@ -1,15 +1,18 @@
-## Welcome!
+# Bit Templates Playground
 
-Thank you for creating a new project with bit platform! We appreciate your trust in our platform and are excited to see what you'll build.
+With [GitHub Codespaces](https://github.com/features/codespaces), you can access the ultimate online development platform, right in your browser - no downloads or installations required!
 
-## Documentation
+Experience lightning-fast speeds and seamless integration as you dive into the world of Bit BlazorUI, and elevate your web development game to new heights.
 
-To help you get started, we have comprehensive documentation available. You can find detailed guides, samples, and more at:
+[![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/bitfoundation/bit-templates-playground/tree/develop)
 
-[bitplatform.dev/templates](https://bitplatform.dev/templates/overview)
+**Instructions:**
 
-If you have any questions or need further assistance, feel free to [reach out](https://github.com/bitfoundation/bitplatform/issues/new/choose). Happy coding!
+Run `cd src/Server/Bit.TemplatePlayground.Server.Web && dotnet run`, then sign-in using `test@bitplatform.dev`, `123456` and explorer features.
 
----
+This sample project gets created by the following command:
+```bash
+dotnet new install Bit.Boilerplate && dotnet new bit-bp --name Bit.TemplatePlayground --database sqlite --sample admin
+```
 
-The **bit platform** team.
+Note: In order to view sign-up's `confirmation email`, read [Email settings docs](https://bitplatform.dev/templates/settings).

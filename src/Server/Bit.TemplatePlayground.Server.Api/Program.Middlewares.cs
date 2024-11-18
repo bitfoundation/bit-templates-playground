@@ -1,4 +1,6 @@
 ﻿
+using Microsoft.AspNetCore.Localization.Routing;
+
 namespace Bit.TemplatePlayground.Server.Api;
 
 public static partial class Program
@@ -6,27 +8,37 @@ public static partial class Program
     /// <summary>
     /// https://learn.microsoft.com/en-us/aspnet/core/fundamentals/middleware/?view=aspnetcore-8.0#middleware-order
     /// </summary>
-    public static void ConfiureMiddlewares(this WebApplication app)
+    private static void ConfigureMiddlewares(this WebApplication app)
     {
         var configuration = app.Configuration;
         var env = app.Environment;
 
-        app.UseForwardedHeaders();
+        var forwardedHeadersOptions = configuration.Get<ServerApiSettings>()!.ForwardedHeaders;
+
+        if (forwardedHeadersOptions is not null 
+            && (app.Environment.IsDevelopment() || forwardedHeadersOptions.AllowedHosts.Any()))
+        {
+            // If the list is empty then all hosts are allowed. Failing to restrict this these values may allow an attacker to spoof links generated for reset password etc.
+            app.UseForwardedHeaders(forwardedHeadersOptions);
+        }
 
         if (CultureInfoManager.MultilingualEnabled)
         {
             var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => sc.Culture).ToArray();
-            app.UseRequestLocalization(new RequestLocalizationOptions
+            var options = new RequestLocalizationOptions
             {
                 SupportedCultures = supportedCultures,
                 SupportedUICultures = supportedCultures,
                 ApplyCurrentCultureToResponseHeaders = true
-            }.SetDefaultCulture(CultureInfoManager.DefaultCulture.Name));
+            };
+            options.SetDefaultCulture(CultureInfoManager.DefaultCulture.Name);
+            options.RequestCultureProviders.Insert(1, new RouteDataRequestCultureProvider() { Options = options });
+            app.UseRequestLocalization(options);
         }
 
         app.UseExceptionHandler("/", createScopeForErrors: true);
 
-        if(env.IsDevelopment() is false)
+        if (env.IsDevelopment() is false)
         {
             app.UseHttpsRedirection();
             app.UseResponseCompression();

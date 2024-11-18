@@ -8,9 +8,10 @@ public partial class AppErrorBoundary
 {
     private bool showException;
 
+    [AutoInject] private PubSubService pubSubService = default!;
     [AutoInject] private IExceptionHandler exceptionHandler = default!;
-
     [AutoInject] private NavigationManager navigationManager = default!;
+    [AutoInject] private IStringLocalizer<AppStrings> localizer = default!;
 
     protected override void OnInitialized()
     {
@@ -29,6 +30,11 @@ public partial class AppErrorBoundary
 
     private void GoHome()
     {
-        navigationManager.NavigateTo(Urls.HomePage, true);
+        navigationManager.NavigateTo(Urls.HomePage, forceLoad: true);
+    }
+
+    private void ShowDiagnostic()
+    {
+        pubSubService.Publish(ClientPubSubMessages.SHOW_DIAGNOSTIC_MODAL);
     }
 }

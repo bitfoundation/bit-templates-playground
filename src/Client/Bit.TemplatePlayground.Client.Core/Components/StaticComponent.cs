@@ -1,6 +1,4 @@
-﻿using static System.Net.WebRequestMethods;
-
-namespace Bit.TemplatePlayground.Client.Core.Components;
+﻿namespace Bit.TemplatePlayground.Client.Core.Components;
 
 /// <summary>
 /// To prevent rendering recursion into a particular subtree use this component as base class.

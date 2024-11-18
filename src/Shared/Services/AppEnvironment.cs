@@ -4,8 +4,7 @@
 /// Unlike ASP.NET Core, which allows environment configuration via environment variables, 
 /// Android, iOS, Windows, and macOS do not support the exact same concept. 
 /// To maintain consistency, we introduced <see cref="AppEnvironment"/>.
-/// The environment name is synchronized with ASP.NET Core environment's name in the API, 
-/// Blazor Server, and Blazor WebAssembly (WASM).
+/// The environment name is synchronized with ASP.NET Core environment's name in the API, Blazor Server, and Blazor WebAssembly (WASM).
 /// Additionally, in Blazor Hybrid, it stays in sync with the build configuration (Debug, Release).
 /// </summary>
 public static partial class AppEnvironment

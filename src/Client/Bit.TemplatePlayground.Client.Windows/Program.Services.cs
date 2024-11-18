@@ -1,24 +1,21 @@
 ﻿using System.Net.Http;
 using Microsoft.Extensions.Logging;
 using Bit.TemplatePlayground.Client.Windows.Services;
-using Bit.TemplatePlayground.Client.Windows.Configuration;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 
 public static partial class Program
 {
-    public static void ConfigureServices(this IServiceCollection services)
+    public static void AddClientWindowsProjectServices(this IServiceCollection services, IConfiguration configuration)
     {
         // Services being registered here can get injected in windows project only.
+        services.AddClientCoreProjectServices(configuration);
 
-        ConfigurationBuilder configurationBuilder = new();
-        configurationBuilder.AddClientConfigurations();
-        var configuration = configurationBuilder.Build();
-        services.TryAddTransient<IConfiguration>(sp => configuration);
-
-        services.TryAddSingleton(sp =>
+        services.AddScoped<IExceptionHandler, WindowsExceptionHandler>();
+        services.AddScoped<IBitDeviceCoordinator, WindowsDeviceCoordinator>();
+        services.AddScoped(sp =>
         {
-            var handler = sp.GetRequiredKeyedService<DelegatingHandler>("DefaultMessageHandler");
+            var handler = sp.GetRequiredService<HttpMessageHandler>();
             HttpClient httpClient = new(handler)
             {
                 BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
@@ -26,33 +23,27 @@ public static partial class Program
             return httpClient;
         });
 
-        services.AddWpfBlazorWebView();
-        if (AppEnvironment.IsDev())
-        {
-            services.AddBlazorWebViewDeveloperTools();
-        }
-
-        services.TryAddTransient<IStorageService, WindowsStorageService>();
-        services.TryAddTransient<IBitDeviceCoordinator, WindowsDeviceCoordinator>();
-        services.TryAddTransient<IExceptionHandler, WindowsExceptionHandler>();
+        services.AddSingleton(sp => configuration);
+        services.AddSingleton<IStorageService, WindowsStorageService>();
         services.AddSingleton<ILocalHttpServer, WindowsLocalHttpServer>();
+        services.AddSingleton(sp => configuration.Get<ClientWindowsSettings>()!);
+        services.AddSingleton(ITelemetryContext.Current!);
+
+        services.AddWpfBlazorWebView();
+        services.AddBlazorWebViewDeveloperTools();
 
         services.AddLogging(loggingBuilder =>
         {
+            loggingBuilder.ConfigureLoggers();
             loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
-            loggingBuilder.AddEventLog();
             loggingBuilder.AddEventSourceLogger();
-            if (AppEnvironment.IsDev())
-            {
-                loggingBuilder.AddDebug();
-            }
-            loggingBuilder.AddConsole();
+
+            loggingBuilder.AddEventLog();
         });
 
-        services.AddOptions<WindowsUpdateSettings>()
-            .Bind(configuration.GetRequiredSection(nameof(WindowsUpdateSettings)))
+        services.AddOptions<ClientWindowsSettings>()
+            .Bind(configuration)
+            .ValidateDataAnnotations()
             .ValidateOnStart();
-
-        services.AddClientCoreProjectServices();
     }
 }

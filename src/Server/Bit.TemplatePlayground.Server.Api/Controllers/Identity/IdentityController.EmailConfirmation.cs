@@ -43,7 +43,6 @@ public partial class IdentityController
             throw new BadRequestException(nameof(AppStrings.InvalidToken));
         }
 
-        var userEmailStore = (IUserEmailStore<User>)userStore;
         await userEmailStore.SetEmailConfirmedAsync(user, true, cancellationToken);
         var result = await userManager.UpdateAsync(user);
         if (result.Succeeded is false)
@@ -55,7 +54,7 @@ public partial class IdentityController
         if (updateResult.Succeeded is false)
             throw new ResourceValidationException(updateResult.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray());
 
-        var token = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"Otp,{user.OtpRequestedOn?.ToUniversalTime()}"));
+        var token = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"Otp_Email,{user.OtpRequestedOn?.ToUniversalTime()}"));
 
         await SignIn(new() { Email = request.Email, Otp = token }, cancellationToken);
     }

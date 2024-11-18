@@ -8,18 +8,26 @@ public static partial class IConfigurationBuilderExtensions
     /// <summary>
     /// Configuration priority (Lowest to highest) =>
     /// Shared/appsettings.json
-    /// Shared/appsettings.Production.json
+    /// Shared/appsettings.{environment}.json (If present)
     /// Client/Core/appsettings.json
-    /// Client/Core/appsettings.Production.json
-    ///     Server.Web and Server.Api only =>
+    /// Client/Core/appsettings.{environment}.json (If present)
+    ///     Server.Web (blazor server and pre-rendering) and/or Server.Api only =>
     ///         Server/appsettings.json
-    ///         Server/appsettings.Production.json
+    ///         Server/appsettings.{environment}.json (If present)
     ///         https://learn.microsoft.com/en-us/aspnet/core/fundamentals/configuration#default-application-configuration-sources
     ///     Blazor WebAssembly only =>
-    ///         Client/Web/appsettings.json (If present)
-    ///         Client/Web/appsettings.Production.json (If present)
+    ///         Client/Client.Web/appsettings.json
+    ///         Client/Client.Web/appsettings.{environment}.json (If present)
+    ///         Client/Client.Web/wwwroot/appsettings.json (If present)
+    ///         Client/Client.Web/wwwroot/{environment}.json (If present)
+    ///     Maui only =>
+    ///         Client/Client.Maui/appsettings.json
+    ///         Client/Client.Maui/appsettings.{environment}.json (If present)
+    ///     Windows only =>
+    ///         Client/Client.Windows/appsettings.json
+    ///         Client/Client.Windows/appsettings.{environment}.json (If present)
     /// </summary>
-    public static void AddClientConfigurations(this IConfigurationBuilder builder)
+    public static void AddClientConfigurations(this IConfigurationBuilder builder, string clientEntryAssemblyName)
     {
         IConfigurationBuilder configBuilder = AppPlatform.IsBrowser ? new WebAssemblyHostConfiguration() : new ConfigurationBuilder();
 
@@ -33,7 +41,7 @@ public static partial class IConfigurationBuilderExtensions
             configBuilder.AddJsonStream(envSharedAppSettings);
         }
 
-        var clientCoreAssembly = Assembly.Load("Bit.TemplatePlayground.Client.Core");
+        var clientCoreAssembly = AppDomain.CurrentDomain.GetAssemblies().Single(asm => asm.GetName()?.Name is "Bit.TemplatePlayground.Client.Core");
 
         configBuilder.AddJsonStream(clientCoreAssembly.GetManifestResourceStream("Bit.TemplatePlayground.Client.Core.appsettings.json")!);
 
@@ -42,7 +50,20 @@ public static partial class IConfigurationBuilderExtensions
         {
             configBuilder.AddJsonStream(envClientCoreAppSettings);
         }
-        
+
+        var clientEntryAssembly = Assembly.Load(clientEntryAssemblyName);
+
+        if (clientEntryAssembly is not null)
+        {
+            configBuilder.AddJsonStream(clientEntryAssembly.GetManifestResourceStream($"{clientEntryAssemblyName}.appsettings.json")!);
+
+            var envAppSettings = clientEntryAssembly.GetManifestResourceStream($"{clientEntryAssemblyName}.appsettings.{AppEnvironment.Current}.json");
+            if (envAppSettings != null)
+            {
+                configBuilder.AddJsonStream(envAppSettings);
+            }
+        }
+
         if (AppPlatform.IsBrowser)
         {
             var providersField = builder.GetType().GetField("_providers", BindingFlags.NonPublic | BindingFlags.Instance)!;
@@ -50,13 +71,19 @@ public static partial class IConfigurationBuilderExtensions
         }
         else if (AppPlatform.IsBlazorHybrid)
         {
-            builder.Sources.AddRange(configBuilder.Sources);
+            foreach (var source in configBuilder.Sources)
+            {
+                builder.Sources.Add(source);
+            }
         }
         else
         {
             var originalSources = builder.Sources.ToList();
             builder.Sources.Clear();
-            builder.Sources.AddRange(configBuilder.Sources.Union(originalSources));
+            foreach (var source in configBuilder.Sources.Union(originalSources))
+            {
+                builder.Sources.Add(source);
+            }
         }
     }
 }

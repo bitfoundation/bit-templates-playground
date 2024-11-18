@@ -4,10 +4,11 @@ using Android.Runtime;
 [assembly: UsesPermission(Android.Manifest.Permission.Internet)]
 [assembly: UsesPermission(Android.Manifest.Permission.AccessNetworkState)]
 
+
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
 
 [Application(
-#if DEBUG
+#if Development
     UsesCleartextTraffic = true,
 #endif
     AllowBackup = true,

@@ -1,8 +1,8 @@
 ﻿using Bit.TemplatePlayground.Shared.Dtos.Products;
 
-namespace Bit.TemplatePlayground.Shared.Controllers.Product;
+namespace Bit.TemplatePlayground.Shared.Controllers.Products;
 
-[Route("api/[controller]/[action]/")]
+[Route("api/[controller]/[action]/"), AuthorizedApi]
 public interface IProductController : IAppController
 {
     [HttpGet("{id}")]
@@ -14,8 +14,8 @@ public interface IProductController : IAppController
     [HttpPut]
     Task<ProductDto> Update(ProductDto dto, CancellationToken cancellationToken);
 
-    [HttpDelete("{id}")]
-    Task Delete(Guid id, CancellationToken cancellationToken);
+    [HttpDelete("{id}/{concurrencyStamp}")]
+    Task Delete(Guid id, string concurrencyStamp, CancellationToken cancellationToken);
 
     [HttpGet]
     Task<PagedResult<ProductDto>> GetProducts(CancellationToken cancellationToken) => default!;
