@@ -2,7 +2,7 @@
 
 namespace Bit.TemplatePlayground.Client.Core.Services;
 
-public static partial class ClientPubSubMessages
+public partial class ClientPubSubMessages
 {
     public const string SHOW_SNACK = nameof(SHOW_SNACK);
     public const string SHOW_MODAL = nameof(SHOW_MODAL);
@@ -11,7 +11,6 @@ public static partial class ClientPubSubMessages
     public const string THEME_CHANGED = nameof(THEME_CHANGED);
     public const string OPEN_NAV_PANEL = nameof(OPEN_NAV_PANEL);
     public const string CULTURE_CHANGED = nameof(CULTURE_CHANGED);
-    public const string PROFILE_UPDATED = nameof(PROFILE_UPDATED);
     /// <summary>
     /// <inheritdoc cref="Parameters.IsOnline"/>
     /// </summary>
@@ -26,4 +25,6 @@ public static partial class ClientPubSubMessages
     /// </summary>
     public const string NAVIGATE_TO = nameof(NAVIGATE_TO);
     public const string SHOW_DIAGNOSTIC_MODAL = nameof(SHOW_DIAGNOSTIC_MODAL);
+
+    public const string PROFILE_UPDATED = nameof(PROFILE_UPDATED);
 }

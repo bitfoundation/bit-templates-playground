@@ -11,7 +11,7 @@ public partial class DashboardPage
 
     private bool isLoadingAssemblies = true;
 
-    protected async override Task OnInitAsync()
+    protected override async Task OnInitAsync()
     {
         try
         {

@@ -1,14 +1,11 @@
 ﻿using EmbedIO;
 using System.Net;
-using System.Net.Sockets;
 using EmbedIO.Actions;
+using System.Net.Sockets;
 using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Maui.Services;
 
-/// <summary>
-/// <inheritdoc cref="ILocalHttpServer"/>
-/// </summary>
 public partial class MauiLocalHttpServer : ILocalHttpServer
 {
     [AutoInject] private IExceptionHandler exceptionHandler;
@@ -27,11 +24,32 @@ public partial class MauiLocalHttpServer : ILocalHttpServer
             {
                 try
                 {
+                    // Redirect to SocialSignedInPage.razor that will close the browser window.
                     var url = new Uri(absoluteServerAddress, $"/api/Identity/SocialSignedIn?culture={CultureInfo.CurrentUICulture.Name}").ToString();
-
                     ctx.Redirect(url);
 
-                    await Routes.OpenUniversalLink(ctx.Request.Url.PathAndQuery, replace: true);
+                    if (AppPlatform.IsIOS)
+                    {
+                        // SocialSignedInPage.razor's `window.close()` does NOT work on iOS's in app browser.
+                        await MainThread.InvokeOnMainThreadAsync(() =>
+                        {
+#if iOS
+                            if (UIKit.UIApplication.SharedApplication.KeyWindow?.RootViewController?.PresentedViewController is SafariServices.SFSafariViewController controller)
+                            {
+                                controller.DismissViewController(animated: true, completionHandler: null);
+                            }
+#endif
+                        });
+                    }
+
+                    _ = Task.Delay(1)
+                    .ContinueWith(async _ =>
+                    {
+                        await MainThread.InvokeOnMainThreadAsync(async () =>
+                        {
+                            await Routes.OpenUniversalLink(ctx.Request.Url.PathAndQuery, replace: true);
+                        });
+                    });
                 }
                 catch (Exception exp)
                 {
@@ -67,5 +85,13 @@ public partial class MauiLocalHttpServer : ILocalHttpServer
         var port = ((IPEndPoint)l.LocalEndpoint).Port;
         l.Stop();
         return port;
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="ILocalHttpServer.ShouldUseForSocialSignIn"/>
+    /// </summary>
+    public bool ShouldUseForSocialSignIn()
+    {
+        return AppPlatform.IsAndroid is false;
     }
 }

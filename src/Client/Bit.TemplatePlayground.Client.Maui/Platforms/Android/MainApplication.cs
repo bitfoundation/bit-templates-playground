@@ -14,13 +14,9 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
     AllowBackup = true,
     SupportsRtl = true
 )]
-public partial class MainApplication : MauiApplication
+public partial class MainApplication(IntPtr handle, JniHandleOwnership ownership) 
+    : MauiApplication(handle, ownership)
 {
-    public MainApplication(IntPtr handle, JniHandleOwnership ownership)
-        : base(handle, ownership)
-    {
-    }
-
     protected override MauiApp CreateMauiApp() => MauiProgram
         .CreateMauiApp();
 }

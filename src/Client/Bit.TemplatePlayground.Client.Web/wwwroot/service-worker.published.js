@@ -1,4 +1,4 @@
-﻿// bit version: 9.1.0
+﻿// bit version: 9.2.1
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -16,7 +16,7 @@ self.externalAssets = [
         "url": "/"
     },
     {
-        url: "_framework/blazor.web.js?ver=9.0.0"
+        url: "_framework/blazor.web.js"
     },
     {
         "url": "Bit.TemplatePlayground.Server.Web.styles.css"
@@ -40,11 +40,11 @@ self.defaultUrl = "/";
 self.isPassive = true;
 self.errorTolerance = 'lax';
 self.caseInsensitiveUrl = true;
+self.noPrerenderQuery = 'no-prerender=true';
 
 
-// on apps with Prerendering enabled, to have the best experience for the end user un-comment the following two lines.
+// on apps with Prerendering enabled, to have the best experience for the end user un-comment the following line.
 // more info: https://bitplatform.dev/bswup/service-worker
-// self.noPrerenderQuery = 'no-prerender=true';
 // self.disablePassiveFirstBoot = true;
 
 

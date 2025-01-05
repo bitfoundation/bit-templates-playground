@@ -30,11 +30,8 @@ public partial class TestsInitializer
         {
             await using var scope = testServer.WebApp.Services.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            if (dbContext.Database.ProviderName!.EndsWith("Sqlite", StringComparison.InvariantCulture))
-            {
                 connection = new SqliteConnection(dbContext.Database.GetConnectionString());
                 await connection.OpenAsync();
-            }
             await dbContext.Database.MigrateAsync();
         }
     }

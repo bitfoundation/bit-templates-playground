@@ -10,6 +10,7 @@ namespace Bit.TemplatePlayground.Client.Core.Components;
 public partial class ClientAppCoordinator : AppComponentBase
 {
     [AutoInject] private Navigator navigator = default!;
+    [AutoInject] private UserAgent userAgent = default!;
     [AutoInject] private IJSRuntime jsRuntime = default!;
     [AutoInject] private IStorageService storageService = default!;
     [AutoInject] private ILogger<AuthManager> authLogger = default!;
@@ -33,13 +34,13 @@ public partial class ClientAppCoordinator : AppComponentBase
             {
                 NavigationManager.NavigateTo(uri!.ToString()!);
             });
-            TelemetryContext.UserAgent = await navigator.GetUserAgent();
             TelemetryContext.TimeZone = await jsRuntime.GetTimeZone();
             TelemetryContext.Culture = CultureInfo.CurrentCulture.Name;
             TelemetryContext.PageUrl = NavigationManager.Uri;
             if (AppPlatform.IsBlazorHybrid is false)
             {
-                TelemetryContext.Platform = await jsRuntime.GetBrowserPlatform();
+                var userAgentData = await userAgent.Extract();
+                TelemetryContext.Platform = string.Join(' ', [userAgentData.Manufacturer, userAgentData.OsName, userAgentData.Name, "browser"]);
             }
 
 
@@ -115,13 +116,6 @@ public partial class ClientAppCoordinator : AppComponentBase
                                                  await storageService.GetItem("Culture") ?? // 2- User settings
                                                  CultureInfo.CurrentUICulture.Name); // 3- OS settings
         }
-
-        var platformCssClass = AppPlatform.IsWindows ? "bit-windows" :
-                               AppPlatform.IsMacOS ? "bit-macos" :
-                               AppPlatform.IsIOS ? "bit-ios" :
-                               AppPlatform.IsAndroid ? "bit-android" : "bit-unknown";
-
-        await jsRuntime.ApplyBodyElementClasses(cssClasses: [platformCssClass], cssVariables: []);
     }
 
     private List<IDisposable> signalROnDisposables = [];

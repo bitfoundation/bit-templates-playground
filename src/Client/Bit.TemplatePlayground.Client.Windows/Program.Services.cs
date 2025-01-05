@@ -1,5 +1,4 @@
-﻿using System.Net.Http;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Bit.TemplatePlayground.Client.Windows.Services;
 
 namespace Bit.TemplatePlayground.Client.Windows;
@@ -16,10 +15,14 @@ public static partial class Program
         services.AddScoped(sp =>
         {
             var handler = sp.GetRequiredService<HttpMessageHandler>();
-            HttpClient httpClient = new(handler)
+            var httpClient = new HttpClient(handler)
             {
                 BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
             };
+            if (sp.GetRequiredService<ClientWindowsSettings>().WebAppUrl is Uri origin)
+            {
+                httpClient.DefaultRequestHeaders.Add("X-Origin", origin.ToString());
+            }
             return httpClient;
         });
 

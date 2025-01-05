@@ -30,6 +30,12 @@
         "options": { "sourceMap": false }
     },
     {
+        "outputFile": "Components/Layout/MainLayout.razor.css",
+        "inputFile": "Components/Layout/MainLayout.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
         "outputFile": "Components/Layout/MessageBox.razor.css",
         "inputFile": "Components/Layout/MessageBox.razor.scss",
         "minify": { "enabled": false },
@@ -56,18 +62,6 @@
     {
         "outputFile": "Components/Layout/Prompt.razor.css",
         "inputFile": "Components/Layout/Prompt.razor.scss",
-        "minify": { "enabled": false },
-        "options": { "sourceMap": false }
-    },
-    {
-        "outputFile": "Components/Layout/RootContainer.razor.css",
-        "inputFile": "Components/Layout/RootContainer.razor.scss",
-        "minify": { "enabled": false },
-        "options": { "sourceMap": false }
-    },
-    {
-        "outputFile": "Components/Layout/RootLayout.razor.css",
-        "inputFile": "Components/Layout/RootLayout.razor.scss",
         "minify": { "enabled": false },
         "options": { "sourceMap": false }
     },

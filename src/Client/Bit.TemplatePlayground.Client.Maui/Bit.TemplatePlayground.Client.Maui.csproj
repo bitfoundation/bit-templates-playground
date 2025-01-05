@@ -42,8 +42,8 @@
         <EnableLLVM>true</EnableLLVM>
         <RuntimeIdentifiers Condition="'$(AndroidPackageFormat)' == 'apk'">android-arm64</RuntimeIdentifiers>
         <MauiUseDefaultAotProfile Condition="Exists('custom.aprof')">false</MauiUseDefaultAotProfile>
-                <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
-            </PropertyGroup>
+        <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
+    </PropertyGroup>
 
     <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Environment)' == 'Development'">
         <CodesignEntitlements>Platforms/iOS/Entitlements.Development.plist</CodesignEntitlements>
@@ -53,9 +53,9 @@
     <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Environment)' == 'Production'">
         <CodesignEntitlements>Platforms/iOS/Entitlements.Production.plist</CodesignEntitlements>
         <EnableSGenConc>True</EnableSGenConc>
-                <!-- https://learn.microsoft.com/en-us/dotnet/maui/macios/interpreter -->
+        <!-- https://learn.microsoft.com/en-us/dotnet/maui/macios/interpreter -->
         <MtouchInterpreter>-all</MtouchInterpreter>
-            </PropertyGroup>
+    </PropertyGroup>
 
     <!-- Build Properties must be defined within these property groups to ensure successful publishing
        to the Mac App Store. See: https://aka.ms/maui-publish-app-store#define-build-properties-in-your-project-file -->
@@ -66,14 +66,14 @@
     <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Environment)' == 'Production'">
         <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Production.plist</CodesignEntitlements>
         <UseHardenedRuntime>true</UseHardenedRuntime>
-                <MtouchInterpreter>-all</MtouchInterpreter>
-            </PropertyGroup>
+        <MtouchInterpreter>-all</MtouchInterpreter>
+    </PropertyGroup>
 
     <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
         <AndroidResource Include="Platforms\Android\Resources\**\styles.xml" />
         <GoogleServicesJson Condition="Exists('Platforms\Android\google-services.json')" Include="Platforms\Android\google-services.json" />
         <AndroidAotProfile Condition="Exists('custom.aprof')" Include="custom.aprof" />
-                <!-- Run the following commands to create custom.aprof file which improves the Android app performance -->
+        <!-- Run the following commands to create custom.aprof file which improves the Android app performance -->
         <!-- dotnet add package Mono.AotProfiler.Android -->
         <!-- dotnet build -t:BuildAndStartAotProfiling -f net9.0-android -p:UseInterpreter=false -->
         <!-- dotnet build -t:FinishAotProfiling -f net9.0-android -->
@@ -134,8 +134,14 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
         <PackageReference Include="Microsoft.Extensions.Logging.EventLog" />
         <PackageReference Include="Microsoft.Extensions.Logging.EventSource" />
-                <PackageReference Include="Newtonsoft.Json" />
-            </ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="Oscore.Maui.AppStoreInfo" />
+        <PackageReference Include="Oscore.Maui.InAppReviews" />
+        <PackageReference Include="Oscore.Maui.Android.InAppUpdates" />
+    </ItemGroup>
 
     <Target Name="BeforeBuildTasks" AfterTargets="CoreCompile">
         <Error Text="Enable long paths in Windows. https://learn.microsoft.com/en-us/windows/win32/fileio/maximum-file-path-limitation?tabs=powershell#enable-long-paths-in-windows-10-version-1607-and-later" Condition=" $([MSBuild]::IsOSPlatform('windows')) AND $([MSBuild]::GetRegistryValueFromView('HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\FileSystem', 'LongPathsEnabled', null, RegistryView.Registry64)) != '1' " />

@@ -2,6 +2,9 @@
 using Microsoft.Maui.LifecycleEvents;
 using Bit.TemplatePlayground.Client.Core.Styles;
 using Bit.TemplatePlayground.Client.Maui.Services;
+using Maui.AppStores;
+using Maui.InAppReviews;
+using Maui.Android.InAppUpdates;
 #if iOS || Mac
 using UIKit;
 using WebKit;
@@ -31,6 +34,9 @@ public static partial class MauiProgram
 
                 builder
             .UseMauiApp<App>()
+            .UseInAppReviews()
+            .UseAppStoreInfo()
+            .UseAndroidInAppUpdates()
             .Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Maui");
 
         
@@ -180,7 +186,7 @@ public static partial class MauiProgram
             services.GetRequiredService<IExceptionHandler>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
-            }, nonInterrupting: true);
+            }, displayKind: AppEnvironment.IsDev() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);
         }
         else
         {

@@ -132,7 +132,6 @@ public static partial class Program
         app.UseSiteMap();
 
         // Handle the rest of requests with blazor
-        app.MapStaticAssets();
         var blazorApp = app.MapRazorComponents<Components.App>()
             .AddInteractiveServerRenderMode()
             .AddInteractiveWebAssemblyRenderMode()

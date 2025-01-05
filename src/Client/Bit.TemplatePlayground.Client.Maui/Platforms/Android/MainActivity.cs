@@ -9,7 +9,7 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
 
 [IntentFilter([Intent.ActionView],
                         DataSchemes = ["https", "http"],
-                        DataHosts = ["use-your-server-url-here.com"],
+                        DataHosts = ["use-your-web-app-url-here.com"],
                         // the following app links will be opened in app instead of browser if the app is installed on Android device.
                         DataPaths = [Urls.HomePage],
                         DataPathPrefixes = [

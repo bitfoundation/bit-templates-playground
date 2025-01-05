@@ -11,7 +11,7 @@ public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandle
     [AutoInject] protected readonly ILogger<ClientExceptionHandlerBase> Logger = default!;
 
     public void Handle(Exception exception,
-        bool nonInterrupting = false,
+        ExceptionDisplayKind displayKind = ExceptionDisplayKind.Interrupting,
         Dictionary<string, object?>? parameters = null,
         [CallerLineNumber] int lineNumber = 0,
         [CallerMemberName] string memberName = "",
@@ -24,11 +24,11 @@ public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandle
         parameters[nameof(lineNumber)] = lineNumber;
         parameters["exceptionId"] = Guid.NewGuid(); // This will remain consistent across different registered loggers, such as Sentry, Application Insights, etc.
 
-        Handle(exception, nonInterrupting, parameters.ToDictionary(i => i.Key, i => i.Value ?? string.Empty));
+        Handle(exception, displayKind, parameters.ToDictionary(i => i.Key, i => i.Value ?? string.Empty));
     }
 
     protected virtual void Handle(Exception exception,
-        bool nonInterrupting,
+        ExceptionDisplayKind displayKind,
         Dictionary<string, object> parameters)
     {
         var isDevEnv = AppEnvironment.IsDev();
@@ -49,16 +49,15 @@ public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandle
 
         string exceptionMessageToShow = GetExceptionMessageToShow(exception);
 
-        if (nonInterrupting)
+        if (displayKind is ExceptionDisplayKind.NonInterrupting)
         {
             SnackBarService.Error("Bit.TemplatePlayground", exceptionMessageToShow);
         }
-        else
+        else if (displayKind is ExceptionDisplayKind.Interrupting)
         {
             MessageBoxService.Show(exceptionMessageToShow, Localizer[nameof(AppStrings.Error)]);
         }
-
-        if (isDevEnv)
+        else if (displayKind is ExceptionDisplayKind.None && isDevEnv)
         {
             Debugger.Break();
         }

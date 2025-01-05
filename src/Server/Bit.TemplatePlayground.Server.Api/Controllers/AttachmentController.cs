@@ -1,6 +1,7 @@
-﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
+﻿using ImageMagick;
 using FluentStorage.Blobs;
-using ImageMagick;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers;
 
@@ -8,11 +9,8 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers;
 [ApiController]
 public partial class AttachmentController : AppControllerBase
 {
-    [AutoInject] private UserManager<User> userManager = default!;
-
-    [AutoInject] private IWebHostEnvironment webHostEnvironment = default!;
-
     [AutoInject] private IBlobStorage blobStorage = default!;
+    [AutoInject] private UserManager<User> userManager = default!;
 
     [HttpPost]
     [RequestSizeLimit(11 * 1024 * 1024 /*11MB*/)]
@@ -23,10 +21,7 @@ public partial class AttachmentController : AppControllerBase
 
         var userId = User.GetUserId();
 
-        var user = await userManager.FindByIdAsync(userId.ToString());
-
-        if (user is null)
-            throw new ResourceNotFoundException();
+        var user = await userManager.FindByIdAsync(userId.ToString()) ?? throw new ResourceNotFoundException();
 
         var destFileName = $"{userId}_{file.FileName}";
 
@@ -65,6 +60,7 @@ public partial class AttachmentController : AppControllerBase
 
             throw;
         }
+
     }
 
     [HttpDelete]
@@ -89,13 +85,14 @@ public partial class AttachmentController : AppControllerBase
             throw new ResourceValidationException(result.Errors.Select(err => new LocalizedString(err.Code, err.Description)).ToArray());
 
         await blobStorage.DeleteAsync(filePath, cancellationToken);
+
     }
 
-    [HttpGet]
-    public async Task<IActionResult> GetProfileImage(CancellationToken cancellationToken)
+    [AllowAnonymous]
+    [HttpGet("{userId}")]
+    [ResponseCache(Duration = 7 * 24 * 3600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new string[] { "*" })]
+    public async Task<IActionResult> GetProfileImage(Guid userId, CancellationToken cancellationToken)
     {
-        var userId = User.GetUserId();
-
         var user = await userManager.FindByIdAsync(userId.ToString());
 
         if (user?.ProfileImageName is null)
@@ -108,4 +105,5 @@ public partial class AttachmentController : AppControllerBase
 
         return File(await blobStorage.OpenReadAsync(filePath, cancellationToken), "image/webp", enableRangeProcessing: true);
     }
+
 }

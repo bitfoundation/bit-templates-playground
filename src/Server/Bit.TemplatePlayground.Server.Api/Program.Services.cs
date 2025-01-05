@@ -1,7 +1,6 @@
 ﻿using System.Net;
 using System.Net.Mail;
 using System.IO.Compression;
-using System.Text.RegularExpressions;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.OData;
@@ -78,11 +77,7 @@ public static partial class Program
                 ServerApiSettings settings = new();
                 configuration.Bind(settings);
 
-                var webClientUrl = settings.WebClientUrl;
-
-                policy.SetIsOriginAllowed(origin =>
-                            AllowedOriginsRegex().IsMatch(origin) ||
-                            (string.IsNullOrEmpty(webClientUrl) is false && string.Equals(origin, webClientUrl, StringComparison.InvariantCultureIgnoreCase)))
+                policy.SetIsOriginAllowed(origin => settings.IsAllowedOrigin(new Uri(origin)))
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .WithExposedHeaders(HeaderNames.RequestId);
@@ -194,7 +189,7 @@ public static partial class Program
         var identityOptions = appSettings.Identity;
 
         var certificatePath = Path.Combine(AppContext.BaseDirectory, "DataProtectionCertificate.pfx");
-        var certificate = new X509Certificate2(certificatePath, appSettings.DataProtectionCertificatePassword, OperatingSystem.IsWindows() ? X509KeyStorageFlags.EphemeralKeySet : X509KeyStorageFlags.DefaultKeySet);
+        var certificate = new X509Certificate2(certificatePath, appSettings.DataProtectionCertificatePassword, AppPlatform.IsWindows ? X509KeyStorageFlags.EphemeralKeySet : X509KeyStorageFlags.DefaultKeySet);
 
         services.AddDataProtection()
             .PersistKeysToDbContext<AppDbContext>()
@@ -215,9 +210,9 @@ public static partial class Program
 
         var authenticationBuilder = services.AddAuthentication(options =>
         {
-            options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
-            options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
             options.DefaultScheme = IdentityConstants.BearerScheme;
+            options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
+            options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
         })
         .AddBearerToken(IdentityConstants.BearerScheme, options =>
         {
@@ -241,8 +236,8 @@ public static partial class Program
                 AuthenticationType = IdentityConstants.BearerScheme
             };
 
-            options.BearerTokenProtector = new AppSecureJwtDataFormat(appSettings, validationParameters);
-            options.RefreshTokenProtector = new AppSecureJwtDataFormat(appSettings, validationParameters);
+            options.BearerTokenProtector = new AppJwtSecureDataFormat(appSettings, validationParameters);
+            options.RefreshTokenProtector = new AppJwtSecureDataFormat(appSettings, validationParameters);
 
             options.Events = new()
             {
@@ -255,6 +250,8 @@ public static partial class Program
 
             configuration.GetRequiredSection("Identity").Bind(options);
         });
+
+        services.AddAuthorization();
 
         if (string.IsNullOrEmpty(configuration["Authentication:Google:ClientId"]) is false)
         {
@@ -295,8 +292,6 @@ public static partial class Program
                 configuration.GetRequiredSection("Authentication:Apple").Bind(options);
             });
         }
-
-        services.AddAuthorization();
     }
 
     private static void AddSwaggerGen(WebApplicationBuilder builder)
@@ -337,10 +332,4 @@ public static partial class Program
             });
         });
     }
-
-    /// <summary>
-    /// For either Blazor Hybrid web view, localhost, dev tunnels etc in dev environment.
-    /// </summary>
-    [GeneratedRegex(@"^(http|https|app):\/\/(localhost|0\.0\.0\.0|0\.0\.0\.1|127\.0\.0\.1|.*?devtunnels\.ms|.*?github\.dev)(:\d+)?(\/.*)?$")]
-    private static partial Regex AllowedOriginsRegex();
 }

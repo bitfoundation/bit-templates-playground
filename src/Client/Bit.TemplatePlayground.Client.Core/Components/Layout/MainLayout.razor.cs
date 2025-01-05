@@ -2,10 +2,10 @@
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
-public partial class RootLayout : IDisposable
+public partial class MainLayout : IAsyncDisposable
 {
     private BitDir? currentDir;
-    private string? currentUrl;
+    private bool isNavPanelOpen;
     private readonly BitModalParameters modalParameters = new() { Classes = new() { Root = "modal" } };
 
     /// <summary>
@@ -21,12 +21,14 @@ public partial class RootLayout : IDisposable
     private AppThemeType? currentTheme;
     private RouteData? currentRouteData;
     private List<Action> unsubscribers = [];
+    private List<BitNavItem> navPanelItems = [];
 
 
     [AutoInject] private Keyboard keyboard = default!;
     [AutoInject] private AuthManager authManager = default!;
     [AutoInject] private ThemeService themeService = default!;
     [AutoInject] private PubSubService pubSubService = default!;
+    [AutoInject] private BitExtraServices bitExtraServices = default!;
     [AutoInject] private IExceptionHandler exceptionHandler = default!;
     [AutoInject] private ITelemetryContext telemetryContext = default!;
     [AutoInject] private NavigationManager navigationManager = default!;
@@ -40,19 +42,24 @@ public partial class RootLayout : IDisposable
     {
         try
         {
+            InitializeNavPanelItems();
+
             navigationManager.LocationChanged += NavigationManagerLocationChanged;
             authManager.AuthenticationStateChanged += AuthenticationStateChanged;
+
             unsubscribers.Add(pubSubService.Subscribe(ClientPubSubMessages.CULTURE_CHANGED, async _ =>
             {
                 SetCurrentDir();
                 StateHasChanged();
             }));
+
             unsubscribers.Add(pubSubService.Subscribe(ClientPubSubMessages.THEME_CHANGED, async payload =>
             {
                 if (payload is null) return;
                 currentTheme = (AppThemeType)payload;
                 StateHasChanged();
             }));
+
             unsubscribers.Add(pubSubService.Subscribe(ClientPubSubMessages.ROUTE_DATA_UPDATED, async payload =>
             {
                 currentRouteData = (RouteData?)payload;
@@ -66,11 +73,18 @@ public partial class RootLayout : IDisposable
                 await InvokeAsync(StateHasChanged);
             }));
 
+            unsubscribers.Add(pubSubService.Subscribe(ClientPubSubMessages.OPEN_NAV_PANEL, async _ =>
+            {
+                isNavPanelOpen = true;
+                StateHasChanged();
+            }));
+
             isAuthenticated = await prerenderStateService.GetValue(async () => (await AuthenticationStateTask).User.IsAuthenticated());
 
             SetCurrentDir();
-            SetCurrentUrl();
             currentTheme = await themeService.GetCurrentTheme();
+
+            await bitExtraServices.AddRootCssClasses();
 
             await base.OnInitializedAsync();
         }
@@ -118,7 +132,6 @@ public partial class RootLayout : IDisposable
 
     private void NavigationManagerLocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs e)
     {
-        SetCurrentUrl();
         StateHasChanged();
     }
 
@@ -126,18 +139,6 @@ public partial class RootLayout : IDisposable
     private void SetCurrentDir()
     {
         currentDir = CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft ? BitDir.Rtl : null;
-    }
-
-    private void SetCurrentUrl()
-    {
-        var path = navigationManager.GetUriPath();
-
-        currentUrl = Urls.All.SingleOrDefault(pageUrl =>
-        {
-            return pageUrl == Urls.HomePage
-                    ? pageUrl == path
-                    : path.StartsWith(pageUrl);
-        });
     }
 
     /// <summary>
@@ -185,8 +186,7 @@ public partial class RootLayout : IDisposable
         return authClass + crossClass;
     }
 
-
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
         navigationManager.LocationChanged -= NavigationManagerLocationChanged;
 
@@ -194,6 +194,9 @@ public partial class RootLayout : IDisposable
 
         unsubscribers.ForEach(d => d.Invoke());
 
-        _ = keyboard?.DisposeAsync();
+        if (keyboard is not null)
+        {
+            await keyboard.DisposeAsync();
+        }
     }
 }

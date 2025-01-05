@@ -925,8 +925,8 @@
     <data name="EnterElevatedAccessToken" xml:space="preserve">
     <value>Please enter the elevated access token we just sent you or your authenticator app code to continue.</value>
   </data>
-    <data name="ElevatedAccessToken" xml:space="preserve">
-    <value>Token {0}</value>
+    <data name="ElevatedAccessTokenShortText" xml:space="preserve">
+    <value>{0} is your code in Bit.TemplatePlayground.</value>
   </data>
     <data name="WaitForEmailTokenRequestResendDelay" xml:space="preserve">
     <value>You have already requested the confirmation email. Try again in {0}</value>
@@ -979,20 +979,20 @@
     <data name="WaitForTwoFactorTokenRequestResendDelay" xml:space="preserve">
     <value>You have already requested the 2FA token email. Try again in {0}.</value>
   </data>
-    <data name="ChangePhoneNumberTokenSmsText" xml:space="preserve">
-    <value>{0} is your change phone number token in Bit.TemplatePlayground.</value>
+    <data name="ChangePhoneNumberTokenShortText" xml:space="preserve">
+    <value>{0} is your code in Bit.TemplatePlayground.</value>
   </data>
-    <data name="ConfirmPhoneTokenSmsText" xml:space="preserve">
-    <value>{0} is your confirm phone number token in Bit.TemplatePlayground.</value>
+    <data name="ConfirmPhoneTokenShortText" xml:space="preserve">
+    <value>{0} is your code in Bit.TemplatePlayground.</value>
   </data>
     <data name="TwoFactorTokenShortText" xml:space="preserve">
-    <value>{0} is your two factor token in Bit.TemplatePlayground.</value>
+    <value>{0} is your code in Bit.TemplatePlayground.</value>
   </data>
     <data name="OtpShortText" xml:space="preserve">
-    <value>{0} is your OTP in Bit.TemplatePlayground.</value>
+    <value>{0} is your code in Bit.TemplatePlayground.</value>
   </data>
     <data name="ResetPasswordTokenShortText" xml:space="preserve">
-    <value>{0} is your reset password token in Bit.TemplatePlayground.</value>
+    <value>{0} is your code in Bit.TemplatePlayground.</value>
   </data>
     <data name="Online" xml:space="preserve">
     <value>Online</value>
@@ -1004,10 +1004,10 @@
     <value>Update</value>
   </data>
     <data name="NewVersionIsAvailable" xml:space="preserve">
-    <value>New version is available</value>
+    <value>New version {0} is available</value>
   </data>
     <data name="UpdateToNewVersion" xml:space="preserve">
-    <value>Would you like to update to the new version?</value>
+    <value>Would you like to update to the new version? {0}</value>
   </data>
     <data name="AboutTitle" xml:space="preserve">
     <value>About</value>

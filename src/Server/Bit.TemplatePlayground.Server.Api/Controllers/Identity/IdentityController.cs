@@ -200,17 +200,17 @@ public partial class IdentityController : AppControllerBase, IIdentityController
 
             if (refreshTicket?.Principal.IsAuthenticated() is false
                 || (refreshTicket!.Properties.ExpiresUtc ?? DateTimeOffset.MinValue) < DateTimeOffset.UtcNow)
-                throw new UnauthorizedException();
+                throw new UnauthorizedException(); // refresh token is expired.
 
-            var user = await signInManager.ValidateSecurityStampAsync(refreshTicket.Principal) ?? throw new UnauthorizedException();
+            var user = await signInManager.ValidateSecurityStampAsync(refreshTicket.Principal) ?? throw new UnauthorizedException(); // Security stamp has been updated (for example after 2fa configuration)
             var userId = refreshTicket!.Principal.GetUserId().ToString();
             var currentSessionId = refreshTicket.Principal.GetSessionId();
 
             userSession = await DbContext.UserSessions
-                .FirstOrDefaultAsync(us => us.Id == currentSessionId, cancellationToken) ?? throw new UnauthorizedException(); // User session might have been deleted.
+                .FirstOrDefaultAsync(us => us.Id == currentSessionId, cancellationToken) ?? throw new UnauthorizedException(); // User session has been deleted.
 
             if ((userSession.RenewedOn ?? userSession.StartedOn).ToUnixTimeSeconds() != long.Parse(refreshTicket.Principal.Claims.Single(c => c.Type == AppClaimTypes.SESSION_STAMP).Value))
-                throw new UnauthorizedException(nameof(AppStrings.ConcurrentUserSessionOnTheSameDevice)); // refresh token is being re-used.
+                throw new ReusedRefreshTokenException(); // refresh token is being re-used.
 
             if (string.IsNullOrEmpty(request.ElevatedAccessToken) is false)
             {
@@ -230,6 +230,10 @@ public partial class IdentityController : AppControllerBase, IIdentityController
             }
 
             userSession.RenewedOn = DateTimeOffset.UtcNow;
+            // Relying on Cloudflare cdn to retrieve address.
+            // https://developers.cloudflare.com/rules/transform/managed-transforms/reference/#add-visitor-location-headers
+            (userSession.IP, userSession.Address) = (HttpContext.Connection.RemoteIpAddress?.ToString(), $"{Request.Headers["cf-ipcountry"]}, {Request.Headers["cf-ipcity"]}");
+            userSession.DeviceInfo = request.DeviceInfo;
 
             userClaimsPrincipalFactory.SessionClaims.Add(new(AppClaimTypes.SESSION_ID, currentSessionId.ToString()));
             userClaimsPrincipalFactory.SessionClaims.Add(new(AppClaimTypes.SESSION_STAMP, userSession.RenewedOn.Value.ToUnixTimeSeconds().ToString()));
@@ -275,7 +279,7 @@ public partial class IdentityController : AppControllerBase, IIdentityController
 
         var (magicLinkToken, url) = await GenerateAutomaticSignInLink(user, returnUrl, originalAuthenticationMethod: "Email");
 
-        var link = new Uri(HttpContext.Request.GetWebClientUrl(), url);
+        var link = new Uri(HttpContext.Request.GetWebAppUrl(), url);
 
         List<Task> sendMessagesTasks = [];
 
@@ -286,7 +290,9 @@ public partial class IdentityController : AppControllerBase, IIdentityController
 
         if (await userManager.IsPhoneNumberConfirmedAsync(user))
         {
-            var smsMessage = Localizer[nameof(AppStrings.OtpShortText), await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"Otp_Sms,{user.OtpRequestedOn?.ToUniversalTime()}"))].ToString();
+            var token = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"Otp_Sms,{user.OtpRequestedOn?.ToUniversalTime()}"));
+            var message = Localizer[nameof(AppStrings.OtpShortText), token].ToString();
+            var smsMessage = $"{message}{Environment.NewLine}@{HttpContext.Request.GetWebAppUrl().Host} #{token}" /* Web OTP */;
             sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!, cancellationToken));
         }
 
@@ -337,7 +343,8 @@ public partial class IdentityController : AppControllerBase, IIdentityController
 
         if (firstStepAuthenticationMethod != "Sms" && await userManager.IsPhoneNumberConfirmedAsync(user))
         {
-            sendMessagesTasks.Add(phoneService.SendSms(message, user.PhoneNumber!, cancellationToken));
+            var smsMessage = $"{message}{Environment.NewLine}@{HttpContext.Request.GetWebAppUrl().Host} #{token}" /* Web OTP */;
+            sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!, cancellationToken));
         }
 
         if (firstStepAuthenticationMethod != "Push")

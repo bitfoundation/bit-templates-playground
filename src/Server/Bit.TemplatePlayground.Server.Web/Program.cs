@@ -19,7 +19,7 @@ public static partial class Program
 
 
         // The following line (using the * in the URL), allows the emulators and mobile devices to access the app using the host IP address.
-        if (builder.Environment.IsDevelopment() && OperatingSystem.IsWindows())
+        if (builder.Environment.IsDevelopment() && AppPlatform.IsWindows)
         {
             builder.WebHost.UseUrls("http://localhost:5000", "http://*:5000");
         }
@@ -51,7 +51,7 @@ public static partial class Program
             scope.ServiceProvider.GetRequiredService<IExceptionHandler>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
-            }, nonInterrupting: true);
+            }, displayKind: AppEnvironment.IsDev() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);
         }
         else
         {

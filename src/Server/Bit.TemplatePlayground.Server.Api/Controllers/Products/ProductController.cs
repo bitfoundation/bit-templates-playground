@@ -21,8 +21,8 @@ public partial class ProductController : AppControllerBase, IProductController
 
         var totalCount = await query.LongCountAsync(cancellationToken);
 
-        query = query.SkipIf(odataQuery.Skip is not null, odataQuery.Skip!.Value)
-                     .TakeIf(odataQuery.Top is not null, odataQuery.Top!.Value);
+        query = query.SkipIf(odataQuery.Skip is not null, odataQuery.Skip?.Value)
+                     .TakeIf(odataQuery.Top is not null, odataQuery.Top?.Value);
 
         return new PagedResult<ProductDto>(await query.ToArrayAsync(cancellationToken), totalCount);
     }
@@ -30,10 +30,8 @@ public partial class ProductController : AppControllerBase, IProductController
     [HttpGet("{id}")]
     public async Task<ProductDto> Get(Guid id, CancellationToken cancellationToken)
     {
-        var dto = await Get().FirstOrDefaultAsync(t => t.Id == id, cancellationToken);
-
-        if (dto is null)
-            throw new ResourceNotFoundException(Localizer[nameof(AppStrings.ProductCouldNotBeFound)]);
+        var dto = await Get().FirstOrDefaultAsync(t => t.Id == id, cancellationToken)
+            ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.ProductCouldNotBeFound)]);
 
         return dto;
     }

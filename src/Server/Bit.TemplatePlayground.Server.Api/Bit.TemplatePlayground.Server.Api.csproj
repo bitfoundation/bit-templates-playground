@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>B7BD276A-F13E-4C75-9E25-2AA0404C907D</UserSecretsId>
+        <UserSecretsId>E756C1E9-5158-4996-8A6C-71754C96603C</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
     </PropertyGroup>
 

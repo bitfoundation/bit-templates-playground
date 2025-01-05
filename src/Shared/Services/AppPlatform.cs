@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Versioning;
 
-namespace Bit.TemplatePlayground.Client.Core.Services;
+namespace Bit.TemplatePlayground.Shared.Services;
 
 public static partial class AppPlatform
 {
