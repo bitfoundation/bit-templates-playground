@@ -5,6 +5,7 @@ With [GitHub Codespaces](https://github.com/features/codespaces), you can access
 Experience lightning-fast speeds and seamless integration as you dive into the world of Bit BlazorUI, and elevate your web development game to new heights.
 
 [![Open in Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/bitfoundation/bit-templates-playground/tree/develop)
+[![Open in Codeanywhere](https://codeanywhere.com/img/open-in-codeanywhere-btn.svg)](https://app.codeanywhere.com/#https://github.com/bitfoundation/bit-templates-playground/tree/develop)
 
 **Instructions:**
 
