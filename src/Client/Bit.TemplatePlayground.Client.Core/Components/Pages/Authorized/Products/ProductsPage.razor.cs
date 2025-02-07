@@ -77,9 +77,7 @@ public partial class ProductsPage
                     odataQ.AndFilter = $"contains(tolower({nameof(ProductDto.CategoryName)}),'{CategoryNameFilter.ToLower()}')";
                 }
 
-                productController.AddQueryString(odataQ.ToString());
-
-                var data = await productController.GetProducts(CurrentCancellationToken);
+                var data = await productController.WithQueryString(odataQ.ToString()).GetProducts(req.CancellationToken);
 
                 return BitDataGridItemsProviderResult.From(data!.Items!, (int)data!.TotalCount);
             }

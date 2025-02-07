@@ -1,11 +1,12 @@
 ﻿@attribute [Route(Urls.HomePage)]
 @attribute [Route("{culture:nonfile?}" + Urls.HomePage)]
+@attribute [AppResponseCache(SharedMaxAge = 3600 * 24)]
 @inherits AppPageBase
 
 <PageTitle>@Localizer[nameof(AppStrings.HomePageTitle)]</PageTitle>
 
 <section>
-    <BitStack Alignment="BitAlignment.Center" Gap="2rem" Class="stack">
+    <BitStack Alignment="BitAlignment.Center" Gap="2rem" Class="root-stack">
         <BitText Typography="BitTypography.H4" Align="BitTextAlign.Center">
             @Localizer[nameof(AppStrings.HomePanelTitle)]
             <br />
@@ -17,6 +18,7 @@
         </BitText>
 
         <br />
+
 
         <CascadingValue Value="BitDir.Ltr">
             <BitCard FullWidth Style="padding:2rem">
@@ -77,12 +79,12 @@
                                     </BitStack>
                                     <BitStack Horizontal>
                                         <BitText>Repo:</BitText>
-                                        <BitLink Target="_blank"
-                                                 Href="https://github.com/bitfoundation/bitplatform/tree/develop/src/Templates/Boilerplate">
+                                                                                <BitLink Target="_blank"
+                                                 Href="https://github.com/bitfoundation/bitplatform/tree/develop/src/Templates/Bit.TemplatePlayground">
                                             <BitImage Alt="bitplatform GitHub stars"
                                                       Src="https://img.shields.io/github/stars/bitfoundation/bitplatform?style=social&label=Github%20%E2%9C%A8" />
                                         </BitLink>
-                                    </BitStack>
+                                                                            </BitStack>
                                 </BitStack>
                             }
                             else
@@ -107,12 +109,12 @@
                     </BitStack>
                 </BitLink>
                 <BitLink Href="https://www.nuget.org/profiles/bit-foundation" Target="_blank" NoUnderline>
-                    <BitImage Src="https://img.shields.io/badge/packages_download-5.6M-blue.svg?logo=nuget" Alt="nuget downloads" />
+                    <BitImage Src="https://img.shields.io/badge/packages_download-5.7M-blue.svg?logo=nuget" Alt="nuget downloads" />
                 </BitLink>
             </BitStack>
         </BitCard>
 
-        <BitStack Horizontal Gap="2rem" Class="products-stack">
+        <BitStack Horizontal Gap="2rem" Class="bit-products-stack">
             <BitCard Style="padding:3rem" FullWidth>
                 <BitStack HorizontalAlign="BitAlignment.Center">
                     <BitText Typography="BitTypography.H5">bit BlazorUI</BitText>
@@ -149,5 +151,6 @@
                 </BitStack>
             </BitCard>
         </BitStack>
+        @*#endif*@
     </BitStack>
 </section>

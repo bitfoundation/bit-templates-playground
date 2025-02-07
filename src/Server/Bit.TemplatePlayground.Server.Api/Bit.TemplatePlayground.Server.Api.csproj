@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>E756C1E9-5158-4996-8A6C-71754C96603C</UserSecretsId>
+        <UserSecretsId>FF1966D5-6E86-448A-A5BD-D5CE4441B376</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
     </PropertyGroup>
 
@@ -30,6 +30,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
+        <PackageReference Include="Microsoft.Azure.SignalR" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
         <PackageReference Include="Swashbuckle.AspNetCore" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
@@ -43,6 +44,7 @@
         <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
         <Using Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
         <Using Include="Bit.TemplatePlayground.Shared" />
+        <Using Include="Bit.TemplatePlayground.Shared.Attributes" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Data" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Mappers" />
         <Using Include="Microsoft.AspNetCore.Identity" />

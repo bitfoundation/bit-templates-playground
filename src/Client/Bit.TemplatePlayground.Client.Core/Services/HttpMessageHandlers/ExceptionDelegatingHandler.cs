@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Net.Sockets;
 
 namespace Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
@@ -22,6 +23,18 @@ public partial class ExceptionDelegatingHandler(PubSubService pubSubService,
             {
                 logScopeData["RequestId"] = requestId.First();
             }
+            if (response.Headers.TryGetValues("Cf-Cache-Status", out var cfCacheStatus)) // Cloudflare cache status
+            {
+                logScopeData["Cf-Cache-Status"] = cfCacheStatus.First();
+            }
+            if (response.Headers.TryGetValues("Age", out var age)) // ASP.NET Core Output Caching
+            {
+                logScopeData["Age"] = age.First();
+            }
+            if (response.Headers.TryGetValues("App-Cache-Response", out var appCacheResponse))
+            {
+                logScopeData["App-Cache-Response"] = appCacheResponse.First();
+            }
             logScopeData["HttpStatusCode"] = response.StatusCode;
 
             serverCommunicationSuccess = true;
@@ -30,18 +43,15 @@ public partial class ExceptionDelegatingHandler(PubSubService pubSubService,
                 response.IsSuccessStatusCode is false &&
                 response.Content.Headers.ContentType?.MediaType?.Contains("application/json", StringComparison.InvariantCultureIgnoreCase) is true)
             {
-                RestErrorInfo restError = (await response!.Content.ReadFromJsonAsync(jsonSerializerOptions.GetTypeInfo<RestErrorInfo>(), cancellationToken))!;
+                var problemDetails = (await response.Content.ReadFromJsonAsync(jsonSerializerOptions.GetTypeInfo<AppProblemDetails>(), cancellationToken))!;
 
-                Type exceptionType = typeof(RestErrorInfo).Assembly.GetType(restError.ExceptionType!) ?? typeof(UnknownException);
+                Type exceptionType = typeof(KnownException).Assembly.GetType(problemDetails.Type!) ?? typeof(UnknownException);
 
-                var args = new List<object?> { typeof(KnownException).IsAssignableFrom(exceptionType) ? new LocalizedString(restError.Key!, restError.Message!) : (object?)restError.Message! };
+                var args = new List<object?> { typeof(KnownException).IsAssignableFrom(exceptionType) ? new LocalizedString(problemDetails.Key!.ToString()!, problemDetails.Title!) : (object?)problemDetails.Title! };
 
-                if (exceptionType == typeof(ResourceValidationException))
-                {
-                    args.Add(restError.Payload);
-                }
-
-                Exception exp = (Exception)Activator.CreateInstance(exceptionType, args.ToArray())!;
+                Exception exp = exceptionType == typeof(ResourceValidationException)
+                                    ? new ResourceValidationException(problemDetails.Title!, problemDetails.Payload)
+                                    : (Exception)Activator.CreateInstance(exceptionType, args.ToArray())!;
 
                 throw exp;
             }
@@ -61,9 +71,11 @@ public partial class ExceptionDelegatingHandler(PubSubService pubSubService,
 
             return response;
         }
-        catch (Exception exp) when ((exp is HttpRequestException && serverCommunicationSuccess is false)
-            || exp is TaskCanceledException tcExp && tcExp.InnerException is TimeoutException
-            || exp is HttpRequestException { StatusCode: HttpStatusCode.BadGateway or HttpStatusCode.GatewayTimeout or HttpStatusCode.ServiceUnavailable })
+        catch (Exception exp) when (
+               (exp is HttpRequestException && serverCommunicationSuccess is false)
+            || (exp is TaskCanceledException tcExp && tcExp.InnerException is TimeoutException)
+            || (exp.InnerException is SocketException sockExp && sockExp.SocketErrorCode is SocketError.HostNotFound)
+            || (exp is HttpRequestException { StatusCode: HttpStatusCode.BadGateway or HttpStatusCode.GatewayTimeout or HttpStatusCode.ServiceUnavailable }))
         {
             serverCommunicationSuccess = false; // Let's treat the server communication as failed if an exception is caught here.
             throw new ServerConnectionException(localizer[nameof(AppStrings.ServerConnectionException)], exp);

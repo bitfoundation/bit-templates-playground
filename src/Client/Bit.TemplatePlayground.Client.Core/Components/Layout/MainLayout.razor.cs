@@ -79,7 +79,7 @@ public partial class MainLayout : IAsyncDisposable
                 StateHasChanged();
             }));
 
-            isAuthenticated = await prerenderStateService.GetValue(async () => (await AuthenticationStateTask).User.IsAuthenticated());
+            isAuthenticated = (await AuthenticationStateTask).User.IsAuthenticated();
 
             SetCurrentDir();
             currentTheme = await themeService.GetCurrentTheme();

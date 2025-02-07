@@ -12,7 +12,7 @@ Run `cd src/Server/Bit.TemplatePlayground.Server.Web && dotnet run`, then sign-i
 
 This sample project gets created by the following command:
 ```bash
-dotnet new install Bit.Boilerplate && dotnet new bit-bp --name Bit.TemplatePlayground --database sqlite --sample admin
+dotnet new install Bit.Boilerplate && dotnet new bit-bp --name Bit.TemplatePlayground --database sqlite --module admin --captcha reCaptcha --signalR 
 ```
 
 Note: In order to view sign-up's `confirmation email`, read [Email settings docs](https://bitplatform.dev/templates/settings).

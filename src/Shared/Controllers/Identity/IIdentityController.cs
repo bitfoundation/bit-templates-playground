@@ -28,6 +28,7 @@ public interface IIdentityController : IAppController
     Task<TokenResponseDto> Refresh(RefreshRequestDto request, CancellationToken cancellationToken) => default!;
 
     [HttpPost]
+    [NoRetryPolicy] // Please note that retrying requests with Google reCaptcha will not work, as the Google verification mechanism only accepts a captcha response once.
     Task SignUp(SignUpRequestDto request, CancellationToken cancellationToken);
 
     [HttpPost]

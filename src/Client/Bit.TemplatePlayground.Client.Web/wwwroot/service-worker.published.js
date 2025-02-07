@@ -1,4 +1,4 @@
-﻿// bit version: 9.2.1
+﻿// bit version: 9.4.0-pre-04
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -34,6 +34,7 @@ self.serverHandledUrls = [
     /\/signin-/,
     /\/.well-known/,
     /\/sitemap.xml/,
+    /\/sitemap_index.xml/
 ];
 
 self.defaultUrl = "/";

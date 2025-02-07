@@ -1,4 +1,6 @@
 ﻿using System.Text;
+using Microsoft.AspNetCore.SignalR;
+using Bit.TemplatePlayground.Server.Api.SignalR;
 using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Diagnostics;
@@ -9,16 +11,12 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers.Diagnostics;
 [Route("api/[controller]/[action]")]
 public partial class DiagnosticsController : AppControllerBase, IDiagnosticsController
 {
+    [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
     [HttpPost]
     public async Task<string> PerformDiagnostics(CancellationToken cancellationToken)
     {
         StringBuilder result = new();
-
-        foreach (var header in Request.Headers.Where(h => h.Key.StartsWith("X-", StringComparison.InvariantCulture)))
-        {
-            result.AppendLine($"{header.Key}: {header.Value}");
-        }
 
         result.AppendLine($"Client IP: {HttpContext.Connection.RemoteIpAddress}");
 
@@ -38,8 +36,17 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
         result.AppendLine($"IsAuthenticated: {isAuthenticated.ToString().ToLowerInvariant()}");
 
 
+        if (isAuthenticated && userSession!.SignalRConnectionId is not null)
+        {
+            await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, DateTimeOffset.Now.ToString("HH:mm:ss"), cancellationToken);
+        }
 
         result.AppendLine($"Culture => C: {CultureInfo.CurrentCulture.Name}, UC: {CultureInfo.CurrentUICulture.Name}");
+
+        foreach (var header in Request.Headers)
+        {
+            result.AppendLine($"{header.Key}: {header.Value}");
+        }
 
         return result.ToString();
     }

@@ -1,4 +1,5 @@
 ﻿using System.Text.RegularExpressions;
+using Bit.TemplatePlayground.Server.Api.Services;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
@@ -21,14 +22,21 @@ public partial class ServerApiSettings : SharedSettings
     [Required]
     public string UserProfileImagesDir { get; set; } = default!;
 
+    [Required]
+    public string GoogleRecaptchaSecretKey { get; set; } = default!;
 
 
     public ForwardedHeadersOptions? ForwardedHeaders { get; set; }
+
+    public CloudflareOptions? Cloudflare { get; set; }
 
     /// <summary>
     /// Defines the list of origins permitted for CORS access to the API. These origins are also valid for use as return URLs after social sign-ins and for generating URLs in emails.
     /// </summary>
     public Uri[] AllowedOrigins { get; set; } = [];
+
+    [Required]
+    public string ProductImagesDir { get; set; } = default!;
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
@@ -36,6 +44,7 @@ public partial class ServerApiSettings : SharedSettings
 
         if (Identity is null)
             throw new InvalidOperationException("Identity configuration is required.");
+
         if (Email is null)
             throw new InvalidOperationException("Email configuration is required.");
 
@@ -58,6 +67,10 @@ public partial class ServerApiSettings : SharedSettings
 command in the Server.Api's project's folder and replace P@ssw0rdP@ssw0rd with the new password.");
             }
 
+            if (GoogleRecaptchaSecretKey is "6LdMKr4pAAAAANvngWNam_nlHzEDJ2t6SfV6L_DS")
+            {
+                throw new InvalidOperationException("The GoogleRecaptchaSecretKey is not set. Please set it in the server's appsettings.json file.");
+            }
 
         }
 
@@ -134,6 +147,23 @@ public partial class EmailOptions
     [Required]
     public string DefaultFromEmail { get; set; } = default!;
     public bool HasCredential => (string.IsNullOrEmpty(UserName) is false) && (string.IsNullOrEmpty(Password) is false);
+}
+
+public class CloudflareOptions
+{
+    public string? ApiToken { get; set; }
+
+    public string? ZoneId { get; set; }
+
+    /// <summary>
+    /// The <see cref="ResponseCacheService"/> clears the cache for the current domain by default.
+    /// If multiple Cloudflare-hosted domains point to your backend, you will need to
+    /// purge the cache for each of them individually.
+    /// </summary>
+    public Uri[] AdditionalDomains { get; set; } = [];
+
+    public bool Configured => string.IsNullOrEmpty(ApiToken) is false &&
+        string.IsNullOrEmpty(ZoneId) is false;
 }
 
 public partial class SmsOptions

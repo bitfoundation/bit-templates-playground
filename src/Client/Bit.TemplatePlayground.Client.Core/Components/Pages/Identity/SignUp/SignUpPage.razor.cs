@@ -19,6 +19,14 @@ public partial class SignUpPage
     {
         if (isWaiting) return;
 
+        var googleRecaptchaResponse = await JSRuntime.GoogleRecaptchaGetResponse();
+        if (string.IsNullOrWhiteSpace(googleRecaptchaResponse))
+        {
+            SnackBarService.Error(Localizer[nameof(AppStrings.InvalidGoogleRecaptchaChallenge)]);
+            return;
+        }
+
+        signUpModel.GoogleRecaptchaResponse = googleRecaptchaResponse;
         signUpModel.ReturnUrl = ReturnUrlQueryString ?? Urls.HomePage;
 
         isWaiting = true;
@@ -50,6 +58,7 @@ public partial class SignUpPage
 
             SnackBarService.Error(message);
 
+            await JSRuntime.GoogleRecaptchaReset();
         }
         finally
         {

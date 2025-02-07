@@ -63,6 +63,7 @@
                         <ValidationMessage For="@(() => signUpModel.Password)" />
                     </BitStack>
 
+                    <GoogleRecaptcha />
 
                     <BitButton IsLoading="isWaiting" ButtonType="BitButtonType.Submit">
                         @Localizer[nameof(AppStrings.SignUp)]

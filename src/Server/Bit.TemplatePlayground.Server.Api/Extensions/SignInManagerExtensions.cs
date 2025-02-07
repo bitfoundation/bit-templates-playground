@@ -39,6 +39,7 @@ public static partial class SignInManagerExtensions
         string? authenticationMethod = null;
         string[] authenticationMethods = ["Email",
             "Sms",
+            "Push", // => Native push notification, web push or SignalR message.
             "Social"];
 
         foreach (var authMethod in authenticationMethods)

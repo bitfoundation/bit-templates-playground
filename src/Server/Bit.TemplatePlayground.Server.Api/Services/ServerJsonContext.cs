@@ -7,6 +7,8 @@ namespace Bit.TemplatePlayground.Server.Api.Services;
 /// </summary>
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
 [JsonSerializable(typeof(NugetStatsDto))]
+[JsonSerializable(typeof(GoogleRecaptchaVerificationResponse))]
+[JsonSerializable(typeof(ProblemDetails))]
 public partial class ServerJsonContext : JsonSerializerContext
 {
 }

@@ -7,11 +7,11 @@ section {
 }
 
 ::deep {
-    .stack {
+    .root-stack {
         max-width: 60rem;
     }
 
-    .products-stack {
+    .bit-products-stack {
         @include lt-sm {
             flex-wrap: wrap;
         }

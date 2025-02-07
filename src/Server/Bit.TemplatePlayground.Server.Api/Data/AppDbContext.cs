@@ -1,5 +1,5 @@
-﻿using Bit.TemplatePlayground.Server.Api.Models.Categories;
-using Bit.TemplatePlayground.Server.Api.Models.Products;
+﻿using Bit.TemplatePlayground.Server.Api.Models.Products;
+using Bit.TemplatePlayground.Server.Api.Models.Categories;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
@@ -31,6 +31,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         try
         {
+
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
         catch (DbUpdateConcurrencyException exception)
@@ -43,6 +44,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         try
         {
+
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
         catch (DbUpdateConcurrencyException exception)
@@ -50,6 +52,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
             throw new ConflictException(nameof(AppStrings.UpdateConcurrencyException), exception);
         }
     }
+
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {

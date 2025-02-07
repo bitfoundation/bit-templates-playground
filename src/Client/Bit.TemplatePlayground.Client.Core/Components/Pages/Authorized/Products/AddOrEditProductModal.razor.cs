@@ -1,6 +1,6 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers.Categories;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Shared.Controllers.Products;
-using Bit.TemplatePlayground.Shared.Dtos.Products;
+using Bit.TemplatePlayground.Shared.Controllers.Categories;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Products;
 
@@ -15,6 +15,7 @@ public partial class AddOrEditProductModal
     private ProductDto product = new();
     private string selectedCategoryId = string.Empty;
     private List<BitDropdownItem<string>> allCategoryList = [];
+    private AppDataAnnotationsValidator validatorRef = default!;
 
     [Parameter] public EventCallback OnSave { get; set; }
 
@@ -74,6 +75,10 @@ public partial class AddOrEditProductModal
             }
 
             isOpen = false;
+        }
+        catch (ResourceValidationException exp)
+        {
+            validatorRef.DisplayErrors(exp);
         }
         finally
         {
