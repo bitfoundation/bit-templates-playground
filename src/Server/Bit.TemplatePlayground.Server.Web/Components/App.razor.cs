@@ -1,15 +1,14 @@
 ﻿using Microsoft.AspNetCore.Components;
+using Bit.TemplatePlayground.Client.Core.Services;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.Rendering;
-using Bit.TemplatePlayground.Client.Core.Services;
 
 namespace Bit.TemplatePlayground.Server.Web.Components;
 
 public partial class App
 {
     private static readonly IComponentRenderMode noPrerenderBlazorWebAssembly = new InteractiveWebAssemblyRenderMode(prerender: false);
-
     [CascadingParameter] HttpContext HttpContext { get; set; } = default!;
 
     [AutoInject] ServerWebSettings serverWebSettings = default!;
@@ -23,7 +22,7 @@ public partial class App
         if (CultureInfoManager.MultilingualEnabled)
         {
             HttpContext?.Response.Cookies.Append(CookieRequestCultureProvider.DefaultCookieName,
-            CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentUICulture)));
+                                                 CookieRequestCultureProvider.MakeCookieValue(new(CultureInfo.CurrentUICulture)));
         }
     }
 }

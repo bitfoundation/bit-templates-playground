@@ -1,5 +1,8 @@
 ﻿using ImageMagick;
 using FluentStorage.Blobs;
+using Microsoft.AspNetCore.SignalR;
+using Bit.TemplatePlayground.Server.Api.SignalR;
+using Bit.TemplatePlayground.Shared.Controllers;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 
@@ -7,10 +10,11 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers;
 
 [Route("api/[controller]/[action]")]
 [ApiController]
-public partial class AttachmentController : AppControllerBase
+public partial class AttachmentController : AppControllerBase, IAttachmentController
 {
     [AutoInject] private IBlobStorage blobStorage = default!;
     [AutoInject] private UserManager<User> userManager = default!;
+    [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
     [HttpPost]
     [RequestSizeLimit(11 * 1024 * 1024 /*11MB*/)]
@@ -61,6 +65,7 @@ public partial class AttachmentController : AppControllerBase
             throw;
         }
 
+        await PublishUserProfileUpdated(user.Map(), cancellationToken);
     }
 
     [HttpDelete]
@@ -86,11 +91,12 @@ public partial class AttachmentController : AppControllerBase
 
         await blobStorage.DeleteAsync(filePath, cancellationToken);
 
+        await PublishUserProfileUpdated(user.Map(), cancellationToken);
     }
 
     [AllowAnonymous]
     [HttpGet("{userId}")]
-    [ResponseCache(Duration = 7 * 24 * 3600, Location = ResponseCacheLocation.Any, VaryByQueryKeys = new string[] { "*" })]
+    [AppResponseCache(MaxAge = 3600 * 24 * 7, UserAgnostic = true)]
     public async Task<IActionResult> GetProfileImage(Guid userId, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(userId.ToString());
@@ -104,6 +110,17 @@ public partial class AttachmentController : AppControllerBase
             return new EmptyResult();
 
         return File(await blobStorage.OpenReadAsync(filePath, cancellationToken), "image/webp", enableRangeProcessing: true);
+    }
+
+    private async Task PublishUserProfileUpdated(UserDto user, CancellationToken cancellationToken)
+    {
+        // Notify other sessions of the user that user's info has been updated, so they'll update their UI.
+        var currentUserSessionId = User.GetSessionId();
+        var userSessionIdsExceptCurrentUserSessionId = await DbContext.UserSessions
+            .Where(us => us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
+        .Select(us => us.SignalRConnectionId!)
+            .ToArrayAsync(cancellationToken);
+        await appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.PROFILE_UPDATED, user, cancellationToken);
     }
 
 }

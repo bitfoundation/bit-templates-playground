@@ -12,7 +12,7 @@
         <BlazorCacheBootResources Condition=" '$(PwaEnabled)' == 'true' ">false</BlazorCacheBootResources>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
         <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
-            </PropertyGroup>
+    </PropertyGroup>
 
     <ItemGroup Condition=" '$(PwaEnabled)' == 'true' ">
         <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
@@ -23,8 +23,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
         <PackageReference Include="Bit.Bswup" />
-                <PackageReference Include="Newtonsoft.Json" />
-                <BlazorWebAssemblyLazyLoad Include="Bit.BlazorUI.Icons.wasm" />
+        <PackageReference Include="Newtonsoft.Json" />
+        <BlazorWebAssemblyLazyLoad Include="Bit.BlazorUI.Icons.wasm" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,12 +37,12 @@
         <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
     </ItemGroup>
 
-        <ItemGroup>
+    <ItemGroup>
         <BlazorWebAssemblyLazyLoad Include="System.Private.Xml.wasm" />
         <BlazorWebAssemblyLazyLoad Include="System.Data.Common.wasm" />
     </ItemGroup>
     <ItemGroup>
         <BlazorWebAssemblyLazyLoad Include="Newtonsoft.Json.wasm" />
     </ItemGroup>
-    
+
 </Project>

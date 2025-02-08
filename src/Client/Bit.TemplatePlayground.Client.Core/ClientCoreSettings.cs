@@ -9,11 +9,17 @@ public partial class ClientCoreSettings : SharedSettings
     [Required]
     public string ServerAddress { get; set; } = default!;
 
+    [Required]
+    public string GoogleRecaptchaSiteKey { get; set; } = default!;
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
         var validationResults = base.Validate(validationContext).ToList();
 
+        if (AppEnvironment.IsDev() is false && GoogleRecaptchaSiteKey is "6LdMKr4pAAAAAKMyuEPn3IHNf04EtULXA8uTIVRw")
+        {
+            validationResults.Add(new ValidationResult("Please set your own GoogleRecaptchaSiteKey in Client.Core's appsettings.json"));
+        }
 
         return validationResults;
     }

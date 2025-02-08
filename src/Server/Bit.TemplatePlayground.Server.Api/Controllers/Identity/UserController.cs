@@ -6,6 +6,8 @@ using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
+using Microsoft.AspNetCore.SignalR;
+using Bit.TemplatePlayground.Server.Api.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Identity;
 
@@ -20,6 +22,7 @@ public partial class UserController : AppControllerBase, IUserController
     [AutoInject] private IUserEmailStore<User> userEmailStore = default!;
 
 
+    [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
     [HttpGet]
     public async Task<UserDto> GetCurrentUser(CancellationToken cancellationToken)
@@ -73,6 +76,11 @@ public partial class UserController : AppControllerBase, IUserController
         DbContext.UserSessions.Remove(userSession);
         await DbContext.SaveChangesAsync(cancellationToken);
 
+        // Checkout AppHub's comments for more info.
+        if (userSession.SignalRConnectionId is not null)
+        {
+            await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.SESSION_REVOKED, null, cancellationToken);
+        }
     }
 
     [HttpPut]
@@ -91,6 +99,13 @@ public partial class UserController : AppControllerBase, IUserController
 
         var updatedUser = await GetCurrentUser(cancellationToken);
 
+        // Notify other sessions of the user that user's info has been updated, so they'll update their UI.
+        var currentUserSessionId = User.GetSessionId();
+        var userSessionIdsExceptCurrentUserSessionId = await DbContext.UserSessions
+            .Where(us => us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
+            .Select(us => us.SignalRConnectionId!)
+            .ToArrayAsync(cancellationToken);
+        await appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.PROFILE_UPDATED, updatedUser, cancellationToken);
 
         return updatedUser;
     }
@@ -377,6 +392,12 @@ public partial class UserController : AppControllerBase, IUserController
             sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!, cancellationToken));
         }
 
+        // Checkout AppHub's comments for more info.
+        var userSessionIdsExceptCurrentUserSessionId = await DbContext.UserSessions
+            .Where(us => us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
+            .Select(us => us.SignalRConnectionId!)
+            .ToArrayAsync(cancellationToken);
+        sendMessagesTasks.Add(appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.SHOW_MESSAGE, message, cancellationToken));
 
 
         await Task.WhenAll(sendMessagesTasks);

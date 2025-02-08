@@ -2,6 +2,8 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components.WebAssembly.Services;
 using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -12,7 +14,7 @@ public static partial class IClientCoreServiceCollectionExtensions
         // Services being registered here can get injected in client side (Web, Android, iOS, Windows, macOS) and server side (during pre rendering)
         services.AddSharedProjectServices(configuration);
 
-        services.AddTransient<IPrerenderStateService, NoopPrerenderStateService>();
+        services.AddTransient<IPrerenderStateService, NoOpPrerenderStateService>();
 
         services.AddScoped<ThemeService>();
         services.AddScoped<CultureService>();
@@ -29,8 +31,7 @@ public static partial class IClientCoreServiceCollectionExtensions
         services.AddSessioned<PubSubService>();
         services.AddSessioned<PromptService>();
         services.AddSessioned<SnackBarService>();
-        services.AddSessioned<MessageBoxService>();
-        services.AddSessioned<ILocalHttpServer, NoopLocalHttpServer>();
+        services.AddSessioned<ILocalHttpServer, NoOpLocalHttpServer>();
         services.AddSessioned<ITelemetryContext, AppTelemetryContext>();
         services.AddSessioned<AuthenticationStateProvider>(sp =>
         {
@@ -83,6 +84,44 @@ public static partial class IClientCoreServiceCollectionExtensions
 
         services.AddTypedHttpClients();
 
+        services.AddScoped<IRetryPolicy, SignalRInfiniteRetryPolicy>();
+        services.AddSessioned(sp =>
+        {
+            var authManager = sp.GetRequiredService<AuthManager>();
+            var authTokenProvider = sp.GetRequiredService<IAuthTokenProvider>();
+            var absoluteServerAddressProvider = sp.GetRequiredService<AbsoluteServerAddressProvider>();
+
+            var hubConnection = new HubConnectionBuilder()
+                .WithStatefulReconnect()
+                .WithAutomaticReconnect(sp.GetRequiredService<IRetryPolicy>())
+                .WithUrl(new Uri(absoluteServerAddressProvider.GetAddress(), "app-hub"), options =>
+                {
+                    options.SkipNegotiation = false; // Required for Azure SignalR.
+                    options.Transports = HttpTransportType.WebSockets;
+                    // Avoid enabling long polling or Server-Sent Events. Focus on resolving the issue with WebSockets instead.
+                    // WebSockets should be enabled on services like IIS or Cloudflare CDN, offering significantly better performance.
+                    options.HttpMessageHandlerFactory = httpClientHandler => sp.GetRequiredService<HttpMessageHandlersChainFactory>().Invoke(httpClientHandler);
+                    options.AccessTokenProvider = async () =>
+                    {
+                        var accessToken = await authTokenProvider.GetAccessToken();
+
+                        if (string.IsNullOrEmpty(accessToken) is false &&
+                            IAuthTokenProvider.ParseAccessToken(accessToken, validateExpiry: true).IsAuthenticated() is false)
+                        {
+                            try
+                            {
+                                return await authManager.RefreshToken(requestedBy: nameof(HubConnectionBuilder));
+                            }
+                            catch (ServerConnectionException)
+                            { } // If the client disconnects and the access token expires, this code will execute repeatedly every few seconds, causing an annoying error message to be displayed to the user.
+                        }
+
+                        return accessToken;
+                    };
+                })
+                .Build();
+            return hubConnection;
+        });
 
         return services;
     }

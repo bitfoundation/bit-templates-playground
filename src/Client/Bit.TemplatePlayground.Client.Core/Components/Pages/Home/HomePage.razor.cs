@@ -1,21 +1,23 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers.Statistics;
-using Bit.TemplatePlayground.Shared.Dtos.Statistics;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Statistics;
+using Bit.TemplatePlayground.Shared.Controllers.Statistics;
 
-namespace Bit.TemplatePlayground.Client.Core.Components.Pages;
+namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Home;
 
 public partial class HomePage
 {
     protected override string? Title => Localizer[nameof(AppStrings.Home)];
     protected override string? Subtitle => string.Empty;
 
+
     [CascadingParameter] private BitDir? currentDir { get; set; }
 
-    [AutoInject] private IStatisticsController statisticsController = default!;
 
+    [AutoInject] private IStatisticsController statisticsController = default!;
     private bool isLoadingGitHub = true;
     private bool isLoadingNuget = true;
     private GitHubStats? gitHubStats;
     private NugetStatsDto? nugetStats;
+
 
     protected override async Task OnInitAsync()
     {
@@ -42,7 +44,7 @@ public partial class HomePage
         finally
         {
             isLoadingNuget = false;
-            await InvokeAsync(StateHasChanged);
+            StateHasChanged();
         }
     }
 
@@ -65,7 +67,7 @@ public partial class HomePage
         finally
         {
             isLoadingGitHub = false;
-            await InvokeAsync(StateHasChanged);
+            StateHasChanged();
         }
     }
 }

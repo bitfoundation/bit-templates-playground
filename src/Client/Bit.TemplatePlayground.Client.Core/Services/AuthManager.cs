@@ -26,6 +26,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     {
         // Example for method call after object instantiation with dependency injection.
 
+        unsubscribe = pubSubService.Subscribe(SharedPubSubMessages.SESSION_REVOKED, _ => SignOut(default));
     }
 
     /// <summary>
@@ -122,7 +123,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
                 {
                     { "AdditionalData", "Refreshing access token failed." },
                     { "RefreshTokenRequestedBy", requestedBy }
-                }, displayKind: exp is ReusedRefreshTokenException ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.Interrupting);
+                });
 
                 if (exp is UnauthorizedException // refresh token is also invalid.
                     || exp is ReusedRefreshTokenException && refreshToken == await storageService.GetItem("refresh_token"))
@@ -152,7 +153,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     {
         try
         {
-            var accessToken = await prerenderStateService.GetValue(() => tokenProvider.GetAccessToken());
+            var accessToken = await tokenProvider.GetAccessToken();
 
             return new AuthenticationState(IAuthTokenProvider.ParseAccessToken(accessToken, validateExpiry: false));
         }

@@ -1,5 +1,7 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.SignalR;
+using Bit.TemplatePlayground.Server.Api.SignalR;
 using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
@@ -21,7 +23,9 @@ public partial class IdentityController : AppControllerBase, IIdentityController
     [AutoInject] private IUserPhoneNumberStore<User> userPhoneNumberStore = default!;
     [AutoInject] private IOptionsMonitor<BearerTokenOptions> bearerTokenOptions = default!;
     [AutoInject] private AppUserClaimsPrincipalFactory userClaimsPrincipalFactory = default!;
+    [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
+    [AutoInject] private GoogleRecaptchaService googleRecaptchaService = default!;
 
     /// <summary>
     /// By leveraging summary tags in your controller's actions and DTO properties you can make your codes much easier to maintain.
@@ -31,6 +35,8 @@ public partial class IdentityController : AppControllerBase, IIdentityController
     public async Task SignUp(SignUpRequestDto request, CancellationToken cancellationToken)
     {
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
+        if (await googleRecaptchaService.Verify(request.GoogleRecaptchaResponse, cancellationToken) is false)
+            throw new BadRequestException(Localizer[nameof(AppStrings.InvalidGoogleRecaptchaResponse)]);
 
         // Attempt to locate an existing user using either their email address or phone number. The enforcement of a unique username policy is integral to the aspnetcore identity framework.
         var existingUser = await userManager.FindUserAsync(new() { Email = request.Email, PhoneNumber = request.PhoneNumber });
@@ -296,7 +302,9 @@ public partial class IdentityController : AppControllerBase, IIdentityController
             sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!, cancellationToken));
         }
 
+        var pushMessage = Localizer[nameof(AppStrings.OtpShortText), await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"Otp_Push,{user.OtpRequestedOn?.ToUniversalTime()}"))].ToString();
 
+        sendMessagesTasks.Add(appHubContext.Clients.User(user.Id.ToString()).SendAsync(SignalREvents.SHOW_MESSAGE, pushMessage, cancellationToken));
 
 
         await Task.WhenAll(sendMessagesTasks);
@@ -349,12 +357,14 @@ public partial class IdentityController : AppControllerBase, IIdentityController
 
         if (firstStepAuthenticationMethod != "Push")
         {
+            sendMessagesTasks.Add(appHubContext.Clients.User(user.Id.ToString()).SendAsync(SignalREvents.SHOW_MESSAGE, message, cancellationToken));
         }
 
         await Task.WhenAll(sendMessagesTasks);
     }
 
     [HttpGet]
+    [AppResponseCache(SharedMaxAge = 3600 * 24 * 7)]
     public async Task<ActionResult> SocialSignedIn()
     {
         var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>

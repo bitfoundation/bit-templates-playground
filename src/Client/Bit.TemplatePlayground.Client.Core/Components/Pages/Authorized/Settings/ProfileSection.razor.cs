@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Controllers;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Settings;
@@ -9,6 +10,7 @@ public partial class ProfileSection
     [Parameter] public UserDto? User { get; set; }
 
     [AutoInject] private IUserController userController = default!;
+    [AutoInject] private IAttachmentController attachmentController = default!;
 
 
     private bool isSaving;
@@ -23,7 +25,7 @@ public partial class ProfileSection
 
     protected override async Task OnInitAsync()
     {
-        var accessToken = await PrerenderStateService.GetValue(AuthTokenProvider.GetAccessToken);
+        var accessToken = await AuthTokenProvider.GetAccessToken();
 
         profileImageUploadUrl = new Uri(AbsoluteServerAddress, $"/api/Attachment/UploadProfileImage?access_token={accessToken}").ToString();
 
@@ -71,7 +73,7 @@ public partial class ProfileSection
 
         try
         {
-            await HttpClient.DeleteAsync("api/Attachment/RemoveProfileImage", CurrentCancellationToken);
+            await attachmentController.RemoveProfileImage(CurrentCancellationToken);
 
             User.ProfileImageName = null;
 

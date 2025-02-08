@@ -3,6 +3,7 @@
 namespace Bit.TemplatePlayground.Client.Core.Services;
 
 public partial class ClientPubSubMessages
+    : SharedPubSubMessages
 {
     public const string SHOW_SNACK = nameof(SHOW_SNACK);
     public const string SHOW_MODAL = nameof(SHOW_MODAL);
@@ -26,5 +27,4 @@ public partial class ClientPubSubMessages
     public const string NAVIGATE_TO = nameof(NAVIGATE_TO);
     public const string SHOW_DIAGNOSTIC_MODAL = nameof(SHOW_DIAGNOSTIC_MODAL);
 
-    public const string PROFILE_UPDATED = nameof(PROFILE_UPDATED);
 }

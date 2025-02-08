@@ -30,4 +30,5 @@ public partial class UserSession
     public User? User { get; set; }
 
 
+    public string? SignalRConnectionId { get; set; }
 }

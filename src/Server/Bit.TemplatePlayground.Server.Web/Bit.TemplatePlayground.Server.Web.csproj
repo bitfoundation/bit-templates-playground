@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>E756C1E9-5158-4996-8A6C-71754C96603C</UserSecretsId>
+        <UserSecretsId>BDAE9668-FD5B-4590-BC3F-81234347FCCF</UserSecretsId>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     </PropertyGroup>
 

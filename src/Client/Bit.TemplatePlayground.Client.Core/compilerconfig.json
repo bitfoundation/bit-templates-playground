@@ -36,12 +36,6 @@
         "options": { "sourceMap": false }
     },
     {
-        "outputFile": "Components/Layout/MessageBox.razor.css",
-        "inputFile": "Components/Layout/MessageBox.razor.scss",
-        "minify": { "enabled": false },
-        "options": { "sourceMap": false }
-    },
-    {
         "outputFile": "Components/Layout/Modal.razor.css",
         "inputFile": "Components/Layout/Modal.razor.scss",
         "minify": { "enabled": false },
@@ -78,8 +72,8 @@
         "options": { "sourceMap": false }
     },
     {
-        "outputFile": "Components/Pages/HomePage.razor.css",
-        "inputFile": "Components/Pages/HomePage.razor.scss",
+        "outputFile": "Components/Pages/Home/HomePage.razor.css",
+        "inputFile": "Components/Pages/Home/HomePage.razor.scss",
         "minify": { "enabled": false },
         "options": { "sourceMap": false }
     },

@@ -28,6 +28,8 @@
             (document.querySelector('meta[name="viewport"]').content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover')
     </Script>
 
+    <Link rel="preconnect" href="https://www.google.com" />
+    <Link rel="preconnect" href="https://www.gstatic.com" crossorigin />
 
     <Link rel="preconnect" href="@absoluteServerAddress.ToString()" />@* for PWA *@
 
@@ -54,7 +56,7 @@
         <LoadingComponent @rendermode="null" />
     }
 
-    @if (HttpContext.Request.IsCrawlerClient())
+    @if (HttpContext.Request.DisableStreamPrerendering())
     {
         // For StreamRenderingDisabledContainer, read comments in App.razor.cs
         <StreamRenderingDisabledContainer>

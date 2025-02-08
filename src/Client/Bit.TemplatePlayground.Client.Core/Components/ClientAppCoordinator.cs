@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Components.Routing;
+﻿using Microsoft.AspNetCore.SignalR;
+using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.Components.Routing;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
@@ -9,6 +11,8 @@ namespace Bit.TemplatePlayground.Client.Core.Components;
 /// </summary>
 public partial class ClientAppCoordinator : AppComponentBase
 {
+    [AutoInject] private Notification notification = default!;
+    [AutoInject] private HubConnection hubConnection = default!;
     [AutoInject] private Navigator navigator = default!;
     [AutoInject] private UserAgent userAgent = default!;
     [AutoInject] private IJSRuntime jsRuntime = default!;
@@ -46,6 +50,7 @@ public partial class ClientAppCoordinator : AppComponentBase
 
             NavigationManager.LocationChanged += NavigationManager_LocationChanged;
             AuthManager.AuthenticationStateChanged += AuthenticationStateChanged;
+            SubscribeToSignalREventsMessages();
             await PropagateUserId(firstRun: true, AuthenticationStateTask);
         }
 
@@ -95,6 +100,7 @@ public partial class ClientAppCoordinator : AppComponentBase
             }
 
 
+            await StartSignalR();
         }
         catch (Exception exp)
         {
@@ -105,6 +111,81 @@ public partial class ClientAppCoordinator : AppComponentBase
     private void AuthenticationStateChanged(Task<AuthenticationState> task)
     {
         _ = PropagateUserId(firstRun: false, task);
+    }
+
+    private void SubscribeToSignalREventsMessages()
+    {
+        signalROnDisposables.Add(hubConnection.On<string>(SignalREvents.SHOW_MESSAGE, async (message) =>
+        {
+            logger.LogInformation("SignalR Message {Message} received from server to show.", message);
+            if (await notification.IsNotificationAvailable())
+            {
+                // Show local notification
+                // Note that this code has nothing to do with push notification.
+                await notification.Show("Bit.TemplatePlayground SignalR", new() { Body = message });
+            }
+            else
+            {
+                SnackBarService.Show("Bit.TemplatePlayground", message);
+            }
+
+            // The following code block is not required for Bit.BlazorUI components to perform UI changes. However, it may be necessary in other scenarios.
+            /*await InvokeAsync(async () =>
+            {
+                StateHasChanged();
+            });*/
+
+            // You can also leverage IPubSubService to notify other components in the application.
+        }));
+
+        signalROnDisposables.Add(hubConnection.On<string, object?>(SignalREvents.PUBLISH_MESSAGE, async (message, payload) =>
+        {
+            logger.LogInformation("SignalR Message {Message} received from server to publish.", message);
+            PubSubService.Publish(message, payload);
+        }));
+
+        hubConnection.Closed += HubConnectionStateChange;
+        hubConnection.Reconnected += HubConnectionConnected;
+        hubConnection.Reconnecting += HubConnectionStateChange;
+    }
+
+    private async Task StartSignalR()
+    {
+        try
+        {
+            await hubConnection.StopAsync(CurrentCancellationToken);
+            await hubConnection.StartAsync(CurrentCancellationToken);
+            await HubConnectionConnected(null);
+        }
+        catch (Exception exp)
+        {
+            await HubConnectionStateChange(exp);
+        }
+    }
+
+    private async Task HubConnectionConnected(string? _)
+    {
+        PubSubService.Publish(ClientPubSubMessages.IS_ONLINE_CHANGED, true);
+        logger.LogInformation("SignalR connection established.");
+    }
+
+    private async Task HubConnectionStateChange(Exception? exception)
+    {
+        PubSubService.Publish(ClientPubSubMessages.IS_ONLINE_CHANGED, exception is null && hubConnection!.State is HubConnectionState.Connected);
+
+        if (exception is null)
+        {
+            logger.LogInformation("SignalR state changed to {State}", hubConnection!.State);
+        }
+        else
+        {
+            logger.LogWarning(exception, "SignalR connection lost.");
+
+            if (exception is HubException && exception.Message.EndsWith(nameof(AppStrings.UnauthorizedException)))
+            {
+                await AuthManager.RefreshToken(requestedBy: nameof(HubException));
+            }
+        }
     }
 
 
@@ -126,6 +207,10 @@ public partial class ClientAppCoordinator : AppComponentBase
         NavigationManager.LocationChanged -= NavigationManager_LocationChanged;
         AuthManager.AuthenticationStateChanged -= AuthenticationStateChanged;
 
+        hubConnection.Closed -= HubConnectionStateChange;
+        hubConnection.Reconnected -= HubConnectionConnected;
+        hubConnection.Reconnecting -= HubConnectionStateChange;
+        signalROnDisposables.ForEach(d => d.Dispose());
 
         await base.DisposeAsync(disposing);
     }

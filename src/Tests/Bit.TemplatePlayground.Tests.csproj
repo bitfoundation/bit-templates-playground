@@ -9,8 +9,8 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector">
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-          <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="FakeItEasy" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -35,8 +35,8 @@
         <Using Include="Microsoft.Playwright" />
         <Using Include="Microsoft.Playwright.MSTest" />
         <Using Include="FakeItEasy" />
-                <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
-            </ItemGroup>
+        <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
+    </ItemGroup>
 
-    
+
 </Project>

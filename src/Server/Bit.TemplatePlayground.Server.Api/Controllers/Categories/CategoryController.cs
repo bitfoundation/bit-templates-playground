@@ -1,11 +1,16 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
+﻿using Microsoft.AspNetCore.SignalR;
+using Bit.TemplatePlayground.Server.Api.SignalR;
+using Bit.TemplatePlayground.Shared.Dtos.Categories;
+using Bit.TemplatePlayground.Server.Api.Models.Categories;
 using Bit.TemplatePlayground.Shared.Controllers.Categories;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Categories;
 
-[ApiController, Route("api/[controller]/[action]"), Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS)]
+[ApiController, Route("api/[controller]/[action]")]
+[Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS)]
 public partial class CategoryController : AppControllerBase, ICategoryController
 {
+    [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
     [HttpGet, EnableQuery]
     public IQueryable<CategoryDto> Get()
@@ -45,8 +50,11 @@ public partial class CategoryController : AppControllerBase, ICategoryController
 
         await DbContext.Categories.AddAsync(entityToAdd, cancellationToken);
 
+        await Validate(entityToAdd, cancellationToken);
+
         await DbContext.SaveChangesAsync(cancellationToken);
 
+        await PublishDashboardDataChanged(cancellationToken);
 
         return entityToAdd.Map();
     }
@@ -54,12 +62,16 @@ public partial class CategoryController : AppControllerBase, ICategoryController
     [HttpPut]
     public async Task<CategoryDto> Update(CategoryDto dto, CancellationToken cancellationToken)
     {
-        var entityToUpdate = dto.Map();
+        var entityToUpdate = await DbContext.Categories.FindAsync([dto.Id], cancellationToken)
+            ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.CategoryCouldNotBeFound)]);
 
-        DbContext.Update(entityToUpdate);
+        dto.Patch(entityToUpdate);
+
+        await Validate(entityToUpdate, cancellationToken);
 
         await DbContext.SaveChangesAsync(cancellationToken);
 
+        await PublishDashboardDataChanged(cancellationToken);
 
         return entityToUpdate.Map();
     }
@@ -72,11 +84,25 @@ public partial class CategoryController : AppControllerBase, ICategoryController
             throw new BadRequestException(Localizer[nameof(AppStrings.CategoryNotEmpty)]);
         }
 
-        DbContext.Categories.Remove(new() { Id = id, ConcurrencyStamp = Convert.FromBase64String(Uri.UnescapeDataString(concurrencyStamp)) });
+        DbContext.Categories.Remove(new() { Id = id, ConcurrencyStamp = Convert.FromHexString(concurrencyStamp) });
 
         await DbContext.SaveChangesAsync(cancellationToken);
 
+        await PublishDashboardDataChanged(cancellationToken);
     }
 
+    private async Task PublishDashboardDataChanged(CancellationToken cancellationToken)
+    {
+        // Checkout AppHub's comments for more info.
+        // In order to exclude current user session, gets its signalR connection id from database and use GroupExcept instead.
+        await appHubContext.Clients.Group("AuthenticatedClients").SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.DASHBOARD_DATA_CHANGED, null, cancellationToken);
+    }
+
+    private async Task Validate(Category category, CancellationToken cancellationToken)
+    {
+        // Remote validation example: Any errors thrown here will be displayed in the client's edit form component.
+        if (DbContext.Entry(category).Property(c => c.Name).IsModified && await DbContext.Categories.AnyAsync(p => p.Name == category.Name, cancellationToken: cancellationToken))
+            throw new ResourceValidationException((nameof(CategoryDto.Name), [Localizer[nameof(AppStrings.DuplicateCategoryName)]]));
+    }
 }
 

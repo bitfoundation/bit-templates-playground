@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.ResponseCompression;
 using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Client.Web;
 using Bit.TemplatePlayground.Server.Web.Services;
+using Microsoft.AspNetCore.Antiforgery;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Server.Web;
@@ -45,6 +46,7 @@ public static partial class Program
         var services = builder.Services;
         var configuration = builder.Configuration;
 
+        services.AddTransient<IAntiforgery, NoOpAntiforgery>();
         services.AddScoped<IAuthTokenProvider, ServerSideAuthTokenProvider>();
         services.AddScoped(sp =>
         {
