@@ -44,8 +44,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.WindowsForms" />
         <PackageReference Include="Microsoft.Web.WebView2" />
         <PackageReference Include="Velopack" />
-                <PackageReference Include="Newtonsoft.Json" />
-                <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\index.html" Link="wwwroot\index.html">
+        <PackageReference Include="Newtonsoft.Json" />
+        <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\index.html" Link="wwwroot\index.html">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Content Remove="compilerconfig.json" />

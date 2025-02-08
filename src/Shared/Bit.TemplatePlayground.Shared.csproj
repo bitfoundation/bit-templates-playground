@@ -15,7 +15,7 @@
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
         <PackageReference Include="System.Text.Json" />
         <PackageReference Include="Riok.Mapperly" PrivateAssets="all" ExcludeAssets="runtime">
-          <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
