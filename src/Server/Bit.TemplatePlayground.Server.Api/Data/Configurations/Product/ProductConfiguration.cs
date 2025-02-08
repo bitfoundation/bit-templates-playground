@@ -9,7 +9,7 @@ public partial class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.HasIndex(p => p.Name).IsUnique();
 
         var defaultConcurrencyStamp = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-        DateTimeOffset baseDate = DateTimeOffset.Parse("2025-02-07", styles: DateTimeStyles.AssumeUniversal);
+        DateTimeOffset baseDate = DateTimeOffset.Parse("2025-02-08", styles: DateTimeStyles.AssumeUniversal);
 
         for (int i = 1; i <= 6; i++)
         {

@@ -1,6 +1,7 @@
 ﻿using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 using Bit.TemplatePlayground.Shared.Controllers.Statistics;
-namespace Bit.TemplatePlayground.Client.Core.Components.Pages;
+
+namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Home;
 
 public partial class HomePage
 {
@@ -18,11 +19,9 @@ public partial class HomePage
     private NugetStatsDto? nugetStats;
 
 
-
     protected override async Task OnInitAsync()
     {
         await base.OnInitAsync();
-
 
         // If required, you should typically manage the authorization header for external APIs in **AuthDelegatingHandler.cs**
         // and handle error extraction from failed responses in **ExceptionDelegatingHandler.cs**.  
@@ -71,5 +70,4 @@ public partial class HomePage
             StateHasChanged();
         }
     }
-
 }

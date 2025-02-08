@@ -51,4 +51,5 @@ public partial class ProductDto
 
         return $"${Price:N2}";
     }
+
 }
