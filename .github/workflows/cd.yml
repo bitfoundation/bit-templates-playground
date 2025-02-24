@@ -46,7 +46,9 @@ jobs:
       run:  cd src && dotnet workload install wasm-tools
       
     - name: Generate CSS/JS files
-      run: dotnet build src/Client/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.csproj -t:BeforeBuildTasks --no-restore -c Release
+      run: |
+          dotnet build src/Client/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.csproj -t:BeforeBuildTasks --no-restore -c Release
+          dotnet build src/Client/Bit.TemplatePlayground.Client.Web/Bit.TemplatePlayground.Client.Web.csproj -t:BeforeBuildTasks --no-restore -c Release
 
     - name: Publish
       run: dotnet publish src/Server/Bit.TemplatePlayground.Server.Web/Bit.TemplatePlayground.Server.Web.csproj -c Release --self-contained -r linux-x64 -o ${{env.DOTNET_ROOT}}/server

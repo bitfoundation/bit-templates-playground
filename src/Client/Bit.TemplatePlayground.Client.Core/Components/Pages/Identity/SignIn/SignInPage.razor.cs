@@ -3,7 +3,7 @@ using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.SignIn;
 
-public partial class SignInPage : IDisposable
+public partial class SignInPage
 {
     [Parameter, SupplyParameterFromQuery(Name = "return-url")]
     public string? ReturnUrlQueryString { get; set; }
@@ -138,6 +138,8 @@ public partial class SignInPage : IDisposable
         }
         catch (KnownException e)
         {
+            // To disable the sign-in button until a specific time after a user lockout, use the value of `e.TryGetExtensionDataValue<TimeSpan>("TryAgainIn", out var tryAgainIn)`.
+
             SnackBarService.Error(e.Message);
         }
         finally
@@ -224,9 +226,9 @@ public partial class SignInPage : IDisposable
         }
     }
 
-
-    public void Dispose()
+    protected override async ValueTask DisposeAsync(bool disposing)
     {
         unsubscribeIdentityHeaderBackLinkClicked?.Invoke();
+        await base.DisposeAsync(disposing);
     }
 }

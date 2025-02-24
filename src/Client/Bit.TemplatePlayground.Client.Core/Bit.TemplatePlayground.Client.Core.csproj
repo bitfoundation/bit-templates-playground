@@ -42,8 +42,6 @@
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
-
-        <Watch Remove="*.scss" />
     </ItemGroup>
 
     <ItemGroup>

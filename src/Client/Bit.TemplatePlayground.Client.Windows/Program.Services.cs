@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
+using System.Security.Authentication;
 using Bit.TemplatePlayground.Client.Windows.Services;
 
 namespace Bit.TemplatePlayground.Client.Windows;
@@ -12,11 +13,13 @@ public static partial class Program
 
         services.AddScoped<IExceptionHandler, WindowsExceptionHandler>();
         services.AddScoped<IBitDeviceCoordinator, WindowsDeviceCoordinator>();
+
         services.AddScoped(sp =>
         {
             var handler = sp.GetRequiredService<HttpMessageHandler>();
             var httpClient = new HttpClient(handler)
             {
+                DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
                 BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
             };
             if (sp.GetRequiredService<ClientWindowsSettings>().WebAppUrl is Uri origin)
@@ -25,10 +28,22 @@ public static partial class Program
             }
             return httpClient;
         });
+        services.AddKeyedScoped<HttpMessageHandler, SocketsHttpHandler>("PrimaryHttpMessageHandler", (sp, key) => new()
+        {
+            EnableMultipleHttp2Connections = true,
+            EnableMultipleHttp3Connections = true,
+            PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+            AutomaticDecompression = System.Net.DecompressionMethods.All,
+            SslOptions = new()
+            {
+                EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
+            }
+        });
 
         services.AddSingleton(sp => configuration);
         services.AddSingleton<IStorageService, WindowsStorageService>();
         services.AddSingleton<ILocalHttpServer, WindowsLocalHttpServer>();
+
         ClientWindowsSettings settings = new();
         configuration.Bind(settings);
         services.AddSingleton(sp =>

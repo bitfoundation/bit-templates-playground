@@ -1,0 +1,70 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="DebugBlazorServer" />
+	<BuildType Name="DebugBlazorWasm" />
+	<BuildType Name="DebugBlazorHybridMaui" />
+	<BuildType Name="DebugBlazorHybridWindows" />
+    <BuildType Name="Release" />
+  </Configurations>
+  <Folder Name="/.SolutionItems/">
+    <File Path=".editorconfig" />
+    <File Path=".gitignore" />
+    <File Path=".vsconfig" />
+    <File Path="Clean.bat" />
+    <File Path="global.json" />
+    <File Path="README.md" />
+    <File Path="settings.VisualStudio.json" />
+    <File Path="src/Directory.Build.props" />
+    <File Path="src/Directory.Packages.props" />
+  </Folder>
+#if (pipeline == "Azure")
+  <Folder Name="/.SolutionItems/.azure-devops/" Id="3f1dd063-d3a3-f428-24f8-626958d189fb" />
+  <Folder Name="/.SolutionItems/.azure-devops/workflows/" Id="d5673a47-b807-7464-ee0f-fd95c5542ac5">
+    <File Path=".azure-devops/workflows/cd.yml" />
+    <File Path=".azure-devops/workflows/ci.yml" />
+  </Folder>
+#elif (pipeline == "GitHub")
+  <Folder Name="/.SolutionItems/.github/" Id="351df30f-2daa-a858-be55-4affc8d70af2" />
+  <Folder Name="/.SolutionItems/.github/workflows/" Id="c0ca9c70-aac5-bd27-2f07-59fab982d30d">
+    <File Path=".github/workflows/cd.yml" />
+    <File Path=".github/workflows/ci.yml" />
+  </Folder>
+#endif
+  <Folder Name="/Server/">
+	<Project Path="src/Server/Bit.TemplatePlayground.Server.Web/Bit.TemplatePlayground.Server.Web.csproj" />
+    <Project Path="src/Server/Bit.TemplatePlayground.Server.Api/Bit.TemplatePlayground.Server.Api.csproj" />
+  </Folder>
+  <Folder Name="/Client/">
+    <Project Path="src/Client/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.csproj" />
+    <Project Path="src/Client/Bit.TemplatePlayground.Client.Maui/Bit.TemplatePlayground.Client.Maui.csproj">
+      <Build Solution="DebugBlazorServer|*" Project="false" />
+      <Build Solution="DebugBlazorWasm|*" Project="false" />
+      <Build Solution="DebugBlazorHybridWindows|*" Project="false" />
+      <Deploy Solution="DebugBlazorHybridMaui|*" />
+      <Deploy Solution="Debug|*" />
+      <Deploy Solution="Release|*" />
+    </Project>
+    <Project Path="src/Client/Bit.TemplatePlayground.Client.Web/Bit.TemplatePlayground.Client.Web.csproj">
+      <Build Solution="DebugBlazorHybridMaui|*" Project="false" />
+      <Build Solution="DebugBlazorServer|*" Project="false" />
+      <Build Solution="DebugBlazorHybridWindows|*" Project="false" />
+    </Project>
+    <Project Path="src/Client/Bit.TemplatePlayground.Client.Windows/Bit.TemplatePlayground.Client.Windows.csproj">
+		<Build Solution="DebugBlazorHybridMaui|*" Project="false" />
+		<Build Solution="DebugBlazorServer|*" Project="false" />
+		<Build Solution="DebugBlazorWasm|*" Project="false" />
+	</Project>
+  </Folder>
+  <Folder Name="/Shared/">
+    <Project Path="src/Shared/Bit.TemplatePlayground.Shared.csproj" />
+  </Folder>
+  <Folder Name="/Tests/">
+    <Project Path="src/Tests/Bit.TemplatePlayground.Tests.csproj">
+      <Build Solution="DebugBlazorHybridMaui|*" Project="false" />
+      <Build Solution="DebugBlazorServer|*" Project="false" />
+      <Build Solution="DebugBlazorWasm|*" Project="false" />
+      <Build Solution="DebugBlazorHybridWindows|*" Project="false" />
+    </Project>
+  </Folder>
+</Solution>

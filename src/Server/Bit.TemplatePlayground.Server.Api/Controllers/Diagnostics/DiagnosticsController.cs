@@ -14,7 +14,7 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
     [HttpPost]
-    public async Task<string> PerformDiagnostics(CancellationToken cancellationToken)
+    public async Task<string> PerformDiagnostics([FromQuery] string? signalRConnectionId, [FromQuery] string? pushNotificationSubscriptionDeviceId, CancellationToken cancellationToken)
     {
         StringBuilder result = new();
 
@@ -36,14 +36,16 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
         result.AppendLine($"IsAuthenticated: {isAuthenticated.ToString().ToLowerInvariant()}");
 
 
-        if (isAuthenticated && userSession!.SignalRConnectionId is not null)
+        if (string.IsNullOrEmpty(signalRConnectionId) is false)
         {
-            await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, DateTimeOffset.Now.ToString("HH:mm:ss"), cancellationToken);
+            await appHubContext.Clients.Client(signalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, DateTimeOffset.Now.ToString("HH:mm:ss"), cancellationToken);
         }
 
         result.AppendLine($"Culture => C: {CultureInfo.CurrentCulture.Name}, UC: {CultureInfo.CurrentUICulture.Name}");
 
-        foreach (var header in Request.Headers)
+        result.AppendLine();
+
+        foreach (var header in Request.Headers.OrderBy(h => h.Key))
         {
             result.AppendLine($"{header.Key}: {header.Value}");
         }

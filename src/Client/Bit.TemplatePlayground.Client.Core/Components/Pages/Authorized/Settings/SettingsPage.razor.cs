@@ -12,6 +12,7 @@ public partial class SettingsPage
     [Parameter] public string? Section { get; set; }
 
 
+    [AutoInject] protected HttpClient HttpClient = default!;
     [AutoInject] private IUserController userController = default!;
 
 

@@ -21,6 +21,8 @@ public static partial class Urls
     public const string ProductsPage = "/products";
 
 
+    public const string Authorize = "/authorize";
+
     public static readonly string[] All = typeof(Urls).GetFields()
                                                       .Where(f => f.FieldType == typeof(string))
                                                       .Select(f => f.GetValue(null)!.ToString()!)
