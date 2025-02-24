@@ -19,6 +19,10 @@ public static partial class ProductsMapper
     // Nevertheless, we employ MapProperty in this instance to illustrate its usage
     [MapProperty(nameof(@Product.Category.Name), nameof(@ProductDto.CategoryName))]
     public static partial ProductDto Map(this Product source);
+
+    [MapperIgnoreSource(nameof(Product.ShortId))]
     public static partial Product Map(this ProductDto source);
+
+    [MapperIgnoreSource(nameof(Product.ShortId))]
     public static partial void Patch(this ProductDto source, Product dest);
 }

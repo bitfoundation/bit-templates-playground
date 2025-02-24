@@ -64,7 +64,8 @@ public static partial class Program
 
             var httpClient = new HttpClient(sp.GetRequiredService<HttpMessageHandler>())
             {
-                BaseAddress = serverAddress
+                BaseAddress = serverAddress,
+                DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower
             };
 
             var forwardedHeadersOptions = sp.GetRequiredService<ServerWebSettings>().ForwardedHeaders;
@@ -98,6 +99,11 @@ public static partial class Program
 
             return httpClient;
         });
+        services.AddKeyedScoped<HttpMessageHandler, SocketsHttpHandler>("PrimaryHttpMessageHandler", (sp, key) => new()
+        {
+            EnableMultipleHttp2Connections = true,
+            EnableMultipleHttp3Connections = true
+                    });
 
         services.AddRazorComponents()
             .AddInteractiveServerComponents()

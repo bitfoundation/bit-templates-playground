@@ -6,6 +6,13 @@ public partial class Product
 {
     public Guid Id { get; set; }
 
+    /// <summary>
+    /// The product's ShortId is used to create a more human-friendly URL.
+    /// </summary>
+    [Range(0, int.MaxValue)]
+    public int ShortId { get; set; }
+        = Environment.TickCount; // Using a database sequence for this is recommended.
+
     [Required, MaxLength(64)]
     public string? Name { get; set; }
 

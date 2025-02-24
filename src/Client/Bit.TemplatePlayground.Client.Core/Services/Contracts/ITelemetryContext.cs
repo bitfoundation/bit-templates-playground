@@ -56,7 +56,7 @@ public interface ITelemetryContext
         {
             { nameof(UserId), UserId },
             { nameof(UserSessionId), UserSessionId },
-            { nameof(AppSessionId), AppSessionId },
+            { "ClientAppSessionId", AppSessionId },
             { nameof(Platform), Platform },
             { nameof(AppVersion), AppVersion },
             { nameof(PageUrl), PageUrl },

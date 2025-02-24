@@ -5,7 +5,7 @@ namespace Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
 /// <summary>
 /// Provides a custom logger that outputs log messages to the in memory store and allows for selective display of logs
-/// within the application UI for enhanced diagnostics using <see cref="DiagnosticModal"/>
+/// within the application UI for enhanced diagnostics using <see cref="AppDiagnosticModal"/>
 /// </summary>
 [ProviderAlias("DiagnosticLogger")]
 public partial class DiagnosticLoggerProvider : ILoggerProvider
