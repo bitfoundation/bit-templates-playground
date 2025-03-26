@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Statistics;
+﻿using Fido2NetLib;
+using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 
 namespace Bit.TemplatePlayground.Server.Api.Services;
 
@@ -9,6 +10,7 @@ namespace Bit.TemplatePlayground.Server.Api.Services;
 [JsonSerializable(typeof(NugetStatsDto))]
 [JsonSerializable(typeof(GoogleRecaptchaVerificationResponse))]
 [JsonSerializable(typeof(ProblemDetails))]
+[JsonSerializable(typeof(AuthenticatorResponse))]
 public partial class ServerJsonContext : JsonSerializerContext
 {
 }

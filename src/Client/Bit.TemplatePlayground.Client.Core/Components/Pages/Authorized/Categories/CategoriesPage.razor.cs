@@ -1,5 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers.Categories;
-using Bit.TemplatePlayground.Shared.Dtos.Categories;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
+using Bit.TemplatePlayground.Shared.Controllers.Categories;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Categories;
 
@@ -13,6 +13,7 @@ public partial class CategoriesPage
     private bool isLoading;
     private bool isDeleteDialogOpen;
     private CategoryDto? deletingCategory;
+    private AddOrEditCategoryModal? modal;
     private BitDataGrid<CategoryDto>? dataGrid;
     private string categoryNameFilter = string.Empty;
     private BitDataGridItemsProvider<CategoryDto> categoriesProvider = default!;
@@ -78,14 +79,14 @@ public partial class CategoriesPage
         await dataGrid!.RefreshDataAsync();
     }
 
-    private void CreateCategory()
+    private async Task CreateCategory()
     {
-        NavigationManager.NavigateTo(Urls.AddOrEditCategoryPage);
+        await modal!.ShowModal(new CategoryDto());
     }
 
-    private void EditCategory(CategoryDto category)
+    private async Task EditCategory(CategoryDto category)
     {
-        NavigationManager.NavigateTo($"{Urls.AddOrEditCategoryPage}/{category.Id}");
+        await modal!.ShowModal(category);
     }
 
     private async Task DeleteCategory()

@@ -14,14 +14,20 @@
                                 {
                                     <BitNavPanel @bind-IsOpen="isNavPanelOpen"
                                                  @bind-IsToggled="isNavPanelToggled"
+                                                 IconNavUrl="/"
+                                                 Class="nav-panel"
                                                  Items="@navPanelAuthenticatedItems"
+                                                 Accent="BitColor.SecondaryBackground"
                                                  IconUrl="_content/Bit.TemplatePlayground.Client.Core/images/bit-logo.svg" />
                                 }
                                 else if (isAuthenticated is false)
                                 {
                                     <BitNavPanel @bind-IsOpen="isNavPanelOpen"
                                                  @bind-IsToggled="isNavPanelToggled"
+                                                 IconNavUrl="/"
+                                                 Class="nav-panel"
                                                  Items="@navPanelUnAuthenticatedItems"
+                                                 Accent="BitColor.SecondaryBackground"
                                                  IconUrl="_content/Bit.TemplatePlayground.Client.Core/images/bit-logo.svg">
                                         <Footer>
                                             <BitActionButton IconOnly="isNavPanelToggled"

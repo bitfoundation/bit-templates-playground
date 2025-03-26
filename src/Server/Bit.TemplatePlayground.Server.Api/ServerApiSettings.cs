@@ -1,16 +1,11 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using Bit.TemplatePlayground.Server.Api.Services;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
 public partial class ServerApiSettings : SharedSettings
 {
-    /// <summary>
-    /// It can also be configured using: dotnet user-secrets set 'DataProtectionCertificatePassword' '@nyPassw0rd'
-    /// </summary>
-    [Required]
-    public string DataProtectionCertificatePassword { get; set; } = default!;
-
     [Required]
     public AppIdentityOptions Identity { get; set; } = default!;
 
@@ -33,9 +28,9 @@ public partial class ServerApiSettings : SharedSettings
     public ResponseCachingOptions ResponseCaching { get; set; } = default!;
 
     /// <summary>
-    /// Defines the list of origins permitted for CORS access to the API. These origins are also valid for use as return URLs after social sign-ins and for generating URLs in emails.
+    /// Lists the permitted origins for CORS requests, return URLs following social sign-in and email confirmation, etc., along with allowed origins for Web Auth.
     /// </summary>
-    public Uri[] AllowedOrigins { get; set; } = [];
+    public Uri[] TrustedOrigins { get; set; } = [];
 
     [Required]
     public string ProductImagesDir { get; set; } = default!;
@@ -62,12 +57,20 @@ public partial class ServerApiSettings : SharedSettings
         }
         Validator.TryValidateObject(ResponseCaching, new ValidationContext(ResponseCaching), validationResults, true);
 
+        const int MinimumJwtIssuerSigningKeySecretByteLength = 64; // 512 bits = 64 bytes, minimum for HS512
+        var jwtIssuerSigningKeySecretByteLength = Encoding.UTF8.GetBytes(Identity.JwtIssuerSigningKeySecret).Length;
+        if (jwtIssuerSigningKeySecretByteLength <= MinimumJwtIssuerSigningKeySecretByteLength)
+        {
+            throw new ArgumentException(
+                $"The JWT signing key must be greater than {MinimumJwtIssuerSigningKeySecretByteLength} bytes " +
+                $"({MinimumJwtIssuerSigningKeySecretByteLength * 8} bits) for HS512. Current key is {jwtIssuerSigningKeySecretByteLength} bytes.");
+        }
+
         if (AppEnvironment.IsDev() is false)
         {
-            if (DataProtectionCertificatePassword is "P@ssw0rdP@ssw0rd")
+            if (Identity.JwtIssuerSigningKeySecret is "VeryLongJWTIssuerSiginingKeySecretThatIsMoreThan64BytesToEnsureCompatibilityWithHS512Algorithm")
             {
-                throw new InvalidOperationException(@"The default test certificate is still in use. Please replace it with a new one by running the 'dotnet dev-certs https --export-path DataProtectionCertificate.pfx --password @nyPassw0rd'
-command in the Server.Api's project's folder and replace P@ssw0rdP@ssw0rd with the new password.");
+                throw new InvalidOperationException(@"Please replace JwtIssuerSigningKeySecret with a new one.");
             }
 
             if (GoogleRecaptchaSecretKey is "6LdMKr4pAAAAANvngWNam_nlHzEDJ2t6SfV6L_DS")
@@ -82,8 +85,8 @@ command in the Server.Api's project's folder and replace P@ssw0rdP@ssw0rd with t
 
     internal bool IsAllowedOrigin(Uri origin)
     {
-        return AllowedOrigins.Any(allowedOrigin => allowedOrigin == origin)
-            || AllowedOriginsRegex().IsMatch(origin.ToString());
+        return TrustedOrigins.Any(trustedOrigin => trustedOrigin == origin)
+            || TrustedOriginsRegex().IsMatch(origin.ToString());
     }
 
         /// <summary>
@@ -94,13 +97,16 @@ command in the Server.Api's project's folder and replace P@ssw0rdP@ssw0rd with t
 #else
     [GeneratedRegex(@"^(http|https|app):\/\/(localhost|0\.0\.0\.0|0\.0\.0\.1|127\.0\.0\.1)(:\d+)?(\/.*)?$")]
 #endif
-        private partial Regex AllowedOriginsRegex();
+        private partial Regex TrustedOriginsRegex();
 }
 
 public partial class AppIdentityOptions : IdentityOptions
 {
+    [Required]
+    public string JwtIssuerSigningKeySecret { get; set; } = default!;
+
     /// <summary>
-    /// BearerTokenExpiration used as JWT's expiration claim, access token's expires in and cookie's max age.
+    /// BearerTokenExpiration used as JWT's expiration claim, access token's `expires in` and cookie's `max age`.
     /// </summary>
     public TimeSpan BearerTokenExpiration { get; set; }
     public TimeSpan RefreshTokenExpiration { get; set; }
@@ -123,7 +129,7 @@ public partial class AppIdentityOptions : IdentityOptions
     public TimeSpan TwoFactorTokenLifetime { get; set; }
 
     /// <summary>
-    /// To sign in with either Otp or magic link.
+    /// <see cref="SignInManagerExtensions.OtpSignInAsync(SignInManager{Models.Identity.User}, Models.Identity.User, string)"/>
     /// </summary>
     public TimeSpan OtpTokenLifetime { get; set; }
 
@@ -160,7 +166,7 @@ public class CloudflareOptions
 
     /// <summary>
     /// The <see cref="ResponseCacheService"/> clears the cache for the current domain by default.
-    /// If multiple Cloudflare-hosted domains point to your backend, you will need to
+    /// If multiple Cloudflare-hosted domains point to your origin backend, you will need to
     /// purge the cache for each of them individually.
     /// </summary>
     public Uri[] AdditionalDomains { get; set; } = [];

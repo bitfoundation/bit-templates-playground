@@ -37,7 +37,10 @@ public partial class ClientAppCoordinator : AppComponentBase
         {
             unsubscribe = PubSubService.Subscribe(ClientPubSubMessages.NAVIGATE_TO, async (uri) =>
             {
-                NavigationManager.NavigateTo(uri!.ToString()!);
+                var uriValue = uri?.ToString()!;
+                var replace = uriValue.Contains("replace=true", StringComparison.InvariantCultureIgnoreCase);
+                var forceLoad = uriValue.Contains("forceLoad=true", StringComparison.InvariantCultureIgnoreCase);
+                NavigationManager.NavigateTo(uriValue.Replace("replace=true", "", StringComparison.InvariantCultureIgnoreCase).Replace("forceLoad=true", "", StringComparison.InvariantCultureIgnoreCase).TrimEnd('&'), forceLoad, replace);
             });
             TelemetryContext.TimeZone = await jsRuntime.GetTimeZone();
             TelemetryContext.Culture = CultureInfo.CurrentCulture.Name;
@@ -52,7 +55,7 @@ public partial class ClientAppCoordinator : AppComponentBase
             NavigationManager.LocationChanged += NavigationManager_LocationChanged;
             AuthManager.AuthenticationStateChanged += AuthenticationStateChanged;
             SubscribeToSignalREventsMessages();
-            await PropagateUserId(firstRun: true, AuthenticationStateTask);
+            await PropagateAuthState(firstRun: true, AuthenticationStateTask);
         }
 
         await base.OnInitAsync();
@@ -69,7 +72,7 @@ public partial class ClientAppCoordinator : AppComponentBase
     /// This code manages the association of a user with sensitive services, such as SignalR, push notifications, App Insights, and others, 
     /// ensuring the user is correctly set or cleared as needed.
     /// </summary>
-    public async Task PropagateUserId(bool firstRun, Task<AuthenticationState> task)
+    public async Task PropagateAuthState(bool firstRun, Task<AuthenticationState> task)
     {
         try
         {
@@ -111,7 +114,7 @@ public partial class ClientAppCoordinator : AppComponentBase
 
     private void AuthenticationStateChanged(Task<AuthenticationState> task)
     {
-        _ = PropagateUserId(firstRun: false, task);
+        _ = PropagateAuthState(firstRun: false, task);
     }
 
     private void SubscribeToSignalREventsMessages()

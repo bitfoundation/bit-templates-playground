@@ -8,13 +8,12 @@ public partial class AboutPage
     [AutoInject] private UserAgent userAgent = default!;
     [AutoInject] private ITelemetryContext telemetryContext = default!;
 
-    protected override string? Title => Localizer[nameof(AppStrings.AboutTitle)];
+    protected override string? Title => Localizer[nameof(AppStrings.About)];
     protected override string? Subtitle => string.Empty;
 
 
     private string oem = default!;
     private string appName = default!;
-    private string webView = default!;
     private string platform = default!;
     private string processId = default!;
     private string appVersion = default!;
@@ -27,7 +26,6 @@ public partial class AboutPage
         // but it does not provide access to native platform features.
 
         appName = "Bit.TemplatePlayground";
-        webView = telemetryContext.WebView!;
         platform = telemetryContext.Platform!;
         appVersion = telemetryContext.AppVersion!;
         processId = Environment.ProcessId.ToString();

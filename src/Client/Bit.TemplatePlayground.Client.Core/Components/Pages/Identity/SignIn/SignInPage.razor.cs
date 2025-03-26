@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Fido2NetLib;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.SignIn;
@@ -24,6 +25,7 @@ public partial class SignInPage
     public string? ErrorQueryString { get; set; }
 
 
+    [AutoInject] private IWebAuthnService webAuthnService = default!;
     [AutoInject] private ILocalHttpServer localHttpServer = default!;
     [AutoInject] private ITelemetryContext telemetryContext = default!;
     [AutoInject] private IIdentityController identityController = default!;
@@ -36,6 +38,7 @@ public partial class SignInPage
     private SignInPanelTab currentSignInPanelTab;
     private readonly SignInRequestDto model = new();
     private AppDataAnnotationsValidator? validatorRef;
+    private AuthenticatorAssertionRawResponse? webAuthnAssertion;
     private Action unsubscribeIdentityHeaderBackLinkClicked = default!;
 
 
@@ -81,6 +84,7 @@ public partial class SignInPage
 
             if (source == TfaPayload)
             {
+                webAuthnAssertion = null;
                 requiresTwoFactor = false;
                 model.TwoFactorCode = null;
             }
@@ -91,22 +95,6 @@ public partial class SignInPage
         });
     }
 
-
-    private async Task SocialSignIn(string provider)
-    {
-        try
-        {
-            var port = localHttpServer.ShouldUseForSocialSignIn() ? localHttpServer.Start(CurrentCancellationToken) : -1;
-
-            var redirectUrl = await identityController.GetSocialSignInUri(provider, ReturnUrlQueryString, port is -1 ? null : port, CurrentCancellationToken);
-
-            await externalNavigationService.NavigateToAsync(redirectUrl);
-        }
-        catch (KnownException e)
-        {
-            SnackBarService.Error(e.Message);
-        }
-    }
 
     private async Task DoSignIn()
     {
@@ -119,21 +107,32 @@ public partial class SignInPage
         {
             if (requiresTwoFactor && string.IsNullOrWhiteSpace(model.TwoFactorCode)) return;
 
-            CleanModel();
-
-            if (validatorRef?.EditContext.Validate() is false) return;
-
-            model.DeviceInfo = telemetryContext.Platform;
-
-            requiresTwoFactor = await AuthManager.SignIn(model, CurrentCancellationToken);
-
-            if (requiresTwoFactor is false)
+            if (webAuthnAssertion is null)
             {
-                NavigationManager.NavigateTo(ReturnUrlQueryString ?? Urls.HomePage, replace: true);
+                CleanModel();
+
+                if (validatorRef?.EditContext.Validate() is false) return;
+
+                model.DeviceInfo = telemetryContext.Platform;
+
+                requiresTwoFactor = await AuthManager.SignIn(model, CurrentCancellationToken);
+
+                if (requiresTwoFactor)
+                {
+                    PubSubService.Publish(ClientPubSubMessages.UPDATE_IDENTITY_HEADER_BACK_LINK, TfaPayload);
+                }
+                else
+                {
+                    NavigationManager.NavigateTo(ReturnUrlQueryString ?? Urls.HomePage, replace: true);
+                }
             }
             else
             {
-                PubSubService.Publish(ClientPubSubMessages.UPDATE_IDENTITY_HEADER_BACK_LINK, TfaPayload);
+                var response = await identityController
+                    .WithQueryIf(AppPlatform.IsBlazorHybrid, "origin", localHttpServer.Origin)
+                    .VerifyWebAuthAndSignIn(new() { ClientResponse = webAuthnAssertion, TfaCode = model.TwoFactorCode }, CurrentCancellationToken);
+                await AuthManager.StoreTokens(response!, model.RememberMe);
+                NavigationManager.NavigateTo(ReturnUrlQueryString ?? Urls.HomePage, replace: true);
             }
         }
         catch (KnownException e)
@@ -148,6 +147,85 @@ public partial class SignInPage
         }
     }
 
+    private async Task HandleOnSocialSignIn(string provider)
+    {
+        try
+        {
+            var port = localHttpServer.ShouldUseForSocialSignIn() ? localHttpServer.EnsureStarted() : -1;
+
+            var redirectUrl = await identityController.GetSocialSignInUri(provider, ReturnUrlQueryString, port is -1 ? null : port, CurrentCancellationToken);
+
+            await externalNavigationService.NavigateToAsync(redirectUrl);
+        }
+        catch (KnownException e)
+        {
+            SnackBarService.Error(e.Message);
+        }
+    }
+
+    private async Task HandleOnPasswordlessSignIn()
+    {
+        if (isWaiting) return;
+        isWaiting = true;
+
+        try
+        {
+            var userIds = await webAuthnService.GetWebAuthnConfiguredUserIds();
+
+            if (AppPlatform.IsBlazorHybrid)
+            {
+                localHttpServer.EnsureStarted();
+            }
+
+            var options = await identityController
+                .WithQueryIf(AppPlatform.IsBlazorHybrid, "origin", localHttpServer.Origin)
+                .GetWebAuthnAssertionOptions(new() { UserIds = userIds }, CurrentCancellationToken);
+
+            try
+            {
+                webAuthnAssertion = await webAuthnService.GetWebAuthnCredential(options, CurrentCancellationToken);
+            }
+            catch (Exception ex)
+            {
+                // we can safely handle the exception thrown here since it mostly because of a timeout or user cancelling the native ui.
+                ExceptionHandler.Handle(ex, AppEnvironment.IsDev() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);
+                return;
+            }
+
+            var response = await identityController
+                .WithQueryIf(AppPlatform.IsBlazorHybrid, "origin", localHttpServer.Origin)
+                .VerifyWebAuthAndSignIn(new() { ClientResponse = webAuthnAssertion }, CurrentCancellationToken);
+
+            requiresTwoFactor = response.RequiresTwoFactor;
+
+            if (requiresTwoFactor)
+            {
+                PubSubService.Publish(ClientPubSubMessages.UPDATE_IDENTITY_HEADER_BACK_LINK, TfaPayload);
+            }
+            else
+            {
+                await AuthManager.StoreTokens(response!, model.RememberMe);
+                NavigationManager.NavigateTo(ReturnUrlQueryString ?? Urls.HomePage, replace: true);
+            }
+        }
+        catch (KnownException e)
+        {
+            webAuthnAssertion = null;
+            SnackBarService.Error(e.Message);
+        }
+        finally
+        {
+            isWaiting = false;
+        }
+    }
+
+    private void HandleOnSignInPanelTabChange(SignInPanelTab tab)
+    {
+        currentSignInPanelTab = tab;
+    }
+
+    private Task HandleOnSendOtp() => SendOtp(false);
+    private Task HandleOnResendOtp() => SendOtp(true);
     private async Task SendOtp(bool resend)
     {
         try
@@ -184,16 +262,23 @@ public partial class SignInPage
             SnackBarService.Error(e.Message);
         }
     }
-    private Task ResendOtp() => SendOtp(true);
-    private Task SendOtp() => SendOtp(false);
 
-    private async Task SendTfaToken()
+    private async Task HandleOnSendTfaToken()
     {
         try
         {
-            CleanModel();
+            if (webAuthnAssertion is null)
+            {
+                CleanModel();
 
-            await identityController.SendTwoFactorToken(model, CurrentCancellationToken);
+                await identityController.SendTwoFactorToken(model, CurrentCancellationToken);
+            }
+            else
+            {
+                await identityController
+                    .WithQueryIf(AppPlatform.IsBlazorHybrid, "origin", localHttpServer.Origin)
+                    .VerifyWebAuthAndSendTwoFactorToken(webAuthnAssertion, CurrentCancellationToken);
+            }
 
             SnackBarService.Success(Localizer[nameof(AppStrings.TfaTokenSentMessage)]);
         }
@@ -201,11 +286,6 @@ public partial class SignInPage
         {
             SnackBarService.Error(e.Message);
         }
-    }
-
-    private void HandleOnSignInPanelTabChange(SignInPanelTab tab)
-    {
-        currentSignInPanelTab = tab;
     }
 
     private void CleanModel()

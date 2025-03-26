@@ -11,7 +11,7 @@ public partial class ProductConfiguration : IEntityTypeConfiguration<Product>
 
 
         var defaultConcurrencyStamp = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-        DateTimeOffset baseDate = DateTimeOffset.Parse("2025-02-24", styles: DateTimeStyles.AssumeUniversal);
+        DateTimeOffset baseDate = DateTimeOffset.Parse("2025-03-26", styles: DateTimeStyles.AssumeUniversal);
 
         const int productsCountInEachForLoop = 23;
 

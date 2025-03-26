@@ -24,9 +24,9 @@
         }
     },
     "forwardPorts": [
-        4104,
+        4296,
         5000,
-        5206
+        5148
     ],
     "features": {
         "ghcr.io/devcontainers/features/node": {},

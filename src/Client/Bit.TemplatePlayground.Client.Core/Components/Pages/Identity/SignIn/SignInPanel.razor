@@ -10,7 +10,7 @@
             </BitText>
         </BitStack>
 
-        <SocialRow OnClick="OnSocialSignIn" />
+        <SocialRow IsWaiting="IsWaiting" OnClick="OnSocialSignIn" />
 
         <BitSeparator Border="BitColorKind.Tertiary" Background="BitColorKind.Secondary" Class="lg-sep">@Localizer[AppStrings.Or]</BitSeparator>
         <BitSeparator Border="BitColorKind.Secondary" Background="BitColorKind.Primary" Class="sm-sep">@Localizer[AppStrings.Or]</BitSeparator>
@@ -62,7 +62,20 @@
                 </BitStack>
             </BitStack>
 
-            <BitCheckbox @bind-Value="Model.RememberMe" Label="@Localizer[nameof(AppStrings.RememberMe)]" />
+            <BitStack Horizontal Alignment="BitAlignment.Center">
+                <BitCheckbox @bind-Value="Model.RememberMe" Label="@Localizer[nameof(AppStrings.RememberMe)]" />
+                <BitSpacer />
+                @if (isWebAuthnAvailable)
+                {
+                    <BitButton IconOnly
+                               Size="BitSize.Large"
+                               Variant="BitVariant.Text"
+                               Color="BitColor.Tertiary"
+                               OnClick="OnPasswordlessSignIn"
+                               ButtonType="BitButtonType.Button"
+                               IconName="@BitIconName.Fingerprint" />
+                }
+            </BitStack>
 
             <BitButton IsLoading="IsWaiting" ButtonType="BitButtonType.Submit">
                 @Localizer[nameof(AppStrings.SignIn)]
