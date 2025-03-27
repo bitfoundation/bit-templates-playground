@@ -42,8 +42,8 @@
         <EnableLLVM>true</EnableLLVM>
         <RuntimeIdentifiers Condition="'$(AndroidPackageFormat)' == 'apk'">android-arm64</RuntimeIdentifiers>
         <MauiUseDefaultAotProfile Condition="Exists('custom.aprof')">false</MauiUseDefaultAotProfile>
-        <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
-    </PropertyGroup>
+                <AndroidStripILAfterAOT>true</AndroidStripILAfterAOT>
+            </PropertyGroup>
 
     <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Environment)' == 'Development'">
         <CodesignEntitlements>Platforms/iOS/Entitlements.Development.plist</CodesignEntitlements>
@@ -53,9 +53,9 @@
     <PropertyGroup Condition="$(TargetFramework.Contains('-ios')) and '$(Environment)' != 'Development'">
         <CodesignEntitlements>Platforms/iOS/Entitlements.Production.plist</CodesignEntitlements>
         <EnableSGenConc>True</EnableSGenConc>
-        <!-- https://learn.microsoft.com/en-us/dotnet/maui/macios/interpreter -->
+                <!-- https://learn.microsoft.com/en-us/dotnet/maui/macios/interpreter -->
         <MtouchInterpreter>-all</MtouchInterpreter>
-    </PropertyGroup>
+            </PropertyGroup>
 
     <!-- Build Properties must be defined within these property groups to ensure successful publishing
        to the Mac App Store. See: https://aka.ms/maui-publish-app-store#define-build-properties-in-your-project-file -->
@@ -66,8 +66,8 @@
     <PropertyGroup Condition="$(TargetFramework.Contains('-maccatalyst')) and '$(Environment)' != 'Development'">
         <CodesignEntitlements>Platforms/MacCatalyst/Entitlements.Production.plist</CodesignEntitlements>
         <UseHardenedRuntime>true</UseHardenedRuntime>
-        <MtouchInterpreter>-all</MtouchInterpreter>
-    </PropertyGroup>
+                <MtouchInterpreter>-all</MtouchInterpreter>
+            </PropertyGroup>
 
     <ItemGroup Condition="$(TargetFramework.Contains('-android'))">
         <AndroidResource Include="Platforms\Android\Resources\**\styles.xml" />
@@ -86,7 +86,7 @@
         <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData.Core.Ktx" />
         <PackageReference Include="Xamarin.GooglePlayServices.Basement" />
         <PackageReference Include="Xamarin.Google.Android.Play.Review.Ktx" />
-        <!-- Run the following commands to create custom.aprof file which improves the Android app performance -->
+                <!-- Run the following commands to create custom.aprof file which improves the Android app performance -->
         <!-- dotnet add package Mono.AotProfiler.Android -->
         <!-- dotnet build -t:BuildAndStartAotProfiling -f net9.0-android -p:UseInterpreter=false -->
         <!-- dotnet build -t:FinishAotProfiling -f net9.0-android -->
@@ -136,6 +136,12 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Content Remove="wwwroot\external-js-runner.html" />
+        <EmbeddedResource Include="wwwroot\external-js-runner.html" />
+        <EmbeddedResource Include="..\Bit.TemplatePlayground.Client.Core\wwwroot\scripts\app.js" Link="wwwroot\scripts\app.js" />
+    </ItemGroup>
+
+    <ItemGroup>
         <ProjectReference Include="..\Bit.TemplatePlayground.Client.Core\Bit.TemplatePlayground.Client.Core.csproj" />
     </ItemGroup>
 
@@ -146,8 +152,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
         <PackageReference Include="Microsoft.Extensions.Logging.EventLog" />
         <PackageReference Include="Microsoft.Extensions.Logging.EventSource" />
-        <PackageReference Include="Newtonsoft.Json" />
-    </ItemGroup>
+                <PackageReference Include="Newtonsoft.Json" />
+            </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Oscore.Maui.AppStoreInfo" />

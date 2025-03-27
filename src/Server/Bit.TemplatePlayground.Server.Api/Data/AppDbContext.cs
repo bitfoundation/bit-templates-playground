@@ -1,21 +1,21 @@
 ﻿using Bit.TemplatePlayground.Server.Api.Models.Products;
 using Bit.TemplatePlayground.Server.Api.Models.Categories;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Data.Configurations;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using System.Security.Cryptography;
 
 namespace Bit.TemplatePlayground.Server.Api.Data;
 
 public partial class AppDbContext(DbContextOptions<AppDbContext> options)
-    : IdentityDbContext<User, Role, Guid>(options), IDataProtectionKeyContext
+    : IdentityDbContext<User, Role, Guid>(options)
 {
-    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
-
     public DbSet<UserSession> UserSessions { get; set; } = default!;
 
     public DbSet<Category> Categories { get; set; } = default!;
     public DbSet<Product> Products { get; set; } = default!;
+
+    public DbSet<WebAuthnCredential> WebAuthnCredential { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,12 +26,14 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
 
         ConfigureIdentityTableNames(modelBuilder);
 
+        ConfigureConcurrencyStamp(modelBuilder);
     }
 
     public override int SaveChanges(bool acceptAllChangesOnSuccess)
     {
         try
         {
+            SetConcurrencyStamp();
 
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
@@ -45,6 +47,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         try
         {
+            SetConcurrencyStamp();
 
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
@@ -54,6 +57,19 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         }
     }
 
+    private void SetConcurrencyStamp()
+    {
+        ChangeTracker.DetectChanges();
+
+        foreach (var entityEntry in ChangeTracker.Entries().Where(e => e.State is EntityState.Modified or EntityState.Deleted))
+        {
+            if (entityEntry.CurrentValues.TryGetValue<object>("ConcurrencyStamp", out var currentConcurrencyStamp) is false
+                || currentConcurrencyStamp is not byte[])
+                continue;
+
+                entityEntry.CurrentValues.SetValues(new Dictionary<string, object> { { "ConcurrencyStamp", RandomNumberGenerator.GetBytes(8) } });
+        }
+    }
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
@@ -90,4 +106,17 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
             .ToTable("UserClaims");
     }
 
+    private void ConfigureConcurrencyStamp(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties()
+                .Where(p => p.Name is "ConcurrencyStamp" && p.PropertyInfo?.PropertyType == typeof(byte[])))
+            {
+                var builder = new PropertyBuilder(property);
+
+                    builder.IsConcurrencyToken();
+            }
+        }
+    }
 }

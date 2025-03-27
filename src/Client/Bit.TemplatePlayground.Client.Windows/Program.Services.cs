@@ -11,6 +11,7 @@ public static partial class Program
         // Services being registered here can get injected in windows project only.
         services.AddClientCoreProjectServices(configuration);
 
+        services.AddScoped<IWebAuthnService, WindowsWebAuthnService>();
         services.AddScoped<IExceptionHandler, WindowsExceptionHandler>();
         services.AddScoped<IBitDeviceCoordinator, WindowsDeviceCoordinator>();
 
@@ -19,7 +20,6 @@ public static partial class Program
             var handler = sp.GetRequiredService<HttpMessageHandler>();
             var httpClient = new HttpClient(handler)
             {
-                DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
                 BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
             };
             if (sp.GetRequiredService<ClientWindowsSettings>().WebAppUrl is Uri origin)

@@ -15,6 +15,7 @@ public static partial class MauiProgram
 
         services.AddTransient<MainPage>();
 
+        services.AddScoped<IWebAuthnService, MauiWebAuthnService>();
         services.AddScoped<IExceptionHandler, MauiExceptionHandler>();
         services.AddScoped<IBitDeviceCoordinator, MauiDeviceCoordinator>();
         services.AddScoped<IExternalNavigationService, MauiExternalNavigationService>();
@@ -24,7 +25,6 @@ public static partial class MauiProgram
             var handler = sp.GetRequiredService<HttpMessageHandler>();
             var httpClient = new HttpClient(handler)
             {
-                DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrLower,
                 BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
             };
             if (sp.GetRequiredService<ClientMauiSettings>().WebAppUrl is Uri origin)
@@ -37,7 +37,7 @@ public static partial class MauiProgram
         {
             EnableMultipleHttp2Connections = true,
             EnableMultipleHttp3Connections = true,
-                        PooledConnectionLifetime = TimeSpan.FromMinutes(15),
+            PooledConnectionLifetime = TimeSpan.FromMinutes(15),
             AutomaticDecompression = System.Net.DecompressionMethods.All,
             SslOptions = new()
             {

@@ -2,6 +2,9 @@
 
 public partial class MainLayout
 {
+    private List<BitNavItem> navPanelAuthenticatedItems = [];
+    private List<BitNavItem> navPanelUnAuthenticatedItems = [];
+
     [AutoInject] protected IStringLocalizer<AppStrings> localizer = default!;
 
     private void InitializeNavPanelItems()
@@ -53,10 +56,11 @@ public partial class MainLayout
 
         BitNavItem aboutNavItem = new()
         {
-            Text = localizer[nameof(AppStrings.AboutTitle)],
+            Text = localizer[nameof(AppStrings.About)],
             IconName = BitIconName.Info,
             Url = Urls.AboutPage,
         };
+
 
         navPanelAuthenticatedItems.Add(aboutNavItem);
         navPanelUnAuthenticatedItems.Add(aboutNavItem);

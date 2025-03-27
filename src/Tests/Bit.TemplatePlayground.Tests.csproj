@@ -9,8 +9,8 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
         </PackageReference>
         <PackageReference Include="FakeItEasy" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
@@ -28,6 +28,7 @@
         <Using Include="System.Net.Http.Headers" />
         <Using Include="System.Net.Http.Json" />
         <Using Include="Bit.TemplatePlayground.Shared" />
+        <Using Include="Bit.TemplatePlayground.Server.Web" />
         <Using Include="Bit.TemplatePlayground.Shared.Enums" />
         <Using Include="Microsoft.AspNetCore.Http" />
         <Using Include="Microsoft.AspNetCore.Components" />
@@ -35,8 +36,8 @@
         <Using Include="Microsoft.Playwright" />
         <Using Include="Microsoft.Playwright.MSTest" />
         <Using Include="FakeItEasy" />
-        <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
-    </ItemGroup>
+                <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
+            </ItemGroup>
 
-
+    
 </Project>

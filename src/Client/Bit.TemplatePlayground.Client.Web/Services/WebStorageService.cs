@@ -2,7 +2,7 @@
 
 namespace Bit.TemplatePlayground.Client.Web.Services;
 
-public partial class BrowserStorageService : IStorageService
+public partial class WebStorageService : IStorageService
 {
     [AutoInject] private SessionStorage sessionStorage;
     [AutoInject] private LocalStorage localStorage;
@@ -43,5 +43,11 @@ public partial class BrowserStorageService : IStorageService
     public async ValueTask<bool> IsPersistent(string key)
     {
         return (await localStorage.GetItem(key)) is not null;
+    }
+
+    public async ValueTask Clear()
+    {
+        await localStorage.Clear();
+        await sessionStorage.Clear();
     }
 }

@@ -1,7 +1,7 @@
 ﻿using EmbedIO;
 using System.Net;
-using System.Net.Sockets;
 using EmbedIO.Actions;
+using System.Net.Sockets;
 using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Windows.Services;
@@ -14,11 +14,19 @@ public partial class WindowsLocalHttpServer : ILocalHttpServer
     [AutoInject] private IExceptionHandler exceptionHandler;
     [AutoInject] private AbsoluteServerAddressProvider absoluteServerAddress;
 
+    private int port = -1;
     private WebServer? localHttpServer;
 
-    public int Start(CancellationToken cancellationToken)
+    public int Port => port;
+
+    public string Origin => $"http://localhost:{port}";
+
+    public int EnsureStarted()
     {
-        var port = GetAvailableTcpPort();
+        if (port != -1)
+            return port;
+
+        port = GetAvailableTcpPort();
 
         localHttpServer = new WebServer(o => o
             .WithUrlPrefix($"http://localhost:{port}")
@@ -45,7 +53,37 @@ public partial class WindowsLocalHttpServer : ILocalHttpServer
                 {
                     exceptionHandler.Handle(exp);
                 }
-            }));
+            }))
+            .WithModule(new ActionModule("/external-js-runner.html", HttpVerbs.Get, async ctx =>
+            {
+                try
+                {
+                    await using var fileStream = File.OpenRead("wwwroot/external-js-runner.html");
+                    await fileStream.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
+                }
+                catch (Exception exp)
+                {
+                    exceptionHandler.Handle(exp);
+                }
+            }))
+            .WithModule(new ActionModule("/app.js", HttpVerbs.Get, async ctx =>
+            {
+                try
+                {
+                    var filePath = Path.Combine(AppContext.BaseDirectory, @"wwwroot\_content\Bit.TemplatePlayground.Client.Core\scripts\app.js");
+                    if (File.Exists(filePath) is false)
+                    {
+                        filePath = Path.Combine(AppContext.BaseDirectory, @"..\..\..\..", @"Bit.TemplatePlayground.Client.Core\wwwroot\scripts\app.js");
+                    }
+                    await using var fileStream = File.OpenRead(filePath);
+                    await fileStream.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
+                }
+                catch (Exception exp)
+                {
+                    exceptionHandler.Handle(exp);
+                }
+            }))
+            .WithModule(new WindowsExternalJsRunner());
 
         localHttpServer.HandleHttpException(async (context, exception) =>
         {
@@ -56,14 +94,14 @@ public partial class WindowsLocalHttpServer : ILocalHttpServer
             });
         });
 
-        _ = localHttpServer.RunAsync(cancellationToken)
+        _ = localHttpServer.RunAsync()
             .ContinueWith(task =>
             {
                 if (task.Exception is not null)
                 {
                     exceptionHandler.Handle(task.Exception);
                 }
-            }, cancellationToken);
+            });
 
         return port;
     }
@@ -73,6 +111,11 @@ public partial class WindowsLocalHttpServer : ILocalHttpServer
     /// </summary>
 
     public bool ShouldUseForSocialSignIn() => true;
+
+    public async ValueTask DisposeAsync()
+    {
+        localHttpServer?.Dispose();
+    }
 
     private int GetAvailableTcpPort()
     {
