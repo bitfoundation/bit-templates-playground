@@ -1,15 +1,15 @@
 ﻿<Project>
     <ItemGroup>
         <!-- https://learn.microsoft.com/en-us/nuget/consume-packages/central-package-management -->
-        <PackageVersion Include="Bit.Butil" Version="9.6.0" />
-        <PackageVersion Include="Bit.BlazorUI" Version="9.6.0" />
-        <PackageVersion Include="Bit.BlazorES2019" Version="9.6.0" />
-        <PackageVersion Include="Bit.BlazorUI.Icons" Version="9.6.0" />
-        <PackageVersion Include="Bit.BlazorUI.Assets" Version="9.6.0" />
-        <PackageVersion Include="Bit.BlazorUI.Extras" Version="9.6.0" />
-        <PackageVersion Include="Bit.Bswup" Version="9.6.0" />
-        <PackageVersion Include="Bit.CodeAnalyzers" Version="9.6.0" />
-        <PackageVersion Include="Bit.SourceGenerators" Version="9.6.0" />
+        <PackageVersion Include="Bit.Butil" Version="9.6.1" />
+        <PackageVersion Include="Bit.BlazorUI" Version="9.6.1" />
+        <PackageVersion Include="Bit.BlazorES2019" Version="9.6.1" />
+        <PackageVersion Include="Bit.BlazorUI.Icons" Version="9.6.1" />
+        <PackageVersion Include="Bit.BlazorUI.Assets" Version="9.6.1" />
+        <PackageVersion Include="Bit.BlazorUI.Extras" Version="9.6.1" />
+        <PackageVersion Include="Bit.Bswup" Version="9.6.1" />
+        <PackageVersion Include="Bit.CodeAnalyzers" Version="9.6.1" />
+        <PackageVersion Include="Bit.SourceGenerators" Version="9.6.1" />
         <PackageVersion Include="Fido2.AspNet" Version="4.0.0-beta.16" />
         <PackageVersion Include="Fido2.Models" Version="4.0.0-beta.16" />
         <PackageVersion Include="libphonenumber-csharp" Version="9.0.1" />

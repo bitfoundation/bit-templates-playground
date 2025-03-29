@@ -395,13 +395,16 @@ public partial class UserController : AppControllerBase, IUserController
             sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!, cancellationToken));
         }
 
-        // Checkout AppHub's comments for more info.
-        var userSessionIdsExceptCurrentUserSessionId = await DbContext.UserSessions
-            .Where(us => us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
-            .Select(us => us.SignalRConnectionId!)
-            .ToArrayAsync(cancellationToken);
-        sendMessagesTasks.Add(appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.SHOW_MESSAGE, message, cancellationToken));
+        if (user.TwoFactorEnabled || (user.EmailConfirmed is false && user.PhoneNumberConfirmed is false /* Users signed-in through social sign-in */))
+        {
+            // Checkout AppHub's comments for more info.
+            var userSessionIdsExceptCurrentUserSessionId = await DbContext.UserSessions
+                .Where(us => us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
+                .Select(us => us.SignalRConnectionId!)
+                .ToArrayAsync(cancellationToken);
+            sendMessagesTasks.Add(appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.SHOW_MESSAGE, message, cancellationToken));
 
+        }
 
         await Task.WhenAll(sendMessagesTasks);
     }
