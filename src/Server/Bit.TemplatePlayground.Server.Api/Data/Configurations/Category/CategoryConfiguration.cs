@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Models.Categories;
+using Bit.TemplatePlayground.Server.Api.Models.Categories;
 
 namespace Bit.TemplatePlayground.Server.Api.Data.Configurations.Identity;
 

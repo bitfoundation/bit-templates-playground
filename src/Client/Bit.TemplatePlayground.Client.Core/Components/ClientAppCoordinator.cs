@@ -14,20 +14,20 @@ public partial class ClientAppCoordinator : AppComponentBase
 {
     [AutoInject] private Notification notification = default!;
     [AutoInject] private HubConnection hubConnection = default!;
-    [AutoInject] private Navigator navigator = default!;
     [AutoInject] private UserAgent userAgent = default!;
     [AutoInject] private IJSRuntime jsRuntime = default!;
     [AutoInject] private IStorageService storageService = default!;
     [AutoInject] private ILogger<AuthManager> authLogger = default!;
     [AutoInject] private ILogger<Navigator> navigatorLogger = default!;
     [AutoInject] private ILogger<ClientAppCoordinator> logger = default!;
-    [AutoInject] private CultureInfoManager cultureInfoManager = default!;
     [AutoInject] private IBitDeviceCoordinator bitDeviceCoordinator = default!;
 
     private Action? unsubscribe;
 
     protected override async Task OnInitAsync()
     {
+        await base.OnInitAsync();
+
         if (AppPlatform.IsBlazorHybrid)
         {
             await ConfigureUISetup();
@@ -42,14 +42,22 @@ public partial class ClientAppCoordinator : AppComponentBase
                 var forceLoad = uriValue.Contains("forceLoad=true", StringComparison.InvariantCultureIgnoreCase);
                 NavigationManager.NavigateTo(uriValue.Replace("replace=true", "", StringComparison.InvariantCultureIgnoreCase).Replace("forceLoad=true", "", StringComparison.InvariantCultureIgnoreCase).TrimEnd('&'), forceLoad, replace);
             });
+            if (AppPlatform.IsBlazorHybrid is false)
+            {
+                try
+                {
+                    BitButil.UseFastInvoke(); // Ensures that `TelemetryContext.Platform` is available to components using this value in their `OnInitAsync` method, such as `SignInPage.razor.cs`.
+                    var userAgentData = await userAgent.Extract();
+                    TelemetryContext.Platform = string.Join(' ', [userAgentData.Manufacturer, userAgentData.OsName, userAgentData.Name, "browser"]);
+                }
+                finally
+                {
+                    BitButil.UseNormalInvoke();
+                }
+            }
             TelemetryContext.TimeZone = await jsRuntime.GetTimeZone();
             TelemetryContext.Culture = CultureInfo.CurrentCulture.Name;
             TelemetryContext.PageUrl = HttpUtility.UrlDecode(NavigationManager.Uri);
-            if (AppPlatform.IsBlazorHybrid is false)
-            {
-                var userAgentData = await userAgent.Extract();
-                TelemetryContext.Platform = string.Join(' ', [userAgentData.Manufacturer, userAgentData.OsName, userAgentData.Name, "browser"]);
-            }
 
 
             NavigationManager.LocationChanged += NavigationManager_LocationChanged;
@@ -57,8 +65,6 @@ public partial class ClientAppCoordinator : AppComponentBase
             SubscribeToSignalREventsMessages();
             await PropagateAuthState(firstRun: true, AuthenticationStateTask);
         }
-
-        await base.OnInitAsync();
     }
 
     private void NavigationManager_LocationChanged(object? sender, LocationChangedEventArgs e)
@@ -148,6 +154,11 @@ public partial class ClientAppCoordinator : AppComponentBase
             PubSubService.Publish(message, payload);
         }));
 
+        signalROnDisposables.Add(hubConnection.On<AppProblemDetails>(SignalREvents.EXCEPTION_THROWN, async (appProblemDetails) =>
+        {
+            ExceptionHandler.Handle(appProblemDetails, displayKind: ExceptionDisplayKind.NonInterrupting);
+        }));
+
         hubConnection.Closed += HubConnectionStateChange;
         hubConnection.Reconnected += HubConnectionConnected;
         hubConnection.Reconnecting += HubConnectionStateChange;
@@ -195,9 +206,9 @@ public partial class ClientAppCoordinator : AppComponentBase
 
     private async Task ConfigureUISetup()
     {
-        if (CultureInfoManager.MultilingualEnabled)
+        if (CultureInfoManager.InvariantGlobalization is false)
         {
-            cultureInfoManager.SetCurrentCulture(new Uri(NavigationManager.Uri).GetCulture() ??  // 1- Culture query string OR Route data request culture
+            CultureInfoManager.SetCurrentCulture(new Uri(NavigationManager.Uri).GetCulture() ??  // 1- Culture query string OR Route data request culture
                                                  await storageService.GetItem("Culture") ?? // 2- User settings
                                                  CultureInfo.CurrentUICulture.Name); // 3- OS settings
         }
@@ -206,6 +217,8 @@ public partial class ClientAppCoordinator : AppComponentBase
     private List<IDisposable> signalROnDisposables = [];
     protected override async ValueTask DisposeAsync(bool disposing)
     {
+        await base.DisposeAsync(disposing);
+
         unsubscribe?.Invoke();
 
         NavigationManager.LocationChanged -= NavigationManager_LocationChanged;
@@ -215,7 +228,5 @@ public partial class ClientAppCoordinator : AppComponentBase
         hubConnection.Reconnected -= HubConnectionConnected;
         hubConnection.Reconnecting -= HubConnectionStateChange;
         signalROnDisposables.ForEach(d => d.Dispose());
-
-        await base.DisposeAsync(disposing);
     }
 }

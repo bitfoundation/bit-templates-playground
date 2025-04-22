@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared;
+using Bit.TemplatePlayground.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 

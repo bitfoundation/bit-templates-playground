@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 

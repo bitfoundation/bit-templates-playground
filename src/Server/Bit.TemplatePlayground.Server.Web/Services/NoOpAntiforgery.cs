@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Antiforgery;
 
 namespace Bit.TemplatePlayground.Server.Web.Services;
 

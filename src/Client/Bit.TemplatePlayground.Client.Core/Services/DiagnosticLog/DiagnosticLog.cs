@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
+namespace Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
 public class DiagnosticLog
 {

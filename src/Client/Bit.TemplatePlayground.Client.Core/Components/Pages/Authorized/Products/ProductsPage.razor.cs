@@ -1,18 +1,13 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers.Products;
-using Bit.TemplatePlayground.Shared.Dtos.Products;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Products;
+using Bit.TemplatePlayground.Shared.Controllers.Products;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Products;
 
 public partial class ProductsPage
 {
-    protected override string? Title => Localizer[nameof(AppStrings.Products)];
-    protected override string? Subtitle => string.Empty;
-
-
-    [AutoInject] IProductController productController = default!;
-
-
     private bool isLoading;
+    private bool isSmallScreen;
+    private string? searchQuery;
     private bool isDeleteDialogOpen;
     private ProductDto? deletingProduct;
     private string productNameFilter = string.Empty;
@@ -23,7 +18,10 @@ public partial class ProductsPage
     private BitDataGridPaginationState pagination = new() { ItemsPerPage = 10 };
 
 
-    string ProductNameFilter
+    [AutoInject] IProductController productController = default!;
+
+
+    private string ProductNameFilter
     {
         get => productNameFilter;
         set
@@ -33,7 +31,7 @@ public partial class ProductsPage
         }
     }
 
-    string CategoryNameFilter
+    private string CategoryNameFilter
     {
         get => categoryNameFilter;
         set
@@ -46,9 +44,9 @@ public partial class ProductsPage
 
     protected override async Task OnInitAsync()
     {
-        PrepareGridDataProvider();
-
         await base.OnInitAsync();
+
+        PrepareGridDataProvider();
     }
 
     private void PrepareGridDataProvider()
@@ -76,7 +74,10 @@ public partial class ProductsPage
                     odataQ.AndFilter = $"contains(tolower({nameof(ProductDto.CategoryName)}),'{CategoryNameFilter.ToLower()}')";
                 }
 
-                var data = await productController.WithQuery(odataQ.ToString()).GetProducts(req.CancellationToken);
+                var queriedRequest = productController.WithQuery(odataQ.ToString());
+                var data = await (string.IsNullOrWhiteSpace(searchQuery)
+                                    ? queriedRequest.GetProducts(req.CancellationToken)
+                                    : queriedRequest.GetProductsBySearchQuery(searchQuery, req.CancellationToken));
 
                 return BitDataGridItemsProviderResult.From(data!.Items!, (int)data!.TotalCount);
             }
@@ -123,6 +124,12 @@ public partial class ProductsPage
         {
             deletingProduct = null;
         }
+    }
+
+    private async Task HandleOnSearch(string value)
+    {
+        searchQuery = value;
+        await RefreshData();
     }
 }
 

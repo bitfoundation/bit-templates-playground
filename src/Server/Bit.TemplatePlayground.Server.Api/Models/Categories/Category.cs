@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Models.Products;
+using Bit.TemplatePlayground.Server.Api.Models.Products;
 
 namespace Bit.TemplatePlayground.Server.Api.Models.Categories;
 

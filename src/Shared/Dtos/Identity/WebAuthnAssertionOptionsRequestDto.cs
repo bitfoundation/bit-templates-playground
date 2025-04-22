@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Dtos.Identity;
+namespace Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 public partial class WebAuthnAssertionOptionsRequestDto
 {

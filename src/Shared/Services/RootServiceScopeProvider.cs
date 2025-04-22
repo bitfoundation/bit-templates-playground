@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Services;
+namespace Bit.TemplatePlayground.Shared.Services;
 
 /// <summary>
 /// Creates async service scope from the `root` service scope.

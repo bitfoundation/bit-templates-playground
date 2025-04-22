@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <!-- +:cnd:noEmit -->
 <root>
     <!-- 
@@ -277,6 +277,12 @@
     <data name="ConcurrentUserSessionOnTheSameDevice" xml:space="preserve">
     <value>Please ensure you're not running multiple sessions of the app simultaneously on the same device or browser.</value>
   </data>
+    <data name="SystemPromptsTitle" xml:space="preserve">
+    <value>System prompts</value>
+  </data>
+    <data name="SystemPromptsSubTitle" xml:space="preserve">
+    <value>View the system prompts for chatbot here.</value>
+  </data>
     <data name="FullName" xml:space="preserve">
     <value>Full name</value>
   </data>
@@ -340,8 +346,8 @@
     <data name="ResetPasswordTokenSentMessage" xml:space="preserve">
     <value>The reset password token has been sent to your email address.</value>
   </data>
-    <data name="UserImageCouldNotBeFound" xml:space="preserve">
-    <value>User image could not be found</value>
+    <data name="ImageCouldNotBeFound" xml:space="preserve">
+    <value>Image could not be found</value>
   </data>
     <data name="Error" xml:space="preserve">
     <value>Error</value>
@@ -433,9 +439,6 @@
     <data name="ExpiredToken" xml:space="preserve">
     <value>Expired token.</value>
   </data>
-    <data name="TokenPlaceholder" xml:space="preserve">
-    <value>Enter token</value>
-  </data>
     <data name="SignInMessageInSignUp" xml:space="preserve">
     <value>Already have an account?</value>
   </data>
@@ -464,10 +467,7 @@
     <value>Enter email address</value>
   </data>
     <data name="EmailToken" xml:space="preserve">
-    <value>Email Token</value>
-  </data>
-    <data name="EmailTokenPlaceholder" xml:space="preserve">
-    <value>Enter email token</value>
+    <value>Code</value>
   </data>
     <data name="EmailTokenConfirmButtonText" xml:space="preserve">
     <value>Confirm Email Address</value>
@@ -476,7 +476,7 @@
     <value>Your email address ({0}) has been confirmed.</value>
   </data>
     <data name="EmailConfirmationSuccessMessage" xml:space="preserve">
-    <value>You can now login with your account.</value>
+    <value>You can now sign-in with your account.</value>
   </data>
     <data name="ConfirmPhoneHeaderText" xml:space="preserve">
     <value>Phone Number</value>
@@ -491,10 +491,7 @@
     <value>Enter phone number</value>
   </data>
     <data name="PhoneToken" xml:space="preserve">
-    <value>Phone Token</value>
-  </data>
-    <data name="PhoneTokenPlaceholder" xml:space="preserve">
-    <value>Enter phone token</value>
+    <value>Code</value>
   </data>
     <data name="PhoneTokenConfirmButtonText" xml:space="preserve">
     <value>Confirm Phone Number</value>
@@ -506,13 +503,13 @@
     <value>The confirmation token has been re-sent to your phone.</value>
   </data>
     <data name="ResendPhoneTokenButtonText" xml:space="preserve">
-    <value>Resend Phone Token</value>
+    <value>Resend code</value>
   </data>
     <data name="PhoneConfirmationSuccessTitle" xml:space="preserve">
     <value>Your phone number ({0}) has been confirmed.</value>
   </data>
     <data name="PhoneConfirmationSuccessMessage" xml:space="preserve">
-    <value>You can now login with your account.</value>
+    <value>You can now sign-in with your account.</value>
   </data>
     <data name="AccountTitle" xml:space="preserve">
     <value>Account</value>
@@ -620,7 +617,7 @@
     <value>Remove</value>
   </data>
     <data name="ResendEmailTokenButtonText" xml:space="preserve">
-    <value>Resend Email Token</value>
+    <value>Resend code</value>
   </data>
     <data name="ResetPasswordPageTitle" xml:space="preserve">
     <value>Reset password</value>
@@ -644,7 +641,7 @@
     <value>Your password has been reset.</value>
   </data>
     <data name="ResetPasswordSuccessBody" xml:space="preserve">
-    <value>You can now login with your password.</value>
+    <value>You can now sign-in with your password.</value>
   </data>
     <data name="ResetPasswordMessageInForgot" xml:space="preserve">
     <value>Already have a reset password token?</value>
@@ -806,7 +803,7 @@
     <value>The 2fa token provided by the request was invalid. A valid 2fa token is required to enable 2fa.</value>
   </data>
     <data name="TfaProtectedSignInSubtitle" xml:space="preserve">
-    <value>Your login is protected with an authenticator app.</value>
+    <value>Your sign-in is protected with an authenticator app.</value>
   </data>
     <data name="TfaEnterCodeInSignInMessage" xml:space="preserve">
     <value>Enter your authenticator code:</value>
@@ -854,7 +851,7 @@
     <value>You have no recovery codes left.</value>
   </data>
     <data name="TfaRecoveryCodesZeroLeftSubtitle" xml:space="preserve">
-    <value>You must generate a new set of recovery codes before you can log in with a recovery code.</value>
+    <value>You must generate a new set of recovery codes before you can sign in with a recovery code.</value>
   </data>
     <data name="TfaRecoveryCodesOneLeftTitle" xml:space="preserve">
     <value>You have 1 recovery code left.</value>
@@ -1015,9 +1012,6 @@
     <data name="NothingFound" xml:space="preserve">
     <value>Nothing found!</value>
   </data>
-    <data name="ProductImageCouldNotBeFound" xml:space="preserve">
-    <value>Product image could not be found</value>
-  </data>
     <data name="CategoryCouldNotBeFound" xml:space="preserve">
     <value>Category entity could not be found</value>
   </data>
@@ -1059,6 +1053,9 @@
   </data>
     <data name="AddProduct" xml:space="preserve">
     <value>Add product</value>
+  </data>
+    <data name="SearchProductsPlaceholder" xml:space="preserve">
+    <value>Search through product's name, category and description here...</value>
   </data>
     <data name="SelectCategory" xml:space="preserve">
     <value>Select category</value>
@@ -1139,7 +1136,7 @@
     <value>Default color picker</value>
   </data>
     <data name="EditProduct" xml:space="preserve">
-    <value>Edit product</value>
+    <value>Edit product {0}</value>
   </data>
     <data name="DuplicateProductName" xml:space="preserve">
     <value>Duplicate product name</value>
@@ -1166,18 +1163,48 @@
     <value>Passwordless</value>
   </data>
     <data name="PasswordlessTitle" xml:space="preserve">
-    <value>Passwordless login</value>
+    <value>Passwordless sign-in</value>
   </data>
     <data name="EnablePasswordless" xml:space="preserve">
-    <value>Enable passwordless login</value>
+    <value>Enable passwordless sign-in</value>
   </data>
     <data name="EnablePasswordlessSucsessMessage" xml:space="preserve">
-    <value>Passwordless login enabled successfully</value>
+    <value>Passwordless sign-in enabled successfully</value>
   </data>
     <data name="DisablePasswordless" xml:space="preserve">
-    <value>Disable passwordless login</value>
+    <value>Disable passwordless sign-in</value>
   </data>
     <data name="DisablePasswordlessSucsessMessage" xml:space="preserve">
-    <value>Passwordless login disabled successfully</value>
+    <value>Passwordless sign-in disabled successfully</value>
+  </data>
+    <data name="Clear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+    <data name="Send" xml:space="preserve">
+    <value>Send</value>
+  </data>
+    <data name="Canceled" xml:space="preserve">
+    <value>Canceled</value>
+  </data>
+    <data name="AiChatPanelTitle" xml:space="preserve">
+    <value>AI chat panel</value>
+  </data>
+    <data name="AiChatPanelInitialResponse" xml:space="preserve">
+    <value>This is the AI initial response to kick start the chat!</value>
+  </data>
+    <data name="AiChatPanelPrompt1" xml:space="preserve">
+    <value>How can I reset my password?</value>
+  </data>
+    <data name="AiChatPanelPrompt2" xml:space="preserve">
+    <value>How can I install the PWA version of the app?</value>
+  </data>
+    <data name="AiChatPanelPrompt3" xml:space="preserve">
+    <value>Where can I find reports about products?</value>
+  </data>
+    <data name="AiChatPanelPlaceholder" xml:space="preserve">
+    <value>Write a message...</value>
+  </data>
+    <data name="AiChatPanelCommunicatingPlaceholder" xml:space="preserve">
+    <value>Thinking...</value>
   </data>
 </root>

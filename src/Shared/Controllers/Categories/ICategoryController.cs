@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
+using Bit.TemplatePlayground.Shared.Dtos.Categories;
 
 namespace Bit.TemplatePlayground.Shared.Controllers.Categories;
 

@@ -1,4 +1,5 @@
 ﻿
+using Bit.TemplatePlayground.Server.Api.Services;
 using Microsoft.AspNetCore.Localization.Routing;
 
 namespace Bit.TemplatePlayground.Server.Api;
@@ -17,14 +18,14 @@ public static partial class Program
         configuration.Bind(settings);
         var forwardedHeadersOptions = settings.ForwardedHeaders;
 
-        if (forwardedHeadersOptions is not null 
+        if (forwardedHeadersOptions is not null
             && (app.Environment.IsDevelopment() || forwardedHeadersOptions.AllowedHosts.Any()))
         {
             // If the list is empty then all hosts are allowed. Failing to restrict this these values may allow an attacker to spoof links generated for reset password etc.
             app.UseForwardedHeaders(forwardedHeadersOptions);
         }
 
-        if (CultureInfoManager.MultilingualEnabled)
+        if (CultureInfoManager.InvariantGlobalization is false)
         {
             var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => sc.Culture).ToArray();
             var options = new RequestLocalizationOptions
@@ -44,7 +45,7 @@ public static partial class Program
         {
             app.UseHttpsRedirection();
             app.UseResponseCompression();
-            
+
             app.UseHsts();
             app.UseXContentTypeOptions();
             app.UseXXssProtection(options => options.EnabledWithBlockMode());
@@ -72,6 +73,12 @@ public static partial class Program
         app.UseSwaggerUI(options =>
         {
             options.InjectJavascript($"/scripts/swagger-utils.js?v={Environment.TickCount64}");
+        });
+
+        app.UseHangfireDashboard(options: new()
+        {
+            DarkModeEnabled = true,
+            Authorization = [new HangfireDashboardAuthorizationFilter()]
         });
 
         app.MapGet("/api/minimal-api-sample/{routeParameter}", [AppResponseCache(MaxAge = 3600 * 24)] (string routeParameter, [FromQuery] string queryStringParameter) => new

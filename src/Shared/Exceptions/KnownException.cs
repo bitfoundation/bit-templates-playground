@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Exceptions;
+namespace Bit.TemplatePlayground.Shared.Exceptions;
 
 public abstract partial class KnownException : Exception
 {

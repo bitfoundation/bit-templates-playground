@@ -2,9 +2,6 @@
 using Microsoft.Maui.LifecycleEvents;
 using Bit.TemplatePlayground.Client.Core.Styles;
 using Bit.TemplatePlayground.Client.Maui.Services;
-using Maui.AppStores;
-using Maui.InAppReviews;
-using Maui.Android.InAppUpdates;
 #if iOS || Mac
 using UIKit;
 using WebKit;
@@ -34,9 +31,6 @@ public static partial class MauiProgram
 
                 builder
             .UseMauiApp<App>()
-            .UseInAppReviews()
-            .UseAppStoreInfo()
-            .UseAndroidInAppUpdates()
             .Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Maui");
 
         
@@ -83,6 +77,16 @@ public static partial class MauiProgram
         SetupBlazorWebView();
 
         var mauiApp = builder.Build();
+
+        mauiApp.Services.GetRequiredService<PubSubService>()
+            .Subscribe(ClientPubSubMessages.PAGE_DATA_CHANGED, async (args) =>
+            {
+                var (title, _, __) = ((string?, string?, bool))args!;
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    Application.Current!.Windows.First().Title = title ?? "Bit.TemplatePlayground";
+                });
+            });
 
         return mauiApp;
     }

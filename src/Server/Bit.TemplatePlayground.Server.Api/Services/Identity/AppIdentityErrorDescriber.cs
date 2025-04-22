@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Server.Api.Services.Identity;
+namespace Bit.TemplatePlayground.Server.Api.Services.Identity;
 
 public partial class AppIdentityErrorDescriber : IdentityErrorDescriber
 {

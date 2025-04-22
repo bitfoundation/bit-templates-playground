@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
+namespace Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
 /// <summary>
 /// Represents a delegate that creates a chain of HTTP message handlers.

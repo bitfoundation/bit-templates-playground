@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Services.Contracts;
+using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Tests.Services;
 

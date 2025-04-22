@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
+namespace Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
 public partial class RetryDelegatingHandler(HttpMessageHandler handler)
     : DelegatingHandler(handler)

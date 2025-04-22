@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 

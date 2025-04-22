@@ -1,4 +1,4 @@
-﻿using EmbedIO.WebSockets;
+using EmbedIO.WebSockets;
 using Microsoft.JSInterop;
 
 namespace Bit.TemplatePlayground.Client.Windows.Services;

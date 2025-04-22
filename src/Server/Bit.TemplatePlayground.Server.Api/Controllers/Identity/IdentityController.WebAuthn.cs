@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Fido2NetLib;

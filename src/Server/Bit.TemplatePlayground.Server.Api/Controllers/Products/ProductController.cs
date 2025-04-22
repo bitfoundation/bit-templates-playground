@@ -4,6 +4,7 @@ using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Server.Api.Models.Products;
 using Bit.TemplatePlayground.Shared.Controllers.Products;
+using Ganss.Xss;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Products;
 
@@ -11,7 +12,10 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers.Products;
 [Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS)]
 public partial class ProductController : AppControllerBase, IProductController
 {
+    [AutoInject] private HtmlSanitizer htmlSanitizer = default!;
+
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
+    [AutoInject] private ProductEmbeddingService productEmbeddingService = default!;
     [AutoInject] private ResponseCacheService responseCacheService = default!;
 
     [HttpGet, EnableQuery]
@@ -34,6 +38,14 @@ public partial class ProductController : AppControllerBase, IProductController
         return new PagedResult<ProductDto>(await query.ToArrayAsync(cancellationToken), totalCount);
     }
 
+    [HttpGet("{searchQuery}")]
+    public async Task<PagedResult<ProductDto>> GetProductsBySearchQuery(string searchQuery, ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
+    {
+        // Embedding based search is only implemented for PostgreSQL.
+        // Simply return whole products list.
+        return await GetProducts(odataQuery, cancellationToken);
+    }
+
     [HttpGet("{id}")]
     public async Task<ProductDto> Get(Guid id, CancellationToken cancellationToken)
     {
@@ -46,11 +58,15 @@ public partial class ProductController : AppControllerBase, IProductController
     [HttpPost]
     public async Task<ProductDto> Create(ProductDto dto, CancellationToken cancellationToken)
     {
+        dto.DescriptionHTML = htmlSanitizer.Sanitize(dto.DescriptionHTML ?? string.Empty);
+
         var entityToAdd = dto.Map();
 
         await DbContext.Products.AddAsync(entityToAdd, cancellationToken);
 
         await Validate(entityToAdd, cancellationToken);
+
+            await productEmbeddingService.Embed(entityToAdd, cancellationToken);
 
         await DbContext.SaveChangesAsync(cancellationToken);
 
@@ -62,12 +78,16 @@ public partial class ProductController : AppControllerBase, IProductController
     [HttpPut]
     public async Task<ProductDto> Update(ProductDto dto, CancellationToken cancellationToken)
     {
+        dto.DescriptionHTML = htmlSanitizer.Sanitize(dto.DescriptionHTML ?? string.Empty);
+
         var entityToUpdate = await DbContext.Products.FindAsync([dto.Id], cancellationToken)
             ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.ProductCouldNotBeFound)]);
 
         dto.Patch(entityToUpdate);
 
         await Validate(entityToUpdate, cancellationToken);
+
+            await productEmbeddingService.Embed(entityToUpdate, cancellationToken);
 
         await DbContext.SaveChangesAsync(cancellationToken);
 

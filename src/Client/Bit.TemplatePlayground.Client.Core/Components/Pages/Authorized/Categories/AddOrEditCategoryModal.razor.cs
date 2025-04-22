@@ -1,13 +1,10 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
+using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Shared.Controllers.Categories;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Categories;
 
 public partial class AddOrEditCategoryModal
 {
-    protected override string? Title => Localizer[nameof(AppStrings.Category)];
-    protected override string? Subtitle => string.Empty;
-
     [AutoInject] ICategoryController categoryController = default!;
 
     [Parameter] public EventCallback OnSave { get; set; }

@@ -1,19 +1,18 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
         <!--If you don't need to use the time zone and your app is in WASM format, you can reduce the output size of the app by disabling the time zone.-->
         <InvariantTimezone>false</InvariantTimezone>
         <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
-        <!-- To change MultilingualEnabled's value, checkout Directory.Build.props -->
-        <InvariantGlobalization Condition="'$(MultilingualEnabled)' == 'false'">true</InvariantGlobalization>
-        <HybridGlobalization Condition="'$(MultilingualEnabled)' == 'true'">true</HybridGlobalization>
+        <!-- To change InvariantGlobalization's value, checkout Directory.Build.props -->
+        <HybridGlobalization Condition="'$(InvariantGlobalization)' == 'false'">true</HybridGlobalization>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
         <BlazorCacheBootResources>false</BlazorCacheBootResources>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
-                <!-- If you need support for older browsers, uncomment this. <WasmEnableSIMD>false</WasmEnableSIMD> -->
+        <!-- If you need support for older browsers, uncomment this. <WasmEnableSIMD>false</WasmEnableSIMD> -->
         <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
-                <ResolveStaticWebAssetsInputsDependsOn>
+        <ResolveStaticWebAssetsInputsDependsOn>
             BeforeBuildTasks;
             $(ResolveStaticWebAssetsInputsDependsOn)
         </ResolveStaticWebAssetsInputsDependsOn>
@@ -32,8 +31,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
         <PackageReference Include="Bit.Bswup" />
-                <PackageReference Include="Newtonsoft.Json" />
-            </ItemGroup>
+        <PackageReference Include="Newtonsoft.Json" />
+    </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Bit.TemplatePlayground.Client.Core\Bit.TemplatePlayground.Client.Core.csproj" />
@@ -45,7 +44,7 @@
         <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
     </ItemGroup>
 
-        <ItemGroup>
+    <ItemGroup>
         <BlazorWebAssemblyLazyLoad Include="System.Data.Common.wasm" />
     </ItemGroup>
     <ItemGroup>
@@ -54,7 +53,7 @@
     <ItemGroup>
         <BlazorWebAssemblyLazyLoad Include="Newtonsoft.Json.wasm" />
     </ItemGroup>
-    
+
     <Target Name="BeforeBuildTasks" AfterTargets="CoreCompile">
         <CallTarget Targets="BuildCssFiles" />
     </Target>

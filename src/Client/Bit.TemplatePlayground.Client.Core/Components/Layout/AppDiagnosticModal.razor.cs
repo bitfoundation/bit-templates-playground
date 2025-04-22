@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
+using Microsoft.AspNetCore.SignalR.Client;
 using Bit.TemplatePlayground.Shared.Controllers.Diagnostics;
 using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
@@ -35,8 +35,10 @@ public partial class AppDiagnosticModal
     [AutoInject] private BitMessageBoxService messageBoxService = default!;
     [AutoInject] private IDiagnosticsController diagnosticsController = default!;
 
-    protected override Task OnInitAsync()
+    protected override async Task OnInitAsync()
     {
+        await base.OnInitAsync();
+
         unsubscribe = PubSubService.Subscribe(ClientPubSubMessages.SHOW_DIAGNOSTIC_MODAL, async _ =>
         {
             isOpen = true;
@@ -44,8 +46,6 @@ public partial class AppDiagnosticModal
             HandleOnLogLevelFilter(defaultFilterLogLevels);
             await InvokeAsync(StateHasChanged);
         });
-
-        return base.OnInitAsync();
     }
 
 
@@ -165,7 +165,7 @@ public partial class AppDiagnosticModal
 
     protected override async ValueTask DisposeAsync(bool disposing)
     {
-        unsubscribe?.Invoke();
         await base.DisposeAsync(disposing);
+        unsubscribe?.Invoke();
     }
 }

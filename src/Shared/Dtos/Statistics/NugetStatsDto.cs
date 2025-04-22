@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Dtos.Statistics;
+namespace Bit.TemplatePlayground.Shared.Dtos.Statistics;
 
 public record NugetStatsDto(
     [property: JsonPropertyName("data")] IReadOnlyList<Datum> Data

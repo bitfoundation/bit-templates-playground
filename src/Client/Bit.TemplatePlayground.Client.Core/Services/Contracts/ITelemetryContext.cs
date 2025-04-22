@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Components;
+using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Core.Services.Contracts;
 

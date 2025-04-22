@@ -1,4 +1,4 @@
-﻿[
+[
     {
         "outputFile": "wwwroot/styles/app.css",
         "inputFile": "Styles/app.scss",
@@ -184,6 +184,18 @@
     {
         "outputFile": "Components/Pages/Authorized/Settings/TwoFactorSection.razor.css",
         "inputFile": "Components/Pages/Authorized/Settings/TwoFactorSection.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Layout/AppAiChatPanel.razor.css",
+        "inputFile": "Components/Layout/AppAiChatPanel.razor.scss",
+        "minify": { "enabled": false },
+        "options": { "sourceMap": false }
+    },
+    {
+        "outputFile": "Components/Pages/Authorized/Chatbot/SystemPromptsPage.razor.css",
+        "inputFile": "Components/Pages/Authorized/Chatbot/SystemPromptsPage.razor.scss",
         "minify": { "enabled": false },
         "options": { "sourceMap": false }
     },

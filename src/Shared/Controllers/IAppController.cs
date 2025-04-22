@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers;
+using Bit.TemplatePlayground.Shared.Controllers;
 
 namespace Bit.TemplatePlayground.Shared.Controllers
 {

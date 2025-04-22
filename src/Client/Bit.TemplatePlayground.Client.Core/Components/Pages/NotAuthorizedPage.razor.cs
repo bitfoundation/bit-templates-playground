@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Pages;
+namespace Bit.TemplatePlayground.Client.Core.Components.Pages;
 
 public partial class NotAuthorizedPage
 {
@@ -10,6 +10,8 @@ public partial class NotAuthorizedPage
 
     protected override async Task OnAfterFirstRenderAsync()
     {
+        await base.OnAfterFirstRenderAsync();
+
         try
         {
             var refreshToken = await StorageService.GetItem("refresh_token");
@@ -36,8 +38,6 @@ public partial class NotAuthorizedPage
             isUpdatingAuthState = false;
             StateHasChanged();
         }
-
-        await base.OnAfterFirstRenderAsync();
     }
 
     private async Task SignOut()

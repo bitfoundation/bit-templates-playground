@@ -1,4 +1,4 @@
-﻿using Fido2NetLib;
+using Fido2NetLib;
 using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 
 namespace Bit.TemplatePlayground.Server.Api.Services;

@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
+using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 using Bit.TemplatePlayground.Shared.Controllers.Dashboard;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Dashboard;

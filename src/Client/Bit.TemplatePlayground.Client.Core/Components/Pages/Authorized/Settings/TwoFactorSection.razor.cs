@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Settings;
@@ -23,9 +23,9 @@ public partial class TwoFactorSection
 
     protected override async Task OnInitAsync()
     {
-        await SendTwoFactorAuthRequest(new());
-
         await base.OnInitAsync();
+
+        await SendTwoFactorAuthRequest(new());
     }
 
     private async Task EnableTwoFactorAuth()

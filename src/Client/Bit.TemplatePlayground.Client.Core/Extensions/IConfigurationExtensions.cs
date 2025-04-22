@@ -1,4 +1,4 @@
-﻿
+
 using Bit.TemplatePlayground.Client.Core;
 
 namespace Microsoft.Extensions.Configuration;

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui.Services;
+namespace Bit.TemplatePlayground.Client.Maui.Services;
 
 public partial class MauiStorageService : IStorageService
 {

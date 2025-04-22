@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Statistics;
+using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 
 namespace Bit.TemplatePlayground.Shared.Controllers.Statistics;
 

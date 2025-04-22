@@ -1,4 +1,4 @@
-﻿
+
 namespace Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
 // https://learn.microsoft.com/en-us/aspnet/core/blazor/hybrid/developer-tools

@@ -22,10 +22,7 @@ public static partial class Urls
     public const string AddOrEditProductPage = "/add-edit-product";
 
 
-    public const string Authorize = "/authorize";
+    public const string SystemPrompts = "/system-prompts";
 
-    public static readonly string[] All = typeof(Urls).GetFields()
-                                                      .Where(f => f.FieldType == typeof(string))
-                                                      .Select(f => f.GetValue(null)!.ToString()!)
-                                                      .ToArray();
+    public const string Authorize = "/authorize";
 }

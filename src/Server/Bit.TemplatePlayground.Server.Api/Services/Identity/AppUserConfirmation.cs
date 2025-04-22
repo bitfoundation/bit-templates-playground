@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Models.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
 
 namespace Bit.TemplatePlayground.Server.Api.Services.Identity;
 

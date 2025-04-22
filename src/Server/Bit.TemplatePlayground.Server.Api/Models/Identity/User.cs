@@ -1,4 +1,5 @@
-﻿
+﻿using Bit.TemplatePlayground.Server.Api.Models.Attachments;
+
 namespace Bit.TemplatePlayground.Server.Api.Models.Identity;
 
 public partial class User : IdentityUser<Guid>
@@ -14,9 +15,6 @@ public partial class User : IdentityUser<Guid>
 
     [PersonalData]
     public DateTimeOffset? BirthDate { get; set; }
-
-    [PersonalData]
-    public string? ProfileImageName { get; set; }
 
     /// <summary>
     /// The date and time of the last token request. Ensures only the latest generated token is valid and can only be used once.
@@ -40,4 +38,6 @@ public partial class User : IdentityUser<Guid>
 
 
     public List<WebAuthnCredential> WebAuthnCredentials { get; set; } = [];
+
+    public bool HasProfilePicture { get; set; }
 }

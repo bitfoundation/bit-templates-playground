@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Web;
+using Bit.TemplatePlayground.Server.Web;
 using Bit.TemplatePlayground.Tests.Services;
 using Bit.TemplatePlayground.Server.Api.Services;
 

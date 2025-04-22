@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity;
@@ -33,6 +33,8 @@ public partial class ResetPasswordPage
 
     protected override async Task OnInitAsync()
     {
+        await base.OnInitAsync();
+
         model.Email = EmailQueryString;
         model.PhoneNumber = PhoneNumberQueryString;
         model.Token = TokenQueryString;
@@ -51,8 +53,6 @@ public partial class ResetPasswordPage
         }
 
         HandleContinue();
-
-        await base.OnInitAsync();
     }
 
     private void OnSelectedKeyChanged(string key)

@@ -1,9 +1,10 @@
-﻿@attribute [Route(Urls.HomePage)]
+@attribute [Route(Urls.HomePage)]
 @attribute [Route("{culture:nonfile?}" + Urls.HomePage)]
 @attribute [AppResponseCache(SharedMaxAge = 3600 * 24, MaxAge = 60 * 5)]
 @inherits AppPageBase
 
-<PageTitle>@Localizer[nameof(AppStrings.HomePageTitle)]</PageTitle>
+<AppPageData Title="@Localizer[nameof(AppStrings.Home)]"
+             PageTitle="@Localizer[nameof(AppStrings.HomePageTitle)]" />
 
 <section>
     <BitStack Alignment="BitAlignment.Center" Gap="2rem" Class="root-stack">
@@ -16,8 +17,6 @@
         <BitText Typography="BitTypography.H6" Align="BitTextAlign.Center">
             @Localizer[nameof(AppStrings.HomeMessage)]
         </BitText>
-
-        <br />
 
 
         <CascadingValue Value="BitDir.Ltr">

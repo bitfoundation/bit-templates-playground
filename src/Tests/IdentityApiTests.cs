@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Services;
+using Bit.TemplatePlayground.Client.Core.Services;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 using Bit.TemplatePlayground.Tests.Services;

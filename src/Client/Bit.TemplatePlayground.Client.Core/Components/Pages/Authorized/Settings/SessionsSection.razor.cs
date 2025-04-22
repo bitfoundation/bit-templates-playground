@@ -1,6 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
-using Microsoft.AspNetCore.Components.Routing;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Settings;
 
@@ -17,9 +16,9 @@ public partial class SessionsSection
 
     protected override async Task OnInitAsync()
     {
-        await LoadSessions();
-
         await base.OnInitAsync();
+
+        await LoadSessions();
     }
 
 

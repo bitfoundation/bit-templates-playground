@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Data;
+using Bit.TemplatePlayground.Server.Api.Data;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Server.Web;

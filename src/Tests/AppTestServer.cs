@@ -59,7 +59,11 @@ public partial class AppTestServer : IAsyncDisposable
     {
         if (webApp != null)
         {
-            await webApp.StopAsync();
+            try
+            {
+                await webApp.StopAsync();
+            }
+            catch (OperationCanceledException) { }
             await webApp.DisposeAsync();
         }
     }

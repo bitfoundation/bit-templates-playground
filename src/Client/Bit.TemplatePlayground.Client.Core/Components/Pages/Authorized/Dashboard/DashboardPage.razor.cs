@@ -1,12 +1,9 @@
-﻿using Microsoft.AspNetCore.Components.WebAssembly.Services;
+using Microsoft.AspNetCore.Components.WebAssembly.Services;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Dashboard;
 
 public partial class DashboardPage
 {
-    protected override string? Title => Localizer[nameof(AppStrings.Dashboard)];
-    protected override string? Subtitle => Localizer[nameof(AppStrings.DashboardSubtitle)];
-
     [AutoInject] LazyAssemblyLoader lazyAssemblyLoader = default!;
 
     private bool isLoadingAssemblies = true;
@@ -14,6 +11,8 @@ public partial class DashboardPage
 
     protected override async Task OnInitAsync()
     {
+        await base.OnInitAsync();
+
         unsubscribe = PubSubService.Subscribe(SharedPubSubMessages.DASHBOARD_DATA_CHANGED, async _ =>
         {
             NavigationManager.NavigateTo(Urls.DashboardPage, replace: true);
@@ -33,14 +32,12 @@ public partial class DashboardPage
         {
             isLoadingAssemblies = false;
         }
-
-        await base.OnInitAsync();
     }
 
-    protected override ValueTask DisposeAsync(bool disposing)
+    protected override async ValueTask DisposeAsync(bool disposing)
     {
-        unsubscribe?.Invoke();
+        await base.DisposeAsync(disposing);
 
-        return base.DisposeAsync(disposing);
+        unsubscribe?.Invoke();
     }
 }

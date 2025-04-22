@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Styles;
+namespace Bit.TemplatePlayground.Client.Core.Styles;
 
 public partial class ThemeColors
 {

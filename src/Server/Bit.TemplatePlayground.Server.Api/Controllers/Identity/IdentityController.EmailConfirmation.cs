@@ -1,4 +1,4 @@
-﻿using Humanizer;
+using Humanizer;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Services;

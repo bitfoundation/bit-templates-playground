@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Services;
+using Bit.TemplatePlayground.Server.Api.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Components.Web;
 

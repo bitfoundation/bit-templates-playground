@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui;
+namespace Bit.TemplatePlayground.Client.Maui;
 
 partial class Program : MauiApplication
 {
