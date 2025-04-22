@@ -16,6 +16,7 @@
         <InvariantGlobalization>false</InvariantGlobalization>
 
         <!-- Additional configurations were added to optimize build times for those using the SLNX solution file. -->
+        <Configuration Condition="'$(Configuration)'==''">Debug</Configuration>
         <Configurations>Debug;Release;DebugBlazorServer;DebugBlazorWasm;DebugBlazorHybridMaui;DebugBlazorHybridWindows</Configurations>
 
         <!-- See Bit.TemplatePlayground.Shared.AppEnvironment for more info. -->
