@@ -54,13 +54,26 @@ public partial class MainLayout
             termsNavItem
         ];
 
+
+        navPanelAuthenticatedItems.Add(new()
+        {
+            Text = localizer[nameof(AppStrings.SystemPromptsTitle)],
+            IconName = BitIconName.TextDocumentSettings,
+            Url = Urls.SystemPrompts,
+        });
+        navPanelUnAuthenticatedItems.Add(new()
+        {
+            Text = localizer[nameof(AppStrings.SystemPromptsTitle)],
+            IconName = BitIconName.TextDocumentSettings,
+            Url = Urls.SystemPrompts,
+        });
+
         BitNavItem aboutNavItem = new()
         {
             Text = localizer[nameof(AppStrings.About)],
             IconName = BitIconName.Info,
             Url = Urls.AboutPage,
         };
-
 
         navPanelAuthenticatedItems.Add(aboutNavItem);
         navPanelUnAuthenticatedItems.Add(aboutNavItem);

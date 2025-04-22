@@ -1,4 +1,4 @@
-﻿using Foundation;
+using Foundation;
 using UIKit;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst;

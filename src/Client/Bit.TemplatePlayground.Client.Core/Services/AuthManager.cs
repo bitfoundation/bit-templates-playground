@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 

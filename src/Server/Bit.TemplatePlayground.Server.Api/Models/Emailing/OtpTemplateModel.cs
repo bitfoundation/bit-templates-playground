@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Server.Api.Models.Emailing;
+namespace Bit.TemplatePlayground.Server.Api.Models.Emailing;
 
 public partial class OtpTemplateModel
 {

@@ -14,7 +14,7 @@ public static partial class Program
         // The following line (using the * in the URL), allows the emulators and mobile devices to access the app using the host IP address.
         if (builder.Environment.IsDevelopment() && AppPlatform.IsWindows)
         {
-            builder.WebHost.UseUrls("http://localhost:5129", "http://*:5129");
+            builder.WebHost.UseUrls("http://localhost:5214", "http://*:5214");
         }
 
         builder.Services.AddSharedProjectServices(builder.Configuration);

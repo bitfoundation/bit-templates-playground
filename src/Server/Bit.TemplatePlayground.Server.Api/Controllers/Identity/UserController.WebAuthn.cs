@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Microsoft.Extensions.Caching.Distributed;

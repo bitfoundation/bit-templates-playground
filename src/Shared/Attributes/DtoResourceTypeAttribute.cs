@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Attributes;
+namespace Bit.TemplatePlayground.Shared.Attributes;
 
 /// <summary>
 /// Instead of repeatedly applying the <see cref="ValidationAttribute.ErrorMessageResourceType"/> to properties featuring validation attributes like [Required] or [StringLength],

@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Tests.Extensions;
+using Bit.TemplatePlayground.Tests.Extensions;
 
 namespace Bit.TemplatePlayground.Tests;
 

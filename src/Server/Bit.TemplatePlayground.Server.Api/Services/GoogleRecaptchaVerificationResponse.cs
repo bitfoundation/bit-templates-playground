@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Server.Api.Services;
+namespace Bit.TemplatePlayground.Server.Api.Services;
 
 public partial class GoogleRecaptchaVerificationResponse
 {

@@ -1,4 +1,4 @@
-﻿using System.Runtime.Versioning;
+using System.Runtime.Versioning;
 
 namespace Bit.TemplatePlayground.Shared.Services;
 

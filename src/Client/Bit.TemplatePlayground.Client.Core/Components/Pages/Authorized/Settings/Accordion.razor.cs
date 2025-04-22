@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Settings;
+namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Settings;
 
 public partial class Accordion
 {

@@ -1,4 +1,4 @@
-﻿using Fido2NetLib;
+using Fido2NetLib;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Shared.Controllers.Identity;

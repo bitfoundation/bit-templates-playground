@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared;
+namespace Bit.TemplatePlayground.Shared;
 
 public static partial class Urls
 {

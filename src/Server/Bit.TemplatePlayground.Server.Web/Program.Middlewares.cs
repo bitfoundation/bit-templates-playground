@@ -10,6 +10,8 @@ using Microsoft.AspNetCore.Localization.Routing;
 using System.Text.RegularExpressions;
 using Bit.TemplatePlayground.Shared;
 using Bit.TemplatePlayground.Shared.Attributes;
+using Hangfire;
+using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Client.Core.Services;
 
 namespace Bit.TemplatePlayground.Server.Web;
@@ -35,7 +37,7 @@ public static partial class Program
             app.UseForwardedHeaders(forwardedHeadersOptions);
         }
 
-        if (CultureInfoManager.MultilingualEnabled)
+        if (CultureInfoManager.InvariantGlobalization is false)
         {
             var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => sc.Culture).ToArray();
             var options = new RequestLocalizationOptions
@@ -126,6 +128,12 @@ public static partial class Program
             options.InjectJavascript($"/_content/Bit.TemplatePlayground.Server.Api/scripts/swagger-utils.js?v={Environment.TickCount64}");
         });
 
+        app.UseHangfireDashboard(options: new()
+        {
+            DarkModeEnabled = true,
+            Authorization = [new HangfireDashboardAuthorizationFilter()]
+        });
+
         app.MapGet("/api/minimal-api-sample/{routeParameter}", [AppResponseCache(MaxAge = 3600 * 24)] (string routeParameter, [FromQuery] string queryStringParameter) => new
         {
             RouteParameter = routeParameter,
@@ -199,7 +207,7 @@ public static partial class Program
                  .Except([Urls.NotFoundPage, Urls.NotAuthorizedPage])
                  .ToArray();
 
-            urls = CultureInfoManager.MultilingualEnabled
+            urls = CultureInfoManager.InvariantGlobalization is false
                     ? urls.Union(CultureInfoManager.SupportedCultures.SelectMany(sc => urls.Select(url => $"{sc.Culture.Name}{url}"))).ToArray()
                     : urls;
 

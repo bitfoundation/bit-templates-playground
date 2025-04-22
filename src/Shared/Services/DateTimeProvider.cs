@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Services;
+namespace Bit.TemplatePlayground.Shared.Services;
 
 public partial class DateTimeProvider : IDateTimeProvider
 {

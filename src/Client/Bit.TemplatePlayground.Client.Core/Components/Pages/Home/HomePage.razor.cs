@@ -5,18 +5,15 @@ namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Home;
 
 public partial class HomePage
 {
-    protected override string? Title => Localizer[nameof(AppStrings.Home)];
-    protected override string? Subtitle => string.Empty;
-
-
     [CascadingParameter] private BitDir? currentDir { get; set; }
 
 
-    [AutoInject] private IStatisticsController statisticsController = default!;
-    private bool isLoadingGitHub = true;
-    private bool isLoadingNuget = true;
     private GitHubStats? gitHubStats;
     private NugetStatsDto? nugetStats;
+    private bool isLoadingNuget = true;
+    private bool isLoadingGitHub = true;
+
+    [AutoInject] private IStatisticsController statisticsController = default!;
 
 
     protected override async Task OnInitAsync()
@@ -70,4 +67,5 @@ public partial class HomePage
             StateHasChanged();
         }
     }
+
 }

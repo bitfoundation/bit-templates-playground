@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Controllers;
+namespace Bit.TemplatePlayground.Shared.Controllers;
 
 public interface IMinimalApiController : IAppController
 {

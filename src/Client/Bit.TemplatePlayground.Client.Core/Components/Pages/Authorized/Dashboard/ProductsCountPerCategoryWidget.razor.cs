@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers.Dashboard;
+using Bit.TemplatePlayground.Shared.Controllers.Dashboard;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Dashboard;
 
@@ -11,6 +11,8 @@ public partial class ProductsCountPerCategoryWidget
 
     protected override async Task OnInitAsync()
     {
+        await base.OnInitAsync();
+
         config = new BitChartBarConfig
         {
             Options = new BitChartBarOptions

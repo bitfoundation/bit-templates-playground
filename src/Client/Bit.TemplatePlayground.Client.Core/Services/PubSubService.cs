@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace Bit.TemplatePlayground.Client.Core.Services;
 

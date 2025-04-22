@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers.Dashboard;
+using Bit.TemplatePlayground.Shared.Controllers.Dashboard;
 using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Dashboard;
@@ -12,6 +12,8 @@ public partial class OverallStatsWidget
 
     protected override async Task OnInitAsync()
     {
+        await base.OnInitAsync();
+
         await GetData();
     }
 

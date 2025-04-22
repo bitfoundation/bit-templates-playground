@@ -1,4 +1,4 @@
-﻿using Microsoft.JSInterop;
+using Microsoft.JSInterop;
 using Bit.TemplatePlayground.Client.Core.Services;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 

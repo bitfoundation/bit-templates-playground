@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Services;
+namespace Bit.TemplatePlayground.Shared.Services;
 
 /// <summary>
 /// Unlike ASP.NET Core, which allows environment configuration via environment variables, 

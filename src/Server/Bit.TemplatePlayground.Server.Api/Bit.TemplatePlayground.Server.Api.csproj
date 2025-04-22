@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>FAFC9C4D-89D9-48C6-89E3-E5937A905A83</UserSecretsId>
+        <UserSecretsId>98BC2EB3-2AC5-4405-98BB-76D8A43E7D64</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
 
         <SelfContained>true</SelfContained>
@@ -20,6 +20,9 @@
 
     <ItemGroup>
         <PackageReference Include="Fido2.AspNet" />
+        <PackageReference Include="Hangfire.AspNetCore" />
+        <PackageReference Include="Hangfire.EntityFrameworkCore" />
+        <PackageReference Include="HtmlSanitizer" />
         <PackageReference Include="libphonenumber-csharp" />
         <PackageReference Include="Humanizer" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
@@ -43,10 +46,14 @@
         <PackageReference Include="AspNet.Security.OAuth.GitHub" />
         <PackageReference Include="Riok.Mapperly" />
         <PackageReference Include="Twilio" />
+        <PackageReference Include="Microsoft.Extensions.AI" />
+        <PackageReference Include="Microsoft.Extensions.AI.AzureAIInference" />
+        <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
 
         <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
         <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
         <Using Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+        <Using Include="Hangfire" />
         <Using Include="Bit.TemplatePlayground.Shared" />
         <Using Include="Bit.TemplatePlayground.Shared.Attributes" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Data" />
@@ -55,6 +62,10 @@
         <Using Include="Microsoft.EntityFrameworkCore" />
         <Using Include="Microsoft.AspNetCore.OData.Query" />
         <Using Include="Microsoft.AspNetCore.Mvc" />
+
+        <Using Include="Microsoft.Extensions.AI" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Models.Chatbot" />
+        <Content Include="..\..\..\Bit.ResxTranslator.json" Link="Resources\Bit.ResxTranslator.json" />
 
         <Content Include=".config\dotnet-tools.json" />
     </ItemGroup>

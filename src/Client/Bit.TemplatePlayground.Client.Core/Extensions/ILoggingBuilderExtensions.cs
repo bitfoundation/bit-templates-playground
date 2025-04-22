@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
+using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
 namespace Microsoft.Extensions.Logging;
 

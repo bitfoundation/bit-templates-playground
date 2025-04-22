@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Windows.Services;
+namespace Bit.TemplatePlayground.Client.Windows.Services;
 
 public partial class WindowsExceptionHandler : ClientExceptionHandlerBase
 {

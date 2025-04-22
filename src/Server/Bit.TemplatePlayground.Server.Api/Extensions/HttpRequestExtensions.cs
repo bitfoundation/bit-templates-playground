@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api;
+using Bit.TemplatePlayground.Server.Api;
 using Microsoft.Net.Http.Headers;
 
 namespace Microsoft.AspNetCore.Http;

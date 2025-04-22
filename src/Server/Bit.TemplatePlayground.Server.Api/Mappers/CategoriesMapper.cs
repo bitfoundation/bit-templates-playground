@@ -1,4 +1,4 @@
-﻿using Riok.Mapperly.Abstractions;
+using Riok.Mapperly.Abstractions;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Server.Api.Models.Categories;
 

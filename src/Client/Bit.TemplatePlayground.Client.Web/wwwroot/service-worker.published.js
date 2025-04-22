@@ -1,4 +1,4 @@
-﻿// bit version: 9.6.1
+// bit version: 9.7.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -13,8 +13,8 @@ self.assetsExclude = [
     /pdfjs-4\.7\.76-worker\.js$/,
 
 
-    // If a MarkDown viewer (https://blazorui.bitplatform.dev/components/markdownviewer) is needed in the PWA, remove this line:
-    /marked-15\.0\.7\.js$/,
+    // country flags
+    /_content\/Bit\.BlazorUI\.Extras\/flags/,
 
     // https://github.com/orgs/bitfoundation/discussions/10238#discussioncomment-12493737
     /_content\/Bit\.BlazorES2019\/blazor\.server\.js$/,
@@ -42,8 +42,8 @@ self.externalAssets = [
 self.serverHandledUrls = [
     /\/api\//,
     /\/odata\//,
-    /\/jobs\//,
     /\/core\//,
+    /\/hangfire/,
     /\/healthchecks-ui/,
     /\/healthz/,
     /\/swagger/,

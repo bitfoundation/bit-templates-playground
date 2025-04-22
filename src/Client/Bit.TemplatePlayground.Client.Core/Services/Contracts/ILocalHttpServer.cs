@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Services.Contracts;
+namespace Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 public interface ILocalHttpServer : IAsyncDisposable
 {

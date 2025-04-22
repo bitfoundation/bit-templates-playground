@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Attributes;
+namespace Bit.TemplatePlayground.Shared.Attributes;
 
 /// <summary>
 /// Applying this attribute to Blazor pages or API actions will cache them in ASP.NET Core's output cache,

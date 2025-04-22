@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui.Platforms.Windows;
+namespace Bit.TemplatePlayground.Client.Maui.Platforms.Windows;
 
 public partial class App
 {

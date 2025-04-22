@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Bit.TemplatePlayground.Server.Api.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Hosting;

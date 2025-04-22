@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using Bit.TemplatePlayground.Shared.Controllers;
 using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 

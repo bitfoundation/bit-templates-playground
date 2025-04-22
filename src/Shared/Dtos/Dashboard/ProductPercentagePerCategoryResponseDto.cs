@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Dtos.Dashboard;
+namespace Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 
 public partial class ProductPercentagePerCategoryResponseDto
 {

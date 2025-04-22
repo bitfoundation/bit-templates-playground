@@ -4,11 +4,13 @@ using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Data.Configurations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Security.Cryptography;
+using Hangfire.EntityFrameworkCore;
+using Bit.TemplatePlayground.Server.Api.Models.Attachments;
 
 namespace Bit.TemplatePlayground.Server.Api.Data;
 
 public partial class AppDbContext(DbContextOptions<AppDbContext> options)
-    : IdentityDbContext<User, Role, Guid>(options)
+    : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, IdentityUserLogin<Guid>, RoleClaim, IdentityUserToken<Guid>>(options)
 {
     public DbSet<UserSession> UserSessions { get; set; } = default!;
 
@@ -17,9 +19,17 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<WebAuthnCredential> WebAuthnCredential { get; set; } = default!;
 
+    public DbSet<SystemPrompt> SystemPrompts { get; set; } = default!;
+
+    public DbSet<Attachment> Attachments { get; set; } = default!;
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+
+        modelBuilder.OnHangfireModelCreating("jobs");
+
 
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
@@ -35,7 +45,9 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         {
             SetConcurrencyStamp();
 
+#pragma warning disable NonAsyncEFCoreMethodsUsageAnalyzer
             return base.SaveChanges(acceptAllChangesOnSuccess);
+#pragma warning restore NonAsyncEFCoreMethodsUsageAnalyzer
         }
         catch (DbUpdateConcurrencyException exception)
         {
@@ -90,20 +102,20 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<Role>()
             .ToTable("Roles");
 
-        builder.Entity<IdentityUserRole<Guid>>()
+        builder.Entity<UserRole>()
             .ToTable("UserRoles");
+
+        builder.Entity<RoleClaim>()
+            .ToTable("RoleClaims");
+
+        builder.Entity<UserClaim>()
+            .ToTable("UserClaims");
 
         builder.Entity<IdentityUserLogin<Guid>>()
             .ToTable("UserLogins");
 
         builder.Entity<IdentityUserToken<Guid>>()
             .ToTable("UserTokens");
-
-        builder.Entity<IdentityRoleClaim<Guid>>()
-            .ToTable("RoleClaims");
-
-        builder.Entity<IdentityUserClaim<Guid>>()
-            .ToTable("UserClaims");
     }
 
     private void ConfigureConcurrencyStamp(ModelBuilder modelBuilder)
@@ -119,4 +131,5 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
             }
         }
     }
+
 }

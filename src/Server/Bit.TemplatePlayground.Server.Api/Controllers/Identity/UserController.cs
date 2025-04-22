@@ -222,7 +222,7 @@ public partial class UserController : AppControllerBase, IUserController
         var message = Localizer[nameof(AppStrings.ChangePhoneNumberTokenShortText), token];
         var smsMessage = $"{message}{Environment.NewLine}@{HttpContext.Request.GetWebAppUrl().Host} #{token}" /* Web OTP */;
 
-        await phoneService.SendSms(smsMessage, request.PhoneNumber!, cancellationToken);
+        await phoneService.SendSms(smsMessage, request.PhoneNumber!);
     }
 
     [HttpPost]
@@ -392,7 +392,7 @@ public partial class UserController : AppControllerBase, IUserController
         if (await userManager.IsPhoneNumberConfirmedAsync(user))
         {
             var smsMessage = $"{message}{Environment.NewLine}@{HttpContext.Request.GetWebAppUrl().Host} #{token}" /* Web OTP */;
-            sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!, cancellationToken));
+            sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!));
         }
 
         if (user.TwoFactorEnabled || (user.EmailConfirmed is false && user.PhoneNumberConfirmed is false /* Users signed-in through social sign-in */))

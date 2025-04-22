@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Tests;
+namespace Bit.TemplatePlayground.Tests;
 
 public partial class TestData
 {

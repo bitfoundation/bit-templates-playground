@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Server.Api.Services;
+using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 using Bit.TemplatePlayground.Shared.Controllers.Statistics;
 

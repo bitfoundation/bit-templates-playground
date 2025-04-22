@@ -38,6 +38,8 @@ public partial class MainLayout : IAsyncDisposable
 
     protected override async Task OnInitializedAsync()
     {
+        await base.OnInitializedAsync();
+
         try
         {
             var inPrerenderSession = RendererInfo.IsInteractive is false;
@@ -93,8 +95,6 @@ public partial class MainLayout : IAsyncDisposable
             currentTheme = await themeService.GetCurrentTheme();
 
             await bitExtraServices.AddRootCssClasses();
-
-            await base.OnInitializedAsync();
         }
         catch (Exception exp)
         {
@@ -113,12 +113,12 @@ public partial class MainLayout : IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        await base.OnAfterRenderAsync(firstRender);
+
         if (firstRender)
         {
             await keyboard.Add(ButilKeyCodes.KeyX, OpenDiagnosticModal, ButilModifiers.Ctrl | ButilModifiers.Shift);
         }
-
-        await base.OnAfterRenderAsync(firstRender);
     }
 
 

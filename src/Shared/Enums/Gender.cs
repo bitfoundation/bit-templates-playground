@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Enums;
+namespace Bit.TemplatePlayground.Shared.Enums;
 
 [JsonConverter(typeof(JsonStringEnumConverter<Gender>))]
 public enum Gender

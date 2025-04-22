@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
@@ -23,7 +23,7 @@
         <PackageReference Include="Bit.BlazorUI.Assets" />
         <PackageReference Include="Fido2.Models" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
-                <PackageReference Include="Bit.BlazorUI.Extras" />
+        <PackageReference Include="Bit.BlazorUI.Extras" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" />

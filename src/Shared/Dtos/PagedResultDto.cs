@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Dtos;
+namespace Bit.TemplatePlayground.Shared.Dtos;
 
 public partial class PagedResult<T>
 {

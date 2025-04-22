@@ -3,6 +3,7 @@ using Fido2NetLib.Objects;
 using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
+using Bit.TemplatePlayground.Shared.Dtos.Chatbot;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 
@@ -36,6 +37,8 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(VerifyAssertionResult))]
 [JsonSerializable(typeof(VerifyWebAuthnAndSignInDto))]
 [JsonSerializable(typeof(WebAuthnAssertionOptionsRequestDto))]
+
+[JsonSerializable(typeof(UpdateSystemPromptDto))]
 public partial class AppJsonContext : JsonSerializerContext
 {
 }

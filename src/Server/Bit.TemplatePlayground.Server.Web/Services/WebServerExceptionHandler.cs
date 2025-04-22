@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Bit.TemplatePlayground.Client.Core.Services;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 

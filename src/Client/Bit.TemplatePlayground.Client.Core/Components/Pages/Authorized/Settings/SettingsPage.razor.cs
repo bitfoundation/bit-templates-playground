@@ -1,14 +1,10 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Settings;
 
 public partial class SettingsPage
 {
-    protected override string? Title => Localizer[nameof(AppStrings.Settings)];
-    protected override string? Subtitle => string.Empty;
-
-
     private bool showPasswordless;
 
 
@@ -27,6 +23,8 @@ public partial class SettingsPage
 
     protected override async Task OnInitAsync()
     {
+        await base.OnInitAsync();
+        
         openedAccordion = Section?.ToLower();
 
         isLoading = true;
@@ -43,7 +41,5 @@ public partial class SettingsPage
         {
             isLoading = false;
         }
-
-        await base.OnInitAsync();
     }
 }

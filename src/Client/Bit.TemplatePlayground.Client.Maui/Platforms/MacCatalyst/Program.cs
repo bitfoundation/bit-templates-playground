@@ -1,4 +1,4 @@
-﻿using UIKit;
+using UIKit;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst;
 
