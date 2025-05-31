@@ -1,4 +1,4 @@
-namespace Bit.TemplatePlayground.Shared;
+﻿namespace Bit.TemplatePlayground.Shared;
 
 public static partial class Urls
 {
@@ -13,5 +13,4 @@ public static partial class Urls
     public const string SignInPage = "/sign-in";
 
     public const string SignUpPage = "/sign-up";
-
 }

@@ -1,0 +1,11 @@
+﻿namespace Bit.TemplatePlayground.Shared.Dtos.Chatbot;
+
+public class SystemPromptDto
+{
+    public PromptKind PromptKind { get; set; }
+
+    [Required]
+    public string? Markdown { get; set; }
+
+    public byte[] ConcurrencyStamp { get; set; } = [];
+}

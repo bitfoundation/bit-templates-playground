@@ -1,11 +1,10 @@
-﻿using Fido2NetLib;
-using Fido2NetLib.Objects;
-using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Shared.Dtos.Chatbot;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Statistics;
+using Bit.TemplatePlayground.Shared.Dtos.Diagnostic;
 
 namespace Bit.TemplatePlayground.Shared.Dtos;
 
@@ -21,6 +20,7 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(GitHubStats))]
 [JsonSerializable(typeof(NugetStatsDto))]
 [JsonSerializable(typeof(AppProblemDetails))]
+[JsonSerializable(typeof(SendNotificationToRoleDto))]
 [JsonSerializable(typeof(CategoryDto))]
 [JsonSerializable(typeof(List<CategoryDto>))]
 [JsonSerializable(typeof(PagedResult<CategoryDto>))]
@@ -30,15 +30,12 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(List<ProductsCountPerCategoryResponseDto>))]
 [JsonSerializable(typeof(OverallAnalyticsStatsDataResponseDto))]
 [JsonSerializable(typeof(List<ProductPercentagePerCategoryResponseDto>))]
-[JsonSerializable(typeof(AssertionOptions))]
-[JsonSerializable(typeof(AuthenticatorAssertionRawResponse))]
-[JsonSerializable(typeof(AuthenticatorAttestationRawResponse))]
-[JsonSerializable(typeof(CredentialCreateOptions))]
-[JsonSerializable(typeof(VerifyAssertionResult))]
 [JsonSerializable(typeof(VerifyWebAuthnAndSignInDto))]
 [JsonSerializable(typeof(WebAuthnAssertionOptionsRequestDto))]
 
-[JsonSerializable(typeof(UpdateSystemPromptDto))]
+[JsonSerializable(typeof(DiagnosticLogDto[]))]
+[JsonSerializable(typeof(StartChatbotRequest))]
+[JsonSerializable(typeof(SystemPromptDto))]
 public partial class AppJsonContext : JsonSerializerContext
 {
 }

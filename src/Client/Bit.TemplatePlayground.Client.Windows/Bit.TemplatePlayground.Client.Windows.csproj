@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <OutputType>WinExe</OutputType>
@@ -47,11 +47,6 @@
         <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\index.html" Link="wwwroot\index.html">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
-        <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\external-js-runner.html" Link="wwwroot\external-js-runner.html">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-        </Content>
-        <Content Remove="compilerconfig.json" />
-        <None Include="compilerconfig.json" />
         <Content Include=".config\dotnet-tools.json" />
     </ItemGroup>
 
@@ -70,7 +65,7 @@
     </Target>
 
     <Target Name="BuildCssFiles">
-        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass .:. --style compressed --load-path=. --silence-deprecation=import" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
+        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass Components:Components --style compressed --silence-deprecation=import --update --color" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
     </Target>
 
     <Target Name="RemoveFilesAfterPublish" AfterTargets="Publish">

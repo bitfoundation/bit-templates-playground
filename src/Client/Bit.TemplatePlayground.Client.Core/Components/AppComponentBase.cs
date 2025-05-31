@@ -1,4 +1,4 @@
-using System.Runtime.CompilerServices;
+﻿using System.Runtime.CompilerServices;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
@@ -209,6 +209,28 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     /// <summary>
     /// Executes passed action that catches and handles all exceptions internally, preventing them from triggering the application's error boundary.
     /// </summary>
+    public virtual Func<Task<T>> WrapHandled<T>(Func<Task<T>> func,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
+        [CallerFilePath] string filePath = "")
+    {
+        return async () =>
+        {
+            try
+            {
+                return await func();
+            }
+            catch (Exception exp)
+            {
+                HandleException(exp, null, lineNumber, memberName, filePath);
+                return default;
+            }
+        };
+    }
+
+    /// <summary>
+    /// Executes passed action that catches and handles all exceptions internally, preventing them from triggering the application's error boundary.
+    /// </summary>
     public virtual Func<T, Task> WrapHandled<T>(Func<T, Task> func,
         [CallerLineNumber] int lineNumber = 0,
         [CallerMemberName] string memberName = "",
@@ -238,10 +260,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
         using var currentCts = cts;
         cts = new();
 
-        if (currentCts.IsCancellationRequested is false)
-        {
-            await currentCts.CancelAsync();
-        }
+        await currentCts.CancelAsync();
     }
 
     public async ValueTask DisposeAsync()
@@ -250,10 +269,7 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
         {
             using var currentCts = cts;
             cts = null;
-            if (currentCts.IsCancellationRequested is false)
-            {
-                await currentCts.CancelAsync();
-            }
+            await currentCts.CancelAsync();
         }
 
         await PrerenderStateService.DisposeAsync();

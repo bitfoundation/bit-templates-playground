@@ -1,4 +1,5 @@
-using Bit.TemplatePlayground.Server.Api.Data;
+﻿using Bit.TemplatePlayground.Server.Api.Data;
+using Bit.TemplatePlayground.Server.Web.Services;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Server.Web;
@@ -40,6 +41,10 @@ public static partial class Program
 
         app.ConfigureMiddlewares();
 
+        #if Development
+        _ = ScssCompilerService.WatchScssFiles(app);
+#endif
+        
         await app.RunAsync();
     }
 

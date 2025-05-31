@@ -1,16 +1,21 @@
-using EmbedIO;
-using System.Net;
-using EmbedIO.Actions;
-using System.Reflection;
+﻿using System.Net;
+using System.Text;
 using System.Net.Sockets;
+using EmbedIO;
+using EmbedIO.Actions;
 using Bit.TemplatePlayground.Client.Core.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Client.Maui.Services;
 
+// Checkout HybridAppWebInterop.razor's comments.
 public partial class MauiLocalHttpServer : ILocalHttpServer
 {
+    [AutoInject] private HtmlRenderer htmlRenderer;
+    [AutoInject] private PubSubService pubSubService;
     [AutoInject] private IExceptionHandler exceptionHandler;
-    [AutoInject] private AbsoluteServerAddressProvider absoluteServerAddress;
+
+    public MauiWebAuthnService? WebAuthnService { get; set; }
 
     private int port = -1;
     private WebServer? localHttpServer;
@@ -21,96 +26,160 @@ public partial class MauiLocalHttpServer : ILocalHttpServer
 
     public int EnsureStarted()
     {
-        if (port != -1)
-            return port;
+        if (localHttpServer?.State is WebServerState.Listening or WebServerState.Loading)
+            return port is -1 ? throw new InvalidOperationException() : port;
+
+        localHttpServer?.Dispose();
 
         port = GetAvailableTcpPort();
+
+        var staticFiles = Directory.GetFiles(AppContext.BaseDirectory, "*.*", SearchOption.AllDirectories);
+
+        async Task GoBackToApp()
+        {
+            if (AppPlatform.IsIOS)
+            {
+                // CloseBrowserPage.razor's `window.close()` does NOT work on iOS's in app browser.
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+#if iOS
+                    if (UIKit.UIApplication.SharedApplication.KeyWindow?.RootViewController?.PresentedViewController is SafariServices.SFSafariViewController controller)
+                    {
+                        controller.DismissViewController(animated: true, completionHandler: null);
+                    }
+#endif
+                });
+            }
+            else if (AppPlatform.IsAndroid)
+            {
+#if Android
+                await MainThread.InvokeOnMainThreadAsync(() =>
+                {
+                    var intent = new Android.Content.Intent(Platform.AppContext, typeof(Platforms.Android.MainActivity));
+                    intent.SetFlags(Android.Content.ActivityFlags.NewTask | Android.Content.ActivityFlags.ClearTop);
+                    Platform.AppContext.StartActivity(intent);
+                });
+#endif
+            }
+        }
 
         localHttpServer = new WebServer(o => o
             .WithUrlPrefix($"http://localhost:{port}")
             .WithMode(AppPlatform.IsWindows ? HttpListenerMode.Microsoft : HttpListenerMode.EmbedIO))
-            .WithModule(new ActionModule(Urls.SignInPage, HttpVerbs.Get, async ctx =>
+            .WithCors()
+            .WithModule(new ActionModule("/api/SocialSignInCallback", HttpVerbs.Post, async ctx =>
             {
                 try
                 {
-                    ctx.Redirect("/close-browser");
-
-                    _ = Task.Delay(1)
-                    .ContinueWith(async _ =>
-                    {
-                        await MainThread.InvokeOnMainThreadAsync(async () =>
-                        {
-                            await Routes.OpenUniversalLink(ctx.Request.Url.PathAndQuery, replace: true);
-                        });
-                    });
-                }
-                catch (Exception exp)
-                {
-                    exceptionHandler.Handle(exp);
-                }
-            }))
-            .WithModule(new ActionModule("/close-browser", HttpVerbs.Get, async ctx =>
-            {
-                // Redirect to CloseBrowserPage.razor that will close the browser window.
-                var url = new Uri(absoluteServerAddress, $"/api/Identity/CloseBrowserPage?culture={CultureInfo.CurrentUICulture.Name}").ToString();
-                ctx.Redirect(url);
-
-                if (AppPlatform.IsIOS)
-                {
-                    // CloseBrowserPage.razor's `window.close()` does NOT work on iOS's in app browser.
                     await MainThread.InvokeOnMainThreadAsync(() =>
                     {
-#if iOS
-                        if (UIKit.UIApplication.SharedApplication.KeyWindow?.RootViewController?.PresentedViewController is SafariServices.SFSafariViewController controller)
-                        {
-                            controller.DismissViewController(animated: true, completionHandler: null);
-                        }
-#endif
+                        var urlToOpen = ctx.Request.QueryString["urlToOpen"];
+                        pubSubService.Publish(ClientPubSubMessages.SOCIAL_SIGN_IN, urlToOpen);
                     });
                 }
-                else if (AppPlatform.IsAndroid)
+                finally
                 {
+                    await GoBackToApp();
+                }
+            }))
+            .WithModule(new ActionModule("/api/GetWebAuthnCredentialOptions", HttpVerbs.Get, async ctx =>
+            {
+                await ctx.SendStringAsync(JsonSerializer.Serialize(WebAuthnService!.GetWebAuthnCredentialOptions), "application/json", Encoding.UTF8);
+            }))
+            .WithModule(new ActionModule("/api/WebAuthnCredential", HttpVerbs.Post, async ctx =>
+            {
+                try
+                {
+                    var error = ctx.Request.QueryString["error"];
+                    if (string.IsNullOrEmpty(error) is false)
+                    {
+                        WebAuthnService!.GetWebAuthnCredentialTcs!.SetException(new UnknownException(error));
+                    }
+                    else
+                    {
+                        WebAuthnService!.GetWebAuthnCredentialTcs!.SetResult(JsonSerializer.Deserialize<JsonElement>(await ctx.GetRequestBodyAsStringAsync())!);
+                    }
+                }
+                finally
+                {
+                    await GoBackToApp();
+                }
+            }))
+            .WithModule(new ActionModule("/api/GetCreateWebAuthnCredentialOptions", HttpVerbs.Get, async ctx =>
+            {
+                await ctx.SendStringAsync(JsonSerializer.Serialize(WebAuthnService!.CreateWebAuthnCredentialOptions), "application/json", Encoding.UTF8);
+            }))
+            .WithModule(new ActionModule("/api/CreateWebAuthnCredential", HttpVerbs.Post, async ctx =>
+            {
+                try
+                {
+                    var error = ctx.Request.QueryString["error"];
+                    if (string.IsNullOrEmpty(error) is false)
+                    {
+                        WebAuthnService!.CreateWebAuthnCredentialTcs!.SetException(new UnknownException(error));
+                    }
+                    else
+                    {
+
+                        WebAuthnService!.CreateWebAuthnCredentialTcs!.SetResult(JsonSerializer.Deserialize<JsonElement>(await ctx.GetRequestBodyAsStringAsync())!);
+                    }
+                }
+                finally
+                {
+                    await GoBackToApp();
+                }
+            }))
+            .WithModule(new ActionModule("/api/LogError", HttpVerbs.Post, async ctx =>
+            {
+                var exception = new UnknownException(await ctx.GetRequestBodyAsStringAsync());
+
+                var handled = WebAuthnService?.GetWebAuthnCredentialTcs?.TrySetException(exception) ??
+                    WebAuthnService?.CreateWebAuthnCredentialTcs?.TrySetException(exception);
+
+                if (handled is not true)
+                {
+                    exceptionHandler.Handle(exception, displayKind: ExceptionDisplayKind.NonInterrupting);
+                }
+
+                await GoBackToApp();
+            }))
+            .WithModule(new ActionModule("/hybrid-app-web-interop", HttpVerbs.Get, async ctx =>
+            {
+                var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
+                    (await htmlRenderer.RenderComponentAsync<HybridAppWebInterop>()).ToHtmlString());
+
+                await ctx.SendStringAsync(html, "text/html", Encoding.UTF8);
+            }))
+            .OnAny(async ctx =>
+            {
+                var ctxImpl = (IHttpContextImpl)ctx;
+                var requestFilePath = ctxImpl.Request.Url.LocalPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                Stream? staticFileStream = null;
+                if (staticFiles.FirstOrDefault(f => f.EndsWith(requestFilePath, StringComparison.OrdinalIgnoreCase)) is string staticFilePath)
+                {
+                    staticFileStream = File.OpenRead(staticFilePath);
+                }
 #if Android
-                    await MainThread.InvokeOnMainThreadAsync(() =>
-                    {
-                        var intent = new Android.Content.Intent(Platform.AppContext, typeof(Platforms.Android.MainActivity));
-                        intent.SetFlags(Android.Content.ActivityFlags.NewTask | Android.Content.ActivityFlags.ClearTop);
-                        Platform.AppContext.StartActivity(intent);
-                    });
+                try
+                {
+                    staticFileStream ??= Platform.AppContext.Assets!.Open(Path.Combine("wwwroot", requestFilePath), Android.Content.Res.Access.Streaming);
+                }
+                catch { }
 #endif
-                }
-            }))
-            .WithModule(new ActionModule("/external-js-runner.html", HttpVerbs.Get, async ctx =>
-            {
-                try
+                if (staticFileStream is null)
                 {
-                    ctx.Response.ContentType = "text/html";
-                    await using var file = Assembly.Load("Bit.TemplatePlayground.Client.Maui").GetManifestResourceStream("Bit.TemplatePlayground.Client.Maui.wwwroot.external-js-runner.html")!;
-                    await file.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
+                    ctx.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    return;
                 }
-                catch (Exception exp)
-                {
-                    exceptionHandler.Handle(exp);
-                }
-            }))
-            .WithModule(new ActionModule("/app.js", HttpVerbs.Get, async ctx =>
-            {
-                try
-                {
-                    ctx.Response.ContentType = "application/javascript";
-                    await using var file = Assembly.Load("Bit.TemplatePlayground.Client.Maui").GetManifestResourceStream("Bit.TemplatePlayground.Client.Maui.wwwroot.scripts.app.js")!;
-                    await file.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
-                }
-                catch (Exception exp)
-                {
-                    exceptionHandler.Handle(exp);
-                }
-            }))
-            .WithModule(new MauiExternalJsRunner());
+                ctx.Response.ContentType = ctx.GetMimeType(Path.GetExtension(requestFilePath!));
+                ctx.Response.Headers["Cache-Control"] = "no-cache, max-age=0, must-revalidate, no-store";
+                await using (staticFileStream)
+                    await staticFileStream.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
+            });
 
         localHttpServer.HandleHttpException(async (context, exception) =>
         {
-            exceptionHandler.Handle(new HttpRequestException(exception.Message), parameters: new Dictionary<string, object?>()
+            exceptionHandler.Handle(new HttpRequestException(exception.Message), parameters: new()
             {
                 { "StatusCode" , exception.StatusCode },
                 { "RequestUri" , context.Request.Url },
@@ -129,6 +198,11 @@ public partial class MauiLocalHttpServer : ILocalHttpServer
         return port;
     }
 
+    public async ValueTask DisposeAsync()
+    {
+        localHttpServer?.Dispose();
+    }
+
     private int GetAvailableTcpPort()
     {
         using TcpListener l = new TcpListener(IPAddress.Loopback, 0);
@@ -137,10 +211,4 @@ public partial class MauiLocalHttpServer : ILocalHttpServer
         l.Stop();
         return port;
     }
-
-    public async ValueTask DisposeAsync()
-    {
-        localHttpServer?.Dispose();
-    }
-
 }

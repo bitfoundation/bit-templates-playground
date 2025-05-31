@@ -1,6 +1,6 @@
 {
   "solution": {
-    "path": "Bit.TemplatePlayground.sln",
+    "path": "Bit.TemplatePlayground.slnx",
     "projects": [
       "src\\Client\\Bit.TemplatePlayground.Client.Core\\Bit.TemplatePlayground.Client.Core.csproj",
       "src\\Client\\Bit.TemplatePlayground.Client.Web\\Bit.TemplatePlayground.Client.Web.csproj",

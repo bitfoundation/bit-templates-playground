@@ -4,7 +4,8 @@
             "commandName": "Project",
             "launchBrowser": true,
             "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development"
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "IN_APP_SCSS_COMPILER_ENABLED": "true"
             },
             "dotnetRunMessages": true,
             "applicationUrl": "http://localhost:5000"
@@ -24,7 +25,8 @@
             "launchBrowser": true,
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "WebAppRender:BlazorMode": "BlazorWebAssembly"
+                "WebAppRender:BlazorMode": "BlazorWebAssembly",
+                "IN_APP_SCSS_COMPILER_ENABLED": "true"
             },
             "dotnetRunMessages": true,
             "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
@@ -48,7 +50,7 @@
                 "ASPNETCORE_ENVIRONMENT": "Development",
                 "ConnectionStrings__SqliteConnectionString": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
             },
-            "DockerfileRunArguments": "-v C:\\DockerVolumes\\98BC2EB3-2AC5-4405-98BB-76D8A43E7D64:/container_volume",
+            "DockerfileRunArguments": "-v C:\\DockerVolumes\\C9245650-7724-42AC-BF15-FCE8AB9D4E82:/container_volume",
             "publishAllPorts": true,
             "useSSL": false,
             "httpPort": 5000

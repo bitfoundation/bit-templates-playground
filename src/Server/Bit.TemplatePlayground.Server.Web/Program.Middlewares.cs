@@ -1,18 +1,16 @@
 ﻿using System.Net;
-using System.Reflection;
 using System.Runtime.Loader;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Components.Endpoints;
 using Microsoft.AspNetCore.Localization.Routing;
-using System.Text.RegularExpressions;
 using Bit.TemplatePlayground.Shared;
 using Bit.TemplatePlayground.Shared.Attributes;
 using Hangfire;
+using Bit.TemplatePlayground.Server.Api.Filters;
 using Bit.TemplatePlayground.Server.Api.Services;
-using Bit.TemplatePlayground.Client.Core.Services;
+using Bit.TemplatePlayground.Server.Web.Endpoints;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -161,6 +159,7 @@ public static partial class Program
            .CacheOutput("AppResponseCachePolicy");
 
         app.UseSiteMap();
+        app.UseHybridWebAppInterop();
 
         // Handle the rest of requests with blazor
         var blazorApp = app.MapRazorComponents<Components.App>()
@@ -174,58 +173,6 @@ public static partial class Program
             blazorApp.AllowAnonymous(); // Server may not check authorization for pages when there's no pre rendering, let the client handle it.
         }
     }
-
-    private static void UseSiteMap(this WebApplication app)
-    {
-        const string siteMapHeader = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">";
-
-        app.MapGet("/sitemap_index.xml", [AppResponseCache(SharedMaxAge = 3600 * 24 * 7)] async (context) =>
-        {
-            const string SITEMAP_INDEX_FORMAT = @"<?xml version=""1.0"" encoding=""UTF-8""?>
-<sitemapindex xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">
-   <sitemap>
-      <loc>{0}sitemap.xml</loc>
-   </sitemap>
-</sitemapindex>";
-
-            var baseUrl = context.Request.GetBaseUrl();
-
-            context.Response.Headers.ContentType = "application/xml";
-
-            await context.Response.WriteAsync(string.Format(SITEMAP_INDEX_FORMAT, baseUrl), context.RequestAborted);
-        }).CacheOutput("AppResponseCachePolicy").WithTags("Sitemaps");
-
-        app.MapGet("/sitemap.xml", [AppResponseCache(SharedMaxAge = 3600 * 24 * 7)] async (context) =>
-        {
-            var urls = AssemblyLoadContext.Default.Assemblies.Where(asm => asm.GetName().Name?.Contains("Bit.TemplatePlayground.Client") is true)
-                 .SelectMany(asm => asm.ExportedTypes)
-                 .Where(att => att.GetCustomAttribute<AuthorizeAttribute>(inherit: true) is null)
-                 .SelectMany(t => t.GetCustomAttributes<Microsoft.AspNetCore.Components.RouteAttribute>())
-                 .Where(att => RouteRegex().IsMatch(att.Template) is false)
-                 .Select(att => att.Template)
-                 .Except([Urls.NotFoundPage, Urls.NotAuthorizedPage])
-                 .ToArray();
-
-            urls = CultureInfoManager.InvariantGlobalization is false
-                    ? urls.Union(CultureInfoManager.SupportedCultures.SelectMany(sc => urls.Select(url => $"{sc.Culture.Name}{url}"))).ToArray()
-                    : urls;
-
-            var baseUrl = context.Request.GetBaseUrl();
-
-            var siteMap = @$"{siteMapHeader}
-    {string.Join(Environment.NewLine, urls.Select(u => $"<url><loc>{new Uri(baseUrl, u)}</loc></url>"))}
-</urlset>";
-
-            context.Response.Headers.ContentType = "application/xml";
-
-            await context.Response.WriteAsync(siteMap, context.RequestAborted);
-        }).CacheOutput("AppResponseCachePolicy").WithTags("Sitemaps");
-
-    }
-
-    [GeneratedRegex(@"\{.*?\}")]
-    private static partial Regex RouteRegex();
 
     /// <summary>
     /// Prior to the introduction of .NET 8, the Blazor router effectively managed NotFound and NotAuthorized components during pre-rendering.

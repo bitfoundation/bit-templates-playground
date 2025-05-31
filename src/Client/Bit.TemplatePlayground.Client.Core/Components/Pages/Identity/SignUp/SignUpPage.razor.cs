@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.SignUp;
@@ -9,6 +9,7 @@ public partial class SignUpPage
     public string? ReturnUrlQueryString { get; set; }
 
     private bool isWaiting;
+    private Action? pubSubUnsubscribe;
     private readonly SignUpRequestDto signUpModel = new() { UserName = Guid.NewGuid().ToString() };
 
     [AutoInject] private ILocalHttpServer localHttpServer = default!;
@@ -35,20 +36,16 @@ public partial class SignUpPage
         {
             await identityController.SignUp(signUpModel, CurrentCancellationToken);
 
-            var queryParams = new Dictionary<string, object?>
-            {
-                { "return-url", ReturnUrlQueryString }
-            };
-            if (string.IsNullOrEmpty(signUpModel.Email) is false)
-            {
-                queryParams.Add("email", signUpModel.Email);
-            }
-            if (string.IsNullOrEmpty(signUpModel.PhoneNumber) is false)
-            {
-                queryParams.Add("phoneNumber", signUpModel.PhoneNumber);
-            }
-            var confirmUrl = NavigationManager.GetUriWithQueryParameters(Urls.ConfirmPage, queryParams);
-            NavigationManager.NavigateTo(confirmUrl, replace: true);
+            NavigateToConfirmPage();
+        }
+        catch (BadRequestException e) when (e.Key == nameof(AppStrings.UserIsNotConfirmed))
+        {
+            NavigateToConfirmPage();
+        }
+        catch (TooManyRequestsExceptions e)
+        {
+            SnackBarService.Error(e.Message);
+            NavigateToConfirmPage();
         }
         catch (KnownException e)
         {
@@ -66,10 +63,34 @@ public partial class SignUpPage
         }
     }
 
+    private void NavigateToConfirmPage()
+    {
+        var queryParams = new Dictionary<string, object?>
+        {
+            { "return-url", ReturnUrlQueryString }
+        };
+        if (string.IsNullOrEmpty(signUpModel.Email) is false)
+        {
+            queryParams.Add("email", signUpModel.Email);
+        }
+        if (string.IsNullOrEmpty(signUpModel.PhoneNumber) is false)
+        {
+            queryParams.Add("phoneNumber", signUpModel.PhoneNumber);
+        }
+        var confirmUrl = NavigationManager.GetUriWithQueryParameters(Urls.ConfirmPage, queryParams);
+        NavigationManager.NavigateTo(confirmUrl, replace: true);
+    }
+
     private async Task SocialSignUp(string provider)
     {
         try
         {
+            pubSubUnsubscribe = PubSubService.Subscribe(ClientPubSubMessages.SOCIAL_SIGN_IN, async (uriString) =>
+            {
+                // Social sign-in creates a new user automatically, so we only need to navigate to the sign-in page to automatically sign-in the user by provided OTP.
+                NavigationManager.NavigateTo(uriString!.ToString()!, replace: true);
+            });
+
             var port = localHttpServer.EnsureStarted();
 
             var redirectUrl = await identityController.GetSocialSignInUri(provider, ReturnUrlQueryString, port is -1 ? null : port, CurrentCancellationToken);
@@ -80,5 +101,12 @@ public partial class SignUpPage
         {
             SnackBarService.Error(e.Message);
         }
+    }
+
+    protected override async ValueTask DisposeAsync(bool disposing)
+    {
+        pubSubUnsubscribe?.Invoke();
+
+        await base.DisposeAsync(disposing);
     }
 }

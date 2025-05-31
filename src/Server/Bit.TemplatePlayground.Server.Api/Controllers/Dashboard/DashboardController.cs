@@ -1,9 +1,11 @@
-using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 using Bit.TemplatePlayground.Shared.Controllers.Dashboard;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Dashboard;
 
-[ApiController, Route("api/[controller]/[action]"), Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS)]
+[ApiController, Route("api/[controller]/[action]"), 
+    Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS),
+    Authorize(Policy = AppFeatures.AdminPanel.Dashboard)]
 public partial class DashboardController : AppControllerBase, IDashboardController
 {
     [HttpGet]

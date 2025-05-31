@@ -13,8 +13,8 @@ public partial class ProductEmbeddingService
 
     public async Task<IQueryable<Product>> GetProductsBySearchQuery(string searchQuery, CancellationToken cancellationToken)
     {
-        // The RAG has been implemented for PostgreSQL only. Checkout https://github.com/bitfoundation/bitplatform/blob/develop/src/Templates/Bit.TemplatePlayground/Bit.Bit.TemplatePlayground/src/Server/Bit.TemplatePlayground.Server.Api/Services/ProductEmbeddingService.cs
-        return dbContext.Products.OrderBy(_ => EF.Functions.Random()).Take(15);
+        // The RAG has been implemented for PostgreSQL only. Check out https://github.com/bitfoundation/bitplatform/blob/develop/src/Templates/Bit.TemplatePlayground/Bit.Bit.TemplatePlayground/src/Server/Bit.TemplatePlayground.Server.Api/Services/ProductEmbeddingService.cs
+        return dbContext.Products.Where(p => p.Name!.Contains(searchQuery) || p.Category!.Name!.Contains(searchQuery));
     }
 
     public async Task Embed(Product product, CancellationToken cancellationToken)

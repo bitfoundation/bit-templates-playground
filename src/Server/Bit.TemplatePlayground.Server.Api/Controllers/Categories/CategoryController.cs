@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.SignalR;
+﻿using Microsoft.AspNetCore.SignalR;
 using Bit.TemplatePlayground.Server.Api.SignalR;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Server.Api.Models.Categories;
@@ -6,8 +6,9 @@ using Bit.TemplatePlayground.Shared.Controllers.Categories;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Categories;
 
-[ApiController, Route("api/[controller]/[action]")]
-[Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS)]
+[ApiController, Route("api/[controller]/[action]"),
+    Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS),
+    Authorize(Policy = AppFeatures.AdminPanel.ManageProductCatalog)]
 public partial class CategoryController : AppControllerBase, ICategoryController
 {
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
@@ -93,7 +94,7 @@ public partial class CategoryController : AppControllerBase, ICategoryController
 
     private async Task PublishDashboardDataChanged(CancellationToken cancellationToken)
     {
-        // Checkout AppHub's comments for more info.
+        // Check out AppHub's comments for more info.
         // In order to exclude current user session, gets its signalR connection id from database and use GroupExcept instead.
         await appHubContext.Clients.Group("AuthenticatedClients").SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.DASHBOARD_DATA_CHANGED, null, cancellationToken);
     }

@@ -1,4 +1,4 @@
-namespace Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿namespace Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class SignUpRequestDto : IdentityRequestDto
@@ -16,9 +16,6 @@ public partial class SignUpRequestDto : IdentityRequestDto
 
     /// <example>null</example>
     public string? GoogleRecaptchaResponse { get; set; }
-
-    /// <example>/</example>
-    public string? ReturnUrl { get; set; } = Urls.HomePage;
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

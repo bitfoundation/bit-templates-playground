@@ -1,8 +1,8 @@
-﻿using Android.OS;
+﻿using Java.Net;
+using Android.OS;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
-using Java.Net;
 using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
@@ -33,23 +33,26 @@ public partial class MainActivity : MauiAppCompatActivity
 
         base.OnCreate(savedInstanceState);
 
-        var url = Intent?.DataString;
+        var url = Intent?.DataString; // Handling universal deep links handling when the app was closed.
         if (string.IsNullOrWhiteSpace(url) is false)
         {
             _ = Routes.OpenUniversalLink(new URL(url).File ?? Urls.HomePage);
         }
+
     }
+
 
     protected override void OnNewIntent(Intent? intent)
     {
         base.OnNewIntent(intent);
 
-        var action = intent!.Action;
+        var action = intent!.Action; // Handling universal deep links handling when the is running.
         var url = intent.DataString;
         if (action is Intent.ActionView && string.IsNullOrWhiteSpace(url) is false)
         {
             _ = Routes.OpenUniversalLink(new URL(url).File ?? Urls.HomePage);
         }
+
     }
 
 }

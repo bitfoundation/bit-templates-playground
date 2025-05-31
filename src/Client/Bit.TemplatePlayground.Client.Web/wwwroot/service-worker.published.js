@@ -1,4 +1,4 @@
-// bit version: 9.7.0
+// bit version: 9.8.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -50,7 +50,8 @@ self.serverHandledUrls = [
     /\/signin-/,
     /\/.well-known/,
     /\/sitemap.xml/,
-    /\/sitemap_index.xml/
+    /\/sitemap_index.xml/,
+    /\/hybrid-app-web-interop/
 ];
 
 self.prerenderMode = 'none'; // Demo: https://adminpanel.bitplatform.dev/ (No-Prerendering + Offline support)

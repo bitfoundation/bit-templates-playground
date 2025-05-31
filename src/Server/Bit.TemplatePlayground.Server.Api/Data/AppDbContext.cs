@@ -10,7 +10,7 @@ using Bit.TemplatePlayground.Server.Api.Models.Attachments;
 namespace Bit.TemplatePlayground.Server.Api.Data;
 
 public partial class AppDbContext(DbContextOptions<AppDbContext> options)
-    : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, IdentityUserLogin<Guid>, RoleClaim, IdentityUserToken<Guid>>(options)
+    : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options)
 {
     public DbSet<UserSession> UserSessions { get; set; } = default!;
 
@@ -111,10 +111,10 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         builder.Entity<UserClaim>()
             .ToTable("UserClaims");
 
-        builder.Entity<IdentityUserLogin<Guid>>()
+        builder.Entity<UserLogin>()
             .ToTable("UserLogins");
 
-        builder.Entity<IdentityUserToken<Guid>>()
+        builder.Entity<UserToken>()
             .ToTable("UserTokens");
     }
 

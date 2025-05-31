@@ -5,7 +5,7 @@
         <!--If you don't need to use the time zone and your app is in WASM format, you can reduce the output size of the app by disabling the time zone.-->
         <InvariantTimezone>false</InvariantTimezone>
         <BlazorWebAssemblyPreserveCollationData>false</BlazorWebAssemblyPreserveCollationData>
-        <!-- To change InvariantGlobalization's value, checkout Directory.Build.props -->
+        <!-- To change InvariantGlobalization's value, Check out Directory.Build.props -->
         <HybridGlobalization Condition="'$(InvariantGlobalization)' == 'false'">true</HybridGlobalization>
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
         <BlazorCacheBootResources>false</BlazorCacheBootResources>
@@ -20,6 +20,8 @@
         <WasmFingerprintAssets>false</WasmFingerprintAssets>
         <StaticWebAssetsFingerprintContent>false</StaticWebAssetsFingerprintContent>
         <StaticWebAssetFingerprintingEnabled>false</StaticWebAssetFingerprintingEnabled>
+
+        <WasmEnableWebcil Condition="'$(Environment)' == 'Development'">false</WasmEnableWebcil>
     </PropertyGroup>
 
     <ItemGroup>
@@ -59,7 +61,7 @@
     </Target>
 
     <Target Name="BuildCssFiles">
-        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass .:. --style compressed --load-path=. --silence-deprecation=import" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
+        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass Components:Components --style compressed --silence-deprecation=import --update --color" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
     </Target>
 
     <PropertyGroup Condition="'$(Environment)' != 'Development'">

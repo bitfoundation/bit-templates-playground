@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity;
@@ -6,6 +6,9 @@ namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity;
 public partial class ForgotPasswordPage
 {
     [AutoInject] IIdentityController identityController = default!;
+
+    [Parameter, SupplyParameterFromQuery(Name = "return-url")]
+    public string? ReturnUrlQueryString { get; set; }
 
     private bool isWaiting;
     private readonly SendResetPasswordTokenRequestDto model = new();
@@ -35,9 +38,22 @@ public partial class ForgotPasswordPage
 
         try
         {
-            await identityController.SendResetPasswordToken(model, CurrentCancellationToken);
+            model.ReturnUrl = ReturnUrlQueryString;
 
-            var queryParams = new Dictionary<string, object?>();
+            try
+            {
+                await identityController.SendResetPasswordToken(model, CurrentCancellationToken);
+            }
+            catch (TooManyRequestsExceptions e)
+            {
+                SnackBarService.Error(e.Message);
+                // Let's go to the reset password page anyway.
+            }
+
+            var queryParams = new Dictionary<string, object?>
+            {
+                { "return-url", ReturnUrlQueryString }
+            };
             if (string.IsNullOrEmpty(model.Email) is false)
             {
                 queryParams.Add("email", model.Email);
@@ -46,8 +62,13 @@ public partial class ForgotPasswordPage
             {
                 queryParams.Add("phoneNumber", model.PhoneNumber);
             }
+
             var resetPasswordUrl = NavigationManager.GetUriWithQueryParameters(Urls.ResetPasswordPage, queryParams);
             NavigationManager.NavigateTo(resetPasswordUrl);
+        }
+        catch (BadRequestException e) when (e.Key == nameof(AppStrings.UserIsNotConfirmed))
+        {
+            NavigateToConfirmPage(); // Check out SignInModalService for more details
         }
         catch (KnownException e)
         {
@@ -57,5 +78,23 @@ public partial class ForgotPasswordPage
         {
             isWaiting = false;
         }
+    }
+
+    private void NavigateToConfirmPage()
+    {
+        var queryParams = new Dictionary<string, object?>
+        {
+            { "return-url", ReturnUrlQueryString }
+        };
+        if (string.IsNullOrEmpty(model.Email) is false)
+        {
+            queryParams.Add("email", model.Email);
+        }
+        if (string.IsNullOrEmpty(model.PhoneNumber) is false)
+        {
+            queryParams.Add("phoneNumber", model.PhoneNumber);
+        }
+        var confirmUrl = NavigationManager.GetUriWithQueryParameters(Urls.ConfirmPage, queryParams);
+        NavigationManager.NavigateTo(confirmUrl, replace: true);
     }
 }

@@ -25,4 +25,9 @@ public static partial class Urls
     public const string SystemPrompts = "/system-prompts";
 
     public const string Authorize = "/authorize";
+
+    public const string RolesPage = "/user-groups";
+
+    public const string UsersPage = "/users";
+
 }

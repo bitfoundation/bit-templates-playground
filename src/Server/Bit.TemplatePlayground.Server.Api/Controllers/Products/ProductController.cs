@@ -10,6 +10,7 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers.Products;
 
 [ApiController, Route("api/[controller]/[action]")]
 [Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS)]
+[Authorize(Policy = AppFeatures.AdminPanel.ManageProductCatalog)]
 public partial class ProductController : AppControllerBase, IProductController
 {
     [AutoInject] private HtmlSanitizer htmlSanitizer = default!;
@@ -117,7 +118,7 @@ public partial class ProductController : AppControllerBase, IProductController
 
     private async Task PublishDashboardDataChanged(CancellationToken cancellationToken)
     {
-        // Checkout AppHub's comments for more info.
+        // Check out AppHub's comments for more info.
         // In order to exclude current user session, gets its signalR connection id from database and use GroupExcept instead.
         await appHubContext.Clients.Group("AuthenticatedClients").SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.DASHBOARD_DATA_CHANGED, null, cancellationToken);
     }

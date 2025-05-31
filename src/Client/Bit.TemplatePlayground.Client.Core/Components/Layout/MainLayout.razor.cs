@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Bit.TemplatePlayground.Client.Core.Services;
 using Microsoft.AspNetCore.Components.Routing;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
@@ -16,7 +17,7 @@ public partial class MainLayout : IAsyncDisposable
     /// </summary>
     private bool? isOnline;
 
-    private bool? isAuthenticated;
+    private ClaimsPrincipal? user;
     private AppThemeType? currentTheme;
     private RouteData? currentRouteData;
     private List<Action> unsubscribers = [];
@@ -30,6 +31,7 @@ public partial class MainLayout : IAsyncDisposable
     [AutoInject] private IExceptionHandler exceptionHandler = default!;
     [AutoInject] private ITelemetryContext telemetryContext = default!;
     [AutoInject] private NavigationManager navigationManager = default!;
+    [AutoInject] private SignInModalService signInModalService = default!;
     [AutoInject] private IPrerenderStateService prerenderStateService = default!;
 
 
@@ -50,8 +52,6 @@ public partial class MainLayout : IAsyncDisposable
             // dependencies, its value remains null. 
             // Even though Server.Web and Server.Api may be deployed on different servers, 
             // we can still assume that if the client is displaying a pre-rendered result, it is online.
-
-            InitializeNavPanelItems();
 
             navigationManager.LocationChanged += NavigationManager_LocationChanged;
             authManager.AuthenticationStateChanged += AuthManager_AuthenticationStateChanged;
@@ -89,7 +89,9 @@ public partial class MainLayout : IAsyncDisposable
                 StateHasChanged();
             }));
 
-            isAuthenticated = (await AuthenticationStateTask).User.IsAuthenticated();
+            user = (await AuthenticationStateTask).User;
+
+            await SetNavPanelItems();
 
             SetCurrentDir();
             currentTheme = await themeService.GetCurrentTheme();
@@ -133,7 +135,9 @@ public partial class MainLayout : IAsyncDisposable
     {
         try
         {
-            isAuthenticated = (await task).User.IsAuthenticated();
+            user = (await task).User;
+            
+            await SetNavPanelItems();
         }
         catch (Exception ex)
         {
@@ -186,6 +190,11 @@ public partial class MainLayout : IAsyncDisposable
         return isIdentityPage is true ? "identity"
              : isIdentityPage is false ? "non-identity"
              : string.Empty;
+    }
+
+    private async Task ModalSignIn()
+    {
+        await signInModalService.SignIn();
     }
 
 

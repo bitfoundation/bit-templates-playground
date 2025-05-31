@@ -1,5 +1,6 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.Butil;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Authorized.Settings;
 
@@ -8,10 +9,14 @@ public partial class SessionsSection
     private bool isLoading;
     private Guid? currentSessionId;
     private UserSessionDto? currentSession;
+    private int currentPrivilegedSessionsCount;
+    private int maxPrivilegedSessionsCount;
+    private bool hasUnlimitedPrivilegedSessions;
     private List<Guid> revokingSessionIds = [];
     private UserSessionDto[] otherSessions = [];
 
     [AutoInject] private IUserController userController = default!;
+    [AutoInject] private Notification notification = default!;
 
 
     protected override async Task OnInitAsync()
@@ -31,11 +36,16 @@ public partial class SessionsSection
 
         try
         {
-            currentSessionId = (await AuthenticationStateTask).User.GetSessionId();
+            var user = (await AuthenticationStateTask).User;
+            currentSessionId = user.GetSessionId();
 
             var userSessions = await userController.GetUserSessions(CurrentCancellationToken);
             otherSessions = userSessions.Where(s => s.Id != currentSessionId).ToArray();
             currentSession = userSessions.Single(s => s.Id == currentSessionId);
+
+            maxPrivilegedSessionsCount = user.GetClaimValue<int>(AppClaimTypes.MAX_PRIVILEGED_SESSIONS);
+            hasUnlimitedPrivilegedSessions = user.HasClaim(AppClaimTypes.MAX_PRIVILEGED_SESSIONS, "-1");
+            currentPrivilegedSessionsCount = userSessions.Count(us => us.Privileged);
         }
         catch (KnownException e)
         {
@@ -102,5 +112,21 @@ public partial class SessionsSection
         return DateTimeOffset.UtcNow - renewedOn < TimeSpan.FromMinutes(5) ? Localizer[nameof(AppStrings.Online)]
                     : DateTimeOffset.UtcNow - renewedOn < TimeSpan.FromMinutes(15) ? Localizer[nameof(AppStrings.Recently)]
                     : renewedOn.ToLocalTime().ToString("g");
+    }
+
+    private async Task ToggleNotification(UserSessionDto userSession)
+    {
+        if (userSession.NotificationStatus is not UserSessionNotificationStatus.Allowed)
+        {
+            // User is going to allow notifications so it's an opportune time to request permission.
+            // The permission might have already been requested (if userSession.NotificationStatus is UserSessionNotificationStatus.Muted), but there's no harm in asking for permission again.
+
+            if (await notification.IsSupported())
+            {
+                await notification.RequestPermission();
+            }
+        }
+
+        userSession.NotificationStatus = await userController.ToggleNotification(userSession.Id, CurrentCancellationToken);
     }
 }

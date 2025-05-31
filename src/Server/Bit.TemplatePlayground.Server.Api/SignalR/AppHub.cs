@@ -4,6 +4,7 @@ using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.SignalR;
 using Bit.TemplatePlayground.Shared.Dtos.Chatbot;
 using Bit.TemplatePlayground.Server.Api.Services;
+using Bit.TemplatePlayground.Shared.Dtos.Diagnostic;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Controllers.Identity;
 using System.ComponentModel;
@@ -191,5 +192,34 @@ public partial class AppHub : Hub
             await Clients.Caller.SendAsync(SignalREvents.EXCEPTION_THROWN, problemDetails, cancellationToken);
         }
         catch { }
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
+    /// </summary>
+    /// <param name="userQuery">`UserId`, `UserSessionId`, `Email` or `PhoneNumber`</param>
+    /// <returns></returns>
+    [Authorize(Policy = AppFeatures.System.ManageLogs)]
+    public async Task<DiagnosticLogDto[]> GetUserDiagnosticLogs(string? userQuery)
+    {
+        if (string.IsNullOrEmpty(userQuery))
+            return [];
+
+        userQuery = userQuery.Trim().ToUpperInvariant();
+
+        await using var scope = serviceProvider.CreateAsyncScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var isGuidId = Guid.TryParse(userQuery, out var id);
+
+        var userSessionSignalRConnectionIds = await dbContext.UserSessions
+            .WhereIf(isGuidId, us => us.Id == id || us.UserId == id)
+            .WhereIf(isGuidId is false, us => us.User!.NormalizedEmail == userQuery || us.User.PhoneNumber == userQuery || us.User.UserName == userQuery)
+            .Where(us => us.SignalRConnectionId != null)
+            .Select(us => us.SignalRConnectionId)
+            .ToArrayAsync(Context.ConnectionAborted);
+
+        return [.. (await Task.WhenAll(userSessionSignalRConnectionIds.Select(id => Clients.Client(id!).InvokeAsync<DiagnosticLogDto[]>(SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE, Context.ConnectionAborted))))
+            .SelectMany(_ => _)];
     }
 }

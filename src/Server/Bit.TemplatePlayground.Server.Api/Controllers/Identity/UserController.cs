@@ -19,6 +19,7 @@ public partial class UserController : AppControllerBase, IUserController
     [AutoInject] private EmailService emailService = default!;
     [AutoInject] private IUserStore<User> userStore = default!;
     [AutoInject] private UserManager<User> userManager = default!;
+    [AutoInject] private SignInManager<User> signInManager = default;
     [AutoInject] private IUserEmailStore<User> userEmailStore = default!;
 
 
@@ -57,7 +58,7 @@ public partial class UserController : AppControllerBase, IUserController
         DbContext.UserSessions.Remove(userSession);
         await DbContext.SaveChangesAsync(cancellationToken);
 
-        SignOut();
+        await signInManager.SignOutAsync();
     }
 
     [HttpPost("{id}"), Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
@@ -71,12 +72,12 @@ public partial class UserController : AppControllerBase, IUserController
             throw new BadRequestException(); // "Call SignOut instead"
 
         var userSession = await DbContext.UserSessions
-            .FirstOrDefaultAsync(us => us.Id == id, cancellationToken) ?? throw new ResourceNotFoundException();
+            .FirstOrDefaultAsync(us => us.Id == id && us.UserId == userId, cancellationToken) ?? throw new ResourceNotFoundException();
 
         DbContext.UserSessions.Remove(userSession);
         await DbContext.SaveChangesAsync(cancellationToken);
 
-        // Checkout AppHub's comments for more info.
+        // Check out AppHub's comments for more info.
         if (userSession.SignalRConnectionId is not null)
         {
             await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.SESSION_REVOKED, null, cancellationToken);
@@ -397,9 +398,9 @@ public partial class UserController : AppControllerBase, IUserController
 
         if (user.TwoFactorEnabled || (user.EmailConfirmed is false && user.PhoneNumberConfirmed is false /* Users signed-in through social sign-in */))
         {
-            // Checkout AppHub's comments for more info.
+            // Check out AppHub's comments for more info.
             var userSessionIdsExceptCurrentUserSessionId = await DbContext.UserSessions
-                .Where(us => us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
+                .Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed && us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
                 .Select(us => us.SignalRConnectionId!)
                 .ToArrayAsync(cancellationToken);
             sendMessagesTasks.Add(appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.SHOW_MESSAGE, message, cancellationToken));
@@ -407,6 +408,30 @@ public partial class UserController : AppControllerBase, IUserController
         }
 
         await Task.WhenAll(sendMessagesTasks);
+    }
+
+    [HttpPost("{userSessionId}")]
+    public async Task<UserSessionNotificationStatus> ToggleNotification(Guid userSessionId, CancellationToken cancellationToken)
+    {
+        var userId = User.GetUserId();
+
+        var userSession = await DbContext.UserSessions
+            .FirstOrDefaultAsync(us => us.Id == userSessionId && us.UserId == userId, cancellationToken) ?? throw new ResourceNotFoundException();
+
+        userSession.NotificationStatus = userSession.NotificationStatus is UserSessionNotificationStatus.NotConfigured ? UserSessionNotificationStatus.Allowed :
+            userSession.NotificationStatus is UserSessionNotificationStatus.Allowed ? UserSessionNotificationStatus.Muted : UserSessionNotificationStatus.Allowed;
+
+        await DbContext.SaveChangesAsync(cancellationToken);
+
+        if (userSession.NotificationStatus is UserSessionNotificationStatus.Allowed)
+        {
+            if (userSession.SignalRConnectionId != null)
+            {
+                await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, (string)Localizer[nameof(AppStrings.TestNotificationMessage2)], cancellationToken);
+            }
+        }
+
+        return userSession.NotificationStatus;
     }
 
     private static string FormatKey(string unformattedKey)

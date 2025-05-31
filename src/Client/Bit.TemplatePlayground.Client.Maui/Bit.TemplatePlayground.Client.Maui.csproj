@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFrameworks>net9.0-android;net9.0-ios;net9.0-maccatalyst</TargetFrameworks>
@@ -23,6 +23,7 @@
 
         <!-- Required for C# Hot Reload -->
         <UseInterpreter Condition="'$(Environment)' == 'Development'">True</UseInterpreter>
+        <SkipStaticLibraryValidation Condition="'$(Environment)' == 'Development'">true</SkipStaticLibraryValidation>
 
         <NoWarn>$(NoWarn);ClassWithoutModifierAnalyzer</NoWarn>
 
@@ -129,16 +130,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Remove="compilerconfig.json" />
-        <None Include="compilerconfig.json" />
         <Content Remove="appsettings*.json" />
         <EmbeddedResource Include="appsettings*.json" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Remove="wwwroot\external-js-runner.html" />
-        <EmbeddedResource Include="wwwroot\external-js-runner.html" />
-        <EmbeddedResource Include="..\Bit.TemplatePlayground.Client.Core\wwwroot\scripts\app.js" Link="wwwroot\scripts\app.js" />
     </ItemGroup>
 
     <ItemGroup>
@@ -162,7 +155,7 @@
     </Target>
 
     <Target Name="BuildCssFiles">
-        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass .:. --style compressed --load-path=. --silence-deprecation=import" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
+        <Exec Command="../Bit.TemplatePlayground.Client.Core/node_modules/.bin/sass Components:Components --style compressed --silence-deprecation=import --update --color" StandardOutputImportance="high" StandardErrorImportance="high" LogStandardErrorAsError="true" />
     </Target>
 
     <!-- https://github.com/dotnet/runtime/issues/104599  -->

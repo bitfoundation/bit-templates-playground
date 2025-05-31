@@ -15,7 +15,11 @@ public partial class IdentityController
                     ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.UserNotFound)]).WithData("Identifier", request);
 
         if (await userConfirmation.IsConfirmedAsync(userManager, user) is false)
+        {
+            await SendConfirmationToken(user, request.ReturnUrl, cancellationToken);
+
             throw new BadRequestException(Localizer[nameof(AppStrings.UserIsNotConfirmed)]).WithData("UserId", user.Id);
+        }
 
         var resendDelay = (DateTimeOffset.Now - user.ResetPasswordTokenRequestedOn) - AppSettings.Identity.ResetPasswordTokenLifetime;
 
@@ -32,7 +36,7 @@ public partial class IdentityController
         var token = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"ResetPassword,{user.ResetPasswordTokenRequestedOn?.ToUniversalTime()}"));
         var isEmail = string.IsNullOrEmpty(request.Email) is false;
         var qs = $"{(isEmail ? "email" : "phoneNumber")}={Uri.EscapeDataString(isEmail ? request.Email! : request.PhoneNumber!)}";
-        var url = $"{Urls.ResetPasswordPage}?token={Uri.EscapeDataString(token)}&{qs}&culture={CultureInfo.CurrentUICulture.Name}";
+        var url = $"{Urls.ResetPasswordPage}?token={Uri.EscapeDataString(token)}&{qs}&culture={CultureInfo.CurrentUICulture.Name}&return-url={Uri.EscapeDataString(request.ReturnUrl ?? Urls.HomePage)}";
         var link = new Uri(HttpContext.Request.GetWebAppUrl(), url);
 
         List<Task> sendMessagesTasks = [];
@@ -50,7 +54,11 @@ public partial class IdentityController
             sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!));
         }
 
-        sendMessagesTasks.Add(appHubContext.Clients.User(user.Id.ToString()).SendAsync(SignalREvents.SHOW_MESSAGE, message, cancellationToken));
+        var userConnectionIds = await DbContext.UserSessions
+            .Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed && us.UserId == user.Id)
+            .Select(us => us.SignalRConnectionId!)
+            .ToArrayAsync(cancellationToken);
+        sendMessagesTasks.Add(appHubContext.Clients.Clients(userConnectionIds).SendAsync(SignalREvents.SHOW_MESSAGE, message, cancellationToken));
 
 
         await Task.WhenAll(sendMessagesTasks);

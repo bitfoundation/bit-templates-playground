@@ -1,12 +1,11 @@
-using Bit.TemplatePlayground.Server.Api.Services;
+﻿using Bit.TemplatePlayground.Server.Api.Services;
+using Bit.TemplatePlayground.Shared.Services;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Identity;
 
 public partial class IdentityController
 {
-    [AutoInject] private HtmlRenderer htmlRenderer = default!;
     [AutoInject] private ServerExceptionHandler serverExceptionHandler = default!;
 
     [HttpGet]
@@ -49,7 +48,7 @@ public partial class IdentityController
 
             if (user is null)
             {
-                var name = info.Principal.FindFirstValue(ClaimTypes.Name) ?? info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
+                var name = info.Principal.FindFirstValue("preferred_username") ?? info.Principal.FindFirstValue(ClaimTypes.Name) ?? info.Principal.FindFirstValue(ClaimTypes.NameIdentifier);
                 // Instead of automatically creating a user here, you can navigate to the sign-up page and pass the email and phone number in the query string.
 
                 user = new()
@@ -70,12 +69,7 @@ public partial class IdentityController
                     await userPhoneNumberStore.SetPhoneNumberAsync(user, phoneNumber!, cancellationToken);
                 }
 
-                var result = await userManager.CreateAsync(user, password: Guid.NewGuid().ToString("N") /* Users can reset their password later. */);
-
-                if (result.Succeeded is false)
-                {
-                    throw new BadRequestException(string.Join(", ", result.Errors.Select(e => new LocalizedString(e.Code, e.Description))));
-                }
+                await userManager.CreateUserWithDemoRole(user);
 
                 await userManager.AddLoginAsync(user, info);
             }
@@ -104,7 +98,9 @@ public partial class IdentityController
             await Request.HttpContext.SignOutAsync(IdentityConstants.ExternalScheme); // We'll handle sign-in with the following redirects, so no external identity cookie is needed.
         }
 
-        if (localHttpPort is not null) return Redirect(new Uri(new Uri($"http://localhost:{localHttpPort}"), url).ToString());
+        if (localHttpPort is not null)
+            if (localHttpPort is not null) return Redirect($"http://localhost:{localHttpPort}/hybrid-app-web-interop?actionName=SocialSignInCallback&url={Uri.EscapeDataString(url!)}&localHttpPort={localHttpPort}"); // Check out HybridAppWebInterop.razor's comments.
+
         return Redirect(new Uri(Request.HttpContext.Request.GetWebAppUrl(), url).ToString());
     }
 }

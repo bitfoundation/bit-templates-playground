@@ -2,9 +2,6 @@
   <Configurations>
     <BuildType Name="Debug" />
     <BuildType Name="DebugBlazorServer" />
-	<BuildType Name="DebugBlazorWasm" />
-	<BuildType Name="DebugBlazorHybridMaui" />
-	<BuildType Name="DebugBlazorHybridWindows" />
     <BuildType Name="Release" />
   </Configurations>
   <Folder Name="/.SolutionItems/">
@@ -40,21 +37,14 @@
     <Project Path="src/Client/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.csproj" />
     <Project Path="src/Client/Bit.TemplatePlayground.Client.Maui/Bit.TemplatePlayground.Client.Maui.csproj">
       <Build Solution="DebugBlazorServer|*" Project="false" />
-      <Build Solution="DebugBlazorWasm|*" Project="false" />
-      <Build Solution="DebugBlazorHybridWindows|*" Project="false" />
-      <Deploy Solution="DebugBlazorHybridMaui|*" />
       <Deploy Solution="Debug|*" />
       <Deploy Solution="Release|*" />
     </Project>
     <Project Path="src/Client/Bit.TemplatePlayground.Client.Web/Bit.TemplatePlayground.Client.Web.csproj">
-      <Build Solution="DebugBlazorHybridMaui|*" Project="false" />
       <Build Solution="DebugBlazorServer|*" Project="false" />
-      <Build Solution="DebugBlazorHybridWindows|*" Project="false" />
     </Project>
     <Project Path="src/Client/Bit.TemplatePlayground.Client.Windows/Bit.TemplatePlayground.Client.Windows.csproj">
-		<Build Solution="DebugBlazorHybridMaui|*" Project="false" />
 		<Build Solution="DebugBlazorServer|*" Project="false" />
-		<Build Solution="DebugBlazorWasm|*" Project="false" />
 	</Project>
   </Folder>
   <Folder Name="/Shared/">
@@ -62,10 +52,7 @@
   </Folder>
   <Folder Name="/Tests/">
     <Project Path="src/Tests/Bit.TemplatePlayground.Tests.csproj">
-      <Build Solution="DebugBlazorHybridMaui|*" Project="false" />
       <Build Solution="DebugBlazorServer|*" Project="false" />
-      <Build Solution="DebugBlazorWasm|*" Project="false" />
-      <Build Solution="DebugBlazorHybridWindows|*" Project="false" />
     </Project>
   </Folder>
 </Solution>

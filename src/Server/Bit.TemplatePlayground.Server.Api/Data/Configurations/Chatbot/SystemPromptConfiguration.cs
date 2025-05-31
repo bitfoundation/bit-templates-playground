@@ -5,10 +5,16 @@ public class SystemPromptConfiguration : IEntityTypeConfiguration<SystemPrompt>
 {
     public void Configure(EntityTypeBuilder<SystemPrompt> builder)
     {
+        builder.HasIndex(sp => sp.PromptKind)
+            .IsUnique();
+
+        var defaultConcurrencyStamp = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+
         builder.HasData(new SystemPrompt
         {
             Id = Guid.Parse("a8c94d94-0004-4dd0-921c-255e0a581424"),
             PromptKind = PromptKind.Support,
+            ConcurrencyStamp = defaultConcurrencyStamp,
             Markdown = @"You are a assistant for the Bit.TemplatePlayground app. Below, you will find a markdown document containing information about the app, followed by the user's query.
 
 # Bit.TemplatePlayground app - Features and usage guide
