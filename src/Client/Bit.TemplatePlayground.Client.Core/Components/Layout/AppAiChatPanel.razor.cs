@@ -30,6 +30,7 @@ public partial class AppAiChatPanel
     protected override Task OnInitAsync()
     {
 
+
         return base.OnInitAsync();
     }
 
@@ -134,7 +135,7 @@ public partial class AppAiChatPanel
                 responseCounter++;
                 if (responseCounter == expectedResponsesCount)
                 {
-                    isLoading = false; // Hide loading only if this is a error for the last user's message.
+                    isLoading = false; // Hide loading only if this is an error for the last user's message.
                 }
                 chatMessages[responseCounter * 2].Successful = false;
             }
@@ -167,6 +168,7 @@ public partial class AppAiChatPanel
 
     protected override async ValueTask DisposeAsync(bool disposing)
     {
+
 
         hubConnection.Reconnected -= HubConnection_Reconnected;
 

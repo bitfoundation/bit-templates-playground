@@ -4,6 +4,7 @@ using Bit.TemplatePlayground.Client.Core.Components;
 using Bit.TemplatePlayground.Client.Windows.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
+using Velopack.Logging;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 
@@ -50,11 +51,11 @@ public partial class Program
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath)
         };
         var pubSubService = Services.GetRequiredService<PubSubService>();
-        pubSubService.Subscribe(ClientPubSubMessages.CULTURE_CHANGED, async culture =>
+        _ = pubSubService.Subscribe(ClientPubSubMessages.CULTURE_CHANGED, async culture =>
         {
             Application.Restart();
         });
-        pubSubService.Subscribe(ClientPubSubMessages.PAGE_DATA_CHANGED, async args =>
+        _ = pubSubService.Subscribe(ClientPubSubMessages.PAGE_DATA_CHANGED, async args =>
         {
             var (title, _, __) = ((string? title, string?, bool))args!;
             await form.InvokeAsync(() =>
@@ -64,7 +65,7 @@ public partial class Program
         });
 
         // https://github.com/velopack/velopack
-        VelopackApp.Build().Run(Services.GetRequiredService<ILogger<VelopackApp>>());
+        VelopackApp.Build().Run();
         _ = Task.Run(async () =>
         {
             try

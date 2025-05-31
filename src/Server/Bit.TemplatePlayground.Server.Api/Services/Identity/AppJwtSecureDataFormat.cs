@@ -1,5 +1,5 @@
+﻿using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication;
 
 namespace Bit.TemplatePlayground.Server.Api.Services.Identity;
@@ -18,7 +18,7 @@ public partial class AppJwtSecureDataFormat(ServerApiSettings appSettings, Token
         {
             if (string.IsNullOrEmpty(protectedText))
             {
-                return NotSignedIn();
+                return Anonymous();
             }
 
             var handler = new JwtSecurityTokenHandler();
@@ -26,7 +26,20 @@ public partial class AppJwtSecureDataFormat(ServerApiSettings appSettings, Token
 
             var validJwt = (JwtSecurityToken)validToken;
             var properties = new AuthenticationProperties() { ExpiresUtc = validJwt.ValidTo };
-            var data = new AuthenticationTicket(principal, properties: properties, IdentityConstants.BearerScheme);
+
+            var identity = new ClaimsIdentity(principal.Identity, principal.Claims, IdentityConstants.BearerScheme, ClaimTypes.NameIdentifier, ClaimTypes.Role);
+
+            if (principal.IsInRole(AppRoles.SuperAdmin))
+            {
+                foreach (var feat in AppFeatures.GetSuperAdminFeatures())
+                {
+                    identity.AddClaim(new Claim(AppClaimTypes.FEATURES, feat.Value));
+                }
+            }
+
+            var result = new ClaimsPrincipal(identity);
+
+            var data = new AuthenticationTicket(result, properties: properties, IdentityConstants.BearerScheme);
 
             return data;
         }
@@ -37,11 +50,11 @@ public partial class AppJwtSecureDataFormat(ServerApiSettings appSettings, Token
                 Console.WriteLine(ex); // since we do not have access to any logger at this point!
             }
 
-            return NotSignedIn();
+            return Anonymous();
         }
     }
 
-    private static AuthenticationTicket NotSignedIn()
+    private static AuthenticationTicket Anonymous()
     {
         return new AuthenticationTicket(new ClaimsPrincipal(new ClaimsIdentity()), string.Empty);
     }

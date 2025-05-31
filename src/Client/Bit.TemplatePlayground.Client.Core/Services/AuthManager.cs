@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
@@ -127,7 +127,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
                     {
                         { "AdditionalData", "Refreshing access token failed." },
                         { "RefreshTokenRequestedBy", requestedBy }
-                    });
+                    }, displayKind: ExceptionDisplayKind.NonInterrupting);
 
                     if (exp is UnauthorizedException) // refresh token is also invalid
                     {
@@ -172,7 +172,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     public async Task<bool> TryEnterElevatedAccessMode(CancellationToken cancellationToken)
     {
         var user = IAuthTokenProvider.ParseAccessToken(await tokenProvider.GetAccessToken(), validateExpiry: true);
-        var hasElevatedAccess = await authorizationService.AuthorizeAsync(user, AuthPolicies.ELEVATED_ACCESS) is { Succeeded: true };
+        var hasElevatedAccess = await authorizationService.IsAuthorizedAsync(user, AuthPolicies.ELEVATED_ACCESS);
         if (hasElevatedAccess)
             return true;
 
@@ -197,13 +197,33 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
         return string.IsNullOrEmpty(accessToken) is false;
     }
 
+    public async Task<string?> GetFreshAccessToken(string requestedBy)
+    {
+        var accessToken = await tokenProvider.GetAccessToken();
+
+        if (string.IsNullOrEmpty(accessToken))
+            return null;
+
+        var isValid = IAuthTokenProvider.ParseAccessToken(accessToken, validateExpiry: true).IsAuthenticated();
+
+        if (isValid) return accessToken;
+
+        return await RefreshToken(requestedBy);
+    }
+
     private async Task ClearTokens()
     {
         await storageService.RemoveItem("access_token");
         await storageService.RemoveItem("refresh_token");
         if (AppPlatform.IsBlazorHybrid is false)
         {
-            await cookie.Remove("access_token");
+            await cookie.Remove(new ButilCookie()
+            {
+                Name = "access_token",
+                Path = "/",
+                SameSite = SameSite.Strict,
+                Secure = AppEnvironment.IsDev() is false
+            });
         }
         NotifyAuthenticationStateChanged(Task.FromResult(await GetAuthenticationStateAsync()));
     }

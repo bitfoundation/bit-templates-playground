@@ -19,6 +19,9 @@ public partial class ServerApiSettings : SharedSettings
     [Required]
     public string UserProfileImagesDir { get; set; } = default!;
 
+    /// <summary>
+    /// Create one at https://console.cloud.google.com/security/recaptcha/create for Web Application Type and use site key in Client.Core
+    /// </summary>
     [Required]
     public string GoogleRecaptchaSecretKey { get; set; } = default!;
 
@@ -143,7 +146,7 @@ public partial class AppIdentityOptions : IdentityOptions
     /// <summary>
     /// <inheritdoc cref="AuthPolicies.PRIVILEGED_ACCESS"/>
     /// </summary>
-    public int MaxConcurrentPrivilegedSessions { get; set; }
+    public int MaxPrivilegedSessionsCount { get; set; }
 }
 
 public partial class AIOptions
@@ -241,6 +244,4 @@ public class HangfireOptions
     /// Useful for testing or in production when managing multiple codebases with a single database.
     /// </summary>
     public bool UseIsolatedStorage { get; set; }
-
-    public string? IsolatedStorageDirectory { get; set; }
 }

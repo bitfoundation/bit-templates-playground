@@ -1,4 +1,4 @@
-
+﻿
 namespace Bit.TemplatePlayground.Client.Core;
 
 public partial class ClientCoreSettings : SharedSettings
@@ -11,6 +11,7 @@ public partial class ClientCoreSettings : SharedSettings
 
     [Required]
     public string GoogleRecaptchaSiteKey { get; set; } = default!;
+
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

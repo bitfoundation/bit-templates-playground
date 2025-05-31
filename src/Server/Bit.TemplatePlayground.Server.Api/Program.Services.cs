@@ -2,10 +2,13 @@
 using System.Net.Mail;
 using System.IO.Compression;
 using System.ClientModel.Primitives;
+using Microsoft.Data.Sqlite;
+using Microsoft.Identity.Web;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.OData;
 using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.ResponseCompression;
 using Twilio;
 using Ganss.Xss;
@@ -93,7 +96,7 @@ public static partial class Program
                 ServerApiSettings settings = new();
                 configuration.Bind(settings);
 
-                policy.SetIsOriginAllowed(origin => settings.IsAllowedOrigin(new Uri(origin)))
+                policy.SetIsOriginAllowed(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) && settings.IsAllowedOrigin(uri))
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .WithExposedHeaders(HeaderNames.RequestId, "Age", "App-Cache-Response");
@@ -155,7 +158,10 @@ public static partial class Program
             options.EnableSensitiveDataLogging(env.IsDevelopment())
                 .EnableDetailedErrors(env.IsDevelopment());
 
-            options.UseSqlite(configuration.GetConnectionString("SqliteConnectionString"), dbOptions =>
+            var connectionStringBuilder = new SqliteConnectionStringBuilder(configuration.GetConnectionString("SqliteConnectionString"));
+            connectionStringBuilder.DataSource = Environment.ExpandEnvironmentVariables(connectionStringBuilder.DataSource);
+            Directory.CreateDirectory(Path.GetDirectoryName(connectionStringBuilder.DataSource)!);
+            options.UseSqlite(connectionStringBuilder.ConnectionString, dbOptions =>
             {
 
             });
@@ -187,34 +193,33 @@ public static partial class Program
         var emailSettings = appSettings.Email ?? throw new InvalidOperationException("Email settings are required.");
         var fluentEmailServiceBuilder = services.AddFluentEmail(emailSettings.DefaultFromEmail);
 
-        if (emailSettings.UseLocalFolderForEmails)
+        fluentEmailServiceBuilder.AddSmtpSender(() =>
         {
-            var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
-            var sentEmailsFolderPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data", "sent-emails");
-
-            Directory.CreateDirectory(sentEmailsFolderPath);
-
-            fluentEmailServiceBuilder.AddSmtpSender(() => new SmtpClient
+            if (emailSettings.UseLocalFolderForEmails)
             {
-                DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
-                PickupDirectoryLocation = sentEmailsFolderPath
-            });
-        }
-        else
-        {
+                var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
+                var sentEmailsFolderPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data", "sent-emails");
+
+                Directory.CreateDirectory(sentEmailsFolderPath);
+
+                return new SmtpClient
+                {
+                    DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
+                    PickupDirectoryLocation = sentEmailsFolderPath
+                };
+            }
+
             if (emailSettings.HasCredential)
             {
-                fluentEmailServiceBuilder.AddSmtpSender(() => new(emailSettings.Host, emailSettings.Port)
+                return new(emailSettings.Host, emailSettings.Port)
                 {
                     Credentials = new NetworkCredential(emailSettings.UserName, emailSettings.Password),
                     EnableSsl = true
-                });
+                };
             }
-            else
-            {
-                fluentEmailServiceBuilder.AddSmtpSender(emailSettings.Host, emailSettings.Port);
-            }
-        }
+
+            return new(emailSettings.Host, emailSettings.Port);
+        });
 
         services.AddHttpClient<GoogleRecaptchaService>(c =>
         {
@@ -342,18 +347,11 @@ public static partial class Program
             {
                 if (appSettings.Hangfire?.UseIsolatedStorage is true)
                 {
-                    var dir = appSettings.Hangfire.IsolatedStorageDirectory;
-                    if (string.IsNullOrEmpty(dir) is false)
-                    {
-                        dir = Environment.ExpandEnvironmentVariables(dir);
-                    }
-                    else
-                    {
-                        var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
-                        dir = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data");
-                    }
-                    Directory.CreateDirectory(dir);
-                    optionsBuilder.UseSqlite($"Data Source={Path.Combine(dir, "Bit.TemplatePlaygroundJobsDb")};");
+                    var connectionString = "Data Source=Bit.TemplatePlaygroundJobs.db;Mode=Memory;Cache=Shared;";
+                    var connection = new Microsoft.Data.Sqlite.SqliteConnection(connectionString);
+                    connection.Open();
+                    AppContext.SetData("ReferenceTheKeepTheInMemorySQLiteDatabaseAlive", connection);
+                    optionsBuilder.UseSqlite(connectionString);
                 }
                 else
                 {
@@ -398,6 +396,7 @@ public static partial class Program
             .AddClaimsPrincipalFactory<AppUserClaimsPrincipalFactory>()
             .AddApiEndpoints();
 
+        services.AddScoped<UserClaimsService>();
         services.AddScoped<IUserConfirmation<User>, AppUserConfirmation>();
         services.AddScoped(sp => (IUserEmailStore<User>)sp.GetRequiredService<IUserStore<User>>());
         services.AddScoped(sp => (IUserPhoneNumberStore<User>)sp.GetRequiredService<IUserStore<User>>());
@@ -411,28 +410,8 @@ public static partial class Program
         })
         .AddBearerToken(IdentityConstants.BearerScheme, options =>
         {
-            var validationParameters = new TokenValidationParameters
-            {
-                ClockSkew = TimeSpan.Zero,
-                RequireSignedTokens = true,
-
-                ValidateIssuerSigningKey = env.IsDevelopment() is false,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Identity.JwtIssuerSigningKeySecret)),
-
-                RequireExpirationTime = true,
-                ValidateLifetime = true,
-
-                ValidateAudience = true,
-                ValidAudience = identityOptions.Audience,
-
-                ValidateIssuer = true,
-                ValidIssuer = identityOptions.Issuer,
-
-                AuthenticationType = IdentityConstants.BearerScheme
-            };
-
-            options.BearerTokenProtector = new AppJwtSecureDataFormat(appSettings, validationParameters);
-            options.RefreshTokenProtector = new AppJwtSecureDataFormat(appSettings, validationParameters);
+            options.BearerTokenProtector = new AppJwtSecureDataFormat(appSettings, BuildTokenValidationParameters());
+            options.RefreshTokenProtector = new AppJwtSecureDataFormat(appSettings, BuildTokenValidationParameters(validateExpiry: false /* IdentityController.Refresh will validate expiry itself */));
 
             options.Events = new()
             {
@@ -444,6 +423,26 @@ public static partial class Program
             };
 
             configuration.GetRequiredSection("Identity").Bind(options);
+
+            TokenValidationParameters BuildTokenValidationParameters(bool validateExpiry = true) => new()
+            {
+                ClockSkew = TimeSpan.Zero,
+                RequireSignedTokens = true,
+
+                ValidateIssuerSigningKey = env.IsDevelopment() is false,
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Identity.JwtIssuerSigningKeySecret)),
+
+                RequireExpirationTime = true,
+                ValidateLifetime = validateExpiry,
+
+                ValidateAudience = true,
+                ValidAudience = identityOptions.Audience,
+
+                ValidateIssuer = true,
+                ValidIssuer = identityOptions.Issuer,
+
+                AuthenticationType = IdentityConstants.BearerScheme
+            };
         });
 
         services.AddAuthorization();
@@ -453,6 +452,7 @@ public static partial class Program
             authenticationBuilder.AddGoogle(options =>
             {
                 options.SignInScheme = IdentityConstants.ExternalScheme;
+                // options.AdditionalAuthorizationParameters["prompt"] = "select_account";
                 configuration.GetRequiredSection("Authentication:Google").Bind(options);
             });
         }
@@ -486,6 +486,24 @@ public static partial class Program
                 });
                 configuration.GetRequiredSection("Authentication:Apple").Bind(options);
             });
+        }
+
+        if (string.IsNullOrEmpty(configuration["Authentication:AzureAD:ClientId"]) is false)
+        {
+            authenticationBuilder.AddMicrosoftIdentityWebApp(options =>
+            {
+                options.SignInScheme = IdentityConstants.ExternalScheme;
+                options.Events = new()
+                {
+                    OnTokenValidated = async context =>
+                    {
+                        var props = new AuthenticationProperties();
+                        props.Items["LoginProvider"] = "AzureAD";
+                        await context.HttpContext.SignInAsync(IdentityConstants.ExternalScheme, context.Principal!, props);
+                    }
+                };
+                configuration.GetRequiredSection("Authentication:AzureAD").Bind(options);
+            }, openIdConnectScheme: "AzureAD");
         }
     }
 

@@ -1,8 +1,10 @@
-using System.Text;
+﻿using System.Text;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
+using Bit.TemplatePlayground.Shared.Dtos.Diagnostic;
+using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
@@ -10,6 +12,7 @@ public partial class AppDiagnosticModal
 {
     [AutoInject] private Cookie cookie = default!;
     [AutoInject] private AuthManager authManager = default!;
+    [AutoInject] private PromptService promptService = default!;
     [AutoInject] private IStorageService storageService = default!;
     [AutoInject] private IUserController userController = default!;
 
@@ -112,7 +115,13 @@ public partial class AppDiagnosticModal
 
         foreach (var item in await cookie.GetAll())
         {
-            await cookie.Remove(item.Name!);
+            await cookie.Remove(new ButilCookie()
+            {
+                Name = item.Name,
+                Path = "/",
+                SameSite = SameSite.Strict,
+                Secure = AppEnvironment.IsDev() is false
+            });
         }
 
         if (AppPlatform.IsBlazorHybrid is false)
@@ -123,5 +132,19 @@ public partial class AppDiagnosticModal
         {
             NavigationManager.Refresh(forceReload: true);
         }
+    }
+
+    /// <summary>
+    /// <inheritdoc cref="SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
+    /// </summary>
+    private async Task ReadAnotherUserLogs()
+    {
+        var userQuery = await promptService.Show("Enter `UserId`, `UserSessionId`, `Email` or `PhoneNumber`:", "Get other user logs");
+        var logs = await hubConnection.InvokeAsync<DiagnosticLogDto[]>("GetUserDiagnosticLogs", userQuery, CurrentCancellationToken);
+
+        filterCategoryValues = null;
+        filterLogLevelValues = [LogLevel.Information, LogLevel.Warning, LogLevel.Error, LogLevel.Critical];
+
+        LoadLogs(logs);
     }
 }

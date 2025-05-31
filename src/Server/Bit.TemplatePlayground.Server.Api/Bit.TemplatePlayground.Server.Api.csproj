@@ -2,9 +2,11 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>98BC2EB3-2AC5-4405-98BB-76D8A43E7D64</UserSecretsId>
+        <UserSecretsId>C9245650-7724-42AC-BF15-FCE8AB9D4E82</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
+    </PropertyGroup>
 
+    <PropertyGroup Condition="'$(Environment)' != 'Development'">
         <SelfContained>true</SelfContained>
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
@@ -40,6 +42,7 @@
         <PackageReference Include="Microsoft.Azure.SignalR" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
         <PackageReference Include="Swashbuckle.AspNetCore" />
+        <PackageReference Include="Microsoft.Identity.Web" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" />
         <PackageReference Include="AspNet.Security.OAuth.Apple" />
@@ -58,6 +61,7 @@
         <Using Include="Bit.TemplatePlayground.Shared.Attributes" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Data" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Mappers" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Filters" />
         <Using Include="Microsoft.AspNetCore.Identity" />
         <Using Include="Microsoft.EntityFrameworkCore" />
         <Using Include="Microsoft.AspNetCore.OData.Query" />
@@ -84,13 +88,6 @@
             <StronglyTypedClassName>EmailStrings</StronglyTypedClassName>
             <PublicClass>true</PublicClass>
         </EmbeddedResource>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Content Update="appsettings*.json">
-            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-            <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-        </Content>
     </ItemGroup>
 
     <!--

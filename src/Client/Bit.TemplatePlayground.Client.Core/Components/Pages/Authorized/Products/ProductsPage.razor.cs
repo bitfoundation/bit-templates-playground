@@ -105,11 +105,6 @@ public partial class ProductsPage
         NavigationManager.NavigateTo(Urls.AddOrEditProductPage);
     }
 
-    private async Task EditProduct(ProductDto product)
-    {
-        NavigationManager.NavigateTo($"{Urls.AddOrEditProductPage}/{product.Id}");
-    }
-
     private async Task DeleteProduct()
     {
         if (deletingProduct is null) return;

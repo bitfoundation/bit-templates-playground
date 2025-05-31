@@ -2,18 +2,17 @@
 
 <section>
     <BitNavBar TItem="BitNavBarOption" Style="width:100%">
+
         <BitNavBarOption Text="@Localizer[nameof(AppStrings.Home)]" IconName="@BitIconName.Home" Url="@Urls.HomePage" />
-        <AuthorizeView>
-            <Authorized>
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Dashboard)]" IconName="@BitIconName.BarChartVerticalFill" Url="@Urls.DashboardPage" />
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Categories)]" IconName="@BitIconName.BuildQueue" Url="@Urls.CategoriesPage" />
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Products)]" IconName="@BitIconName.Product" Url="@Urls.ProductsPage" />
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@Urls.TermsPage" />
-            </Authorized>
-            <NotAuthorized>
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@Urls.TermsPage" />
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.About)]" IconName="@BitIconName.Info" Url="@Urls.AboutPage" />
-            </NotAuthorized>
+
+        <AuthorizeView Policy="@AppFeatures.AdminPanel.Dashboard">
+            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Dashboard)]" IconName="@BitIconName.BarChartVerticalFill" Url="@Urls.DashboardPage" />
         </AuthorizeView>
+        <AuthorizeView Policy="@AppFeatures.AdminPanel.ManageProductCatalog">
+            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Categories)]" IconName="@BitIconName.BuildQueue" Url="@Urls.CategoriesPage" />
+            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Products)]" IconName="@BitIconName.Product" Url="@Urls.ProductsPage" />
+        </AuthorizeView>
+
+        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@Urls.TermsPage" />
     </BitNavBar>
 </section>

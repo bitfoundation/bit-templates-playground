@@ -1,18 +1,23 @@
-using EmbedIO;
-using System.Net;
-using EmbedIO.Actions;
+﻿using System.Net;
+using System.Text;
 using System.Net.Sockets;
 using Bit.TemplatePlayground.Client.Core.Components;
+using EmbedIO;
+using EmbedIO.Actions;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Client.Windows.Services;
 
-/// <summary>
-/// <inheritdoc cref="ILocalHttpServer"/>
-/// </summary>
+// Checkout HybridAppWebInterop.razor's comments.
 public partial class WindowsLocalHttpServer : ILocalHttpServer
 {
+    [AutoInject] private HtmlRenderer htmlRenderer;
+    [AutoInject] private PubSubService pubSubService;
     [AutoInject] private IExceptionHandler exceptionHandler;
-    [AutoInject] private AbsoluteServerAddressProvider absoluteServerAddress;
+    [AutoInject] private ClientWindowsSettings clientWindowsSettings;
+    [AutoInject] private AbsoluteServerAddressProvider absoluteServerAddressProvider;
+
+    public WindowsWebAuthnService? WebAuthnService { get; set; }
 
     private int port = -1;
     private WebServer? localHttpServer;
@@ -23,78 +28,125 @@ public partial class WindowsLocalHttpServer : ILocalHttpServer
 
     public int EnsureStarted()
     {
-        if (port != -1)
-            return port;
+        if (localHttpServer?.State is WebServerState.Listening or WebServerState.Loading)
+            return port is -1 ? throw new InvalidOperationException() : port;
+
+        localHttpServer?.Dispose();
 
         port = GetAvailableTcpPort();
+
+        var staticFiles = Directory.GetFiles(Directory.GetCurrentDirectory(), "*.*", SearchOption.AllDirectories)
+            .Union(Directory.GetFiles(AppContext.BaseDirectory, "*.*", SearchOption.AllDirectories))
+            .Distinct()
+            .ToArray();
+
+        async Task GoBackToApp()
+        {
+            await Application.OpenForms[0]!.InvokeAsync(async (_) =>
+            {
+                Application.OpenForms[0]!.Activate();
+            });
+        }
 
         localHttpServer = new WebServer(o => o
             .WithUrlPrefix($"http://localhost:{port}")
             .WithMode(HttpListenerMode.Microsoft))
-            .WithModule(new ActionModule(Urls.SignInPage, HttpVerbs.Get, async ctx =>
+            .WithCors()
+            .WithModule(new ActionModule("/api/SocialSignInCallback", HttpVerbs.Post, async ctx =>
             {
                 try
                 {
-                    ctx.Redirect("/close-browser");
-
-                    _ = Task.Delay(1)
-                        .ContinueWith(async _ =>
-                        {
-                            await Routes.OpenUniversalLink(ctx.Request.Url.PathAndQuery, replace: true);
-                        });
-                }
-                catch (Exception exp)
-                {
-                    exceptionHandler.Handle(exp);
-                }
-            }))
-            .WithModule(new ActionModule("/close-browser", HttpVerbs.Get, async ctx =>
-            {
-                // Redirect to CloseBrowserPage.razor that will close the browser window.
-                var url = new Uri(absoluteServerAddress, $"/api/Identity/CloseBrowserPage?culture={CultureInfo.CurrentUICulture.Name}").ToString();
-                ctx.Redirect(url);
-
-                Application.OpenForms[0]!.Invoke(() =>
-                {
-                    Application.OpenForms[0]!.Activate();
-                });
-            }))
-            .WithModule(new ActionModule("/external-js-runner.html", HttpVerbs.Get, async ctx =>
-            {
-                try
-                {
-                    ctx.Response.ContentType = "text/html";
-                    await using var fileStream = File.OpenRead("wwwroot/external-js-runner.html");
-                    await fileStream.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
-                }
-                catch (Exception exp)
-                {
-                    exceptionHandler.Handle(exp);
-                }
-            }))
-            .WithModule(new ActionModule("/app.js", HttpVerbs.Get, async ctx =>
-            {
-                try
-                {
-                    ctx.Response.ContentType = "application/javascript";
-                    var filePath = Path.Combine(AppContext.BaseDirectory, @"wwwroot\_content\Bit.TemplatePlayground.Client.Core\scripts\app.js");
-                    if (File.Exists(filePath) is false)
+                    await Application.OpenForms[0]!.InvokeAsync(async (_) =>
                     {
-                        filePath = Path.Combine(AppContext.BaseDirectory, @"..\..\..\..", @"Bit.TemplatePlayground.Client.Core\wwwroot\scripts\app.js");
-                    }
-                    await using var fileStream = File.OpenRead(filePath);
-                    await fileStream.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
+                        var urlToOpen = ctx.Request.QueryString["urlToOpen"];
+                        pubSubService.Publish(ClientPubSubMessages.SOCIAL_SIGN_IN, urlToOpen);
+                    });
                 }
-                catch (Exception exp)
+                finally
                 {
-                    exceptionHandler.Handle(exp);
+                    await GoBackToApp();
                 }
             }))
-            .WithModule(new WindowsExternalJsRunner());
+            .WithModule(new ActionModule("/api/GetWebAuthnCredentialOptions", HttpVerbs.Get, async ctx =>
+            {
+                await ctx.SendStringAsync(JsonSerializer.Serialize(WebAuthnService!.GetWebAuthnCredentialOptions!), "application/json", Encoding.UTF8);
+            }))
+            .WithModule(new ActionModule("/api/WebAuthnCredential", HttpVerbs.Post, async ctx =>
+            {
+                try
+                {
+                    WebAuthnService!.GetWebAuthnCredentialTcs!.SetResult(JsonSerializer.Deserialize<JsonElement>(await ctx.GetRequestBodyAsStringAsync())!);
+                }
+                finally
+                {
+                    await GoBackToApp();
+                }
+            }))
+            .WithModule(new ActionModule("/api/GetCreateWebAuthnCredentialOptions", HttpVerbs.Get, async ctx =>
+            {
+                await ctx.SendStringAsync(JsonSerializer.Serialize(WebAuthnService!.CreateWebAuthnCredentialOptions!), "application/json", Encoding.UTF8);
+            }))
+            .WithModule(new ActionModule("/api/CreateWebAuthnCredential", HttpVerbs.Post, async ctx =>
+            {
+                try
+                {
+                    WebAuthnService!.CreateWebAuthnCredentialTcs!.SetResult(JsonSerializer.Deserialize<JsonElement>(await ctx.GetRequestBodyAsStringAsync())!);
+                }
+                finally
+                {
+                    await GoBackToApp();
+                }
+            }))
+            .WithModule(new ActionModule("/api/LogError", HttpVerbs.Post, async ctx =>
+            {
+                var exception = new UnknownException(await ctx.GetRequestBodyAsStringAsync());
+
+                var handled = WebAuthnService?.GetWebAuthnCredentialTcs?.TrySetException(exception) ??
+                    WebAuthnService?.CreateWebAuthnCredentialTcs?.TrySetException(exception);
+
+                if (handled is not true)
+                {
+                    exceptionHandler.Handle(exception, displayKind: ExceptionDisplayKind.NonInterrupting);
+                }
+
+                await GoBackToApp();
+            }))
+            .WithModule(new ActionModule("/hybrid-app-web-interop", HttpVerbs.Get, async ctx =>
+            {
+                var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
+                    (await htmlRenderer.RenderComponentAsync<HybridAppWebInterop>()).ToHtmlString());
+
+                await ctx.SendStringAsync(html, "text/html", Encoding.UTF8);
+            }))
+            .OnAny(async ctx =>
+            {
+                var ctxImpl = (IHttpContextImpl)ctx;
+                var requestFilePath = ctxImpl.Request.Url.LocalPath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
+                var staticFile = staticFiles.FirstOrDefault(f => f.EndsWith(requestFilePath, StringComparison.OrdinalIgnoreCase));
+                if (File.Exists(staticFile) is false)
+                {
+                    // In development, Blazor employs complex methods to locate files across all installed NuGet packages.
+                    // To streamline this, we utilize a web server to serve static files in the development environment.
+                    // In production, as all files are deployed to a single folder, we rely on the default file provider.
+                    if (AppEnvironment.IsDev())
+                    {
+                        ctx.Redirect(new Uri(clientWindowsSettings.WebAppUrl ?? absoluteServerAddressProvider.GetAddress(), requestFilePath).ToString());
+                    }
+                    else
+                    {
+                        ctx.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                    }
+                    return;
+                }
+                ctx.Response.ContentType = ctx.GetMimeType(Path.GetExtension(staticFile!));
+                ctx.Response.Headers["Cache-Control"] = "no-cache, max-age=0, must-revalidate, no-store";
+                await using var stream = File.OpenRead(staticFile!);
+                await stream.CopyToAsync(ctx.Response.OutputStream, ctx.CancellationToken);
+            });
 
         localHttpServer.HandleHttpException(async (context, exception) =>
         {
-            exceptionHandler.Handle(new HttpRequestException(exception.Message), parameters: new Dictionary<string, object?>()
+            exceptionHandler.Handle(new HttpRequestException(exception.Message), parameters: new()
             {
                 { "StatusCode" , exception.StatusCode },
                 { "RequestUri" , context.Request.Url },

@@ -1,4 +1,4 @@
-namespace Bit.TemplatePlayground.Shared;
+﻿namespace Bit.TemplatePlayground.Shared;
 
 public static partial class Urls
 {
@@ -8,5 +8,6 @@ public static partial class Urls
         public static readonly string Account = nameof(Account).ToLower();
         public static readonly string Tfa = nameof(Tfa).ToLower();
         public static readonly string Sessions = nameof(Sessions).ToLower();
+        public static readonly string UpgradeAccount = nameof(UpgradeAccount).ToLower();
     }
 }

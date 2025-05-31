@@ -1,3 +1,4 @@
+﻿using System.Text;
 using Bit.TemplatePlayground.Shared;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Web;
@@ -28,8 +29,6 @@ public static partial class ISharedServiceCollectionExtensions
 
             return options;
         });
-        // Creates async service scope from the `root` service scope.
-        services.AddSingleton(sp => new RootServiceScopeProvider(() => sp.CreateAsyncScope()));
 
         services.AddOptions<SharedSettings>()
             .Bind(configuration)
@@ -52,11 +51,28 @@ public static partial class ISharedServiceCollectionExtensions
     /// </summary>
     public static void ConfigureAuthorizationCore(this IServiceCollection services)
     {
+        StringBuilder duplicateFeaturesReportString = new();
+
+        foreach (var g in AppFeatures.GetAll().GroupBy(p => p.Value).Where(g => g.Count() > 1))
+        {
+            duplicateFeaturesReportString.Append(string.Join(Environment.NewLine, g.Select(p => $"{p.Group.Name}-{p.Name}-{p.Value}")));
+        }
+
+        if (duplicateFeaturesReportString.Length > 0)
+            throw new Exception($"Duplicate feature values found. Please ensure all feature values are unique{duplicateFeaturesReportString}");
+
+        services.AddSingleton<IAuthorizationHandler, FeatureRequirementHandler>();
+
         services.AddAuthorizationCore(options =>
         {
             options.AddPolicy(AuthPolicies.TFA_ENABLED, x => x.RequireClaim("amr", "mfa"));
             options.AddPolicy(AuthPolicies.PRIVILEGED_ACCESS, x => x.RequireClaim(AppClaimTypes.PRIVILEGED_SESSION, "true"));
             options.AddPolicy(AuthPolicies.ELEVATED_ACCESS, x => x.RequireClaim(AppClaimTypes.ELEVATED_SESSION, "true"));
+
+            foreach (var feat in AppFeatures.GetAll())
+            {
+                options.AddPolicy(feat.Value, policy => policy.AddRequirements(new AppFeatureRequirement(FeatureName: $"{feat.Group.Name}.{feat.Name}", FeatureValue: feat.Value)));
+            }
         });
     }
 }

@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Client.Web.Services;
+﻿using Bit.TemplatePlayground.Client.Web.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 namespace Bit.TemplatePlayground.Client.Web;

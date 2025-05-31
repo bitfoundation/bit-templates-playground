@@ -26,4 +26,7 @@ public partial class ClientPubSubMessages
     public const string SHOW_DIAGNOSTIC_MODAL = nameof(SHOW_DIAGNOSTIC_MODAL);
 
 
+
+
+    public const string SOCIAL_SIGN_IN = nameof(SOCIAL_SIGN_IN);
 }

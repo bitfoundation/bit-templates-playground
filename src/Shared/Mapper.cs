@@ -1,8 +1,9 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Riok.Mapperly.Abstractions;
+using Bit.TemplatePlayground.Shared.Dtos.Chatbot;
 
 namespace Bit.TemplatePlayground.Shared;
 
@@ -23,4 +24,5 @@ public static partial class Mapper
     public static partial void Patch(this UserDto source, UserDto destination);
     public static partial void Patch(this EditUserDto source, UserDto destination);
     public static partial void Patch(this UserDto source, EditUserDto destination);
+    public static partial void Patch(this SystemPromptDto source, SystemPromptDto destination);
 }

@@ -19,6 +19,7 @@ public static partial class IClientCoreServiceCollectionExtensions
         services.AddScoped<ThemeService>();
         services.AddScoped<CultureService>();
         services.AddScoped<LazyAssemblyLoader>();
+        services.AddScoped<SignInModalService>();
         services.AddScoped<IAuthTokenProvider, ClientSideAuthTokenProvider>();
         services.AddScoped<IExternalNavigationService, DefaultExternalNavigationService>();
 
@@ -102,6 +103,13 @@ public static partial class IClientCoreServiceCollectionExtensions
 
             var hubConnection = new HubConnectionBuilder()
                 .WithStatefulReconnect()
+                .AddJsonProtocol(options =>
+                {
+                    foreach (var chain in sp.GetRequiredService<JsonSerializerOptions>().TypeInfoResolverChain)
+                    {
+                        options.PayloadSerializerOptions.TypeInfoResolverChain.Add(chain);
+                    }
+                })
                 .WithAutomaticReconnect(sp.GetRequiredService<IRetryPolicy>())
                 .WithUrl(new Uri(absoluteServerAddressProvider.GetAddress(), "app-hub"), options =>
                 {
@@ -112,20 +120,12 @@ public static partial class IClientCoreServiceCollectionExtensions
                     options.HttpMessageHandlerFactory = httpClientHandler => sp.GetRequiredService<HttpMessageHandlersChainFactory>().Invoke(httpClientHandler);
                     options.AccessTokenProvider = async () =>
                     {
-                        var accessToken = await authTokenProvider.GetAccessToken();
-
-                        if (string.IsNullOrEmpty(accessToken) is false &&
-                            IAuthTokenProvider.ParseAccessToken(accessToken, validateExpiry: true).IsAuthenticated() is false)
+                        try
                         {
-                            try
-                            {
-                                return await authManager.RefreshToken(requestedBy: nameof(HubConnectionBuilder));
-                            }
-                            catch (ServerConnectionException)
-                            { } // If the client disconnects and the access token expires, this code will execute repeatedly every few seconds, causing an annoying error message to be displayed to the user.
+                            return await authManager.GetFreshAccessToken(requestedBy: nameof(HubConnection));
                         }
-
-                        return accessToken;
+                        catch (ServerConnectionException) { } // If the client is disconnected and the access token is expired, this code will execute repeatedly every few seconds, causing an annoying error message to be displayed to the user.
+                        return null;
                     };
                 })
                 .Build();

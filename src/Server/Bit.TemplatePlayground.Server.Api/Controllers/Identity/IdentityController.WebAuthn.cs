@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Fido2NetLib;
@@ -56,7 +56,7 @@ public partial class IdentityController
     }
 
     [HttpPost, Produces<SignInResponseDto>()]
-    public async Task VerifyWebAuthAndSignIn(VerifyWebAuthnAndSignInDto request, CancellationToken cancellationToken)
+    public async Task VerifyWebAuthAndSignIn(VerifyWebAuthnAndSignInDto<AuthenticatorAssertionRawResponse> request, CancellationToken cancellationToken)
     {
         var (verifyResult, credential) = await Verify(request.ClientResponse, cancellationToken);
 
@@ -72,7 +72,7 @@ public partial class IdentityController
             await DbContext.SaveChangesAsync(cancellationToken);
         }
 
-        await SignIn(new() { Otp = otp, TwoFactorCode = request.TfaCode }, user, cancellationToken);
+        await SignIn(new() { Otp = otp, TwoFactorCode = request.TfaCode, DeviceInfo = request.DeviceInfo }, user, cancellationToken);
     }
 
     [HttpPost]

@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity;
@@ -13,6 +13,9 @@ public partial class ResetPasswordPage
 
     [Parameter, SupplyParameterFromQuery(Name = "token")]
     public string? TokenQueryString { get; set; }
+
+    [Parameter, SupplyParameterFromQuery(Name = "return-url")]
+    public string? ReturnUrlQueryString { get; set; }
 
 
     [AutoInject] IIdentityController identityController = default!;

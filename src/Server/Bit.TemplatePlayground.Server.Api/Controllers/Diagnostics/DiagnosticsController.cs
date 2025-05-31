@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Microsoft.AspNetCore.SignalR;
 using Bit.TemplatePlayground.Server.Api.SignalR;
 using Bit.TemplatePlayground.Server.Api.Services;

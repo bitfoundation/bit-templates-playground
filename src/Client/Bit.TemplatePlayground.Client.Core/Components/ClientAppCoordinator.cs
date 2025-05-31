@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Routing;
+using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
@@ -132,7 +133,11 @@ public partial class ClientAppCoordinator : AppComponentBase
             {
                 // Show local notification
                 // Note that this code has nothing to do with push notification.
-                await notification.Show("Bit.TemplatePlayground SignalR", new() { Body = message });
+                await notification.Show("Bit.TemplatePlayground SignalR", new()
+                {
+                    Icon = "/images/icons/bit-icon-512.png",
+                    Body = message
+                });
             }
             else
             {
@@ -157,6 +162,11 @@ public partial class ClientAppCoordinator : AppComponentBase
         signalROnDisposables.Add(hubConnection.On<AppProblemDetails>(SignalREvents.EXCEPTION_THROWN, async (appProblemDetails) =>
         {
             ExceptionHandler.Handle(appProblemDetails, displayKind: ExceptionDisplayKind.NonInterrupting);
+        }));
+
+        signalROnDisposables.Add(hubConnection.On(SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE, async () =>
+        {
+            return DiagnosticLogger.Store.ToArray();
         }));
 
         hubConnection.Closed += HubConnectionStateChange;

@@ -1,4 +1,6 @@
 {
+    "version": "1",
+
     "dir": "ltr",
     "lang": "en",
     "scope": "/",
@@ -7,13 +9,19 @@
     "id": "bitBit.TemplatePlayground",
     "display": "standalone",
     "theme_color": "#2EA3FF",
-    "related_applications": [],
     "name": "bit Bit.TemplatePlayground",
     "background_color": "#0D2960",
     "short_name": "bit Bit.TemplatePlayground",
     "prefer_related_applications": false,
     "display_override": [ "window-controls-overlay" ],
     "description": "bit Bit.TemplatePlayground is a project template that includes all the necessary parts to create a fully-featured web app.",
+
+    "related_applications": [],
+    "capture_links": "existing-client-navigate",
+    "launch_handler": {
+        "client_mode": "auto"
+    },
+
     "features": [
         "Cross Platform",
         "fast",

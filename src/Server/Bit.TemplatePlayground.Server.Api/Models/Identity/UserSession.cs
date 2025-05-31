@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 namespace Bit.TemplatePlayground.Server.Api.Models.Identity;
 
@@ -20,9 +20,15 @@ public partial class UserSession
     /// </summary>
     public bool Privileged { get; set; }
 
-    public DateTimeOffset StartedOn { get; set; }
+    /// <summary>
+    /// Unix Time Seconds
+    /// </summary>
+    public long StartedOn { get; set; }
 
-    public DateTimeOffset? RenewedOn { get; set; }
+    /// <summary>
+    /// Unix Time Seconds
+    /// </summary>
+    public long? RenewedOn { get; set; }
 
     public Guid UserId { get; set; }
 
@@ -31,4 +37,6 @@ public partial class UserSession
 
 
     public string? SignalRConnectionId { get; set; }
+
+    public UserSessionNotificationStatus NotificationStatus { get; set; }
 }

@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
 using Microsoft.Extensions.Caching.Distributed;
@@ -106,14 +106,14 @@ public partial class UserController
     }
 
     [HttpDelete]
-    public async Task DeleteWebAuthnCredential(byte[] credentialId, CancellationToken cancellationToken)
+    public async Task DeleteWebAuthnCredential(AuthenticatorAssertionRawResponse assertionResponse, CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
         var user = await userManager.FindByIdAsync(userId.ToString())
                     ?? throw new ResourceNotFoundException();
 
         var affectedRows = await DbContext.WebAuthnCredential
-            .Where(webAuthCred => webAuthCred.Id == credentialId)
+            .Where(webAuthCred => webAuthCred.Id == assertionResponse.Id)
             .ExecuteDeleteAsync(cancellationToken);
 
         if (affectedRows == 0)
