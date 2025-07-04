@@ -7,6 +7,8 @@ namespace Bit.TemplatePlayground.Server.Api.Services;
 /// </summary>
 public partial class ProductEmbeddingService
 {
+    private const float SIMILARITY_THRESHOLD = 0.85f;
+
     [AutoInject] private AppDbContext dbContext = default!;
     [AutoInject] private IWebHostEnvironment env = default!;
     [AutoInject] private IServiceProvider serviceProvider = default!;

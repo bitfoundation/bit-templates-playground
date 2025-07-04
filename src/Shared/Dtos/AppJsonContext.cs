@@ -30,7 +30,7 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(List<ProductsCountPerCategoryResponseDto>))]
 [JsonSerializable(typeof(OverallAnalyticsStatsDataResponseDto))]
 [JsonSerializable(typeof(List<ProductPercentagePerCategoryResponseDto>))]
-[JsonSerializable(typeof(VerifyWebAuthnAndSignInDto))]
+[JsonSerializable(typeof(VerifyWebAuthnAndSignInRequestDto))]
 [JsonSerializable(typeof(WebAuthnAssertionOptionsRequestDto))]
 
 [JsonSerializable(typeof(DiagnosticLogDto[]))]

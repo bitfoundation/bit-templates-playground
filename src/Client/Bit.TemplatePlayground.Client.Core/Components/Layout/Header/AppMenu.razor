@@ -1,0 +1,140 @@
+@inherits AppComponentBase
+
+<section>
+    <BitDropMenu Transparent @bind-IsOpen="isOpen" Responsive
+                 OnDismiss="() => showCultures = false"
+                 Classes="@(new() { Callout = "app-menu-callout" })">
+        <Template>
+            <BitIcon IconName="@BitIconName.ChevronDown" Size="BitSize.Small" Color="BitColor.Info" Class="menu-chevron" />
+            <AuthorizeView>
+                <Authorized>
+                    <BitText Class="menu-displayname">@CurrentUser?.DisplayName</BitText>
+                    <BitPersona Class="persona"
+                                ImageUrl="@ProfileImageUrl"
+                                Size=@BitPersonaSize.Size32
+                                PrimaryText="@CurrentUser?.DisplayName"
+                                Classes="@(new() { DetailsContainer = "persona-details" })"
+                                Presence="@(IsOnline is null ? BitPersonaPresence.None : IsOnline is true ? BitPersonaPresence.Online : BitPersonaPresence.Offline)" />
+                </Authorized>
+                <NotAuthorized>
+                    <BitPersona Class="persona"
+                                Size=@BitPersonaSize.Size32
+                                CoinVariant="BitVariant.Text"
+                                Classes="@(new() { DetailsContainer = "persona-details" })"
+                                Presence="@(IsOnline is null ? BitPersonaPresence.None : IsOnline is true ? BitPersonaPresence.Online : BitPersonaPresence.Offline)">
+                        <CoinTemplate>
+                            <BitIcon IconName="@BitIconName.Contact" Size="BitSize.Small" Color="BitColor.Info" Class="menu-icon" />
+                        </CoinTemplate>
+                    </BitPersona>
+                </NotAuthorized>
+            </AuthorizeView>
+        </Template>
+        <Body>
+            <BitCard FullSize Class="app-menu-card">
+                @if (showCultures is false)
+                {
+                    <BitStack AutoSize>
+                        <AuthorizeView>
+                            <Authorized>
+                                <BitPersona Class="persona"
+                                            ImageUrl="@ProfileImageUrl"
+                                            OnImageClick="GoToProfile"
+                                            Size="BitPersonaSize.Size48"
+                                            PrimaryText="@CurrentUser?.DisplayName"
+                                            SecondaryText="@(CurrentUser?.Email ?? CurrentUser?.PhoneNumber)"
+                                            Presence="@(IsOnline is null ? BitPersonaPresence.None : IsOnline is true ? BitPersonaPresence.Online : BitPersonaPresence.Offline)">
+                                    <ImageOverlayTemplate>
+                                        <span>@Localizer[nameof(AppStrings.Edit)]</span>
+                                    </ImageOverlayTemplate>
+                                </BitPersona>
+
+                                <BitSeparator />
+
+                                <BitActionButton IconName="@BitIconName.Contact" Href="@($"{Urls.SettingsPage}/{Urls.SettingsSections.Profile}")" FullWidth OnClick="() => isOpen = false">
+                                    @Localizer[nameof(AppStrings.ProfileTitle)]
+                                </BitActionButton>
+                            </Authorized>
+                            <NotAuthorized>
+                                <BitActionButton FullWidth
+                                                 IconName="@BitIconName.Signin"
+                                                 Href="@($"{Urls.SignInPage}?return-url={Uri.EscapeDataString(NavigationManager.GetRelativePath())}")">
+                                    @Localizer[nameof(AppStrings.SignIn)]
+                                </BitActionButton>
+                                <BitActionButton FullWidth
+                                                 IconName="@BitIconName.UserWindow"
+                                                 OnClick="WrapHandled(ModalSignIn)">
+                                    @Localizer[nameof(AppStrings.SignInByModal)]
+                                </BitActionButton>
+                                <BitActionButton FullWidth
+                                                 IconName="@BitIconName.AddFriend"
+                                                 Href="@($"{Urls.SignUpPage}?return-url={Uri.EscapeDataString(NavigationManager.GetRelativePath())}")">
+                                    @Localizer[nameof(AppStrings.SignUp)]
+                                </BitActionButton>
+                            </NotAuthorized>
+                        </AuthorizeView>
+
+                        @if (CultureInfoManager.InvariantGlobalization is false)
+                        {
+                            <BitActionButton IconName="@BitIconName.Globe" FullWidth OnClick="() => showCultures = true">
+                                <BitStack Horizontal Gap="0" Grows VerticalAlign="BitAlignment.Center">
+                                    @Localizer[nameof(AppStrings.Language)]
+                                    <BitSpacer />
+                                    <BitIcon Size="BitSize.Small"
+                                             Color="BitColor.SecondaryForeground"
+                                             IconName="@(CurrentDir is BitDir.Rtl ? BitIconName.ChevronLeft : BitIconName.ChevronRight)" />
+                                </BitStack>
+                            </BitActionButton>
+                        }
+
+                        <BitStack Horizontal VerticalAlign="BitAlignment.Center" Gap="0">
+                            <BitActionButton Style="flex-grow:1"
+                                             OnClick="ToggleTheme"
+                                             IconName="@(CurrentTheme == AppThemeType.Light ? BitIconName.Sunny : BitIconName.ClearNight)">
+                                @(CurrentTheme == AppThemeType.Light ? Localizer[nameof(AppStrings.Light)] : Localizer[nameof(AppStrings.Dark)])
+                            </BitActionButton>
+                            <BitToggle OnChange="ToggleTheme" Value="CurrentTheme == AppThemeType.Light" ValueChanged="v => { }" />
+                        </BitStack>
+
+                        <AuthorizeView>
+                            <BitActionButton FullWidth
+                                             Color="BitColor.Error"
+                                             IconName="@BitIconName.SignOut"
+                                             OnClick="() => { isSignOutConfirmOpen = true; isOpen = false; }">
+                                @Localizer[nameof(AppStrings.SignOut)]
+                            </BitActionButton>
+                        </AuthorizeView>
+                    </BitStack>
+                }
+                else
+                {
+                    <BitStack HorizontalAlign="BitAlignment.Start" AutoSize>
+                        <BitActionButton FullWidth
+                                         Style="align-items:flex-end"
+                                         OnClick="() => showCultures = false"
+                                         IconName="@(CurrentDir is BitDir.Rtl ? BitIconName.ChromeBackMirrored : BitIconName.ChromeBack)">
+                            @Localizer[nameof(AppStrings.SelectLanguage)]
+                        </BitActionButton>
+
+                        <BitSeparator />
+
+                        <BitChoiceGroup Items="cultures" NoCircle Style="width:100%"
+                                        DefaultValue="@CultureInfo.CurrentUICulture.Name"
+                                        OnChange="async (string? c) => await OnCultureChanged(c)"
+                                        Styles="@(new() { ItemLabel = "flex-grow:1" })">
+                            <ItemTemplate Context="item">
+                                <BitStack Horizontal VerticalAlign="BitAlignment.Center" Style="cursor:pointer">
+                                    <BitFlag Iso2="@CultureInfoManager.FindRegionIso2(item.Value)" />
+                                    <BitText Typography="BitTypography.Body1" Style="@(item.IsSelected ? "font-weight:bold" : "")">
+                                        @item.Text
+                                    </BitText>
+                                </BitStack>
+                            </ItemTemplate>
+                        </BitChoiceGroup>
+                    </BitStack>
+                }
+            </BitCard>
+        </Body>
+    </BitDropMenu>
+</section>
+
+<SignOutConfirmDialog @bind-IsOpen="isSignOutConfirmOpen" />

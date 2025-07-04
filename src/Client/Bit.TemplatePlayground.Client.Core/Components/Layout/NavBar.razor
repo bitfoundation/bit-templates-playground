@@ -5,6 +5,7 @@
 
         <BitNavBarOption Text="@Localizer[nameof(AppStrings.Home)]" IconName="@BitIconName.Home" Url="@Urls.HomePage" />
 
+
         <AuthorizeView Policy="@AppFeatures.AdminPanel.Dashboard">
             <BitNavBarOption Text="@Localizer[nameof(AppStrings.Dashboard)]" IconName="@BitIconName.BarChartVerticalFill" Url="@Urls.DashboardPage" />
         </AuthorizeView>
@@ -14,5 +15,7 @@
         </AuthorizeView>
 
         <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@Urls.TermsPage" />
+
+
     </BitNavBar>
 </section>

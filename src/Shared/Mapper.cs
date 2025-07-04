@@ -22,7 +22,7 @@ public static partial class Mapper
     public static partial void Patch(this ProductDto source, ProductDto destination);
     public static partial void Patch(this CategoryDto source, CategoryDto destination);
     public static partial void Patch(this UserDto source, UserDto destination);
-    public static partial void Patch(this EditUserDto source, UserDto destination);
-    public static partial void Patch(this UserDto source, EditUserDto destination);
+    public static partial void Patch(this EditUserRequestDto source, UserDto destination);
+    public static partial void Patch(this UserDto source, EditUserRequestDto destination);
     public static partial void Patch(this SystemPromptDto source, SystemPromptDto destination);
 }

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>C9245650-7724-42AC-BF15-FCE8AB9D4E82</UserSecretsId>
+        <UserSecretsId>9DB0F221-84EC-4105-B04D-747E1EBF916D</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
     </PropertyGroup>
 
@@ -28,6 +28,7 @@
         <PackageReference Include="libphonenumber-csharp" />
         <PackageReference Include="Humanizer" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
+        <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" />
         <PackageReference Include="QRCoder" />
         <PackageReference Include="Magick.NET-Q16-AnyCPU" />
@@ -45,6 +46,7 @@
         <PackageReference Include="Microsoft.Identity.Web" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Twitter" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.Facebook" />
         <PackageReference Include="AspNet.Security.OAuth.Apple" />
         <PackageReference Include="AspNet.Security.OAuth.GitHub" />
         <PackageReference Include="Riok.Mapperly" />
@@ -75,7 +77,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\..\Shared\Bit.TemplatePlayground.Shared.csproj" />
+        <ProjectReference Include="..\Bit.TemplatePlayground.Server.Shared\Bit.TemplatePlayground.Server.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>

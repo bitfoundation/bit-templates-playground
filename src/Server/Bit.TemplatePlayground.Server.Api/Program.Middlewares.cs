@@ -1,5 +1,4 @@
 ﻿
-using Bit.TemplatePlayground.Server.Api.Services;
 using Microsoft.AspNetCore.Localization.Routing;
 
 namespace Bit.TemplatePlayground.Server.Api;
@@ -16,28 +15,10 @@ public static partial class Program
 
         ServerApiSettings settings = new();
         configuration.Bind(settings);
-        var forwardedHeadersOptions = settings.ForwardedHeaders;
 
-        if (forwardedHeadersOptions is not null
-            && (app.Environment.IsDevelopment() || forwardedHeadersOptions.AllowedHosts.Any()))
-        {
-            // If the list is empty then all hosts are allowed. Failing to restrict this these values may allow an attacker to spoof links generated for reset password etc.
-            app.UseForwardedHeaders(forwardedHeadersOptions);
-        }
+        app.UseAppForwardedHeaders();
 
-        if (CultureInfoManager.InvariantGlobalization is false)
-        {
-            var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => sc.Culture).ToArray();
-            var options = new RequestLocalizationOptions
-            {
-                SupportedCultures = supportedCultures,
-                SupportedUICultures = supportedCultures,
-                ApplyCurrentCultureToResponseHeaders = true
-            };
-            options.SetDefaultCulture(CultureInfoManager.DefaultCulture.Name);
-            options.RequestCultureProviders.Insert(1, new RouteDataRequestCultureProvider() { Options = options });
-            app.UseRequestLocalization(options);
-        }
+        app.UseLocalization();
 
         app.UseExceptionHandler();
 
@@ -67,6 +48,8 @@ public static partial class Program
         app.UseOutputCache();
 
         app.UseAntiforgery();
+
+        app.MapAspire();
 
         app.UseSwagger();
 

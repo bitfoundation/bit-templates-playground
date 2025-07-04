@@ -6,11 +6,12 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using System.Security.Cryptography;
 using Hangfire.EntityFrameworkCore;
 using Bit.TemplatePlayground.Server.Api.Models.Attachments;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 
 namespace Bit.TemplatePlayground.Server.Api.Data;
 
 public partial class AppDbContext(DbContextOptions<AppDbContext> options)
-    : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options)
+    : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options), IDataProtectionKeyContext
 {
     public DbSet<UserSession> UserSessions { get; set; } = default!;
 
@@ -22,6 +23,8 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     public DbSet<SystemPrompt> SystemPrompts { get; set; } = default!;
 
     public DbSet<Attachment> Attachments { get; set; } = default!;
+
+    public DbSet<DataProtectionKey> DataProtectionKeys { get; set; } = default!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

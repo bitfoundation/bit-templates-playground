@@ -11,7 +11,6 @@ public static partial class Program
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
-
         AppEnvironment.Set(builder.HostEnvironment.Environment);
 
         builder.Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Web");

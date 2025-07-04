@@ -7,6 +7,14 @@ namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
 public partial class AppAiChatPanel
 {
+    [CascadingParameter] public BitDir? CurrentDir { get; set; }
+
+    [CascadingParameter] public AppThemeType? CurrentTheme { get; set; }
+
+
+    [AutoInject] private HubConnection hubConnection = default!;
+
+
     private bool isOpen;
     private bool isLoading;
     private string? userInput;
@@ -15,16 +23,6 @@ public partial class AppAiChatPanel
     private Channel<string>? channel;
     private AiChatMessage? lastAssistantMessage;
     private List<AiChatMessage> chatMessages = []; // TODO: Persist these values in client-side storage to retain them across app restarts.
-
-
-    [AutoInject] private HubConnection hubConnection = default!;
-
-
-    [CascadingParameter(Name = Parameters.CurrentTheme)]
-    private AppThemeType? currentTheme { get; set; }
-
-    [CascadingParameter]
-    private BitDir? currentDir { get; set; }
 
 
     protected override Task OnInitAsync()
@@ -46,6 +44,7 @@ public partial class AppAiChatPanel
 
     private async Task HubConnection_Reconnected(string? _)
     {
+        if (channel is null) return;
         await RestartChannel();
     }
 

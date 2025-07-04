@@ -1,0 +1,41 @@
+@inherits AppComponentBase
+
+<header>
+    <BitStack Horizontal Gap="0.5rem" VerticalAlign="BitAlignment.Center">
+        <BitLink NoUnderline OnClick="HandleGoHomeLink">
+            <BitStack Horizontal Gap="0.5rem" VerticalAlign="BitAlignment.Center">
+                <BitIcon IconName="@(BitIconName.Home)" Size="BitSize.Small" />
+                <BitText Typography="BitTypography.Body2">@Localizer[nameof(AppStrings.BackToHome)]</BitText>
+            </BitStack>
+        </BitLink>
+
+        <DiagnosticSpacer />
+
+        <BitButton IconOnly
+                   FixedColor
+                   Variant="BitVariant.Text"
+                   OnClick="WrapHandled(ToggleTheme)"
+                   Color="BitColor.SecondaryBackground"
+                   IconName="@(CurrentTheme == AppThemeType.Light ? BitIconName.ClearNight : BitIconName.Sunny)" />
+
+        @if (CultureInfoManager.InvariantGlobalization is false)
+        {
+            <BitDropdown Items="cultures"
+                         FitWidth NoBorder Transparent
+                         DefaultValue="@CultureInfo.CurrentUICulture.Name"
+                         OnChange="WrapHandled((string c) => OnCultureChanged(c))">
+                <TextTemplate Context="item">
+                    <BitFlag Iso2="@CultureInfoManager.FindRegionIso2(item.Value)" />
+                </TextTemplate>
+                <ItemTemplate Context="item">
+                    <BitStack Horizontal VerticalAlign="BitAlignment.Center">
+                        <BitFlag Iso2="@CultureInfoManager.FindRegionIso2(item.Value)" />
+                        <BitText Typography="BitTypography.Body1" Style="@(item.IsSelected ? "font-weight:bold" : "")">
+                            @item.Text
+                        </BitText>
+                    </BitStack>
+                </ItemTemplate>
+            </BitDropdown>
+        }
+    </BitStack>
+</header>

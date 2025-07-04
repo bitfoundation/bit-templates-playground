@@ -11,9 +11,9 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(SignInRequestDto))]
 [JsonSerializable(typeof(SignInResponseDto))]
 [JsonSerializable(typeof(TokenResponseDto))]
-[JsonSerializable(typeof(RefreshRequestDto))]
+[JsonSerializable(typeof(RefreshTokenRequestDto))]
 [JsonSerializable(typeof(SignUpRequestDto))]
-[JsonSerializable(typeof(EditUserDto))]
+[JsonSerializable(typeof(EditUserRequestDto))]
 [JsonSerializable(typeof(SendEmailTokenRequestDto))]
 [JsonSerializable(typeof(SendPhoneTokenRequestDto))]
 [JsonSerializable(typeof(ConfirmEmailRequestDto))]
@@ -30,6 +30,7 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(List<UserDto>))]
 [JsonSerializable(typeof(List<ClaimDto>))]
 [JsonSerializable(typeof(UserRoleDto))]
+[JsonSerializable(typeof(UpdateUserSessionRequestDto))]
 public partial class IdentityJsonContext : JsonSerializerContext
 {
 }

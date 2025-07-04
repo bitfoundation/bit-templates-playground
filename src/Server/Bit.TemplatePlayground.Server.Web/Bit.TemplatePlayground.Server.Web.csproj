@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>C9245650-7724-42AC-BF15-FCE8AB9D4E82</UserSecretsId>
+        <UserSecretsId>9DB0F221-84EC-4105-B04D-747E1EBF916D</UserSecretsId>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     </PropertyGroup>
 
@@ -19,6 +19,7 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\Bit.TemplatePlayground.Server.Shared\Bit.TemplatePlayground.Server.Shared.csproj" />
         <ProjectReference Include="..\Bit.TemplatePlayground.Server.Api\Bit.TemplatePlayground.Server.Api.csproj" />
         <ProjectReference Include="..\..\Client\Bit.TemplatePlayground.Client.Web\Bit.TemplatePlayground.Client.Web.csproj" />
     </ItemGroup>

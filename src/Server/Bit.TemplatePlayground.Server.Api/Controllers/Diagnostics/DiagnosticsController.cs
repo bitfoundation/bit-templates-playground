@@ -13,7 +13,7 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
 {
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
-    [HttpPost]
+    [HttpGet]
     public async Task<string> PerformDiagnostics([FromQuery] string? signalRConnectionId, [FromQuery] string? pushNotificationSubscriptionDeviceId, CancellationToken cancellationToken)
     {
         StringBuilder result = new();
@@ -38,7 +38,7 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
 
         if (string.IsNullOrEmpty(signalRConnectionId) is false)
         {
-            await appHubContext.Clients.Client(signalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, DateTimeOffset.Now.ToString("HH:mm:ss"), cancellationToken);
+            await appHubContext.Clients.Client(signalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}", new { pageUrl = Urls.TermsPage, action = "testAction" }, cancellationToken);
         }
 
         result.AppendLine($"Culture => C: {CultureInfo.CurrentCulture.Name}, UC: {CultureInfo.CurrentUICulture.Name}");
@@ -49,6 +49,10 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
         {
             result.AppendLine($"{header.Key}: {header.Value}");
         }
+
+        result.AppendLine();
+        result.AppendLine("Base url: " + Request.GetBaseUrl());
+        result.AppendLine("Web app url: " + Request.GetWebAppUrl());
 
         return result.ToString();
     }

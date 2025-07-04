@@ -39,5 +39,4 @@
         <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
     </ItemGroup>
 
-
 </Project>

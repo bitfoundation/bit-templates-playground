@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Server.Web;
+﻿using Bit.TemplatePlayground.Server.Web;
 using Bit.TemplatePlayground.Tests.Services;
 using Bit.TemplatePlayground.Server.Api.Services;
 
@@ -12,6 +12,7 @@ public static partial class WebApplicationBuilderExtensions
 
         builder.AddServerWebProjectServices();
 
+        // Register test-specific services for all tests here
 
         services.AddTransient(sp =>
         {

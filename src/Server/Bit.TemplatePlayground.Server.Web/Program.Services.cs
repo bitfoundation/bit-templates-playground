@@ -1,13 +1,9 @@
-﻿using System.IO.Compression;
-using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.ResponseCompression;
+﻿using Microsoft.Net.Http.Headers;
 using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Client.Web;
 using Bit.TemplatePlayground.Server.Web.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
-using Bit.TemplatePlayground.Client.Web.Services;
-using Bit.TemplatePlayground.Client.Core.Services;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -26,14 +22,14 @@ public static partial class Program
 
         services.AddClientWebProjectServices(configuration);
 
+        builder.AddServerApiProjectServices();
+
         services.AddSingleton(sp =>
         {
             ServerWebSettings settings = new();
             configuration.Bind(settings);
             return settings;
         });
-
-        builder.AddServerApiProjectServices();
 
         services.AddOptions<ServerWebSettings>()
             .Bind(configuration)

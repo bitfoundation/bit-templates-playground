@@ -23,7 +23,7 @@ public interface IRoleManagementController : IAppController
     [HttpPost]
     Task<RoleDto> Update(RoleDto roleDto, CancellationToken cancellationToken);
 
-    [HttpPost("{roleId}/{concurrencyStamp}")]
+    [HttpDelete("{roleId}/{concurrencyStamp}")]
     Task Delete(Guid roleId, string concurrencyStamp, CancellationToken cancellationToken);
 
     [HttpPost("{roleId}")]
@@ -36,10 +36,10 @@ public interface IRoleManagementController : IAppController
     Task DeleteClaims(Guid roleId, List<ClaimDto> roleClaims, CancellationToken cancellationToken);
 
     [HttpPost]
-    Task ToggleUser(UserRoleDto dto, CancellationToken cancellationToken);
+    Task ToggleUserRole(UserRoleDto dto, CancellationToken cancellationToken);
 
     [HttpPost("{roleId}")]
-    Task RemoveRoleFromAllUsers(Guid roleId, CancellationToken cancellationToken);
+    Task RemoveAllUsersFromRole(Guid roleId, CancellationToken cancellationToken);
 
     [HttpPost]
     Task SendNotification(SendNotificationToRoleDto dto, CancellationToken cancellationToken);

@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.OData;
 using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.ResponseCompression;
 using Twilio;
 using Ganss.Xss;
@@ -21,6 +22,7 @@ using FluentStorage.Blobs;
 using Hangfire.EntityFrameworkCore;
 using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Server.Api.Controllers;
+using Bit.TemplatePlayground.Server.Shared.Services;
 using Bit.TemplatePlayground.Server.Api.Services.Jobs;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Services.Identity;
@@ -35,6 +37,8 @@ public static partial class Program
         var env = builder.Environment;
         var services = builder.Services;
         var configuration = builder.Configuration;
+
+        builder.AddServerSharedServices();
 
         ServerApiSettings appSettings = new();
         configuration.Bind(appSettings);
@@ -52,6 +56,7 @@ public static partial class Program
         services.AddSingleton(_ => PhoneNumberUtil.GetInstance());
         services.AddSingleton<IBlobStorage>(sp =>
         {
+
             var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
             var appDataDirPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data");
             Directory.CreateDirectory(appDataDirPath);
@@ -61,28 +66,6 @@ public static partial class Program
         services.AddSingleton<ServerExceptionHandler>();
         services.AddSingleton(sp => (IProblemDetailsWriter)sp.GetRequiredService<ServerExceptionHandler>());
         services.AddProblemDetails();
-
-        services.AddOutputCache(options =>
-        {
-            options.AddPolicy("AppResponseCachePolicy", policy =>
-            {
-                var builder = policy.AddPolicy<AppResponseCachePolicy>();
-            }, excludeDefaultPolicy: true);
-        });
-        services.AddDistributedMemoryCache();
-
-        services.AddHttpContextAccessor();
-
-        services.AddResponseCompression(opts =>
-        {
-            opts.EnableForHttps = true;
-            opts.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(["application/octet-stream"]).ToArray();
-            opts.Providers.Add<BrotliCompressionProvider>();
-            opts.Providers.Add<GzipCompressionProvider>();
-        })
-            .Configure<BrotliCompressionProviderOptions>(opt => opt.Level = CompressionLevel.Fastest)
-            .Configure<GzipCompressionProviderOptions>(opt => opt.Level = CompressionLevel.Fastest);
-
 
         services.AddCors(builder =>
         {
@@ -96,14 +79,12 @@ public static partial class Program
                 ServerApiSettings settings = new();
                 configuration.Bind(settings);
 
-                policy.SetIsOriginAllowed(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) && settings.IsAllowedOrigin(uri))
+                policy.SetIsOriginAllowed(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) && settings.IsTrustedOrigin(uri))
                       .AllowAnyHeader()
                       .AllowAnyMethod()
                       .WithExposedHeaders(HeaderNames.RequestId, "Age", "App-Cache-Response");
             });
         });
-
-        services.AddAntiforgery();
 
         services.AddSingleton(sp =>
         {
@@ -120,7 +101,13 @@ public static partial class Program
         services.AddSingleton<HtmlSanitizer>();
 
         services
-            .AddControllers()
+            .AddControllers(options =>
+            {
+                if (appSettings.SupportedAppVersions is not null)
+                {
+                    options.Filters.Add<ForceUpdateActionFilter>();
+                }
+            })
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
@@ -160,7 +147,10 @@ public static partial class Program
 
             var connectionStringBuilder = new SqliteConnectionStringBuilder(configuration.GetConnectionString("SqliteConnectionString"));
             connectionStringBuilder.DataSource = Environment.ExpandEnvironmentVariables(connectionStringBuilder.DataSource);
-            Directory.CreateDirectory(Path.GetDirectoryName(connectionStringBuilder.DataSource)!);
+            if (connectionStringBuilder.Mode is not SqliteOpenMode.Memory)
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(connectionStringBuilder.DataSource)!);
+            }
             options.UseSqlite(connectionStringBuilder.ConnectionString, dbOptions =>
             {
 
@@ -187,6 +177,9 @@ public static partial class Program
         services.AddEndpointsApiExplorer();
 
         AddSwaggerGen(builder);
+
+        services.AddDataProtection()
+           .PersistKeysToDbContext<AppDbContext>(); // It's advised to secure database-stored keys with a certificate by invoking ProtectKeysWithCertificate.
 
         AddIdentity(builder);
 
@@ -298,9 +291,9 @@ public static partial class Program
                 Transport = new HttpClientPipelineTransport(sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"))
             }).AsIChatClient())
             .UseLogging()
-            .UseFunctionInvocation();
+            .UseFunctionInvocation()
+            .UseOpenTelemetry();
             // .UseDistributedCache()
-            // .UseOpenTelemetry()
         }
         else if (string.IsNullOrEmpty(appSettings.AI?.AzureOpenAI?.ChatApiKey) is false)
         {
@@ -312,9 +305,9 @@ public static partial class Program
                     Transport = new Azure.Core.Pipeline.HttpClientTransport(sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"))
                 }).AsIChatClient(appSettings.AI.AzureOpenAI.ChatModel))
             .UseLogging()
-            .UseFunctionInvocation();
+            .UseFunctionInvocation()
+            .UseOpenTelemetry();
             // .UseDistributedCache()
-            // .UseOpenTelemetry()
         }
 
         if (string.IsNullOrEmpty(appSettings.AI?.OpenAI?.EmbeddingApiKey) is false)
@@ -324,9 +317,9 @@ public static partial class Program
                 Endpoint = appSettings.AI.OpenAI.EmbeddingEndpoint,
                 Transport = new HttpClientPipelineTransport(sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"))
             }).AsIEmbeddingGenerator())
-            .UseLogging();
+            .UseLogging()
+            .UseOpenTelemetry();
             // .UseDistributedCache()
-            // .UseOpenTelemetry()
         }
         else if (string.IsNullOrEmpty(appSettings.AI?.AzureOpenAI?.EmbeddingApiKey) is false)
         {
@@ -336,9 +329,9 @@ public static partial class Program
                 {
                     Transport = new Azure.Core.Pipeline.HttpClientTransport(sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"))
                 }).AsIEmbeddingGenerator(appSettings.AI.AzureOpenAI.EmbeddingModel))
-            .UseLogging();
+            .UseLogging()
+            .UseOpenTelemetry();
             // .UseDistributedCache()
-            // .UseOpenTelemetry()
         }
 
         builder.Services.AddHangfire(configuration =>
@@ -504,6 +497,46 @@ public static partial class Program
                 };
                 configuration.GetRequiredSection("Authentication:AzureAD").Bind(options);
             }, openIdConnectScheme: "AzureAD");
+        }
+
+        if (string.IsNullOrEmpty(configuration["Authentication:Facebook:AppId"]) is false)
+        {
+            authenticationBuilder.AddFacebook(options =>
+            {
+                options.SignInScheme = IdentityConstants.ExternalScheme;
+                configuration.GetRequiredSection("Authentication:Facebook").Bind(options);
+            });
+        }
+
+        // While Google, GitHub, Twitter(X), Apple and AzureAD needs account creation in their corresponding developer portals,
+        // and configuring the client ID and secret, the following OpenID Connect configuration is for Duende IdentityServer demo server,
+        // which is a public server that allows you to test Social sign-in feature without needing to configure anything.
+        // Note: The following demo server doesn't require licensing.
+        if (builder.Environment.IsDevelopment())
+        {
+            authenticationBuilder.AddOpenIdConnect("IdentityServerDemo", options =>
+            {
+                options.Authority = "https://demo.duendesoftware.com";
+
+                options.ClientId = "interactive.confidential";
+                options.ClientSecret = "secret";
+                options.ResponseType = "code";
+                options.ResponseMode = "query";
+
+                options.Scope.Clear();
+                options.Scope.Add("openid");
+                options.Scope.Add("profile");
+                options.Scope.Add("api");
+                options.Scope.Add("offline_access");
+                options.Scope.Add("email");
+
+                options.MapInboundClaims = false;
+                options.GetClaimsFromUserInfoEndpoint = true;
+                options.SaveTokens = true;
+                options.DisableTelemetry = true;
+
+                options.Prompt = "login"; // Force login every time
+            });
         }
     }
 

@@ -54,6 +54,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = roleDto.Map();
 
+        role.ConcurrencyStamp = Guid.NewGuid().ToString();
         var result = await roleManager.CreateAsync(role);
 
         if (result.Succeeded is false)
@@ -68,6 +69,9 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = await GetRoleByIdAsync(roleDto.Id, cancellationToken);
 
+        if (AppRoles.IsBuiltInRole(role.Name!))
+            throw new BadRequestException(Localizer[nameof(AppStrings.CanNotChangeBuiltInRole), role.Name!]);
+
         if (role.ConcurrencyStamp != roleDto.ConcurrencyStamp)
             throw new ConflictException();
 
@@ -81,11 +85,14 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
         return role.Map();
     }
 
-    [HttpPost("{roleId}/{concurrencyStamp}")]
+    [HttpDelete("{roleId}/{concurrencyStamp}")]
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task Delete(Guid roleId, string concurrencyStamp, CancellationToken cancellationToken)
     {
         var role = await GetRoleByIdAsync(roleId, cancellationToken);
+
+        if (AppRoles.IsBuiltInRole(role.Name!))
+            throw new BadRequestException(Localizer[nameof(AppStrings.CanNotChangeBuiltInRole), role.Name!]);
 
         if (role.ConcurrencyStamp != concurrencyStamp)
             throw new ConflictException();
@@ -101,6 +108,9 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
 
         var role = await GetRoleByIdAsync(roleId, cancellationToken);
 
+        if (role.Name == AppRoles.SuperAdmin)
+            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
+
         foreach (var claim in claims)
         {
             var result = await roleManager.AddClaimAsync(role, new(claim.ClaimType!, claim.ClaimValue!));
@@ -115,6 +125,9 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     public async Task UpdateClaims(Guid roleId, List<ClaimDto> claims, CancellationToken cancellationToken)
     {
         var role = await GetRoleByIdAsync(roleId, cancellationToken);
+
+        if (role.Name == AppRoles.SuperAdmin)
+            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
 
         foreach (var claim in claims)
         {
@@ -136,6 +149,9 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = await GetRoleByIdAsync(roleId, cancellationToken);
 
+        if (role.Name == AppRoles.SuperAdmin)
+            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
+
         foreach (var claim in claims)
         {
             var result = await roleManager.RemoveClaimAsync(role, new(claim.ClaimType!, claim.ClaimValue!));
@@ -147,7 +163,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
 
     [HttpPost]
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
-    public async Task ToggleUser(UserRoleDto dto, CancellationToken cancellationToken)
+    public async Task ToggleUserRole(UserRoleDto dto, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(dto.UserId.ToString())
             ?? throw new ResourceNotFoundException();
@@ -184,7 +200,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
 
     [HttpPost("{roleId}")]
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
-    public async Task RemoveRoleFromAllUsers(Guid roleId, CancellationToken cancellationToken)
+    public async Task RemoveAllUsersFromRole(Guid roleId, CancellationToken cancellationToken)
     {
         var role = await GetRoleByIdAsync(roleId, cancellationToken);
 
@@ -201,7 +217,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
                                                                .Select(us => us.SignalRConnectionId!).ToArrayAsync(cancellationToken);
 
         await appHubContext.Clients.Clients(signalRConnectionIds)
-                                   .SendAsync(SignalREvents.SHOW_MESSAGE, dto.Message, cancellationToken);
+                                   .SendAsync(SignalREvents.SHOW_MESSAGE, dto.Message, dto.PageUrl is null ? null : new { pageUrl = dto.PageUrl }, cancellationToken);
 
     }
 
@@ -210,9 +226,6 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = await roleManager.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken)
                     ?? throw new ResourceNotFoundException();
-
-        if (role.Name == AppRoles.SuperAdmin)
-            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleErrorMessage)]);
 
         return role;
     }
