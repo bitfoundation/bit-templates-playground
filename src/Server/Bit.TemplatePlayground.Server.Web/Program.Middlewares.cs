@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Bit.TemplatePlayground.Shared;
 using Bit.TemplatePlayground.Shared.Attributes;
 using Hangfire;
+using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Server.Api.Filters;
 using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Server.Web.Endpoints;
@@ -26,28 +27,10 @@ public static partial class Program
 
         ServerWebSettings settings = new();
         configuration.Bind(settings);
-        var forwardedHeadersOptions = settings.ForwardedHeaders;
 
-        if (forwardedHeadersOptions is not null
-            && (app.Environment.IsDevelopment() || forwardedHeadersOptions.AllowedHosts.Any()))
-        {
-            // If the list is empty then all hosts are allowed. Failing to restrict this these values may allow an attacker to spoof links generated for reset password etc.
-            app.UseForwardedHeaders(forwardedHeadersOptions);
-        }
+        app.UseAppForwardedHeaders();
 
-        if (CultureInfoManager.InvariantGlobalization is false)
-        {
-            var supportedCultures = CultureInfoManager.SupportedCultures.Select(sc => sc.Culture).ToArray();
-            var options = new RequestLocalizationOptions
-            {
-                SupportedCultures = supportedCultures,
-                SupportedUICultures = supportedCultures,
-                ApplyCurrentCultureToResponseHeaders = true
-            };
-            options.SetDefaultCulture(CultureInfoManager.DefaultCulture.Name);
-            options.RequestCultureProviders.Insert(1, new RouteDataRequestCultureProvider() { Options = options });
-            app.UseRequestLocalization(options);
-        }
+        app.UseLocalization();
 
         app.UseExceptionHandler();
 
@@ -119,6 +102,8 @@ public static partial class Program
 
         app.UseAntiforgery();
 
+        app.MapAspire();
+
         app.UseSwagger();
 
         app.UseSwaggerUI(options =>
@@ -159,7 +144,7 @@ public static partial class Program
            .CacheOutput("AppResponseCachePolicy");
 
         app.UseSiteMap();
-        app.UseHybridWebAppInterop();
+        app.UseWebInteropApp();
 
         // Handle the rest of requests with blazor
         var blazorApp = app.MapRazorComponents<Components.App>()

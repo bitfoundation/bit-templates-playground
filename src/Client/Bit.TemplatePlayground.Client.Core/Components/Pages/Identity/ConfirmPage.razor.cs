@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity;
@@ -81,8 +81,7 @@ public partial class ConfirmPage
             var signInResponse = await identityController.ConfirmEmail(new()
             {
                 Email = emailModel.Email,
-                Token = emailModel.Token,
-                DeviceInfo = telemetryContext.Platform
+                Token = emailModel.Token
             }, CurrentCancellationToken);
 
             await AuthManager.StoreTokens(signInResponse, true);
@@ -112,7 +111,6 @@ public partial class ConfirmPage
             var signInResponse = await identityController.ConfirmPhone(new()
             {
                 Token = phoneModel.Token,
-                DeviceInfo = telemetryContext.Platform,
                 PhoneNumber = phoneModel.PhoneNumber
             }, CurrentCancellationToken);
 

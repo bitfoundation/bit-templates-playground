@@ -1,7 +1,10 @@
-using System.Reflection;
+﻿using System.Reflection;
 
 namespace Bit.TemplatePlayground.Tests.Extensions;
 
+/// <summary>
+/// Captures Playwright video recording functionality for test methods.
+/// </summary>
 public static class PlaywrightVideoRecordingExtensions
 {
     //Pass full name of the test method to 'testMethodFullName' param or it will be inferred from the test context

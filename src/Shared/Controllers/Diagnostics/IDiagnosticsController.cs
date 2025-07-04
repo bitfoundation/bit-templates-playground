@@ -1,8 +1,8 @@
-namespace Bit.TemplatePlayground.Shared.Controllers.Diagnostics;
+﻿namespace Bit.TemplatePlayground.Shared.Controllers.Diagnostics;
 
 [Route("api/[controller]/[action]/")]
 public interface IDiagnosticsController : IAppController
 {
-    [HttpPost("{?signalRConnectionId,pushNotificationSubscriptionDeviceId}")]
+    [HttpGet("{?signalRConnectionId,pushNotificationSubscriptionDeviceId}")]
     Task<string> PerformDiagnostics(string? signalRConnectionId, string? pushNotificationSubscriptionDeviceId, CancellationToken cancellationToken);
 }

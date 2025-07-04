@@ -1,4 +1,4 @@
-
+﻿
 namespace Bit.TemplatePlayground.Shared.Dtos.Identity;
 
 [DtoResourceType(typeof(AppStrings))]
@@ -26,9 +26,6 @@ public partial class SignInRequestDto : IdentityRequestDto
     /// <example>null</example>
     [Display(Name = nameof(AppStrings.TwoFactorCode))]
     public string? TwoFactorCode { get; set; }
-
-    /// <example>Samsung Android 14</example>
-    public string? DeviceInfo { get; set; }
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {

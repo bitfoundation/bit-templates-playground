@@ -2,6 +2,7 @@
 using Microsoft.Maui.LifecycleEvents;
 using Bit.TemplatePlayground.Client.Core.Styles;
 using Bit.TemplatePlayground.Client.Maui.Services;
+using Maui.AppStores;
 #if iOS || Mac
 using UIKit;
 using WebKit;
@@ -31,6 +32,7 @@ public static partial class MauiProgram
 
                 builder
             .UseMauiApp<App>()
+            .UseAppStoreInfo()
             .Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Maui");
 
         

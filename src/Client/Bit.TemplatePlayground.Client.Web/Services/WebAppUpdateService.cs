@@ -1,0 +1,12 @@
+﻿
+namespace Bit.TemplatePlayground.Client.Web.Services;
+
+public partial class WebAppUpdateService : IAppUpdateService
+{
+    [AutoInject] private IJSRuntime jsRuntime = default!;
+
+    public async Task ForceUpdate()
+    {
+        await jsRuntime.InvokeVoidAsync("App.forceUpdate");
+    }
+}

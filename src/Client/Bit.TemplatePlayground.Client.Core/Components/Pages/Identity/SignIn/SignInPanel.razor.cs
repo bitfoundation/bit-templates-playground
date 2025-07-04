@@ -18,7 +18,7 @@ public partial class SignInPanel
     private SignInPanelType internalSignInPanelType;
     private readonly SignInRequestDto model = new();
     private AppDataAnnotationsValidator? validatorRef;
-    private string ReturnUrl => ReturnUrlQueryString ?? NavigationManager.GetRelativePath() ?? Urls.HomePage;
+    private string ReturnUrl => ReturnUrlQueryString ?? Urls.HomePage;
 
 
     [Parameter, SupplyParameterFromQuery(Name = "return-url")]
@@ -116,11 +116,10 @@ public partial class SignInPanel
                 var response = await identityController
                     .WithQueryIf(AppPlatform.IsBlazorHybrid, "origin", localHttpServer.Origin)
                     .VerifyWebAuthAndSignIn(
-                        new VerifyWebAuthnAndSignInDto
+                        new VerifyWebAuthnAndSignInRequestDto
                         {
                             ClientResponse = webAuthnAssertion.Value,
-                            TfaCode = model.TwoFactorCode,
-                            DeviceInfo = telemetryContext.Platform
+                            TfaCode = model.TwoFactorCode
                         },
                         CurrentCancellationToken);
 
@@ -141,7 +140,6 @@ public partial class SignInPanel
                 if (isNewUser is false)
                 {
                     model.ReturnUrl = ReturnUrl;
-                    model.DeviceInfo = telemetryContext.Platform;
 
                     requiresTwoFactor = await AuthManager.SignIn(model, CurrentCancellationToken);
 
@@ -154,8 +152,7 @@ public partial class SignInPanel
                         var signInResponse = await identityController.ConfirmEmail(new()
                         {
                             Token = model.Otp,
-                            Email = model.Email,
-                            DeviceInfo = telemetryContext.Platform
+                            Email = model.Email
                         }, CurrentCancellationToken);
 
                         await AuthManager.StoreTokens(signInResponse, true);
@@ -165,8 +162,7 @@ public partial class SignInPanel
                         var signInResponse = await identityController.ConfirmPhone(new()
                         {
                             Token = model.Otp,
-                            PhoneNumber = model.PhoneNumber,
-                            DeviceInfo = telemetryContext.Platform
+                            PhoneNumber = model.PhoneNumber
                         }, CurrentCancellationToken);
 
                         await AuthManager.StoreTokens(signInResponse, true);
@@ -378,19 +374,26 @@ public partial class SignInPanel
 
     private void CleanModel()
     {
+        if (internalSignInPanelType is SignInPanelType.Otp)
+        {
+            model.Password = null;
+            validatorRef?.EditContext.NotifyFieldChanged(validatorRef.EditContext.Field(nameof(SignInRequestDto.Password)));
+        }
+        else if (internalSignInPanelType is SignInPanelType.Password && isOtpSent is false)
+        {
+            model.Otp = null;
+            validatorRef?.EditContext.NotifyFieldChanged(validatorRef.EditContext.Field(nameof(SignInRequestDto.Otp)));
+        }
+
         if (currentTab is SignInPanelTab.Email)
         {
             model.PhoneNumber = null;
-            if (validatorRef is null) return;
-
-            validatorRef.EditContext.NotifyFieldChanged(validatorRef.EditContext.Field(nameof(SignInRequestDto.PhoneNumber)));
+            validatorRef?.EditContext.NotifyFieldChanged(validatorRef.EditContext.Field(nameof(SignInRequestDto.PhoneNumber)));
         }
         else
         {
             model.Email = null;
-            if (validatorRef is null) return;
-
-            validatorRef.EditContext.NotifyFieldChanged(validatorRef.EditContext.Field(nameof(SignInRequestDto.Email)));
+            validatorRef?.EditContext.NotifyFieldChanged(validatorRef.EditContext.Field(nameof(SignInRequestDto.Email)));
         }
     }
 

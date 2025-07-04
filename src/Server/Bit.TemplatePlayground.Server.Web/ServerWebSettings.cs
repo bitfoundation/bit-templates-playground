@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
-using Bit.TemplatePlayground.Client.Web;
+﻿using Bit.TemplatePlayground.Client.Web;
 using Bit.TemplatePlayground.Client.Core;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -9,8 +9,10 @@ public partial class ServerWebSettings : ClientWebSettings
 {
     public ForwardedHeadersOptions? ForwardedHeaders { get; set; } = default!;
 
-    public ResponseCachingOptions? ResponseCaching { get; set; } = default!;
-
+    /// <summary>
+    /// Specifies the allowed origins for CORS requests, URLs returned after social sign-in and email confirmation, and permitted origins for Web Auth, as well as forwarded headers middleware in ASP.NET Core.
+    /// </summary>
+    public Uri[] TrustedOrigins { get; set; } = [];
     [Required]
     public WebAppRenderOptions WebAppRender { get; set; } = default!;
 
@@ -35,11 +37,6 @@ public partial class ServerWebSettings : ClientWebSettings
         if (ForwardedHeaders is not null)
         {
             Validator.TryValidateObject(ForwardedHeaders, new ValidationContext(ForwardedHeaders), validationResults, true);
-        }
-
-        if (ResponseCaching is not null)
-        {
-            Validator.TryValidateObject(ResponseCaching, new ValidationContext(ResponseCaching), validationResults, true);
         }
 
         return validationResults;
@@ -90,17 +87,4 @@ public enum BlazorWebAppMode
     /// Pre-rendering without interactivity
     /// </summary>
     BlazorSsr,
-}
-
-public class ResponseCachingOptions
-{
-    /// <summary>
-    /// Enables ASP.NET Core's response output caching
-    /// </summary>
-    public bool EnableOutputCaching { get; set; }
-
-    /// <summary>
-    /// Enables CDN's edge servers caching
-    /// </summary>
-    public bool EnableCdnEdgeCaching { get; set; }
 }

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Client.Maui.Services;
 
-// Checkout HybridAppWebInterop.razor's comments.
+// Checkout WebInteropApp.razor's comments.
 public partial class MauiLocalHttpServer : ILocalHttpServer
 {
     [AutoInject] private HtmlRenderer htmlRenderer;
@@ -37,7 +37,7 @@ public partial class MauiLocalHttpServer : ILocalHttpServer
 
         async Task GoBackToApp()
         {
-            if (AppPlatform.IsIOS)
+            if (AppPlatform.IsIos)
             {
                 // CloseBrowserPage.razor's `window.close()` does NOT work on iOS's in app browser.
                 await MainThread.InvokeOnMainThreadAsync(() =>
@@ -143,10 +143,10 @@ public partial class MauiLocalHttpServer : ILocalHttpServer
 
                 await GoBackToApp();
             }))
-            .WithModule(new ActionModule("/hybrid-app-web-interop", HttpVerbs.Get, async ctx =>
+            .WithModule(new ActionModule("/web-interop-app", HttpVerbs.Get, async ctx =>
             {
                 var html = await htmlRenderer.Dispatcher.InvokeAsync(async () =>
-                    (await htmlRenderer.RenderComponentAsync<HybridAppWebInterop>()).ToHtmlString());
+                    (await htmlRenderer.RenderComponentAsync<WebInteropApp>()).ToHtmlString());
 
                 await ctx.SendStringAsync(html, "text/html", Encoding.UTF8);
             }))

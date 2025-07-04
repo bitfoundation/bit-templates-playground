@@ -5,7 +5,7 @@ namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Home;
 
 public partial class HomePage
 {
-    [CascadingParameter] private BitDir? currentDir { get; set; }
+    [CascadingParameter] public BitDir? CurrentDir { get; set; }
 
 
     private GitHubStats? gitHubStats;
@@ -13,8 +13,9 @@ public partial class HomePage
     private bool isLoadingNuget = true;
     private bool isLoadingGitHub = true;
 
-    [AutoInject] private IStatisticsController statisticsController = default!;
 
+    [AutoInject] private IStatisticsController statisticsController = default!;
+    
 
     protected override async Task OnInitAsync()
     {
@@ -31,6 +32,7 @@ public partial class HomePage
 
         await Task.WhenAll(LoadNuget(), LoadGitHub());
     }
+    
 
     private async Task LoadNuget()
     {
@@ -67,5 +69,4 @@ public partial class HomePage
             StateHasChanged();
         }
     }
-
 }

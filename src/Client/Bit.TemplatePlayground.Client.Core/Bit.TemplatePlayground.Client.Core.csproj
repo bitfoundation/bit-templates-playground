@@ -38,6 +38,7 @@
         <Using Include="Bit.BlazorUI" />
         <Using Include="Bit.TemplatePlayground.Shared" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Components.Common" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
     </ItemGroup>

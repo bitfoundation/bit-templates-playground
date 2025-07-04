@@ -25,7 +25,7 @@ public interface IIdentityController : IAppController
 
     public const string RefreshUri = "api/Identity/Refresh";
     [HttpPost]
-    Task<TokenResponseDto> Refresh(RefreshRequestDto request, CancellationToken cancellationToken) => default!;
+    Task<TokenResponseDto> Refresh(RefreshTokenRequestDto request, CancellationToken cancellationToken) => default!;
 
     [HttpPost]
     [NoRetryPolicy] // Please note that retrying requests with Google reCaptcha will not work, as the Google verification mechanism only accepts a captcha response once.
@@ -50,8 +50,11 @@ public interface IIdentityController : IAppController
     Task<JsonElement> VerifyWebAuthAssertion(JsonElement clientResponse, CancellationToken cancellationToken) => default!;
 
     [HttpPost]
-    Task<SignInResponseDto> VerifyWebAuthAndSignIn(VerifyWebAuthnAndSignInDto request, CancellationToken cancellationToken) => default!;
+    Task<SignInResponseDto> VerifyWebAuthAndSignIn(VerifyWebAuthnAndSignInRequestDto request, CancellationToken cancellationToken) => default!;
 
     [HttpPost]
     Task VerifyWebAuthAndSendTwoFactorToken(JsonElement clientResponse, CancellationToken cancellationToken) => default!;
+
+    [HttpGet]
+    Task<string[]> GetSupportedSocialAuthSchemes(CancellationToken cancellationToken);
 }

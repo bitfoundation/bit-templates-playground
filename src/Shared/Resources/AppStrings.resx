@@ -217,15 +217,6 @@
     <data name="ProfileSubtitle" xml:space="preserve">
     <value>Edit your profile data</value>
   </data>
-    <data name="EditProfileTitle" xml:space="preserve">
-    <value>Edit profile</value>
-  </data>
-    <data name="ChangeEmailTitle" xml:space="preserve">
-    <value>Change email</value>
-  </data>
-    <data name="ChangePhoneNumberTitle" xml:space="preserve">
-    <value>Change phone number</value>
-  </data>
     <data name="SuccessfulSendChangeEmailTokenMessage" xml:space="preserve">
     <value>Change email token has been sent to you</value>
   </data>
@@ -241,9 +232,6 @@
     <data name="SessionsSubtitle" xml:space="preserve">
     <value>Your active sessions across multiple devices</value>
   </data>
-    <data name="UserSessionsTitle" xml:space="preserve">
-    <value>Your sessions</value>
-  </data>
     <data name="CurrentSession" xml:space="preserve">
     <value>Current session</value>
   </data>
@@ -253,9 +241,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="OtherSessions" xml:space="preserve">
     <value>Other sessions</value>
-  </data>
-    <data name="RemoveSession" xml:space="preserve">
-    <value>Remove session</value>
   </data>
     <data name="TryRemovingOtherSessions" xml:space="preserve">
     <value>Try removing other sessions</value>
@@ -269,17 +254,11 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="NotFoundText" xml:space="preserve">
     <value>There is nothing here.</value>
   </data>
-    <data name="UnknownDevice" xml:space="preserve">
-    <value>Unknown device</value>
-  </data>
     <data name="UpdateWebViewThroughGooglePlay" xml:space="preserve">
     <value>Please update webview through google play.</value>
   </data>
     <data name="Ok" xml:space="preserve">
     <value>Ok</value>
-  </data>
-    <data name="ConcurrentUserSessionOnTheSameDevice" xml:space="preserve">
-    <value>Please ensure you're not running multiple sessions of the app simultaneously on the same device or browser.</value>
   </data>
     <data name="SystemPromptsTitle" xml:space="preserve">
     <value>System prompts</value>
@@ -308,9 +287,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="Email" xml:space="preserve">
     <value>Email</value>
   </data>
-    <data name="CurrentEmail" xml:space="preserve">
-    <value>Current email</value>
-  </data>
     <data name="NewEmail" xml:space="preserve">
     <value>New email</value>
   </data>
@@ -322,9 +298,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="PhoneNumber" xml:space="preserve">
     <value>Phone Number</value>
-  </data>
-    <data name="CurrentPhoneNumber" xml:space="preserve">
-    <value>Current phone number</value>
   </data>
     <data name="NewPhoneNumber" xml:space="preserve">
     <value>New phone number</value>
@@ -341,26 +314,11 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="PasswordPlaceholder" xml:space="preserve">
     <value>Enter password</value>
   </data>
-    <data name="PasswordChangedSuccessfullyMessage" xml:space="preserve">
-    <value>Your password changed successfully.</value>
-  </data>
-    <data name="ResendConfirmationEmailTokenMessage" xml:space="preserve">
-    <value>The confirmation token has been re-sent to your email address.</value>
-  </data>
-    <data name="ResetPasswordTokenSentMessage" xml:space="preserve">
-    <value>The reset password token has been sent to your email address.</value>
-  </data>
     <data name="ImageCouldNotBeFound" xml:space="preserve">
     <value>Image could not be found</value>
   </data>
     <data name="Error" xml:space="preserve">
     <value>Error</value>
-  </data>
-    <data name="YouHaveToAcceptTerms" xml:space="preserve">
-    <value>You must agree to our terms.</value>
-  </data>
-    <data name="AcceptTermsMessage" xml:space="preserve">
-    <value>By signing up, you agree to our</value>
   </data>
     <data name="Gender" xml:space="preserve">
     <value>Gender</value>
@@ -446,9 +404,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="SignInMessageInSignUp" xml:space="preserve">
     <value>Already have an account?</value>
   </data>
-    <data name="ConfirmMessageInSignUp" xml:space="preserve">
-    <value>Want to confirm an account?</value>
-  </data>
     <data name="ConfirmMessageInProfile" xml:space="preserve">
     <value>Already have a token?</value>
   </data>
@@ -503,9 +458,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="NotReceivedPhoneMessage" xml:space="preserve">
     <value>Haven't you received the token on your phone?</value>
   </data>
-    <data name="ResendConfirmationPhoneTokenMessage" xml:space="preserve">
-    <value>The confirmation token has been re-sent to your phone.</value>
-  </data>
     <data name="ResendPhoneTokenButtonText" xml:space="preserve">
     <value>Resend code</value>
   </data>
@@ -533,15 +485,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="Edit" xml:space="preserve">
     <value>Edit</value>
   </data>
-    <data name="EmailConfirmationFailedMessage" xml:space="preserve">
-    <value>Email Confirmation Failed!</value>
-  </data>
-    <data name="EmailConfirmationTitle" xml:space="preserve">
-    <value>Email Confirmation</value>
-  </data>
-    <data name="EmailConfirmedSuccessfullyMessage" xml:space="preserve">
-    <value>Email Confirmed Successfully!</value>
-  </data>
     <data name="FileUploadFailed" xml:space="preserve">
     <value>An error occurred while uploading file</value>
   </data>
@@ -559,9 +502,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="GenderOther" xml:space="preserve">
     <value>Other</value>
-  </data>
-    <data name="GitHubRepo" xml:space="preserve">
-    <value>GitHub Repo</value>
   </data>
     <data name="GoToToday" xml:space="preserve">
     <value>Go to today</value>
@@ -596,9 +536,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="DescriptionMetaTagValue" xml:space="preserve">
     <value>The Bit.TemplatePlayground is built with ASP.NET Core, Identity, Web API, EF Core and Blazor.</value>
   </data>
-    <data name="InvalidConfirmationTokenMessage" xml:space="preserve">
-    <value>Looks like the confirmation token either is invalid or has expired.</value>
-  </data>
     <data name="NewPassword" xml:space="preserve">
     <value>New Password</value>
   </data>
@@ -613,9 +550,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="Or" xml:space="preserve">
     <value>or</value>
-  </data>
-    <data name="ProfileImage" xml:space="preserve">
-    <value>Profile Image</value>
   </data>
     <data name="Remove" xml:space="preserve">
     <value>Remove</value>
@@ -665,14 +599,11 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="Continue" xml:space="preserve">
     <value>Continue</value>
   </data>
-    <data name="CloseBrowserMessageTitle" xml:space="preserve">
-    <value>Go back to app</value>
-  </data>
-    <data name="CloseBrowserMessageBody" xml:space="preserve">
-    <value>You can go back to the application now</value>
-  </data>
     <data name="GoogleSignInButtonText" xml:space="preserve">
     <value>Sign in with Google</value>
+  </data>
+    <data name="FacebookSignInButtonText" xml:space="preserve">
+    <value>Sign in with Facebook</value>
   </data>
     <data name="GitHubSignInButtonText" xml:space="preserve">
     <value>Sign in with GitHub</value>
@@ -682,6 +613,12 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="AppleSignInButtonText" xml:space="preserve">
     <value>Sign in with Apple</value>
+  </data>
+    <data name="IdentityServerDemoSignInButtonText" xml:space="preserve">
+    <value>Sign in with Test server</value>
+  </data>
+    <data name="AzureEntraSignInButtonText" xml:space="preserve">
+    <value>Sign in with Azure Entra</value>
   </data>
     <data name="SignOut" xml:space="preserve">
     <value>Sign out</value>
@@ -703,9 +640,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="Submit" xml:space="preserve">
     <value>Submit</value>
-  </data>
-    <data name="TermsMessage" xml:space="preserve">
-    <value>I agree to the</value>
   </data>
     <data name="UploadNewImage" xml:space="preserve">
     <value>Drag or select an image</value>
@@ -797,9 +731,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="TfaPanelAnotherWayGetCode" xml:space="preserve">
     <value>Get code</value>
   </data>
-    <data name="TwoFactorAuthTitle" xml:space="preserve">
-    <value>2FA</value>
-  </data>
     <data name="TfaResetSharedKeyError" xml:space="preserve">
     <value>Resetting the 2fa shared key must disable 2fa until a 2fa token based on the new shared key is validated.</value>
   </data>
@@ -808,18 +739,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="TfaInvalidCodeError" xml:space="preserve">
     <value>The 2fa token provided by the request was invalid. A valid 2fa token is required to enable 2fa.</value>
-  </data>
-    <data name="TfaProtectedSignInSubtitle" xml:space="preserve">
-    <value>Your sign-in is protected with an authenticator app.</value>
-  </data>
-    <data name="TfaEnterCodeInSignInMessage" xml:space="preserve">
-    <value>Enter your authenticator code:</value>
-  </data>
-    <data name="TfaEnterRecoveryCodeInSignInMessage" xml:space="preserve">
-    <value>Or enter your recovery code:</value>
-  </data>
-    <data name="TfaAuthenticatorAppVerifiedMessage" xml:space="preserve">
-    <value>Your authenticator app has been verified.</value>
   </data>
     <data name="TfaConfigureAutAppTitle" xml:space="preserve">
     <value>Configure authenticator app</value>
@@ -911,15 +830,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="TfaDisable2faButtonText" xml:space="preserve">
     <value>Disable 2FA</value>
   </data>
-    <data name="TwoFactorToken" xml:space="preserve">
-    <value>2FA Token</value>
-  </data>
-    <data name="TfaTokenSignInTitle" xml:space="preserve">
-    <value>No access to authenticator app?</value>
-  </data>
-    <data name="TfaTokenGenerateButtonText" xml:space="preserve">
-    <value>Generate and Send 2FA Token</value>
-  </data>
     <data name="TfaTokenSentMessage" xml:space="preserve">
     <value>The 2FA token has been generated and sent to you.</value>
   </data>
@@ -962,12 +872,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="Resend" xml:space="preserve">
     <value>Resend</value>
   </data>
-    <data name="OtpPlaceholder" xml:space="preserve">
-    <value>Enter OTP</value>
-  </data>
-    <data name="OtpSentMessage" xml:space="preserve">
-    <value>An OTP has been generated and sent to you.</value>
-  </data>
     <data name="SendOtpButtonText" xml:space="preserve">
     <value>Send OTP</value>
   </data>
@@ -979,9 +883,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="SignInByOtp" xml:space="preserve">
     <value>Use OTP</value>
-  </data>
-    <data name="OtpEmailOrPhoneNumberSubtitle" xml:space="preserve">
-    <value>Enter your email or phone number:</value>
   </data>
     <data name="EitherProvidePasswordOrOtp" xml:space="preserve">
     <value>Either provide password or OTP</value>
@@ -1013,20 +914,17 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="Update" xml:space="preserve">
     <value>Update</value>
   </data>
-    <data name="NewVersionIsAvailable" xml:space="preserve">
-    <value>New version {0} is available</value>
+    <data name="ForceUpdateTitle" xml:space="preserve">
+    <value>Time for an update</value>
   </data>
-    <data name="UpdateToNewVersion" xml:space="preserve">
-    <value>Would you like to update to the new version? {0}</value>
+    <data name="ForceUpdateBody" xml:space="preserve">
+    <value>This update is required to keep your app running smoothly</value>
   </data>
     <data name="About" xml:space="preserve">
     <value>About</value>
   </data>
     <data name="AboutPageTitle" xml:space="preserve">
     <value>About</value>
-  </data>
-    <data name="NothingFound" xml:space="preserve">
-    <value>Nothing found!</value>
   </data>
     <data name="CategoryCouldNotBeFound" xml:space="preserve">
     <value>Category entity could not be found</value>
@@ -1043,26 +941,11 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="PaginatorSummary" xml:space="preserve">
     <value>{0} items</value>
   </data>
-    <data name="PaginatorFirstButtonTitle" xml:space="preserve">
-    <value>Go to the first page</value>
-  </data>
-    <data name="PaginatorPrevButtonTitle" xml:space="preserve">
-    <value>Go to the previous page</value>
-  </data>
-    <data name="PaginatorNextButtonTitle" xml:space="preserve">
-    <value>Go to the next page</value>
-  </data>
-    <data name="PaginatorLastButtonTitle" xml:space="preserve">
-    <value>Go to the last page</value>
-  </data>
     <data name="Page" xml:space="preserve">
     <value>Page</value>
   </data>
     <data name="Of" xml:space="preserve">
     <value>of</value>
-  </data>
-    <data name="ProductsCount" xml:space="preserve">
-    <value>Products count</value>
   </data>
     <data name="Last30DaysProductCount" xml:space="preserve">
     <value>Last 30 days product count</value>
@@ -1100,12 +983,6 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="CategoriesWithProductCount" xml:space="preserve">
     <value>Categories with product count</value>
   </data>
-    <data name="ProductSales" xml:space="preserve">
-    <value>Product sales</value>
-  </data>
-    <data name="ProductSalesText" xml:space="preserve">
-    <value>This chart shows the sale number of each product.</value>
-  </data>
     <data name="SearchOnName" xml:space="preserve">
     <value>Search on name</value>
   </data>
@@ -1127,23 +1004,14 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="Categories" xml:space="preserve">
     <value>Categories</value>
   </data>
-    <data name="ProductCategory" xml:space="preserve">
-    <value>Product category</value>
-  </data>
     <data name="Products" xml:space="preserve">
     <value>Products</value>
   </data>
     <data name="CategoryNotEmpty" xml:space="preserve">
     <value>This category contain some products, so you can't delete it</value>
   </data>
-    <data name="AreYouSureWannaDeleteCategory" xml:space="preserve">
-    <value>Are you sure you want to delete category {0}</value>
-  </data>
     <data name="AreYouSureWannaDeleteProduct" xml:space="preserve">
     <value>Are you sure you want to delete product {0}</value>
-  </data>
-    <data name="DeleteCategory" xml:space="preserve">
-    <value>Delete category</value>
   </data>
     <data name="DeleteProduct" xml:space="preserve">
     <value>Delete product</value>
@@ -1250,6 +1118,9 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="Users" xml:space="preserve">
     <value>Users</value>
   </data>
+    <data name="UsersWithCount" xml:space="preserve">
+    <value>Users {0}</value>
+  </data>
     <data name="Features" xml:space="preserve">
     <value>Features</value>
   </data>
@@ -1286,38 +1157,20 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="TestNotificationMessage2" xml:space="preserve">
     <value>Test notification 2</value>
   </data>
-    <data name="RoleExistErrorMessage" xml:space="preserve">
-    <value>This user group already exists</value>
-  </data>
-    <data name="Users" xml:space="preserve">
-    <value>Users</value>
-  </data>
     <data name="UsersPageTitle" xml:space="preserve">
     <value>Manage users</value>
   </data>
     <data name="DeleteRole" xml:space="preserve">
     <value>Delete user group</value>
   </data>
-    <data name="NewUserUsername" xml:space="preserve">
-    <value>New User's username</value>
-  </data>
-    <data name="NewUserEmail" xml:space="preserve">
-    <value>New User's email</value>
-  </data>
-    <data name="NewUserPhoneNumber" xml:space="preserve">
-    <value>New User's phone number</value>
-  </data>
-    <data name="AddUser" xml:space="preserve">
-    <value>Add user</value>
-  </data>
-    <data name="EditUser" xml:space="preserve">
-    <value>Edit user</value>
-  </data>
     <data name="Sessions" xml:space="preserve">
-    <value>Sessions</value>
+    <value>Sessions {0}</value>
   </data>
     <data name="DeleteUser" xml:space="preserve">
     <value>Delete user</value>
+  </data>
+    <data name="AppVersion" xml:space="preserve">
+    <value>App version</value>
   </data>
     <data name="IP" xml:space="preserve">
     <value>IP</value>
@@ -1356,10 +1209,13 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <value>Are you sure you want to revoke all sessions of {0}?</value>
   </data>
     <data name="UserCantUnassignAllSuperAdminsErrorMessage" xml:space="preserve">
-    <value>You can't remove the SuperAdmin role from this user</value>
+    <value>You can't remove this user from the SuperAdmin user group.</value>
   </data>
-    <data name="UserCantChangeSuperAdminRoleErrorMessage" xml:space="preserve">
-    <value>You can't change the SuperAdmin role</value>
+    <data name="UserCantChangeSuperAdminRoleClaimsErrorMessage" xml:space="preserve">
+    <value>Super admin permissions may not be modified.</value>
+  </data>
+    <data name="CanNotChangeBuiltInRole" xml:space="preserve">
+    <value>User group {0} can't be modified.</value>
   </data>
     <data name="UserCantRemoveItselfErrorMessage" xml:space="preserve">
     <value>You can't remove your own user</value>
@@ -1386,7 +1242,7 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <value>Search user sessions</value>
   </data>
     <data name="RemoveRoleFromAllUsers" xml:space="preserve">
-    <value>Remove user group from all users</value>
+    <value>Remove all users from user group</value>
   </data>
     <data name="RemoveRoleFromAllUsersConfrimMessage" xml:space="preserve">
     <value>Are you sure you want to remove all users from {0}?</value>
@@ -1399,5 +1255,17 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
   </data>
     <data name="YouAreNotAuthorizedMessage" xml:space="preserve">
     <value>You don’t have permission to access this page.</value>
+  </data>
+    <data name="SignInPasswordMessage1" xml:space="preserve">
+    <value>First time here?</value>
+  </data>
+    <data name="SignInPasswordMessage2" xml:space="preserve">
+    <value>We'll automatically create an account for you.</value>
+  </data>
+    <data name="ImageTooSmall" xml:space="preserve">
+    <value>Image's too small. Minimum required dimensions are {0}x{1}, but the current dimensions are {2}x{3}.</value>
+  </data>
+    <data name="ImageNotCarError" xml:space="preserve">
+    <value>The provided image does not contain a car.</value>
   </data>
 </root>

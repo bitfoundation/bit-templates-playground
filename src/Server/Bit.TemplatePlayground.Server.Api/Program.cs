@@ -11,12 +11,6 @@ public static partial class Program
         builder.Configuration.AddSharedConfigurations();
 
 
-        // The following line (using the * in the URL), allows the emulators and mobile devices to access the app using the host IP address.
-        if (builder.Environment.IsDevelopment() && AppPlatform.IsWindows)
-        {
-            builder.WebHost.UseUrls("http://localhost:5213", "http://*:5213");
-        }
-
         builder.Services.AddSharedProjectServices(builder.Configuration);
         builder.AddServerApiProjectServices();
 
@@ -26,7 +20,7 @@ public static partial class Program
         {
             await using var scope = app.Services.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-            await dbContext.Database.EnsureCreatedAsync();
+            await dbContext.Database.EnsureCreatedAsync(); // It's recommended to start using ef-core migrations.
         }
 
         app.ConfigureMiddlewares();

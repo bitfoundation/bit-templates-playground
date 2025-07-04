@@ -73,10 +73,11 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
         {
             await userController.SignOut(cancellationToken);
         }
-        catch (Exception exp) when (exp is ServerConnectionException or UnauthorizedException or ResourceNotFoundException)
+        catch (Exception exp) when (exp is ServerConnectionException or UnauthorizedException or ResourceNotFoundException or ClientNotSupportedException)
         {
-            // The user might sign out while the app is offline, making token refresh attempts fail.
-            // These exceptions are intentionally ignored in this case.
+            // If the client's access token is expired, the client would attempt to refresh it,
+            // but if the client is offline or outdated, the refresh token request will fail.
+            // These exceptions are intentionally ignored in these cases.
         }
         finally
         {
@@ -115,7 +116,6 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
                     var refreshTokenResponse = await identityController.Refresh(new()
                     {
                         RefreshToken = refreshToken,
-                        DeviceInfo = telemetryContext.Platform,
                         ElevatedAccessToken = elevatedAccessToken
                     }, default);
                     await StoreTokens(refreshTokenResponse);

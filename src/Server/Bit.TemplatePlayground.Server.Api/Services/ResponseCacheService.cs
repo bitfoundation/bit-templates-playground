@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.OutputCaching;
+﻿using Microsoft.AspNetCore.OutputCaching;
 using Bit.TemplatePlayground.Server.Api.Models.Products;
 
 namespace Bit.TemplatePlayground.Server.Api.Services;
@@ -42,8 +42,9 @@ public partial class ResponseCacheService
         var apiToken = serverApiSettings.Cloudflare.ApiToken;
 
         var files = serverApiSettings.Cloudflare.AdditionalDomains
-            .Union([httpContextAccessor.HttpContext!.Request.GetBaseUrl()])
+            .Union([httpContextAccessor.HttpContext!.Request.GetBaseUrl(), httpContextAccessor.HttpContext!.Request.GetWebAppUrl()])
             .SelectMany(baseUri => relativePaths.Select(path => new Uri(baseUri, path)))
+            .Distinct()
             .ToArray();
 
         using var request = new HttpRequestMessage(HttpMethod.Post, $"{zoneId}/purge_cache");

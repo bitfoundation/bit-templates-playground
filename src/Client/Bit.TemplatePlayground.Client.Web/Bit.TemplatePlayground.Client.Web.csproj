@@ -10,7 +10,7 @@
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
         <BlazorCacheBootResources>false</BlazorCacheBootResources>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
-        <!-- If you need support for older browsers, uncomment this. <WasmEnableSIMD>false</WasmEnableSIMD> -->
+        <WasmEnableSIMD>false</WasmEnableSIMD>
         <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
         <ResolveStaticWebAssetsInputsDependsOn>
             BeforeBuildTasks;

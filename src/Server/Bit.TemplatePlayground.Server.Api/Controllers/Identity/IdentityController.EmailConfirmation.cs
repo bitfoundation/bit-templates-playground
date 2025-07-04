@@ -1,4 +1,4 @@
-using Humanizer;
+﻿using Humanizer;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Services;
@@ -59,7 +59,7 @@ public partial class IdentityController
 
         var token = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"Otp_Email,{user.OtpRequestedOn?.ToUniversalTime()}"));
 
-        await SignIn(new() { Email = request.Email, Otp = token, DeviceInfo = request.DeviceInfo }, cancellationToken);
+        await SignIn(new() { Email = request.Email, Otp = token }, cancellationToken);
     }
 
 

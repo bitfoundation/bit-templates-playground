@@ -1,0 +1,29 @@
+@attribute [Route(Urls.SystemPrompts)]
+@attribute [Route("{culture?}" + Urls.SystemPrompts)]
+@attribute [Authorize(Policy = AppFeatures.Management.ManageAiPrompt)]
+@inherits AppPageBase
+
+
+<AppPageData Title="@Localizer[nameof(AppStrings.SystemPromptsTitle)]"
+             SubTitle="@Localizer[nameof(AppStrings.SystemPromptsSubTitle)]" />
+<section>
+    @if (isLoading)
+    {
+        <BitEllipsisLoading CustomSize="32" />
+    }
+    else if (systemPrompt is not null)
+    {
+        <BitSticky Top="5rem" Style="margin-bottom:8px">
+            <BitButton IconName="@BitIconName.Save" OnClick="WrapHandled(SaveChanges)" AutoLoading>
+            @Localizer[nameof(AppStrings.Save)]
+            </BitButton>
+        </BitSticky>
+
+        <BitStack VerticalAlign="BitAlignment.Stretch" Horizontal>
+            <AuthorizeView Policy="@AppFeatures.Management.ManageAiPrompt">
+                <BitMarkdownEditor @bind-Value="systemPrompt.Markdown" Class="md-editor" />
+            </AuthorizeView>
+            <BitMarkdownViewer Markdown="@systemPrompt.Markdown" Class="md-viewer" />
+        </BitStack>
+    }
+</section>
