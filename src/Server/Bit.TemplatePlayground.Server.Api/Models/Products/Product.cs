@@ -36,4 +36,6 @@ public partial class Product
 
     public bool HasPrimaryImage { get; set; } = false;
 
+    public string? PrimaryImageAltText { get; set; }
+
 }

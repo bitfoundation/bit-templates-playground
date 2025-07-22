@@ -4,6 +4,7 @@ using Bit.TemplatePlayground.Client.Web;
 using Bit.TemplatePlayground.Server.Web.Services;
 using Microsoft.AspNetCore.Antiforgery;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -15,7 +16,7 @@ public static partial class Program
         var services = builder.Services;
         var configuration = builder.Configuration;
 
-        if (AppEnvironment.IsDev())
+        if (AppEnvironment.IsDevelopment())
         {
             builder.Logging.AddDiagnosticLogger();
         }
@@ -48,7 +49,7 @@ public static partial class Program
         services.AddTransient<IPrerenderStateService, WebServerPrerenderStateService>();
         services.AddScoped<IExceptionHandler, WebServerExceptionHandler>();
         services.AddScoped<IAuthTokenProvider, ServerSideAuthTokenProvider>();
-        services.AddScoped(sp =>
+        services.AddScoped<HttpClient>(sp =>
         {
             // This HTTP client is utilized during pre-rendering and within Blazor Auto/Server sessions for API calls. 
             // Key headers such as Authorization and AcceptLanguage headers are added in Client/Core/Services/HttpMessageHandlers. 
@@ -66,7 +67,8 @@ public static partial class Program
                 serverAddress = new Uri(currentRequest.GetBaseUrl(), serverAddress);
             }
 
-            var httpClient = new HttpClient(sp.GetRequiredService<HttpMessageHandler>())
+            var handlerFactory = sp.GetRequiredService<HttpMessageHandlersChainFactory>();
+            var httpClient = new HttpClient(handlerFactory.Invoke())
             {
                 BaseAddress = serverAddress
             };
@@ -101,11 +103,6 @@ public static partial class Program
             httpClient.DefaultRequestHeaders.Add("X-Origin", currentRequest.GetBaseUrl().ToString());
 
             return httpClient;
-        });
-        services.AddKeyedScoped<HttpMessageHandler, SocketsHttpHandler>("PrimaryHttpMessageHandler", (sp, key) => new()
-        {
-            EnableMultipleHttp2Connections = true,
-            EnableMultipleHttp3Connections = true
         });
 
         services.AddRazorComponents()

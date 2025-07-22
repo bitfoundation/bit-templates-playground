@@ -50,7 +50,7 @@
                 "ASPNETCORE_ENVIRONMENT": "Development",
                 "ConnectionStrings__SqliteConnectionString": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
             },
-            "DockerfileRunArguments": "-v C:\\DockerVolumes\\9DB0F221-84EC-4105-B04D-747E1EBF916D:/container_volume",
+            "DockerfileRunArguments": "-v C:\\DockerVolumes\\0B29AA83-85AD-4E65-B788-6BFF0CD667C7:/container_volume",
             "publishAllPorts": true,
             "useSSL": false,
             "httpPort": 5000

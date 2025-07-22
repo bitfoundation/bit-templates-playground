@@ -117,8 +117,9 @@ public partial class AppDiagnosticModal
             {
                 Name = item.Name,
                 Path = "/",
+                Domain = AbsoluteServerAddress.GetAddress().Host,
                 SameSite = SameSite.Strict,
-                Secure = AppEnvironment.IsDev() is false
+                Secure = AppEnvironment.IsDevelopment() is false
             });
         }
 

@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
+﻿using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 
 namespace Microsoft.Extensions.Logging;
 
@@ -15,7 +15,7 @@ public static class ILoggingBuilderExtensions
     {
         loggingBuilder.AddConfiguration(configuration.GetSection("Logging"));
 
-        if (AppEnvironment.IsDev())
+        if (AppEnvironment.IsDevelopment())
         {
             loggingBuilder.AddDebug();
         }

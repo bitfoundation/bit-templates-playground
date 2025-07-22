@@ -1,4 +1,5 @@
 ﻿using System.IO.Compression;
+using System.Net;
 using Bit.TemplatePlayground.Server.Shared;
 using Bit.TemplatePlayground.Server.Shared.Services;
 using Microsoft.AspNetCore.Builder;
@@ -7,6 +8,7 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 
 namespace Microsoft.Extensions.Hosting;
@@ -21,7 +23,7 @@ public static class WebApplicationBuilderExtensions
 
         services.AddSharedProjectServices(configuration);
 
-        builder.AddAspireServiceDefaults();
+        builder.AddServiceDefaults();
 
         services.AddSingleton(sp =>
         {
@@ -51,7 +53,6 @@ public static class WebApplicationBuilderExtensions
             .Configure<BrotliCompressionProviderOptions>(opt => opt.Level = CompressionLevel.Fastest)
             .Configure<GzipCompressionProviderOptions>(opt => opt.Level = CompressionLevel.Fastest);
 
-
         services.AddAntiforgery();
 
         services.AddAuthorization();
@@ -59,14 +60,13 @@ public static class WebApplicationBuilderExtensions
         return builder;
     }
 
-    #region Aspire
     /// <summary>
     /// Also knows as AddServiceDefaults
-    /// Adds common .NET Aspire services: service discovery, resilience, health checks, and OpenTelemetry.
+    /// Adds common services for API: service discovery, resilience, health checks, and OpenTelemetry.
     /// This project should be referenced by each service project in your solution.
     /// To learn more about using this project, see https://aka.ms/dotnet/aspire/service-defaults
     /// </summary>
-    private static TBuilder AddAspireServiceDefaults<TBuilder>(this TBuilder builder)
+    private static TBuilder AddServiceDefaults<TBuilder>(this TBuilder builder)
         where TBuilder : IHostApplicationBuilder
     {
         builder.ConfigureOpenTelemetry();
@@ -77,10 +77,28 @@ public static class WebApplicationBuilderExtensions
 
         builder.Services.ConfigureHttpClientDefaults(http =>
         {
+            http.ConfigureHttpClient(httpClient =>
+            {
+                httpClient.DefaultRequestVersion = HttpVersion.Version20;
+                httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
+            });
+
             // Turn on resilience by default
             http.AddStandardResilienceHandler();
             // Turn on service discovery by default
             http.AddServiceDiscovery();
+
+            http.UseSocketsHttpHandler((handler, sp) =>
+            {
+                handler.EnableMultipleHttp2Connections = true;
+                handler.EnableMultipleHttp3Connections = true;
+                handler.PooledConnectionLifetime = TimeSpan.FromMinutes(15);
+                handler.AutomaticDecompression = DecompressionMethods.All;
+                handler.SslOptions = new()
+                {
+                    EnabledSslProtocols = System.Security.Authentication.SslProtocols.Tls12 | System.Security.Authentication.SslProtocols.Tls13
+                };
+            });
         });
 
         return builder;
@@ -105,8 +123,33 @@ public static class WebApplicationBuilderExtensions
             .WithTracing(tracing =>
             {
                 tracing.AddSource(builder.Environment.ApplicationName)
-                    .AddAspNetCoreInstrumentation()
-                    .AddHttpClientInstrumentation();
+                    .AddProcessor<AppOpenTelemetryProcessor>()
+                                .AddAspNetCoreInstrumentation(options =>
+                                {
+                                    // Filter out Blazor static file requests
+                                    options.Filter = context =>
+                                    {
+                                        if (context.Request.Path.HasValue is false)
+                                            return true;
+                                        var path = context.Request.Path.Value;
+                                        return path.StartsWith("/_framework", StringComparison.OrdinalIgnoreCase) is false &&
+                                               path.StartsWith("/_content", StringComparison.OrdinalIgnoreCase) is false;
+                                    };
+                                })
+                    .AddHttpClientInstrumentation()
+                    .AddEntityFrameworkCoreInstrumentation(options => options.Filter = (providerName, command) => command?.CommandText?.Contains("Hangfire") is false /* Ignore Hangfire */)
+                    .AddHangfireInstrumentation();
+            })
+            .ConfigureResource(resource =>
+            {
+                resource.AddAzureAppServiceDetector()
+                    .AddAzureContainerAppsDetector()
+                    .AddAzureVMDetector()
+                    .AddContainerDetector()
+                    .AddHostDetector()
+                    .AddOperatingSystemDetector()
+                    .AddProcessDetector()
+                    .AddProcessRuntimeDetector();
             });
 
         builder.AddOpenTelemetryExporters();
@@ -117,12 +160,13 @@ public static class WebApplicationBuilderExtensions
     private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder)
         where TBuilder : IHostApplicationBuilder
     {
-        var useOtlpExporter = !string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]);
+        var useOtlpExporter = string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]) is false;
 
         if (useOtlpExporter)
         {
             builder.Services.AddOpenTelemetry().UseOtlpExporter();
         }
+
 
         return builder;
     }
@@ -136,5 +180,4 @@ public static class WebApplicationBuilderExtensions
 
         return builder;
     }
-    #endregion
 }

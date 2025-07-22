@@ -1,6 +1,7 @@
 ﻿using Bit.TemplatePlayground.Server.Web;
 using Bit.TemplatePlayground.Tests.Services;
 using Bit.TemplatePlayground.Server.Api.Services;
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
 namespace Microsoft.AspNetCore.Builder;
 
@@ -14,9 +15,10 @@ public static partial class WebApplicationBuilderExtensions
 
         // Register test-specific services for all tests here
 
-        services.AddTransient(sp =>
+        services.AddTransient<HttpClient>(sp =>
         {
-            return new HttpClient(sp.GetRequiredService<HttpMessageHandler>())
+            var handlerFactory = sp.GetRequiredService<HttpMessageHandlersChainFactory>();
+            return new HttpClient(handlerFactory.Invoke())
             {
                 BaseAddress = new Uri(sp.GetRequiredService<IConfiguration>().GetServerAddress(), UriKind.Absolute)
             };

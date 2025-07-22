@@ -1,4 +1,4 @@
-
+﻿
 using Bit.TemplatePlayground.Client.Core;
 
 namespace Microsoft.Extensions.Configuration;
@@ -10,7 +10,7 @@ public static partial class IConfigurationExtensions
         configuration.Bind(settings);
         var serverAddress = settings.ServerAddress;
 
-        if (AppEnvironment.IsDev() &&
+        if (AppEnvironment.IsDevelopment() &&
             AppPlatform.IsAndroid &&
             serverAddress.Contains("localhost", StringComparison.InvariantCultureIgnoreCase))
         {

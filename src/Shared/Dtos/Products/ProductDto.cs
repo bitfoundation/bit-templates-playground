@@ -39,6 +39,9 @@ public partial class ProductDto
 
     public bool HasPrimaryImage { get; set; } = false;
 
+    [Display(Name = nameof(AppStrings.AltText))]
+    public string? PrimaryImageAltText { get; set; }
+
     public string? GetPrimaryMediumImageUrl(Uri absoluteServerAddress)
     {
         return HasPrimaryImage is false

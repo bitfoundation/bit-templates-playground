@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
@@ -10,7 +10,7 @@ internal class CacheDelegatingHandler(IMemoryCache memoryCache, HttpMessageHandl
     {
         var logScopeData = (Dictionary<string, object?>)request.Options.GetValueOrDefault(RequestOptionNames.LogScopeData)!;
         var memoryCacheStatus = "DYNAMIC";
-        var useCache = AppEnvironment.IsDev() is false && AppPlatform.IsBlazorHybridOrBrowser;
+        var useCache = AppEnvironment.IsDevelopment() is false && AppPlatform.IsBlazorHybridOrBrowser;
 
         try
         {
