@@ -218,12 +218,6 @@ public static partial class Program
         {
             c.Timeout = TimeSpan.FromSeconds(10);
             c.BaseAddress = new Uri("https://www.google.com/recaptcha/");
-            c.DefaultRequestVersion = HttpVersion.Version20;
-            c.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
-        }).ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler()
-        {
-            EnableMultipleHttp2Connections = true,
-            EnableMultipleHttp3Connections = true
         });
 
         services.AddHttpClient<NugetStatisticsService>(c =>
@@ -231,23 +225,12 @@ public static partial class Program
             c.Timeout = TimeSpan.FromSeconds(3);
             c.BaseAddress = new Uri("https://azuresearch-usnc.nuget.org");
             c.DefaultRequestVersion = HttpVersion.Version11;
-            c.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
-        }).ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler()
-        {
-            EnableMultipleHttp2Connections = true,
-            EnableMultipleHttp3Connections = true
         });
 
         services.AddHttpClient<ResponseCacheService>(c =>
         {
             c.Timeout = TimeSpan.FromSeconds(10);
             c.BaseAddress = new Uri("https://api.cloudflare.com/client/v4/zones/");
-            c.DefaultRequestVersion = HttpVersion.Version20;
-            c.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
-        }).ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler()
-        {
-            EnableMultipleHttp2Connections = true,
-            EnableMultipleHttp3Connections = true
         });
 
         services.AddFido2(options =>
@@ -272,15 +255,7 @@ public static partial class Program
             return options;
         });
 
-        services.AddHttpClient("AI", c =>
-        {
-            c.DefaultRequestVersion = HttpVersion.Version20;
-            c.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
-        }).ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler()
-        {
-            EnableMultipleHttp2Connections = true,
-            EnableMultipleHttp3Connections = true
-        });
+        services.AddHttpClient("AI");
 
         if (string.IsNullOrEmpty(appSettings.AI?.OpenAI?.ChatApiKey) is false)
         {

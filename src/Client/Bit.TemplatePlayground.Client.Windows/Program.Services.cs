@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using System.Security.Authentication;
 using Bit.TemplatePlayground.Client.Windows.Services;
+using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 
@@ -16,10 +16,10 @@ public static partial class Program
         services.AddScoped<IAppUpdateService, WindowsAppUpdateService>();
         services.AddScoped<IBitDeviceCoordinator, WindowsDeviceCoordinator>();
 
-        services.AddScoped(sp =>
+        services.AddScoped<HttpClient>(sp =>
         {
-            var handler = sp.GetRequiredService<HttpMessageHandler>();
-            var httpClient = new HttpClient(handler)
+            var handlerFactory = sp.GetRequiredService<HttpMessageHandlersChainFactory>();
+            var httpClient = new HttpClient(handlerFactory.Invoke())
             {
                 BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
             };
@@ -28,17 +28,6 @@ public static partial class Program
                 httpClient.DefaultRequestHeaders.Add("X-Origin", origin.ToString());
             }
             return httpClient;
-        });
-        services.AddKeyedScoped<HttpMessageHandler, SocketsHttpHandler>("PrimaryHttpMessageHandler", (sp, key) => new()
-        {
-            EnableMultipleHttp2Connections = true,
-            EnableMultipleHttp3Connections = true,
-            PooledConnectionLifetime = TimeSpan.FromMinutes(15),
-            AutomaticDecompression = System.Net.DecompressionMethods.All,
-            SslOptions = new()
-            {
-                EnabledSslProtocols = SslProtocols.Tls12 | SslProtocols.Tls13
-            }
         });
 
         services.AddSingleton(sp => configuration);

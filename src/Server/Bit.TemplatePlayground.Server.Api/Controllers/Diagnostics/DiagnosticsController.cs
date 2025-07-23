@@ -11,6 +11,7 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers.Diagnostics;
 [Route("api/[controller]/[action]")]
 public partial class DiagnosticsController : AppControllerBase, IDiagnosticsController
 {
+    [AutoInject] private IHostEnvironment env = default!;
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
     [HttpGet]
@@ -38,7 +39,11 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
 
         if (string.IsNullOrEmpty(signalRConnectionId) is false)
         {
-            await appHubContext.Clients.Client(signalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}", new { pageUrl = Urls.TermsPage, action = "testAction" }, cancellationToken);
+            var success = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SignalREvents.SHOW_MESSAGE, $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}", new { pageUrl = Urls.TermsPage, action = "testAction" }, cancellationToken);
+            if (success is false) // Client would return false if it's unable to show the message with custom action.
+            {
+                await appHubContext.Clients.Client(signalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, $"Simple message. {DateTimeOffset.Now:HH:mm:ss}", null, cancellationToken);
+            }
         }
 
         result.AppendLine($"Culture => C: {CultureInfo.CurrentCulture.Name}, UC: {CultureInfo.CurrentUICulture.Name}");
@@ -51,6 +56,7 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
         }
 
         result.AppendLine();
+        result.AppendLine($"Environment: {env.EnvironmentName}");
         result.AppendLine("Base url: " + Request.GetBaseUrl());
         result.AppendLine("Web app url: " + Request.GetWebAppUrl());
 
