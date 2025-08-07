@@ -4,20 +4,16 @@
             "type": "sse",
             "url": "https://mcp.deepwiki.com/mcp"
         },
-        "microsoft.docs.mcp": {
-            "type": "http",
-            "url": "https://learn.microsoft.com/api/mcp"
-        },
-        "github": {
-            "type": "http",
-            "url": "https://api.githubcopilot.com/mcp/"
-        },
-        "playwright": {
+        "read-website-fast": {
             "type": "stdio",
-            "command": "npx",
+            "command": "docker",
             "args": [
-                "@playwright/mcp@latest"
-            ]
+                "run",
+                "-i",
+                "--rm",
+                "mcp/fetch"
+            ],
+            "comment": "vscode has built-in fetch, but visual studio does not."
         }
     }
 }

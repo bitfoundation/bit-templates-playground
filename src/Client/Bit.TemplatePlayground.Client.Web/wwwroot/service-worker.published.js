@@ -1,4 +1,4 @@
-// bit version: 9.11.0
+// bit version: 9.11.3
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 

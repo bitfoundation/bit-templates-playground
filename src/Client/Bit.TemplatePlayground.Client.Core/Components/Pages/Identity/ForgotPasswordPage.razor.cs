@@ -63,7 +63,7 @@ public partial class ForgotPasswordPage
                 queryParams.Add("phoneNumber", model.PhoneNumber);
             }
 
-            var resetPasswordUrl = NavigationManager.GetUriWithQueryParameters(Urls.ResetPasswordPage, queryParams);
+            var resetPasswordUrl = NavigationManager.GetUriWithQueryParameters(PageUrls.ResetPassword, queryParams);
             NavigationManager.NavigateTo(resetPasswordUrl);
         }
         catch (BadRequestException e) when (e.Key == nameof(AppStrings.UserIsNotConfirmed))
@@ -94,7 +94,7 @@ public partial class ForgotPasswordPage
         {
             queryParams.Add("phoneNumber", model.PhoneNumber);
         }
-        var confirmUrl = NavigationManager.GetUriWithQueryParameters(Urls.ConfirmPage, queryParams);
+        var confirmUrl = NavigationManager.GetUriWithQueryParameters(PageUrls.Confirm, queryParams);
         NavigationManager.NavigateTo(confirmUrl, replace: true);
     }
 }

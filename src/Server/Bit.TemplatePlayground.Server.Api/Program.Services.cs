@@ -63,6 +63,8 @@ public static partial class Program
             return StorageFactory.Blobs.DirectoryFiles(appDataDirPath);
         });
 
+
+
         services.AddSingleton<ServerExceptionHandler>();
         services.AddSingleton(sp => (IProblemDetailsWriter)sp.GetRequiredService<ServerExceptionHandler>());
         services.AddProblemDetails();
@@ -345,6 +347,7 @@ public static partial class Program
         builder.Services.AddHangfireServer(options =>
         {
             options.SchedulePollingInterval = TimeSpan.FromSeconds(5);
+            configuration.Bind("Hangfire", options);
         });
     }
 
@@ -370,48 +373,14 @@ public static partial class Program
         services.AddScoped(sp => (IUserPhoneNumberStore<User>)sp.GetRequiredService<IUserStore<User>>());
         services.AddScoped(sp => (AppUserClaimsPrincipalFactory)sp.GetRequiredService<IUserClaimsPrincipalFactory<User>>());
 
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<Microsoft.AspNetCore.Authentication.BearerToken.BearerTokenOptions>, AppBearerTokenOptionsConfigurator>());
         var authenticationBuilder = services.AddAuthentication(options =>
         {
             options.DefaultScheme = IdentityConstants.BearerScheme;
             options.DefaultChallengeScheme = IdentityConstants.BearerScheme;
             options.DefaultAuthenticateScheme = IdentityConstants.BearerScheme;
         })
-        .AddBearerToken(IdentityConstants.BearerScheme, options =>
-        {
-            options.BearerTokenProtector = new AppJwtSecureDataFormat(appSettings, BuildTokenValidationParameters());
-            options.RefreshTokenProtector = new AppJwtSecureDataFormat(appSettings, BuildTokenValidationParameters(validateExpiry: false /* IdentityController.Refresh will validate expiry itself */));
-
-            options.Events = new()
-            {
-                OnMessageReceived = async context =>
-                {
-                    // The server accepts the accessToken from either the authorization header, the cookie, or the request URL query string
-                    context.Token ??= context.Request.Query.ContainsKey("access_token") ? context.Request.Query["access_token"] : context.Request.Cookies["access_token"];
-                }
-            };
-
-            configuration.GetRequiredSection("Identity").Bind(options);
-
-            TokenValidationParameters BuildTokenValidationParameters(bool validateExpiry = true) => new()
-            {
-                ClockSkew = TimeSpan.Zero,
-                RequireSignedTokens = true,
-
-                ValidateIssuerSigningKey = env.IsDevelopment() is false,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Identity.JwtIssuerSigningKeySecret)),
-
-                RequireExpirationTime = true,
-                ValidateLifetime = validateExpiry,
-
-                ValidateAudience = true,
-                ValidAudience = identityOptions.Audience,
-
-                ValidateIssuer = true,
-                ValidIssuer = identityOptions.Issuer,
-
-                AuthenticationType = IdentityConstants.BearerScheme
-            };
-        });
+        .AddBearerToken(IdentityConstants.BearerScheme /*Checkout AppBearerTokenOptionsConfigurator*/ );
 
         services.AddAuthorization();
 
@@ -420,7 +389,7 @@ public static partial class Program
             authenticationBuilder.AddGoogle(options =>
             {
                 options.SignInScheme = IdentityConstants.ExternalScheme;
-                // options.AdditionalAuthorizationParameters["prompt"] = "select_account";
+                options.AdditionalAuthorizationParameters["prompt"] = "select_account";
                 configuration.GetRequiredSection("Authentication:Google").Bind(options);
             });
         }

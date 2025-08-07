@@ -15,6 +15,12 @@
             "type": "dotnet",
             "request": "launch",
             "projectPath": "${workspaceFolder}/src/Server/Bit.TemplatePlayground.Server.Api/Bit.TemplatePlayground.Server.Api.csproj"
+        },
+        {
+            "name": ".NET MAUI",
+            "type": "maui",
+            "request": "launch",
+            "preLaunchTask": "maui: Build"
         }
     ]
 }
