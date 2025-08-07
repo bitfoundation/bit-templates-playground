@@ -11,17 +11,19 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
                         DataSchemes = ["https", "http"],
                         DataHosts = ["use-your-web-app-url-here.com"],
                         // the following app links will be opened in app instead of browser if the app is installed on Android device.
-                        DataPaths = [Urls.HomePage],
+                        DataPaths = [PageUrls.Home],
                         DataPathPrefixes = [
                             "/en-US", "/en-GB", "/nl-NL", "/fa-IR", "sv-SE", "hi-IN", "zh-CN", "es-ES", "fr-FR", "ar-SA", "de-DE",
-                            Urls.ConfirmPage, Urls.ForgotPasswordPage, Urls.SettingsPage, Urls.ResetPasswordPage, Urls.SignInPage,
-                            Urls.SignUpPage, Urls.NotAuthorizedPage, Urls.NotFoundPage, Urls.TermsPage, Urls.AboutPage, Urls.Authorize, Urls.AboutPage,
-                            Urls.AddOrEditProductPage, Urls.CategoriesPage, Urls.DashboardPage, Urls.ProductsPage,
+                            PageUrls.Confirm, PageUrls.ForgotPassword, PageUrls.Settings, PageUrls.ResetPassword, PageUrls.SignIn,
+                            PageUrls.SignUp, PageUrls.NotAuthorized, PageUrls.NotFound, PageUrls.Terms, PageUrls.About, PageUrls.Authorize,
+                            PageUrls.Roles, PageUrls.Users,
+                            PageUrls.AddOrEditProduct, PageUrls.Categories, PageUrls.Dashboard, PageUrls.Products,
+                            PageUrls.SystemPrompts,
                             ],
                         AutoVerify = true,
                         Categories = [Intent.ActionView, Intent.CategoryDefault, Intent.CategoryBrowsable])]
 
-[Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleInstance,
+[Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTask,
     ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public partial class MainActivity : MauiAppCompatActivity
 {
@@ -36,7 +38,7 @@ public partial class MainActivity : MauiAppCompatActivity
         var url = Intent?.DataString; // Handling universal deep links handling when the app was closed.
         if (string.IsNullOrWhiteSpace(url) is false)
         {
-            _ = Routes.OpenUniversalLink(new URL(url).File ?? Urls.HomePage);
+            _ = Routes.OpenUniversalLink(new URL(url).File ?? PageUrls.Home);
         }
 
     }
@@ -50,7 +52,7 @@ public partial class MainActivity : MauiAppCompatActivity
         var url = intent.DataString;
         if (action is Intent.ActionView && string.IsNullOrWhiteSpace(url) is false)
         {
-            _ = Routes.OpenUniversalLink(new URL(url).File ?? Urls.HomePage);
+            _ = Routes.OpenUniversalLink(new URL(url).File ?? PageUrls.Home);
         }
 
     }

@@ -1,5 +1,5 @@
-@attribute [Route(Urls.HomePage)]
-@attribute [Route("{culture:nonfile?}" + Urls.HomePage)]
+@attribute [Route(PageUrls.Home)]
+@attribute [Route("{culture:nonfile?}" + PageUrls.Home)]
 @attribute [AppResponseCache(SharedMaxAge = 3600 * 24, MaxAge = 60 * 5)]
 @inherits AppPageBase
 
@@ -108,7 +108,7 @@
                     </BitStack>
                 </BitLink>
                 <BitLink Href="https://www.nuget.org/profiles/bit-foundation" Target="_blank" NoUnderline>
-                    <BitImage Src="https://img.shields.io/badge/packages_download-6.5M-blue.svg?logo=nuget" Alt="nuget downloads" />
+                    <BitImage Src="https://img.shields.io/badge/packages_download-7.0M-blue.svg?logo=nuget" Alt="nuget downloads" />
                 </BitLink>
             </BitStack>
         </BitCard>

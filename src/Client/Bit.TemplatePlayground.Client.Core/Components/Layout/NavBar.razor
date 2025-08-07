@@ -3,18 +3,18 @@
 <section>
     <BitNavBar TItem="BitNavBarOption" Style="width:100%">
 
-        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Home)]" IconName="@BitIconName.Home" Url="@Urls.HomePage" />
+        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Home)]" IconName="@BitIconName.Home" Url="@PageUrls.Home" />
 
 
         <AuthorizeView Policy="@AppFeatures.AdminPanel.Dashboard">
-            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Dashboard)]" IconName="@BitIconName.BarChartVerticalFill" Url="@Urls.DashboardPage" />
+            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Dashboard)]" IconName="@BitIconName.BarChartVerticalFill" Url="@PageUrls.Dashboard" />
         </AuthorizeView>
         <AuthorizeView Policy="@AppFeatures.AdminPanel.ManageProductCatalog">
-            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Categories)]" IconName="@BitIconName.BuildQueue" Url="@Urls.CategoriesPage" />
-            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Products)]" IconName="@BitIconName.Product" Url="@Urls.ProductsPage" />
+            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Categories)]" IconName="@BitIconName.BuildQueue" Url="@PageUrls.Categories" />
+            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Products)]" IconName="@BitIconName.Product" Url="@PageUrls.Products" />
         </AuthorizeView>
 
-        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@Urls.TermsPage" />
+        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@PageUrls.Terms" />
 
 
     </BitNavBar>

@@ -49,7 +49,7 @@ public partial class UserManagementController : AppControllerBase, IUserManageme
             if (User.IsInRole(AppRoles.SuperAdmin) is false)
                 throw new BadRequestException(Localizer[nameof(AppStrings.UserCantRemoveSuperAdminErrorMessage)]);
         }
-        
+
         var userSessionConnectionIds = await DbContext.UserSessions.Where(us => us.UserId == userId && us.SignalRConnectionId != null)
                                                                    .Select(us => us.SignalRConnectionId!)
                                                                    .ToListAsync(cancellationToken);
@@ -88,14 +88,13 @@ public partial class UserManagementController : AppControllerBase, IUserManageme
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task RevokeAllUserSessions(Guid userId, CancellationToken cancellationToken)
     {
-        if (userId == User.GetUserId())
-            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantRemoveAllItsSessionsErrorMessage)]);
-        
-        var userSessionConnectionIds = await DbContext.UserSessions.Where(us => us.UserId == userId && us.SignalRConnectionId != null)
+        var userSessionId = User.GetSessionId();
+
+        var userSessionConnectionIds = await DbContext.UserSessions.Where(us => us.UserId == userId && us.SignalRConnectionId != null && us.Id != userSessionId)
                                                                    .Select(us => us.SignalRConnectionId!)
                                                                    .ToListAsync(cancellationToken);
-        
-        await DbContext.UserSessions.Where(us => us.UserId == userId).ExecuteDeleteAsync(cancellationToken);
+
+        await DbContext.UserSessions.Where(us => us.Id != userSessionId && us.UserId == userId).ExecuteDeleteAsync(cancellationToken);
 
         foreach (var id in userSessionConnectionIds)
         {
