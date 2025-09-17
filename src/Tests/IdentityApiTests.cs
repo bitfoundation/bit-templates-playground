@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Client.Core.Services;
+﻿using Bit.TemplatePlayground.Client.Core.Services;
 using Bit.TemplatePlayground.Client.Core.Services.Contracts;
 using Bit.TemplatePlayground.Shared.Controllers.Identity;
 using Bit.TemplatePlayground.Tests.Services;
@@ -28,11 +28,11 @@ public partial class IdentityApiTests
         {
             Email = TestData.DefaultTestEmail,
             Password = TestData.DefaultTestPassword
-        }, default);
+        }, TestContext.CancellationTokenSource.Token);
 
         var userController = scope.ServiceProvider.GetRequiredService<IUserController>();
 
-        var user = await userController.GetCurrentUser(default);
+        var user = await userController.GetCurrentUser(TestContext.CancellationTokenSource.Token);
 
         Assert.AreEqual(Guid.Parse("8ff71671-a1d6-4f97-abb9-d87d7b47d6e7"), user.Id);
     }
@@ -52,6 +52,8 @@ public partial class IdentityApiTests
 
         var userController = scope.ServiceProvider.GetRequiredService<IUserController>();
 
-        await Assert.ThrowsExceptionAsync<UnauthorizedException>(() => userController.GetCurrentUser(default));
+        await Assert.ThrowsExactlyAsync<UnauthorizedException>(() => userController.GetCurrentUser(TestContext.CancellationTokenSource.Token));
     }
+
+    public TestContext TestContext { get; set; } = default!;
 }

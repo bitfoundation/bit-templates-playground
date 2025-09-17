@@ -24,6 +24,7 @@ public partial class AppClientCoordinator : AppComponentBase
     [AutoInject] private ILogger<Navigator> navigatorLogger = default!;
     [AutoInject] private ILogger<AppClientCoordinator> logger = default!;
     [AutoInject] private IBitDeviceCoordinator bitDeviceCoordinator = default!;
+    [AutoInject] private IPushNotificationService pushNotificationService = default!;
 
     private Action? unsubscribe;
 
@@ -113,6 +114,7 @@ public partial class AppClientCoordinator : AppComponentBase
 
             await EnsureSignalRStarted();
 
+            await pushNotificationService.Subscribe(CurrentCancellationToken);
 
             if (isAuthenticated)
             {
@@ -225,9 +227,16 @@ public partial class AppClientCoordinator : AppComponentBase
         {
             logger.LogWarning(exception, "SignalR connection lost.");
 
-            if (exception is HubException && exception.Message.EndsWith(nameof(AppStrings.UnauthorizedException)))
+            if (exception is HubException)
             {
-                await AuthManager.RefreshToken(requestedBy: nameof(HubException));
+                if (exception.Message.EndsWith(nameof(AppStrings.UnauthorizedException)))
+                {
+                    await AuthManager.RefreshToken(requestedBy: nameof(HubException));
+                }
+                else if (exception.Message.EndsWith(nameof(AppStrings.ForceUpdateTitle)))
+                {
+                    PubSubService.Publish(ClientPubSubMessages.FORCE_UPDATE);
+                }
             }
         }
     }

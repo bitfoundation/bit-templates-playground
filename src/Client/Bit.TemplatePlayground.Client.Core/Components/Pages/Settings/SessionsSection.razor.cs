@@ -16,7 +16,7 @@ public partial class SessionsSection
     private UserSessionDto[] otherSessions = [];
 
     [AutoInject] private IUserController userController = default!;
-    [AutoInject] private Notification notification = default!;
+    [AutoInject] private IPushNotificationService pushNotificationService = default!;
 
 
     protected override async Task OnInitAsync()
@@ -121,9 +121,10 @@ public partial class SessionsSection
             // User is going to allow notifications so it's an opportune time to request permission.
             // The permission might have already been requested (if userSession.NotificationStatus is UserSessionNotificationStatus.Muted), but there's no harm in asking for permission again.
 
-            if (await notification.IsSupported())
+            if (AppPlatform.IsWindows is false)
             {
-                await notification.RequestPermission();
+                await pushNotificationService.RequestPermission(CurrentCancellationToken);
+                await pushNotificationService.Subscribe(CurrentCancellationToken);
             }
         }
 

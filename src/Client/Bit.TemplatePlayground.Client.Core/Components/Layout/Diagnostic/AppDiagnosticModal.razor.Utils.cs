@@ -36,6 +36,11 @@ public partial class AppDiagnosticModal
         }
         catch { }
 
+        try
+        {
+            pushNotificationSubscriptionDeviceId = (await pushNotificationService.GetSubscription(CurrentCancellationToken)).DeviceId;
+        }
+        catch { }
 
         var serverResult = await diagnosticsController.PerformDiagnostics(signalRConnectionId, pushNotificationSubscriptionDeviceId, CurrentCancellationToken);
 

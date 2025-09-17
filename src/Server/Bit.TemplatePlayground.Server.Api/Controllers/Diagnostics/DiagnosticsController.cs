@@ -12,6 +12,7 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers.Diagnostics;
 public partial class DiagnosticsController : AppControllerBase, IDiagnosticsController
 {
     [AutoInject] private IHostEnvironment env = default!;
+    [AutoInject] private PushNotificationService pushNotificationService = default!;
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
     [HttpGet]
@@ -36,6 +37,15 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
 
         result.AppendLine($"IsAuthenticated: {isAuthenticated.ToString().ToLowerInvariant()}");
 
+        if (string.IsNullOrEmpty(pushNotificationSubscriptionDeviceId) is false)
+        {
+            var subscription = await DbContext.PushNotificationSubscriptions.Include(us => us.UserSession)
+                .FirstOrDefaultAsync(d => d.DeviceId == pushNotificationSubscriptionDeviceId, cancellationToken);
+
+            result.AppendLine($"Subscription exists: {(subscription is not null).ToString().ToLowerInvariant()}");
+
+            await pushNotificationService.RequestPush("Test Push", $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}", "testAction", PageUrls.Terms, userRelatedPush: false, s => s.DeviceId == pushNotificationSubscriptionDeviceId, cancellationToken);
+        }
 
         if (string.IsNullOrEmpty(signalRConnectionId) is false)
         {

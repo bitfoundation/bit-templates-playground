@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using AdsPush.Abstraction.Settings;
+using System.Text;
 using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Server.Shared;
 
@@ -25,6 +26,11 @@ public partial class ServerApiSettings : ServerSharedSettings
     [Required]
     public string GoogleRecaptchaSecretKey { get; set; } = default!;
 
+    public AdsPushVapidSettings? AdsPushVapid { get; set; }
+
+    public AdsPushFirebaseSettings? AdsPushFirebase { get; set; }
+
+    public AdsPushAPNSSettings? AdsPushAPNS { get; set; }
 
     public CloudflareOptions? Cloudflare { get; set; }
 
@@ -51,6 +57,10 @@ public partial class ServerApiSettings : ServerSharedSettings
         {
             Validator.TryValidateObject(Sms, new ValidationContext(Sms), validationResults, true);
         }
+        if (AdsPushVapid is not null)
+        {
+            Validator.TryValidateObject(AdsPushVapid, new ValidationContext(AdsPushVapid), validationResults, true);
+        }
         if (SupportedAppVersions is not null)
         {
             Validator.TryValidateObject(SupportedAppVersions, new ValidationContext(SupportedAppVersions), validationResults, true);
@@ -67,7 +77,7 @@ public partial class ServerApiSettings : ServerSharedSettings
 
         if (AppEnvironment.IsDevelopment() is false)
         {
-            if (Identity.JwtIssuerSigningKeySecret is "VeryLongJWTIssuerSiginingKeySecretThatIsMoreThan64BytesToEnsureCompatibilityWithHS512Algorithm")
+            if (Identity.JwtIssuerSigningKeySecret is "VeryLongJWTIssuerSigningKeySecretThatIsMoreThan64BytesToEnsureCompatibilityWithHS512Algorithm")
             {
                 throw new InvalidOperationException(@"Please replace JwtIssuerSigningKeySecret with a new one.");
             }
@@ -77,6 +87,10 @@ public partial class ServerApiSettings : ServerSharedSettings
                 throw new InvalidOperationException("The GoogleRecaptchaSecretKey is not set. Please set it in the server's appsettings.json file.");
             }
 
+            if (AdsPushVapid?.PrivateKey is "dMIR1ICj-lDWYZ-ZYCwXKyC2ShYayYYkEL-oOPnpq9c" || AdsPushVapid?.Subject is "mailto:test@bitplatform.dev")
+            {
+                throw new InvalidOperationException("The AdsPushVapid's PrivateKey and Subject are not set. Please set them in the server's appsettings.json file.");
+            }
         }
 
         return validationResults;

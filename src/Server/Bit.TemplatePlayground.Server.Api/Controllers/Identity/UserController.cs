@@ -22,6 +22,7 @@ public partial class UserController : AppControllerBase, IUserController
     [AutoInject] private SignInManager<User> signInManager = default;
     [AutoInject] private IUserEmailStore<User> userEmailStore = default!;
 
+    [AutoInject] private PushNotificationService pushNotificationService = default!;
 
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
@@ -162,7 +163,7 @@ public partial class UserController : AppControllerBase, IUserController
         var resendDelay = (DateTimeOffset.Now - user!.EmailTokenRequestedOn) - AppSettings.Identity.EmailTokenLifetime;
 
         if (resendDelay < TimeSpan.Zero)
-            throw new TooManyRequestsExceptions(Localizer[nameof(AppStrings.WaitForEmailTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithExtensionData("TryAgainIn", resendDelay);
+            throw new TooManyRequestsException(Localizer[nameof(AppStrings.WaitForEmailTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithExtensionData("TryAgainIn", resendDelay);
 
         user.EmailTokenRequestedOn = DateTimeOffset.Now;
         var result = await userManager.UpdateAsync(user);
@@ -223,7 +224,7 @@ public partial class UserController : AppControllerBase, IUserController
         var resendDelay = (DateTimeOffset.Now - user!.PhoneNumberTokenRequestedOn) - AppSettings.Identity.PhoneNumberTokenLifetime;
 
         if (resendDelay < TimeSpan.Zero)
-            throw new TooManyRequestsExceptions(Localizer[nameof(AppStrings.WaitForPhoneNumberTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithExtensionData("TryAgainIn", resendDelay);
+            throw new TooManyRequestsException(Localizer[nameof(AppStrings.WaitForPhoneNumberTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithExtensionData("TryAgainIn", resendDelay);
 
         user.PhoneNumberTokenRequestedOn = DateTimeOffset.Now;
         var result = await userManager.UpdateAsync(user);
@@ -380,7 +381,7 @@ public partial class UserController : AppControllerBase, IUserController
         // Elevated access token claim gets added to access token upon refresh token request call, so their lifetime would be the same
 
         if (resendDelay < TimeSpan.Zero)
-            throw new TooManyRequestsExceptions(Localizer[nameof(AppStrings.WaitForElevatedAccessTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithExtensionData("TryAgainIn", resendDelay);
+            throw new TooManyRequestsException(Localizer[nameof(AppStrings.WaitForElevatedAccessTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithExtensionData("TryAgainIn", resendDelay);
 
         user.ElevatedAccessTokenRequestedOn = DateTimeOffset.Now;
         var result = await userManager.UpdateAsync(user);
@@ -418,6 +419,7 @@ public partial class UserController : AppControllerBase, IUserController
                 .ToArrayAsync(cancellationToken);
             sendMessagesTasks.Add(appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.SHOW_MESSAGE, message, null, cancellationToken));
 
+            sendMessagesTasks.Add(pushNotificationService.RequestPush(message: message, userRelatedPush: true, customSubscriptionFilter: us => us.UserSession!.UserId == user.Id && us.UserSessionId != currentUserSessionId, cancellationToken: cancellationToken));
         }
 
         await Task.WhenAll(sendMessagesTasks);
@@ -438,6 +440,7 @@ public partial class UserController : AppControllerBase, IUserController
 
         if (userSession.NotificationStatus is UserSessionNotificationStatus.Allowed)
         {
+            await pushNotificationService.RequestPush(message: Localizer[nameof(AppStrings.TestNotificationMessage1)], userRelatedPush: true, customSubscriptionFilter: us => us.UserSessionId == userSessionId, cancellationToken: cancellationToken);
             if (userSession.SignalRConnectionId != null)
             {
                 await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, (string)Localizer[nameof(AppStrings.TestNotificationMessage2)], null, cancellationToken);

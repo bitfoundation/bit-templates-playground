@@ -1,6 +1,7 @@
 ﻿using Bit.TemplatePlayground.Shared.Dtos.Dashboard;
 using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
+using Bit.TemplatePlayground.Shared.Dtos.PushNotification;
 using Bit.TemplatePlayground.Shared.Dtos.Chatbot;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Statistics;
@@ -21,6 +22,7 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(NugetStatsDto))]
 [JsonSerializable(typeof(AppProblemDetails))]
 [JsonSerializable(typeof(SendNotificationToRoleDto))]
+[JsonSerializable(typeof(PushNotificationSubscriptionDto))]
 [JsonSerializable(typeof(CategoryDto))]
 [JsonSerializable(typeof(List<CategoryDto>))]
 [JsonSerializable(typeof(PagedResult<CategoryDto>))]
@@ -35,7 +37,7 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 
 [JsonSerializable(typeof(DiagnosticLogDto[]))]
 [JsonSerializable(typeof(StartChatbotRequest))]
-[JsonSerializable(typeof(SystemPromptDto))]
+[JsonSerializable(typeof(List<SystemPromptDto>))]
 public partial class AppJsonContext : JsonSerializerContext
 {
 }

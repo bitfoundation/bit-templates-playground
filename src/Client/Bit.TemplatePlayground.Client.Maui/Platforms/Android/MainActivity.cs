@@ -3,6 +3,8 @@ using Android.OS;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
+using Android.Gms.Tasks;
+using Plugin.LocalNotification;
 using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
@@ -26,7 +28,9 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
 [Activity(Theme = "@style/Maui.SplashTheme", MainLauncher = true, LaunchMode = LaunchMode.SingleTask,
     ConfigurationChanges = ConfigChanges.ScreenSize | ConfigChanges.Orientation | ConfigChanges.UiMode | ConfigChanges.ScreenLayout | ConfigChanges.SmallestScreenSize | ConfigChanges.Density)]
 public partial class MainActivity : MauiAppCompatActivity
+    , IOnSuccessListener
 {
+    private IPushNotificationService PushNotificationService => IPlatformApplication.Current!.Services.GetRequiredService<IPushNotificationService>();
 
     protected override void OnCreate(Bundle? savedInstanceState)
     {
@@ -41,8 +45,45 @@ public partial class MainActivity : MauiAppCompatActivity
             _ = Routes.OpenUniversalLink(new URL(url).File ?? PageUrls.Home);
         }
 
+        HandlePushNotificationTap(Intent); // Handling push notification taps when the app was closed.
+        PushNotificationService.IsAvailable(default).ContinueWith(task =>
+        {
+            if (task.Result)
+            {
+                Services.AndroidPushNotificationService.Configure();
+            }
+        });
     }
 
+    private static void HandlePushNotificationTap(Intent? intent)
+    {
+        if (intent is null) 
+            return;
+
+        var dataString = intent.GetStringExtra(LocalNotificationCenter.ReturnRequest);
+        string? pageUrl = null;
+        if (string.IsNullOrEmpty(dataString) is false)
+        {
+            var request = JsonSerializer.Deserialize<NotificationRequest>(dataString, options: new()
+            {
+                NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals
+            });
+            if (request?.ReturningData is not null)
+            {
+                var returningData = JsonSerializer.Deserialize<Dictionary<string, object>>(request.ReturningData);
+                if (returningData?.ContainsKey("pageUrl") is true)
+                {
+                    pageUrl = returningData["pageUrl"]?.ToString(); // The time that the notification received, the app was open. (See PushNotificationFirebaseMessagingService's OnMessageReceived)
+                }
+            }
+        }
+
+        pageUrl ??= intent?.Extras?.Get("pageUrl")?.ToString();
+        if (string.IsNullOrEmpty(pageUrl) is false)
+        {
+            _ = Routes.OpenUniversalLink(pageUrl ?? PageUrls.Home); // The time that the notification received, the app was closed.
+        }
+    }
 
     protected override void OnNewIntent(Intent? intent)
     {
@@ -55,6 +96,11 @@ public partial class MainActivity : MauiAppCompatActivity
             _ = Routes.OpenUniversalLink(new URL(url).File ?? PageUrls.Home);
         }
 
+        HandlePushNotificationTap(intent); // Handling push notification taps when the app is running.
     }
 
+    public void OnSuccess(Java.Lang.Object? result)
+    {
+        PushNotificationService.Token = result!.ToString();
+    }
 }

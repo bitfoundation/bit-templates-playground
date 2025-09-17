@@ -41,6 +41,7 @@ public static partial class Program
             return settings;
         });
         services.AddSingleton(ITelemetryContext.Current!);
+        services.AddSingleton<IPushNotificationService, WindowsPushNotificationService>();
 
         services.AddWindowsFormsBlazorWebView();
         services.AddBlazorWebViewDeveloperTools();

@@ -43,6 +43,34 @@ class App {
         }
     }
 
+    public static async getPushNotificationSubscription(vapidPublicKey: string) {
+        const registration = await navigator.serviceWorker.ready;
+        if (!registration) return null;
+
+        const pushManager = registration.pushManager;
+        if (!pushManager) return null;
+
+        let subscription = await pushManager.getSubscription();
+
+        if (!subscription) {
+            subscription = await pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: vapidPublicKey
+            });
+        }
+
+        const pushChannel = subscription.toJSON();
+        const p256dh = pushChannel.keys!['p256dh'];
+        const auth = pushChannel.keys!['auth'];
+
+        return {
+            deviceId: `${p256dh}-${auth}`,
+            platform: 'browser',
+            p256dh: p256dh,
+            auth: auth,
+            endpoint: pushChannel.endpoint
+        };
+    };
 
     /* Checks for and applies updates if available.
        Called by `WebAppUpdateService.cs` when the user clicks the app version in `AppShell.razor`

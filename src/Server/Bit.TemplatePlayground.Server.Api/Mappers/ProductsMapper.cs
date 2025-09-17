@@ -1,4 +1,4 @@
-using Riok.Mapperly.Abstractions;
+﻿using Riok.Mapperly.Abstractions;
 using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Server.Api.Models.Products;
 
@@ -24,5 +24,5 @@ public static partial class ProductsMapper
     public static partial Product Map(this ProductDto source);
 
     [MapperIgnoreSource(nameof(Product.ShortId))]
-    public static partial void Patch(this ProductDto source, Product dest);
+    public static partial void Patch(this ProductDto source, Product destination);
 }

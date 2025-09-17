@@ -34,9 +34,6 @@ public partial class AppTestServer : IAsyncDisposable
 
         builder.Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Web");
 
-        //Use in-memory Sqlite database for faster and more reliable testing
-        builder.Configuration["ConnectionStrings:SqliteConnectionString"] = "Data Source=Bit.TemplatePlaygroundDb.db;Mode=Memory;Cache=Shared;";
-
         configureTestConfigurations?.Invoke(builder.Configuration);
 
         builder.AddTestProjectServices();

@@ -1,4 +1,5 @@
 ﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.PushNotification;
 
 namespace Bit.TemplatePlayground.Server.Api.Models.Identity;
 
@@ -30,6 +31,7 @@ public partial class UserSession
     [ForeignKey(nameof(UserId))]
     public User? User { get; set; }
 
+    public PushNotificationSubscription? PushNotificationSubscription { get; set; }
 
     public string? SignalRConnectionId { get; set; }
 

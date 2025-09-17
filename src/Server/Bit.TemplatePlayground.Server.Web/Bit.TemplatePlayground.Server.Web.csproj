@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>EA9A5D98-4682-45A6-9AA0-E10F1B0AFD90</UserSecretsId>
+        <UserSecretsId>7174F8A5-A1EE-4D5D-A477-DA5ED1FC1C36</UserSecretsId>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     </PropertyGroup>
 
@@ -13,6 +13,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Bit.BlazorES2019" />
         <PackageReference Include="NWebsec.AspNetCore.Middleware" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />

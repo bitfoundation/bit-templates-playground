@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
-        <UserSecretsId>EA9A5D98-4682-45A6-9AA0-E10F1B0AFD90</UserSecretsId>
+        <UserSecretsId>7174F8A5-A1EE-4D5D-A477-DA5ED1FC1C36</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
     </PropertyGroup>
 
@@ -42,6 +42,8 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
         <PackageReference Include="Microsoft.Azure.SignalR" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+        <PackageReference Include="AspNetCore.HealthChecks.Hangfire" />
         <PackageReference Include="Swashbuckle.AspNetCore" />
         <PackageReference Include="Microsoft.Identity.Web" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" />
@@ -51,6 +53,7 @@
         <PackageReference Include="AspNet.Security.OAuth.GitHub" />
         <PackageReference Include="Riok.Mapperly" />
         <PackageReference Include="Twilio" />
+        <PackageReference Include="AdsPush" />
         <PackageReference Include="Microsoft.Extensions.AI" />
         <PackageReference Include="Microsoft.Extensions.AI.AzureAIInference" />
         <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
