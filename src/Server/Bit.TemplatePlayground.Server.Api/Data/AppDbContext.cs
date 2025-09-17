@@ -3,6 +3,7 @@ using Bit.TemplatePlayground.Server.Api.Models.Categories;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Data.Configurations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Bit.TemplatePlayground.Server.Api.Models.PushNotification;
 using System.Security.Cryptography;
 using Hangfire.EntityFrameworkCore;
 using Bit.TemplatePlayground.Server.Api.Models.Attachments;
@@ -17,6 +18,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
 
     public DbSet<Category> Categories { get; set; } = default!;
     public DbSet<Product> Products { get; set; } = default!;
+    public DbSet<PushNotificationSubscription> PushNotificationSubscriptions { get; set; } = default!;
 
     public DbSet<WebAuthnCredential> WebAuthnCredential { get; set; } = default!;
 

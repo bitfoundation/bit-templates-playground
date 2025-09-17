@@ -20,12 +20,15 @@ using FluentStorage;
 using FluentEmail.Core;
 using FluentStorage.Blobs;
 using Hangfire.EntityFrameworkCore;
+using AdsPush;
+using AdsPush.Abstraction;
 using Bit.TemplatePlayground.Server.Api.Services;
 using Bit.TemplatePlayground.Server.Api.Controllers;
 using Bit.TemplatePlayground.Server.Shared.Services;
 using Bit.TemplatePlayground.Server.Api.Services.Jobs;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Services.Identity;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
@@ -39,6 +42,12 @@ public static partial class Program
         var configuration = builder.Configuration;
 
         builder.AddServerSharedServices();
+
+        builder.AddDefaultHealthChecks()
+            .AddDbContextCheck<AppDbContext>(tags: ["live"])
+            .AddHangfire(setup => setup.MinimumAvailableServers = 1, tags: ["live"])
+            .AddCheck<AppStorageHealthCheck>("storage", tags: ["live"]);
+        // TODO: Sms, Email, Push notification, AI, Google reCaptcha, Cloudflare
 
         ServerApiSettings appSettings = new();
         configuration.Bind(appSettings);
@@ -64,6 +73,32 @@ public static partial class Program
         });
 
 
+        services.AddSingleton(_ =>
+        {
+            var adsPushSenderBuilder = new AdsPushSenderBuilder();
+
+            if (string.IsNullOrEmpty(appSettings.AdsPushAPNS?.P8PrivateKey) is false)
+            {
+                adsPushSenderBuilder = adsPushSenderBuilder.ConfigureApns(appSettings.AdsPushAPNS, null);
+            }
+
+            if (string.IsNullOrEmpty(appSettings.AdsPushFirebase?.PrivateKey) is false)
+            {
+                appSettings.AdsPushFirebase.PrivateKey = appSettings.AdsPushFirebase.PrivateKey.Replace(@"\n", string.Empty);
+
+                adsPushSenderBuilder = adsPushSenderBuilder.ConfigureFirebase(appSettings.AdsPushFirebase, AdsPushTarget.Android);
+            }
+
+            if (string.IsNullOrEmpty(appSettings.AdsPushVapid?.PrivateKey) is false)
+            {
+                adsPushSenderBuilder = adsPushSenderBuilder.ConfigureVapid(appSettings.AdsPushVapid, null);
+            }
+
+            return adsPushSenderBuilder
+                .BuildSender();
+        });
+        services.AddScoped<PushNotificationService>();
+        services.AddScoped<PushNotificationJobRunner>();
 
         services.AddSingleton<ServerExceptionHandler>();
         services.AddSingleton(sp => (IProblemDetailsWriter)sp.GetRequiredService<ServerExceptionHandler>());
@@ -84,7 +119,8 @@ public static partial class Program
                 policy.SetIsOriginAllowed(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) && settings.IsTrustedOrigin(uri))
                       .AllowAnyHeader()
                       .AllowAnyMethod()
-                      .WithExposedHeaders(HeaderNames.RequestId, "Age", "App-Cache-Response");
+                      .WithExposedHeaders(HeaderNames.RequestId, 
+                            HeaderNames.Age, "App-Cache-Response", "X-App-Platform", "X-App-Version", "X-Origin");
             });
         });
 
@@ -155,7 +191,7 @@ public static partial class Program
             }
             options.UseSqlite(connectionStringBuilder.ConnectionString, dbOptions =>
             {
-
+                // dbOptions.UseQuerySplittingBehavior(QuerySplittingBehavior.SplitQuery);
             });
         }
 

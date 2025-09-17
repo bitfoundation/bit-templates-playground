@@ -1,5 +1,6 @@
 ﻿using Microsoft.Maui.Platform;
 using Microsoft.Maui.LifecycleEvents;
+using Plugin.LocalNotification;
 using Bit.TemplatePlayground.Client.Core.Styles;
 using Bit.TemplatePlayground.Client.Maui.Services;
 using Maui.AppStores;
@@ -35,6 +36,10 @@ public static partial class MauiProgram
             .UseAppStoreInfo()
             .Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Maui");
 
+        if (AppPlatform.IsWindows is false)
+        {
+            builder.UseLocalNotification();
+        }
         
         builder.ConfigureServices();
 

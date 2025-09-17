@@ -20,6 +20,7 @@ public partial class AppDiagnosticModal
     [AutoInject] private ITelemetryContext telemetryContext = default!;
     [AutoInject] private BitMessageBoxService messageBoxService = default!;
     [AutoInject] private IDiagnosticsController diagnosticsController = default!;
+    [AutoInject] private IPushNotificationService pushNotificationService = default!;
 
 
     private static bool showKnownException = true;

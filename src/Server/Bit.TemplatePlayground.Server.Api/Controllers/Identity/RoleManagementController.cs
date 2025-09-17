@@ -13,6 +13,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
 {
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
 
+    [AutoInject] private PushNotificationService pushNotificationService = default!;
 
     [AutoInject] private UserManager<User> userManager = default!;
     [AutoInject] private RoleManager<Role> roleManager = default!;
@@ -219,6 +220,11 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
         await appHubContext.Clients.Clients(signalRConnectionIds)
                                    .SendAsync(SignalREvents.SHOW_MESSAGE, dto.Message, dto.PageUrl is null ? null : new { pageUrl = dto.PageUrl }, cancellationToken);
 
+        await pushNotificationService.RequestPush(message: dto.Message, 
+                                                  pageUrl: dto.PageUrl,
+                                                  userRelatedPush: true, 
+                                                  customSubscriptionFilter: s => s.UserSession!.User!.Roles.Any(r => r.RoleId == dto.RoleId), 
+                                                  cancellationToken: cancellationToken);
     }
 
 

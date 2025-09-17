@@ -1,9 +1,9 @@
-namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
+﻿namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
 public partial class AppSnackBar
 {
     private Action? unsubscribe;
-    private BitSnackBar snackbarRef = default!;
+    private BitSnackBar snackBarRef = default!;
 
     protected override async Task OnAfterFirstRenderAsync()
     {
@@ -13,7 +13,7 @@ public partial class AppSnackBar
         {
             var (title, body, color) = ((string, string, BitColor))args!;
 
-            await snackbarRef.Show(title, body, color);
+            await snackBarRef.Show(title, body, color);
         });
     }
 

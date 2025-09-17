@@ -15,11 +15,10 @@
 
         <PackageReference Include="Bit.Butil" />
         <PackageReference Include="Bit.BlazorUI" />
-        <PackageReference Include="Bit.BlazorES2019" />
         <PackageReference Include="Bit.BlazorUI.Icons" />
         <PackageReference Include="Bit.BlazorUI.Assets" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
-        <PackageReference Include="Bit.BlazorUI.Extras" />
+                <PackageReference Include="Bit.BlazorUI.Extras" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" />

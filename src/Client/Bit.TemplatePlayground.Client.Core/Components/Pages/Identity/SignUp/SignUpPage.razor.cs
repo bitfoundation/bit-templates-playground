@@ -42,7 +42,7 @@ public partial class SignUpPage
         {
             NavigateToConfirmPage();
         }
-        catch (TooManyRequestsExceptions e)
+        catch (TooManyRequestsException e)
         {
             SnackBarService.Error(e.Message);
             NavigateToConfirmPage();

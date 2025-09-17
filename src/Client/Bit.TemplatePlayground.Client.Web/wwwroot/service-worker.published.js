@@ -1,5 +1,42 @@
-// bit version: 9.11.3
+// bit version: 9.12.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
+
+
+self.addEventListener('push', function (event) {
+
+    const eventData = event.data.json();
+
+    self.registration.showNotification(eventData.title, {
+
+        data: eventData.data,
+        body: eventData.message,
+        icon: '/images/icons/bit-icon-512.png'
+
+    });
+
+});
+
+self.addEventListener('notificationclick', function (event) {
+    event.notification.close();
+    const pageUrl = event.notification.data.pageUrl;
+    if (pageUrl != null) {
+        event.waitUntil(
+            clients
+                .matchAll({
+                    type: 'window',
+                    includeUncontrolled: true,
+                })
+                .then((clientList) => {
+                    for (const client of clientList) {
+                        if (!client.focus || !client.postMessage) continue;
+                        client.postMessage({ key: 'PUBLISH_MESSAGE', message: 'NAVIGATE_TO', payload: pageUrl });
+                        return client.focus();
+                    }
+                    return clients.openWindow(pageUrl);
+                })
+        );
+    }
+});
 
 
 self.assetsInclude = [];
@@ -14,23 +51,15 @@ self.assetsExclude = [
 
 
     // country flags
-    /_content\/Bit\.BlazorUI\.Extras\/flags/,
-
-    // https://github.com/orgs/bitfoundation/discussions/10238#discussioncomment-12493737
-    /_content\/Bit\.BlazorES2019\/blazor\.server\.js$/,
-    /_content\/Bit\.BlazorES2019\/blazor\.webview\.js$/,
-    /_framework\/blazor\.web\.js$/,
-    /_framework\/blazor\.webassembly\.js$/
+    /_content\/Bit\.BlazorUI\.Extras\/flags/
 ];
 self.externalAssets = [
     {
         "url": "/"
     },
-    /* If you don't plan to support older browsers and prefer to use the original `blazor.web.js`, follow the instructions in this link: https://github.com/orgs/bitfoundation/discussions/10238#discussioncomment-12493737
     {
-        url: "_framework/blazor.web.js"
+        url: "_framework/bit.blazor.web.es2019.js"
     },
-    */
     {
         "url": "Bit.TemplatePlayground.Server.Web.styles.css"
     },
@@ -46,6 +75,8 @@ self.serverHandledUrls = [
     /\/hangfire/,
     /\/healthchecks-ui/,
     /\/healthz/,
+    /\/health/,
+    /\/alive/,
     /\/swagger/,
     /\/signin-/,
     /\/.well-known/,
@@ -54,10 +85,26 @@ self.serverHandledUrls = [
     /\/web-interop-app/
 ];
 
-self.prerenderMode = 'none'; // Demo: https://adminpanel.bitplatform.dev/ (No-Prerendering + Offline support)
+// self.mode = 'FullOffline'; // Traditional PWA app that **first** downloads all assets and **then** runs the app.
+// This ensures the app won't break if network connectivity is lost and the user navigates to a new page requiring lazy-loaded JS/WASM/image files.
+// Recommended if the app primarily uses PWA for offline support and has local/offline database such as IndexedeDB or SQLite (Checkout Bit.Besql)
+// Demo: https://todo-offline.bitplatform.cc/offline-database-demo
 
-// On apps with Prerendering enabled, to have the best experience for the end user un-comment one of the following lines:
-// self.prerenderMode = 'always'; // Demo: https://sales.bitplatform.dev/ (Always show pre-render without offline support)
-// self.prerenderMode = 'initial'; // Demo: https://todo.bitplatform.dev/ (Pre-Render on first site visit + Offline support)
+self.mode = 'NoPrerender'; // Modern PWA app that **starts immediately** and lazy-loads assets as needed.
+// If network connectivity is lost and the user navigates to a new page requiring lazy-loaded JS/WASM/image files, the app might break.
+// Recommended if the app uses PWA for benefits other than offline support, such as installability, push notifications, etc.
+// Demo: https://adminpanel.bitplatform.dev/
+
+// self.mode = 'InitialPrerender'; // If pre-rendering is enabled in the `Server.Web` configuration, this mode fetches the site's document only on the first load of the app.
+// Useful for SEO-friendly apps, and to display content on the initial visit while files download. Subsequent visits avoid server pressure from pre-rendering.
+// Demo: https://todo.bitplatform.dev/
+
+// self.mode = 'AlwaysPrerender'; // If pre-rendering is enabled in the Server.Web configuration, this mode fetches the site's document on every load of the app.
+// The reason behind fetching the document on every app load is that Blazor WebAssembly's runtime might takes some time to kick in on low-end mobile devices,
+// so if the user refreshes the page or visits a new page, it shows the pre-rendered document while the Blazor WebAssembly runtime is loading.
+// Downside: Increases server load due to frequent pre-rendering.
+// Demo: https://sales.bitplatform.dev/
+
+self.enableCacheControl = false; // false means origin's cache headers are respected, true means service worker would manage the cache headers.
 
 self.importScripts('_content/Bit.Bswup/bit-bswup.sw.js');

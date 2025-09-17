@@ -47,6 +47,7 @@ public static partial class Program
 
         services.AddScoped<IBitDeviceCoordinator, WebDeviceCoordinator>();
         services.AddScoped<IStorageService, WebStorageService>();
+        services.AddScoped<IPushNotificationService, WebPushNotificationService>();
         services.AddScoped<IWebAuthnService, WebAuthnService>();
         services.AddScoped<IAppUpdateService, WebAppUpdateService>();
 

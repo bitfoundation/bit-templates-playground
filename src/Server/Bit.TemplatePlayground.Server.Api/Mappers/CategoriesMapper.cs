@@ -1,4 +1,4 @@
-using Riok.Mapperly.Abstractions;
+﻿using Riok.Mapperly.Abstractions;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Server.Api.Models.Categories;
 
@@ -20,5 +20,5 @@ public static partial class CategoriesMapper
     [MapProperty(nameof(@Category.Products.Count), nameof(@CategoryDto.ProductsCount))]
     public static partial CategoryDto Map(this Category source);
     public static partial Category Map(this CategoryDto source);
-    public static partial void Patch(this CategoryDto source, Category dest);
+    public static partial void Patch(this CategoryDto source, Category destination);
 }

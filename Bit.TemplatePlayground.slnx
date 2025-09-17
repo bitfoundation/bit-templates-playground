@@ -10,6 +10,7 @@
     <File Path=".vsconfig" />
     <File Path="Clean.bat" />
     <File Path="global.json" />
+	<File Path="vs-spell.dic" />
 	<File Path=".vscode/mcp.json" />
     <File Path="README.md" />
 	<File Path="settings.VisualStudio.json" />
@@ -17,13 +18,6 @@
     <File Path="src/Directory.Build.props" />
     <File Path="src/Directory.Packages.props" />
   </Folder>
-<!--#if (pipeline == "Azure")-->
-  <Folder Name="/.SolutionItems/.azure-devops/" />
-  <Folder Name="/.SolutionItems/.azure-devops/workflows/">
-    <File Path=".azure-devops/workflows/cd.yml" />
-    <File Path=".azure-devops/workflows/ci.yml" />
-  </Folder>
-<!--#endif-->
   <Folder Name="/.SolutionItems/.github/">
 	<File Path=".github/copilot-instructions.md" />
   </Folder>
@@ -31,21 +25,17 @@
     <File Path=".github/prompts/resx.prompt.md" />
     <File Path=".github/prompts/scaffold.prompt.md" />
   </Folder>
-<!--#if (pipeline == "GitHub")-->
   <Folder Name="/.SolutionItems/.github/workflows/">
     <File Path=".github/workflows/cd-production.yml" />
     <File Path=".github/workflows/cd-test.yml" />
     <File Path=".github/workflows/cd-template.yml" />
     <File Path=".github/workflows/ci.yml" />
   </Folder>
-<!--#endif-->
   <Folder Name="/Server/">
 	<Project Path="src/Server/Bit.TemplatePlayground.Server.Web/Bit.TemplatePlayground.Server.Web.csproj" />
     <Project Path="src/Server/Bit.TemplatePlayground.Server.Api/Bit.TemplatePlayground.Server.Api.csproj" />
 	<Project Path="src/Server/Bit.TemplatePlayground.Server.Shared/Bit.TemplatePlayground.Server.Shared.csproj" />
-<!--#if (aspire == true)-->
 	<Project Path="src/Server/Bit.TemplatePlayground.Server.AppHost/Bit.TemplatePlayground.Server.AppHost.csproj" />
-<!--#endif-->
   </Folder>
   <Folder Name="/Client/">
     <Project Path="src/Client/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.csproj" />

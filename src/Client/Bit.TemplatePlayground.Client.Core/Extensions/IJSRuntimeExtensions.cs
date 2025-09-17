@@ -1,4 +1,5 @@
 using System.Reflection;
+using Bit.TemplatePlayground.Shared.Dtos.PushNotification;
 
 namespace Microsoft.JSInterop;
 
@@ -19,6 +20,10 @@ public static partial class IJSRuntimeExtensions
         return jsRuntime.InvokeAsync<string>("grecaptcha.reset");
     }
 
+    public static async ValueTask<PushNotificationSubscriptionDto> GetPushNotificationSubscription(this IJSRuntime jsRuntime, string vapidPublicKey)
+    {
+        return await jsRuntime.InvokeAsync<PushNotificationSubscriptionDto>("App.getPushNotificationSubscription", vapidPublicKey);
+    }
 
     /// <summary>
     /// The return value would be false during pre-rendering

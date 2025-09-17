@@ -94,6 +94,9 @@
         <AndroidResource Include="Platforms\Android\Resources\**\styles.xml" />
         <GoogleServicesJson Condition="Exists('Platforms\Android\google-services.json')" Include="Platforms\Android\google-services.json" />
         <AndroidAotProfile Condition="Exists('custom.aprof')" Include="custom.aprof" />
+        <PackageReference Include="Xamarin.Firebase.Messaging" />
+        <PackageReference Include="Xamarin.AndroidX.SavedState" />
+        <PackageReference Include="Xamarin.AndroidX.SavedState.SavedState.Ktx" />
         <!-- Run the following commands to create custom.aprof file which improves the Android app performance -->
         <!-- dotnet add package Mono.AotProfiler.Android -->
         <!-- dotnet build -t:BuildAndStartAotProfiling -f net9.0-android -p:UseInterpreter=false -->
@@ -147,6 +150,7 @@
 
     <ItemGroup>
         <PackageReference Include="EmbedIO" />
+        <PackageReference Include="Bit.BlazorES2019" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Web" />
         <PackageReference Include="Microsoft.Maui.Controls" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" />
@@ -155,6 +159,7 @@
         <PackageReference Include="Newtonsoft.Json" />
         <PackageReference Include="Oscore.Maui.AppStoreInfo" />
         <PackageReference Include="Plugin.Maui.AppRating" />
+        <PackageReference Include="Plugin.LocalNotification" />
     </ItemGroup>
 
     <Target Name="BeforeBuildTasks" AfterTargets="CoreCompile">

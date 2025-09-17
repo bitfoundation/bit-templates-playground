@@ -28,12 +28,12 @@
         }
     },
     "forwardPorts": [
-        2137,
-        2053,
-        2227,
-        4298,
+        2169,
+        2232,
+        2160,
+        4097,
         5000,
-        5174
+        5215
     ],
     "features": {
         "ghcr.io/devcontainers/features/python": {},

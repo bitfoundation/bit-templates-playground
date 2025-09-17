@@ -3,7 +3,17 @@
 namespace Bit.TemplatePlayground.Server.Api.Services;
 
 /// <summary>
-/// This class stores vectorized products and provides methods to query/manage them.
+/// Approaches to implement text search:
+/// 1- Simple string matching (e.g., `Contains` method).
+/// 2- Full-text search using database capabilities (e.g., PostgreSQL's full-text search).
+/// 3- Vector-based search using embeddings (e.g., using OpenAI's embeddings).
+/// This service implements vector-based search using embeddings that has the following advantages:
+///     - More accurate search results based on semantic meaning rather than just similarity matching.
+///     - Multi-language support, as embeddings can capture the meaning of words across different languages.
+/// And has the following disadvantages:
+///     - Requires additional processing to generate embeddings for the text.
+///     - Require more storage space for embeddings compared to simple text search.
+/// The simple full-text search would be enough for product search case, but we have implemented the vector-based search to demonstrate how to use embeddings in the project.
 /// </summary>
 public partial class ProductEmbeddingService
 {
@@ -15,7 +25,7 @@ public partial class ProductEmbeddingService
 
     public async Task<IQueryable<Product>> GetProductsBySearchQuery(string searchQuery, CancellationToken cancellationToken)
     {
-        // The RAG has been implemented for PostgreSQL only. Check out https://github.com/bitfoundation/bitplatform/blob/develop/src/Templates/Bit.TemplatePlayground/Bit.Bit.TemplatePlayground/src/Server/Bit.TemplatePlayground.Server.Api/Services/ProductEmbeddingService.cs
+        // The RAG has been implemented for PostgreSQL / SQL Server only. Check out https://github.com/bitfoundation/bitplatform/blob/develop/src/Templates/Bit.TemplatePlayground/Bit.Bit.TemplatePlayground/src/Server/Bit.TemplatePlayground.Server.Api/Services/ProductEmbeddingService.cs
         return dbContext.Products.Where(p => p.Name!.Contains(searchQuery) || p.Category!.Name!.Contains(searchQuery));
     }
 

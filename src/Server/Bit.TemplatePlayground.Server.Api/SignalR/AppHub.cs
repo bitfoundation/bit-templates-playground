@@ -21,11 +21,14 @@ namespace Bit.TemplatePlayground.Server.Api.SignalR;
 [AllowAnonymous]
 public partial class AppHub : Hub
 {
+    [AutoInject] private ServerApiSettings settings = default!;
     [AutoInject] private IServiceProvider serviceProvider = default!;
     [AutoInject] private IOptionsMonitor<BearerTokenOptions> bearerTokenOptions = default!;
 
     public override async Task OnConnectedAsync()
     {
+        CheckClientAppVersion();
+
         if (Context.GetHttpContext()?.ContainsExpiredAccessToken() is true)
             throw new HubException(nameof(AppStrings.UnauthorizedException)).WithData("ConnectionId", Context.ConnectionId);
 
@@ -93,6 +96,20 @@ public partial class AppHub : Hub
         {
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, "AuthenticatedClients");
             await dbContext.UserSessions.Where(us => us.SignalRConnectionId == Context.ConnectionId).ExecuteUpdateAsync(us => us.SetProperty(x => x.SignalRConnectionId, (string?)null));
+        }
+    }
+
+    private void CheckClientAppVersion()
+    {
+        if (Context.GetHttpContext()?.Request?.Headers?.TryGetValue("X-App-Version", out var appVersionHeaderValue) is true && appVersionHeaderValue.Any())
+        {
+            var appVersion = appVersionHeaderValue.Single()!;
+            var appPlatformType = Enum.Parse<AppPlatformType>(Context.GetHttpContext()!.Request.Headers["X-App-Platform"].Single()!);
+            var minimumSupportedVersion = settings.SupportedAppVersions!.GetMinimumSupportedAppVersion(appPlatformType);
+            if (minimumSupportedVersion != null && Version.Parse(appVersion) < minimumSupportedVersion)
+                throw new HubException(nameof(AppStrings.ForceUpdateTitle))
+                    .WithData("ClientAppVersion", appVersion)
+                    .WithData("ConnectionId", Context.ConnectionId);
         }
     }
 }
