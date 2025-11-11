@@ -1,7 +1,7 @@
 ﻿using Hangfire.Dashboard;
 using Hangfire.Annotations;
 
-namespace Bit.TemplatePlayground.Server.Api.Filters;
+namespace Bit.TemplatePlayground.Server.Api.RequestPipeline;
 
 public class HangfireDashboardAuthorizationFilter : IDashboardAuthorizationFilter
 {

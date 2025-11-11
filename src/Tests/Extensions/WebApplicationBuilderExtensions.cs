@@ -12,8 +12,6 @@ public static partial class WebApplicationBuilderExtensions
     {
         var services = builder.Services;
 
-        services.AddHangfire(configuration => configuration.UseColouredConsoleLogProvider());
-
         builder.AddServerWebProjectServices();
 
         // Register test-specific services for all tests here

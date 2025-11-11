@@ -16,7 +16,6 @@ public partial class ProductController : AppControllerBase, IProductController
     [AutoInject] private HtmlSanitizer htmlSanitizer = default!;
 
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
-    [AutoInject] private ProductEmbeddingService productEmbeddingService = default!;
     [AutoInject] private ResponseCacheService responseCacheService = default!;
 
     [HttpGet, EnableQuery]
@@ -40,11 +39,9 @@ public partial class ProductController : AppControllerBase, IProductController
     }
 
     [HttpGet("{searchQuery}")]
-    public async Task<PagedResult<ProductDto>> GetProductsBySearchQuery(string searchQuery, ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
+    public async Task<PagedResult<ProductDto>> SearchProducts(string searchQuery, ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
     {
-        // Embedding based search is only implemented for PostgreSQL.
-        // Simply return whole products list.
-        return await GetProducts(odataQuery, cancellationToken);
+        throw new NotImplementedException(); // Embedding based search is only implemented for PostgreSQL and SQL Server only.
     }
 
     [HttpGet("{id}")]
@@ -67,7 +64,6 @@ public partial class ProductController : AppControllerBase, IProductController
 
         await Validate(entityToAdd, cancellationToken);
 
-            await productEmbeddingService.Embed(entityToAdd, cancellationToken);
 
         await DbContext.SaveChangesAsync(cancellationToken);
 
@@ -88,7 +84,6 @@ public partial class ProductController : AppControllerBase, IProductController
 
         await Validate(entityToUpdate, cancellationToken);
 
-            await productEmbeddingService.Embed(entityToUpdate, cancellationToken);
 
         await DbContext.SaveChangesAsync(cancellationToken);
 

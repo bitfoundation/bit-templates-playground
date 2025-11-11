@@ -2,9 +2,11 @@
 using System.Net.Mail;
 using System.IO.Compression;
 using System.ClientModel.Primitives;
+using Microsoft.SemanticKernel.Embeddings;
+using SmartComponents.LocalEmbeddings.SemanticKernel;
 using Microsoft.Data.Sqlite;
+using Microsoft.OpenApi;
 using Microsoft.Identity.Web;
-using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.OData;
 using Microsoft.Net.Http.Headers;
 using Microsoft.IdentityModel.Tokens;
@@ -56,7 +58,6 @@ public static partial class Program
         services.AddScoped<EmailServiceJobsRunner>();
         services.AddScoped<PhoneService>();
         services.AddScoped<PhoneServiceJobsRunner>();
-        services.AddScoped<ProductEmbeddingService>();
         if (appSettings.Sms?.Configured is true)
         {
             TwilioClient.Init(appSettings.Sms.TwilioAccountSid, appSettings.Sms.TwilioAutoToken);
@@ -65,7 +66,6 @@ public static partial class Program
         services.AddSingleton(_ => PhoneNumberUtil.GetInstance());
         services.AddSingleton<IBlobStorage>(sp =>
         {
-
             var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
             var appDataDirPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data");
             Directory.CreateDirectory(appDataDirPath);
@@ -119,7 +119,7 @@ public static partial class Program
                 policy.SetIsOriginAllowed(origin => Uri.TryCreate(origin, UriKind.Absolute, out var uri) && settings.IsTrustedOrigin(uri))
                       .AllowAnyHeader()
                       .AllowAnyMethod()
-                      .WithExposedHeaders(HeaderNames.RequestId, 
+                      .WithExposedHeaders(HeaderNames.RequestId,
                             HeaderNames.Age, "App-Cache-Response", "X-App-Platform", "X-App-Version", "X-Origin");
             });
         });
@@ -139,13 +139,7 @@ public static partial class Program
         services.AddSingleton<HtmlSanitizer>();
 
         services
-            .AddControllers(options =>
-            {
-                if (appSettings.SupportedAppVersions is not null)
-                {
-                    options.Filters.Add<ForceUpdateActionFilter>();
-                }
-            })
+            .AddControllers()
             .AddJsonOptions(options =>
             {
                 options.JsonSerializerOptions.DictionaryKeyPolicy = JsonNamingPolicy.CamelCase;
@@ -166,6 +160,16 @@ public static partial class Program
         var signalRBuilder = services.AddSignalR(options =>
         {
             options.EnableDetailedErrors = env.IsDevelopment();
+        }).AddJsonProtocol(options =>
+        {
+            JsonSerializerOptions jsonOptions = new JsonSerializerOptions(AppJsonContext.Default.Options);
+            jsonOptions.TypeInfoResolverChain.Add(IdentityJsonContext.Default);
+            jsonOptions.TypeInfoResolverChain.Add(ServerJsonContext.Default);
+
+            foreach (var chain in jsonOptions.TypeInfoResolverChain)
+            {
+                options.PayloadSerializerOptions.TypeInfoResolverChain.Add(chain);
+            }
         });
         if (string.IsNullOrEmpty(configuration["Azure:SignalR:ConnectionString"]) is false)
         {
@@ -183,7 +187,7 @@ public static partial class Program
             options.EnableSensitiveDataLogging(env.IsDevelopment())
                 .EnableDetailedErrors(env.IsDevelopment());
 
-            var connectionStringBuilder = new SqliteConnectionStringBuilder(configuration.GetConnectionString("SqliteConnectionString"));
+            var connectionStringBuilder = new SqliteConnectionStringBuilder(configuration.GetRequiredConnectionString("sqlite"));
             connectionStringBuilder.DataSource = Environment.ExpandEnvironmentVariables(connectionStringBuilder.DataSource);
             if (connectionStringBuilder.Mode is not SqliteOpenMode.Memory)
             {
@@ -214,7 +218,37 @@ public static partial class Program
 
         services.AddEndpointsApiExplorer();
 
-        AddSwaggerGen(builder);
+        services.AddOpenApi(options =>
+        {
+            options.AddOperationTransformer(async (operation, context, cancellationToken) =>
+            {
+                var isAuthorizedAction = context.Description.ActionDescriptor.EndpointMetadata.Any(em => em is AuthorizeAttribute);
+                var isODataEnabledAction = context.Description.ActionDescriptor.FilterDescriptors.Any(f => f.Filter is EnableQueryAttribute);
+
+                operation.Parameters = [new OpenApiParameter()
+                {
+                    In = ParameterLocation.Header,
+                    Name = HeaderNames.Authorization,
+                    Example = "Bearer XXX.YYY...",
+                    Description = "Get your JWT token by signin-in through Identity/SignIn endpoint",
+                    Required = isAuthorizedAction
+                }];
+
+                if (isODataEnabledAction)
+                {
+                    operation.Parameters.AddRange([
+
+                        new OpenApiParameter() { In = ParameterLocation.Query, Name = "$filter", Description = "Filters the results, based on a Boolean condition. (ex. Age gt 25)" },
+                        new OpenApiParameter() { In = ParameterLocation.Query, Name = "$select", Description = "Returns only the selected properties. (ex. FirstName, LastName)" },
+                        new OpenApiParameter() { In = ParameterLocation.Query, Name = "$expand", Description = "Include only the selected objects. (ex. Orders, Locations)" },
+                        new OpenApiParameter() { In = ParameterLocation.Query, Name = "$search", Description = "Finds resources that match a search criteria. (ex. \"search term\")" },
+                        new OpenApiParameter() { In = ParameterLocation.Query, Name = "$top", Description = "Returns only the first n items from a collection. (ex. 10)" },
+                        new OpenApiParameter() { In = ParameterLocation.Query, Name = "$skip", Description = "Skips the first n items from a collection. (ex. 10)" },
+                        new OpenApiParameter() { In = ParameterLocation.Query, Name = "$orderby", Description = "Orders the results of a query by one or more properties. (ex. Name desc)" }
+                    ]);
+                }
+            });
+        });
 
         services.AddDataProtection()
            .PersistKeysToDbContext<AppDbContext>(); // It's advised to secure database-stored keys with a certificate by invoking ProtectKeysWithCertificate.
@@ -223,33 +257,28 @@ public static partial class Program
 
         var emailSettings = appSettings.Email ?? throw new InvalidOperationException("Email settings are required.");
         var fluentEmailServiceBuilder = services.AddFluentEmail(emailSettings.DefaultFromEmail);
-
         fluentEmailServiceBuilder.AddSmtpSender(() =>
         {
-            if (emailSettings.UseLocalFolderForEmails)
+            var smtpConnectionString = configuration.GetRequiredConnectionString("smtp")!;
+            var endpoint = new Uri(GetConnectionStringValue(smtpConnectionString, "Endpoint", "localhost"));
+            var host = endpoint.Host;
+            var port = endpoint.Port is -1 ? 25 : endpoint.Port;
+            var userName = GetConnectionStringValue(smtpConnectionString, "UserName", string.Empty);
+            var password = GetConnectionStringValue(smtpConnectionString, "Password", string.Empty);
+            var enableSsl = GetConnectionStringValue(smtpConnectionString, "EnableSsl", port == 465 || port == 587 ? "true" : "false") is not "false";
+
+            SmtpClient smtpClient = new(host, port)
             {
-                var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
-                var sentEmailsFolderPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data", "sent-emails");
+                EnableSsl = enableSsl
+            };
 
-                Directory.CreateDirectory(sentEmailsFolderPath);
-
-                return new SmtpClient
-                {
-                    DeliveryMethod = SmtpDeliveryMethod.SpecifiedPickupDirectory,
-                    PickupDirectoryLocation = sentEmailsFolderPath
-                };
+            if (string.IsNullOrEmpty(userName) is false
+                && string.IsNullOrEmpty(password) is false)
+            {
+                smtpClient.Credentials = new NetworkCredential(userName.ToString(), password.ToString());
             }
 
-            if (emailSettings.HasCredential)
-            {
-                return new(emailSettings.Host, emailSettings.Port)
-                {
-                    Credentials = new NetworkCredential(emailSettings.UserName, emailSettings.Password),
-                    EnableSsl = true
-                };
-            }
-
-            return new(emailSettings.Host, emailSettings.Port);
+            return smtpClient;
         });
 
         services.AddHttpClient<GoogleRecaptchaService>(c =>
@@ -344,6 +373,24 @@ public static partial class Program
                 }).AsIEmbeddingGenerator(appSettings.AI.AzureOpenAI.EmbeddingModel))
             .UseLogging()
             .UseOpenTelemetry();
+            // .UseDistributedCache()
+        }
+        else if (string.IsNullOrEmpty(appSettings.AI?.HuggingFace?.EmbeddingEndpoint) is false)
+        {
+            services.AddEmbeddingGenerator(sp => new Microsoft.SemanticKernel.Connectors.HuggingFace.HuggingFaceEmbeddingGenerator(
+                  new Uri(appSettings.AI.HuggingFace.EmbeddingEndpoint),
+                  apiKey: appSettings.AI.HuggingFace.EmbeddingApiKey,
+                  httpClient: sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"), loggerFactory: sp.GetRequiredService<ILoggerFactory>()))
+            .UseLogging()
+            .UseOpenTelemetry();
+            // .UseDistributedCache()
+        }
+        else
+        {
+            services.AddEmbeddingGenerator(sp => new LocalTextEmbeddingGenerationService()
+                .AsEmbeddingGenerator())
+                .UseLogging()
+                .UseOpenTelemetry();
             // .UseDistributedCache()
         }
 
@@ -491,7 +538,7 @@ public static partial class Program
         // While Google, GitHub, Twitter(X), Apple and AzureAD needs account creation in their corresponding developer portals,
         // and configuring the client ID and secret, the following OpenID Connect configuration is for Duende IdentityServer demo server,
         // which is a public server that allows you to test Social sign-in feature without needing to configure anything.
-        // Note: The following demo server doesn't require licensing.
+        // Note: The following demo server doesn't require licensing and you can use the same approach to connect your project to KeyCloak server.
         if (builder.Environment.IsDevelopment())
         {
             authenticationBuilder.AddOpenIdConnect("IdentityServerDemo", options =>
@@ -516,46 +563,23 @@ public static partial class Program
                 options.DisableTelemetry = true;
 
                 options.Prompt = "login"; // Force login every time
+
+                if (env.IsDevelopment())
+                {
+                    options.RequireHttpsMetadata = false;
+                }
             });
         }
     }
 
-    private static void AddSwaggerGen(WebApplicationBuilder builder)
+    private static string GetConnectionStringValue(string connectionString, string key, string? defaultValue = null)
     {
-        var services = builder.Services;
-
-        services.AddSwaggerGen(options =>
+        var parts = connectionString.Split(';');
+        foreach (var part in parts)
         {
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Server.Api.xml"), includeControllerXmlComments: true);
-            options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, "Bit.TemplatePlayground.Shared.xml"));
-
-            options.OperationFilter<ODataOperationFilter>();
-
-            options.AddSecurityDefinition("bearerAuth", new()
-            {
-                Name = "Authorization",
-                Description = "Enter the Bearer Authorization string as following: `Bearer Generated-Bearer-Token`",
-                In = ParameterLocation.Header,
-                Type = SecuritySchemeType.ApiKey,
-                Scheme = "Bearer"
-            });
-
-            options.AddSecurityRequirement(new()
-            {
-                {
-                    new()
-                    {
-                        Name = "Bearer",
-                        In = ParameterLocation.Header,
-                        Reference = new OpenApiReference
-                        {
-                            Id = "Bearer",
-                            Type = ReferenceType.SecurityScheme
-                        }
-                    },
-                    []
-                }
-            });
-        });
+            if (part.StartsWith($"{key}="))
+                return part[$"{key}=".Length..];
+        }
+        return defaultValue ?? throw new ArgumentException($"Invalid connection string: '{key}' not found.");
     }
 }

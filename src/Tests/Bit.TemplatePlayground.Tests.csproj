@@ -1,28 +1,24 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <Nullable>enable</Nullable>
-        <IsTestProject>true</IsTestProject>
         <RunSettingsFilePath>$(MSBuildProjectDirectory)\.runsettings</RunSettingsFilePath>
+        <TestingPlatformCommandLineArguments>--settings ./.runsettings</TestingPlatformCommandLineArguments>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Aspire.Hosting.Testing" />
         <PackageReference Include="Bit.BlazorES2019" />
-        <PackageReference Include="coverlet.collector">
-            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-            <PrivateAssets>all</PrivateAssets>
-        </PackageReference>
         <PackageReference Include="FakeItEasy" />
-        <PackageReference Include="Microsoft.NET.Test.Sdk" />
-        <PackageReference Include="Microsoft.Playwright.MSTest" />
-        <PackageReference Include="MSTest.TestAdapter" />
-        <PackageReference Include="MSTest.TestFramework" />
+        <PackageReference Include="Microsoft.Playwright.MSTest.v4" />
+        <PackageReference Include="MSTest" />
     </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Server\Bit.TemplatePlayground.Server.Web\Bit.TemplatePlayground.Server.Web.csproj" />
         <ProjectReference Include="..\Server\Bit.TemplatePlayground.Server.Api\Bit.TemplatePlayground.Server.Api.csproj" />
+        <ProjectReference Include="..\Server\Bit.TemplatePlayground.Server.AppHost\Bit.TemplatePlayground.Server.AppHost.csproj" />
     </ItemGroup>
 
     <ItemGroup>
@@ -37,7 +33,6 @@
         <Using Include="Microsoft.Playwright" />
         <Using Include="Microsoft.Playwright.MSTest" />
         <Using Include="FakeItEasy" />
-        <PackageReference Include="GitHubActionsTestLogger" PrivateAssets="all" />
     </ItemGroup>
 
 </Project>

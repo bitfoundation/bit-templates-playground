@@ -1,14 +1,13 @@
-﻿using Projects;
-using Aspire.Hosting;
-using Aspire.Hosting.ApplicationModel;
-using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
-// Check out appsettings.json for credential settings.
+// Check out appsettings.Development.json for credentials/passwords settings.
 
+var sqlite = builder.AddSqlite("sqlite", databaseFileName: "Bit.TemplatePlaygroundDb.db")
+    .WithSqliteWeb(config => config.WithVolume("/var/lib/sqliteweb/Bit.TemplatePlayground/data"));
 
-var serverWebProject = builder.AddProject<Bit.TemplatePlayground_Server_Web>("serverweb") // Replace . with _ if needed to ensure the project builds successfully.
+var serverWebProject = builder.AddProject("serverweb", "../Bit.TemplatePlayground.Server.Web/Bit.TemplatePlayground.Server.Web.csproj")
     .WithExternalHttpEndpoints();
 
 // Adding health checks endpoints to applications in non-development environments has security implications.
@@ -19,19 +18,28 @@ if (builder.Environment.IsDevelopment())
 }
 
 
-
-
-// Blazor WebAssembly Standalone project.
-builder.AddProject<Bit.TemplatePlayground_Client_Web>("clientwebwasm"); // Replace . with _ if needed to ensure the project builds successfully.
+serverWebProject.WithReference(sqlite).WaitFor(sqlite);
 
 if (builder.ExecutionContext.IsRunMode) // The following project is only added for testing purposes.
 {
-    // Blazor Hybrid Windows project.
-    builder.AddProject<Bit.TemplatePlayground_Client_Windows>("clientwindows") // Replace . with _ if needed to ensure the project builds successfully.
+    // Blazor WebAssembly Standalone project.
+    builder.AddProject("clientwebwasm", "../../Client/Bit.TemplatePlayground.Client.Web/Bit.TemplatePlayground.Client.Web.csproj")
         .WithExplicitStart();
-}
 
-builder.AddAspireDashboard();
+    var mailpit = builder.AddMailPit("smtp") // For testing purposes only, in production, you would use a real SMTP server.
+        .WithDataVolume("mailpit");
+
+    serverWebProject.WithReference(mailpit);
+
+    // Blazor Hybrid Windows project.
+    builder.AddProject("clientwindows", "../../Client/Bit.TemplatePlayground.Client.Windows/Bit.TemplatePlayground.Client.Windows.csproj")
+        .WithExplicitStart();
+
+
+    var tunnel = builder.AddDevTunnel("web-dev-tunnel")
+        .WithAnonymousAccess()
+        .WithReference(serverWebProject.WithHttpEndpoint(name: "devTunnel").GetEndpoint("devTunnel"));
+}
 
 await builder
     .Build()

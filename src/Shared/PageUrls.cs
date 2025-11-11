@@ -30,4 +30,6 @@ public static partial class PageUrls
 
     public const string Users = "/users";
 
+
+    public const string WebInteropApp = "/web-interop-app.html";
 }

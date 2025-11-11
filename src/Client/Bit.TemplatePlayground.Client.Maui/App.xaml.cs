@@ -1,8 +1,6 @@
 ﻿using Plugin.Maui.AppRating;
 using Microsoft.Extensions.Logging;
 
-[assembly: XamlCompilation(XamlCompilationOptions.Compile)]
-
 namespace Bit.TemplatePlayground.Client.Maui;
 
 public partial class App
@@ -80,7 +78,7 @@ public partial class App
             {
                 var webViewName = Android.Webkit.WebView.CurrentWebViewPackage.PackageName;
                 logger.LogWarning("{webViewName} version {version} is not supported.", webViewName, webViewVersion);
-                await App.Current!.Windows[0].Page!.DisplayAlert("Bit.TemplatePlayground", localizer[nameof(AppStrings.UpdateWebViewThroughGooglePlay)], localizer[nameof(AppStrings.Ok)]);
+                await App.Current!.Windows[0].Page!.DisplayAlertAsync("Bit.TemplatePlayground", localizer[nameof(AppStrings.UpdateWebViewThroughGooglePlay)], localizer[nameof(AppStrings.Ok)]);
                 await Launcher.OpenAsync($"https://play.google.com/store/apps/details?id={webViewName}");
             }
 #endif

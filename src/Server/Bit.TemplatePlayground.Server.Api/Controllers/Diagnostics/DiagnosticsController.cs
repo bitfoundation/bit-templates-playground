@@ -49,7 +49,7 @@ public partial class DiagnosticsController : AppControllerBase, IDiagnosticsCont
 
         if (string.IsNullOrEmpty(signalRConnectionId) is false)
         {
-            var success = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SignalREvents.SHOW_MESSAGE, $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}", new { pageUrl = PageUrls.Terms, action = "testAction" }, cancellationToken);
+            var success = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SignalREvents.SHOW_MESSAGE, $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}", new Dictionary<string, string?> { { "pageUrl", PageUrls.Terms }, { "action", "testAction" } }, cancellationToken);
             if (success is false) // Client would return false if it's unable to show the message with custom action.
             {
                 await appHubContext.Clients.Client(signalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, $"Simple message. {DateTimeOffset.Now:HH:mm:ss}", null, cancellationToken);
