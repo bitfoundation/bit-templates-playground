@@ -1,4 +1,5 @@
 ﻿
+using Scalar.AspNetCore;
 using Microsoft.AspNetCore.Localization.Routing;
 
 namespace Bit.TemplatePlayground.Server.Api;
@@ -42,6 +43,8 @@ public static partial class Program
 
         app.UseCors();
 
+        app.UseMiddleware<ForceUpdateMiddleware>();
+
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -51,12 +54,10 @@ public static partial class Program
 
         app.MapAppHealthChecks();
 
-        app.UseSwagger();
-
-        app.UseSwaggerUI(options =>
-        {
-            options.InjectJavascript($"/scripts/swagger-utils.js?v={Environment.TickCount64}");
-        });
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+        app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
+        app.MapGet("/swagger", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
         app.UseHangfireDashboard(options: new()
         {

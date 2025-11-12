@@ -1,4 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Aspire.Hosting;
+using Aspire.Hosting.Testing;
+using Aspire.Hosting.DevTunnels;
+using Aspire.Hosting.ApplicationModel;
 using Bit.TemplatePlayground.Server.Api.Data;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Hosting;
@@ -8,14 +12,43 @@ namespace Bit.TemplatePlayground.Tests;
 [TestClass]
 public partial class TestsInitializer
 {
+    private static DistributedApplication? aspireApp;
+
     [AssemblyInitialize]
     public static async Task Initialize(TestContext testContext)
     {
+        await RunAspireHost(testContext);
         await using var testServer = new AppTestServer();
 
-        await testServer.Build().Start();
+        await testServer.Build().Start(testContext.CancellationToken);
 
         await InitializeDatabase(testServer);
+    }
+
+    /// <summary>
+    /// Aspire.Hosting.Testing executes the complete application, including dependencies like databases, 
+    /// closely mimicking a production environment. However, it has a limitation: backend services cannot 
+    /// be overridden in tests if needed, unlike <see cref="AppTestServer"/> used in <see cref="IdentityApiTests"/> 
+    /// and <see cref="IdentityPagesTests"/>. The code below runs the Aspire app without the server web 
+    /// project, retrieves necessary connection strings (e.g., database connection string), and passes 
+    /// them to <see cref="AppTestServer"/>.
+    /// </summary>
+    private static async Task RunAspireHost(TestContext testContext)
+    {
+        var aspireBuilder = await DistributedApplicationTestingBuilder
+            .CreateAsync<Program>(testContext.CancellationToken);
+
+        foreach (var res in aspireBuilder.Resources.OfType<ProjectResource>().ToList())
+            aspireBuilder.Resources.Remove(res);
+        foreach (var res in aspireBuilder.Resources.OfType<DevTunnelResource>().ToList()) // remove unnecessary resources.
+            aspireBuilder.Resources.Remove(res);
+
+        aspireApp = await aspireBuilder.BuildAsync(testContext.CancellationToken);
+
+        await aspireApp.StartAsync(testContext.CancellationToken);
+
+        Environment.SetEnvironmentVariable("ConnectionStrings__smtp", await aspireApp.GetConnectionStringAsync("smtp", testContext.CancellationToken));
+        await aspireApp.ResourceNotifications.WaitForResourceAsync("smtp", KnownResourceStates.Running, testContext.CancellationToken);
     }
 
     //SQLite database in in-memory mode only lives as long as at least one connection to it is open
@@ -29,14 +62,17 @@ public partial class TestsInitializer
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
                 connection = new SqliteConnection(dbContext.Database.GetConnectionString());
                 await connection.OpenAsync();
-            if ((await dbContext.Database.GetPendingMigrationsAsync()).Any())
-            {
-                await dbContext.Database.MigrateAsync();
-            }
-            else if ((await dbContext.Database.GetAppliedMigrationsAsync()).Any() is false)
-            {
-                throw new InvalidOperationException("No migrations have been added. Please ensure that migrations are added before running tests.");
-            }
+            await dbContext.Database.EnsureCreatedAsync(); // It's recommended to start using ef-core migrations.
+        }
+    }
+
+    [AssemblyCleanup]
+    public static async Task Cleanup()
+    {
+        if (aspireApp is not null)
+        {
+            await aspireApp.StopAsync();
+            await aspireApp.DisposeAsync();
         }
     }
 }

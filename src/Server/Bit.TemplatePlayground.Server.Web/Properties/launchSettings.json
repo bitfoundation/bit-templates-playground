@@ -10,10 +10,10 @@
             "dotnetRunMessages": true,
             "applicationUrl": "http://*:5000"
         },
-        "Bit.TemplatePlayground.Server.Web-Swagger": {
+        "Bit.TemplatePlayground.Server.Web-Scalar": {
             "commandName": "Project",
             "launchBrowser": true,
-            "launchUrl": "swagger",
+            "launchUrl": "scalar",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
@@ -48,9 +48,9 @@
             "environmentVariables": {
                 "ASPNETCORE_HTTP_PORTS": "5000",
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ConnectionStrings__SqliteConnectionString": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
+                "ConnectionStrings__sqlite": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
             },
-            "DockerfileRunArguments": "-v C:\\DockerVolumes\\7174F8A5-A1EE-4D5D-A477-DA5ED1FC1C36:/container_volume",
+            "DockerfileRunArguments": "-v C:\\DockerVolumes\\5EF6E154-8968-4DDC-96A9-123768AF52DD:/container_volume",
             "publishAllPorts": true,
             "useSSL": false,
             "httpPort": 5000

@@ -1,4 +1,4 @@
-// bit version: 9.12.0
+// bit version: 10.0.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -78,11 +78,12 @@ self.serverHandledUrls = [
     /\/health/,
     /\/alive/,
     /\/swagger/,
+    /\/scalar/,
     /\/signin-/,
     /\/.well-known/,
     /\/sitemap.xml/,
     /\/sitemap_index.xml/,
-    /\/web-interop-app/
+    /\/web-interop-app.html/
 ];
 
 // self.mode = 'FullOffline'; // Traditional PWA app that **first** downloads all assets and **then** runs the app.

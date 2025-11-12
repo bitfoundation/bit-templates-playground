@@ -12,7 +12,7 @@ public partial class ProductConfiguration : IEntityTypeConfiguration<Product>
 
 
         var defaultConcurrencyStamp = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
-        DateTimeOffset baseDate = DateTimeOffset.Parse("2025-09-17", styles: DateTimeStyles.AssumeUniversal);
+        DateTimeOffset baseDate = DateTimeOffset.Parse("2025-11-12", styles: DateTimeStyles.AssumeUniversal);
 
         // --- Benz Entries (19 cars) ---
         // https://www.mercedes-benz.ca/en/all-vehicles

@@ -8,10 +8,10 @@ using Microsoft.AspNetCore.Localization.Routing;
 using Bit.TemplatePlayground.Shared;
 using Bit.TemplatePlayground.Shared.Attributes;
 using Hangfire;
+using Scalar.AspNetCore;
 using Bit.TemplatePlayground.Server.Api;
-using Bit.TemplatePlayground.Server.Api.Filters;
+using Bit.TemplatePlayground.Server.Api.RequestPipeline;
 using Bit.TemplatePlayground.Server.Api.Services;
-using Bit.TemplatePlayground.Server.Web.Endpoints;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -49,7 +49,7 @@ public static partial class Program
             app.UseXfo(options => options.SameOrigin());
         }
 
-        Configure_401_403_404_Pages(app);
+        app.Handle40XStatusCodes();
 
         if (env.IsDevelopment())
         {
@@ -95,6 +95,8 @@ public static partial class Program
 
         app.UseCors();
 
+        app.UseMiddleware<ForceUpdateMiddleware>();
+
         app.UseAuthentication();
         app.UseAuthorization();
 
@@ -104,12 +106,9 @@ public static partial class Program
 
         app.MapAppHealthChecks();
 
-        app.UseSwagger();
-
-        app.UseSwaggerUI(options =>
-        {
-            options.InjectJavascript($"/_content/Bit.TemplatePlayground.Server.Api/scripts/swagger-utils.js?v={Environment.TickCount64}");
-        });
+        app.MapOpenApi();
+        app.MapScalarApiReference();
+        app.MapGet("/swagger", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
         app.UseHangfireDashboard(options: new()
         {
@@ -133,7 +132,7 @@ public static partial class Program
             // - Switch to Blazor WebAssembly in production. Hint: To leverage Blazor server's enhanced development experience in local dev environment, you can disable Azure SignalR by setting "Azure:SignalR:ConnectionString" to null in appsettings.json or appsettings.Development.json.
             // OR
             // - Use Standalone API mode:
-            //    Publish and run the Server.Api project independently to serve restful APIs and SignalR services like AppHub (Just like https://adminpanel-api.bitplatform.dev/swagger deployment)
+            //    Publish and run the Server.Api project independently to serve restful APIs and SignalR services like AppHub (Just like https://adminpanel-api.bitplatform.dev/scalar deployment)
             //    and use the Server.Web project solely as a Blazor Server or pre-rendering service provider.
             throw new InvalidOperationException("Azure SignalR is not supported with Blazor Server and Auto");
         }
@@ -144,7 +143,6 @@ public static partial class Program
            .CacheOutput("AppResponseCachePolicy");
 
         app.UseSiteMap();
-        app.UseWebInteropApp();
 
         // Handle the rest of requests with blazor
         var blazorApp = app.MapRazorComponents<Components.App>()
@@ -167,7 +165,7 @@ public static partial class Program
     /// To mitigate the challenges posed by this situation, our only recourse is to repurpose the 401, 403, and 404 status codes for
     /// not-found and not-authorized responses, at the very least.
     /// </summary>
-    private static void Configure_401_403_404_Pages(WebApplication app)
+    private static void Handle40XStatusCodes(this WebApplication app)
     {
         app.Use(async (context, next) =>
         {
@@ -206,10 +204,6 @@ public static partial class Program
                     httpContext.GetEndpoint() is null /* Please be aware that certain endpoints, particularly those associated with web API actions, may intentionally return a 404 error. */)
                 {
                     httpContext.Response.Redirect($"{PageUrls.NotFound}?url={httpContext.Request.GetEncodedPathAndQuery()}");
-                }
-                else
-                {
-                    await statusCodeContext.Next.Invoke(statusCodeContext.HttpContext);
                 }
             }
         });

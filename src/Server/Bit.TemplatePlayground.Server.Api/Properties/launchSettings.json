@@ -3,39 +3,39 @@
         "Bit.TemplatePlayground.Server.Api": {
             "commandName": "Project",
             "launchBrowser": true,
-            "launchUrl": "swagger",
+            "launchUrl": "scalar",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "dotnetRunMessages": true,
-            "applicationUrl": "http://*:5215"
+            "applicationUrl": "http://*:5087"
         },
         "WSL": {
             "commandName": "WSL2",
             "launchBrowser": true,
-            "launchUrl": "swagger",
+            "launchUrl": "scalar",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://*:5215"
+                "ASPNETCORE_URLS": "http://*:5087"
             }
         },
         "Docker": {
             "commandName": "SdkContainer",
             "launchBrowser": true,
-            "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/swagger",
-            "DockerfileRunArguments": "-v C:\\DockerVolumes\\7174F8A5-A1EE-4D5D-A477-DA5ED1FC1C36:/container_volume",
+            "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/scalar",
+            "DockerfileRunArguments": "-v C:\\DockerVolumes\\5EF6E154-8968-4DDC-96A9-123768AF52DD:/container_volume",
             "environmentVariables": {
-                "ASPNETCORE_HTTP_PORTS": "5215",
-                "ConnectionStrings__SqliteConnectionString": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
+                "ASPNETCORE_HTTP_PORTS": "5087",
+                "ConnectionStrings__sqlite": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
             },
             "publishAllPorts": true,
             "useSSL": false,
-            "httpPort": 5215
+            "httpPort": 5087
         },
         "IIS Express": {
             "commandName": "IISExpress",
             "launchBrowser": true,
-            "launchUrl": "swagger",
+            "launchUrl": "scalar",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development"
             }
@@ -52,10 +52,10 @@
         "windowsAuthentication": false,
         "anonymousAuthentication": true,
         "iis": {
-            "applicationUrl": "http://localhost:5215/"
+            "applicationUrl": "http://localhost:5087/"
         },
         "iisExpress": {
-            "applicationUrl": "http://localhost:5215/"
+            "applicationUrl": "http://localhost:5087/"
         }
     },
     "$schema": "http://json.schemastore.org/launchsettings.json"
