@@ -2,7 +2,7 @@
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
-public partial class AppComponentBase : ComponentBase, IAsyncDisposable
+public partial class AppComponentBase : OwningComponentBase, IAsyncDisposable
 {
     /// <summary>
     /// <inheritdoc cref="Parameters.IsOnline"/>
@@ -15,11 +15,6 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
     [AutoInject] protected IStorageService StorageService = default!;
 
     [AutoInject] protected JsonSerializerOptions JsonSerializerOptions = default!;
-
-    /// <summary>
-    /// <inheritdoc cref="IPrerenderStateService"/>
-    /// </summary>
-    [AutoInject] protected IPrerenderStateService PrerenderStateService = default!;
 
     /// <summary>
     /// <inheritdoc cref="Services.PubSubService"/>
@@ -260,23 +255,26 @@ public partial class AppComponentBase : ComponentBase, IAsyncDisposable
         using var currentCts = cts;
         cts = new();
 
-        await currentCts.CancelAsync();
+        await currentCts.TryCancel();
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (cts != null)
+        try
         {
-            using var currentCts = cts;
-            cts = null;
-            await currentCts.CancelAsync();
+            if (cts != null)
+            {
+                using var currentCts = cts;
+                cts = null;
+                await currentCts.TryCancel();
+            }
+
+            await DisposeAsync(true);
         }
-
-        await PrerenderStateService.DisposeAsync();
-
-        await DisposeAsync(true);
-
-        GC.SuppressFinalize(this);
+        finally
+        {
+            await DisposeAsyncCore(); // Would dispose OwiningComponentBase's ScopedServices
+        }
     }
 
     protected virtual ValueTask DisposeAsync(bool disposing)

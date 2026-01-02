@@ -42,7 +42,7 @@ public partial class UserManagementController : AppControllerBase, IUserManageme
         if (User.GetUserId() == userId)
             throw new BadRequestException(Localizer[nameof(AppStrings.UserCantRemoveItselfErrorMessage)]);
 
-        var user = await GetUserByIdAsync(userId, cancellationToken);
+        var user = await GetUserById(userId, cancellationToken);
 
         if (await userManager.IsInRoleAsync(user, AppRoles.SuperAdmin))
         {
@@ -103,7 +103,7 @@ public partial class UserManagementController : AppControllerBase, IUserManageme
     }
 
 
-    private async Task<User> GetUserByIdAsync(Guid id, CancellationToken cancellationToken)
+    private async Task<User> GetUserById(Guid id, CancellationToken cancellationToken)
     {
         var user = await userManager.Users.FirstOrDefaultAsync(r => r.Id == id, cancellationToken)
                     ?? throw new ResourceNotFoundException();
@@ -115,6 +115,6 @@ public partial class UserManagementController : AppControllerBase, IUserManageme
     {
         // Check out AppHub's comments for more info.
         await appHubContext.Clients.Client(connectionId)
-                                   .SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.SESSION_REVOKED, null, cancellationToken);
+            .Publish(SharedAppMessages.SESSION_REVOKED, null, cancellationToken);
     }
 }

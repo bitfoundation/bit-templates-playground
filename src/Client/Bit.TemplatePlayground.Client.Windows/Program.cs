@@ -24,7 +24,11 @@ public partial class Program
 
         Application.SetColorMode(SystemColorMode.System);
 
-        var configuration = new ConfigurationBuilder().AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Windows").Build();
+        var configuration = new ConfigurationBuilder()
+            .AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Windows")
+            .AddEnvironmentVariables()
+            .Build();
+
         var services = new ServiceCollection();
         services.AddClientWindowsProjectServices(configuration);
         Services = services.BuildServiceProvider();
@@ -51,11 +55,11 @@ public partial class Program
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath)
         };
         var pubSubService = Services.GetRequiredService<PubSubService>();
-        _ = pubSubService.Subscribe(ClientPubSubMessages.CULTURE_CHANGED, async culture =>
+        _ = pubSubService.Subscribe(ClientAppMessages.CULTURE_CHANGED, async culture =>
         {
             Application.Restart();
         });
-        _ = pubSubService.Subscribe(ClientPubSubMessages.PAGE_DATA_CHANGED, async args =>
+        _ = pubSubService.Subscribe(ClientAppMessages.PAGE_DATA_CHANGED, async args =>
         {
             var (title, _, __) = ((string? title, string?, bool))args!;
             await form.InvokeAsync(() =>

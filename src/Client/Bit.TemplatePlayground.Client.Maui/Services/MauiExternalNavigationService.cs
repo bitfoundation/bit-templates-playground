@@ -1,10 +1,10 @@
-using Bit.TemplatePlayground.Client.Core.Styles;
+﻿using Bit.TemplatePlayground.Client.Core.Styles;
 
 namespace Bit.TemplatePlayground.Client.Maui.Services;
 
 public partial class MauiExternalNavigationService : IExternalNavigationService
 {
-    public async Task NavigateToAsync(string url)
+    public async Task NavigateTo(string url)
     {
         var isDark = Application.Current!.UserAppTheme == AppTheme.Dark;
 

@@ -83,11 +83,13 @@ public class AppResponseCacheAttribute : Attribute
 ```csharp
 // Example 1: Caching a Blazor page (HomePage.razor)
 @page "/"
-@attribute [StreamRendering(enabled: true)]
 @attribute [AppResponseCache(SharedMaxAge = 3600 * 24, MaxAge = 60 * 5)]
 
 // SharedMaxAge = 24 hours on CDN/output cache (purgeable)
-// MaxAge = 5 minutes on browser/in-memory cache (not purgeable) which improves page naviagations when the user navigates back to the locally cached page
+// MaxAge = 5 minutes on browser/in-memory cache (not purgeable) which improves page navigations when the user navigates back to the locally cached page
+
+// Note: StreamRendering is incompatible with response caching.
+// AppResponseCachePolicy automatically disables streaming when current request is configured for response caching.
 ```
 
 ```csharp
@@ -136,6 +138,11 @@ The `AppResponseCachePolicy` class (located in `src/Server/Bit.TemplatePlaygroun
 - **Culture Variation**: Handles multi-language caching with culture-specific cache keys
 - **Development Mode Handling**: Disables client cache in development for easier debugging
 - **Request Type Detection**: Different behavior for Blazor pages vs API requests
+
+Note: **Multi-Language Limitation**: For non-invariant globalization, client and edge caching are disabled for pre-rendered Blazor pages.
+It's because it doesn't work with the free Tier of Cloudflare CDN and needs Enterprise plan that supports tag based purging with multiple dimensions (culture + URL).
+You can switch to AWS CloudFront or Azure Frontdoor which support this feature for lower/free plans.
+Output cache still works correctly for multi-language scenarios.
 
 **Cache Duration Logic:**
 
@@ -247,8 +254,8 @@ public async Task<ProductDto> Update(ProductDto dto, CancellationToken cancellat
     return entityToUpdate.Map();
 }
 
-[HttpDelete("{id}/{concurrencyStamp}")]
-public async Task Delete(Guid id, string concurrencyStamp, CancellationToken cancellationToken)
+[HttpDelete("{id}/{version}")]
+public async Task Delete(Guid id, string version, CancellationToken cancellationToken)
 {
     // ... delete logic ...
     await DbContext.SaveChangesAsync(cancellationToken);
@@ -262,7 +269,31 @@ public async Task Delete(Guid id, string concurrencyStamp, CancellationToken can
 - For successful cache purging, the request URL must **exactly match** the URL passed to `PurgeCache()`. 
 - Query strings and route parameters must match precisely.
 - This only purges **CDN edge cache** and **ASP.NET Core output cache** (the purgeable layers)
-- **Browser cache** and **in-memory cache** cannot be purged remotely (this is why `MaxAge` should be used cautiously)
+- **Browser cache** and **Client In-Memory Cache** cannot be purged remotely (this is why `MaxAge` should be used cautiously)
+
+**Cache-Busting Strategy for Non-Purgeable Caches:**
+
+Since browser cache and Client In-Memory Cache cannot be purged remotely, use **versioned URLs** (cache-busting) to ensure users see updated content. This technique appends a version parameter to the URL that changes when data is updated.
+
+```csharp
+// Example from ProductDto.cs - Product image URL with version parameter
+public string? GetPrimaryMediumImageUrl(Uri absoluteServerAddress)
+{
+    return HasPrimaryImage is false
+        ? null
+        : new Uri(absoluteServerAddress, 
+            $"/api/Attachment/GetAttachment/{Id}/{AttachmentKind.ProductPrimaryImageMedium}?v={Version.ToStampString()}")
+            .ToString();
+}
+```
+
+**How it works:**
+- The `Version` property (a `byte[]` used for optimistic concurrency) changes every time the entity is updated
+- `Version.ToStampString()` converts this to a query string parameter (e.g., `?v=AAAAAAB1Z2c=`)
+- When the product is updated, the version changes, creating a **new URL** that bypasses all cached versions
+- The browser/Client In-Memory Cache treats this as a completely new resource and fetches fresh data
+
+This pattern is ideal for assets like images, documents, or any content where you want aggressive caching but also need immediate updates when data changes.
 
 ---
 
@@ -328,10 +359,10 @@ If you navigate between products on `https://sales.bitplatform.dev`:
 This creates an exceptionally smooth user experience because the app feels native and responsive.
 
 **Important Notes:**
-- **Client-side memory cache** is cleared when the app is closed (doesn't persist across sessions)
+- **Client In-Memory Cache** is cleared when the app is closed (doesn't persist across sessions)
 - **Browser HTTP cache** persists even after closing the browser, but it's asynchronous (shows loading briefly)
 - The combination of both provides the best user experience:
-  - Instant loads during the current session (memory cache)
+  - Instant loads during the current session (Client In-Memory Cache)
   - Fast loads on return visits (browser cache)
 
 When navigating back to the Home page from Page A, you may encounter loading indicators. This is expected behavior: the initial page load doesn't send any HTTP requests to the server, as it fetches all required data from the pre-rendered state. As a result, `CacheDelegatingHandler.cs` doesn't cache anything for it.
@@ -410,7 +441,7 @@ When a user makes a request, it flows through these layers in order:
 
 | Layer | Location | Speed | Scope | Purgeable | Controlled By | Best For |
 |-------|----------|-------|-------|-----------|---------------|----------|
-| **1. Client In-Memory** | Client app memory | ⚡ Fastest (microseconds, **sync**) | Single user, current session only | ❌ No | `MaxAge` | Instant navigation between pages user already visited |
+| **1. Client In-Memory Cache** | Client app memory | ⚡ Fastest (microseconds, **sync**) | Single user, current session only | ❌ No | `MaxAge` | Instant navigation between pages user already visited |
 | **2. Browser HTTP Cache** | Browser's HTTP cache | 🚀 Very Fast (milliseconds, async) | Single user, persists across sessions | ❌ No | `MaxAge` | Returning to pages after closing/reopening app |
 | **3. CDN Edge** | Cloudflare/CDN edge | 💨 Fast (10-50ms) | Global, shared across all users | ✅ Yes | `SharedMaxAge` | Public content served to many users worldwide |
 | **4. Output Cache** | ASP.NET Core server | ⏱️ Medium (50-100ms) | Server-level, shared across users | ✅ Yes | `SharedMaxAge` | Pre-rendered pages, API responses |
@@ -435,24 +466,53 @@ This prevents accidentally serving User A's data to User B through shared caches
 
 ```json
 {
-  "ServerApiSettings": {
-    "ResponseCaching": {
-      "EnableOutputCaching": true,  // ASP.NET Core output cache
-      "EnableCdnEdgeCaching": true  // CDN edge caching
-    },
-    "Cloudflare": {
-      "Configured": true,
-      "ZoneId": "your-cloudflare-zone-id",
-      "ApiToken": "your-cloudflare-api-token",
-      "AdditionalDomains": [
-        "https://sales.bitplatform.ai",
-        "https://sales.bitplatform.com",
-        "https://sales.bitplatform.uk",
-      ]
-    }
+  "ResponseCaching": {
+    "EnableOutputCaching": true,  // ASP.NET Core output cache
+    "EnableCdnEdgeCaching": true  // CDN edge caching
+  },
+  "Cloudflare": {
+    "ZoneId": "your-cloudflare-zone-id",
+    "ApiToken": "your-cloudflare-api-token",
+    "AdditionalDomains": [
+      "https://sales.bitplatform.ai",
+      "https://sales.bitplatform.com",
+      "https://sales.bitplatform.uk"
+    ]
   }
 }
 ```
+
+---
+
+## FusionCache Library
+
+The project uses the **FusionCache** library for server-side caching:
+
+- **Output Cache Backend**: Powers the ASP.NET Core Output Cache implementation (Layer 4)
+- **Data Caching**: Provides data caching via `IFusionCache` interface for caching arbitrary data (database query results, computed values, etc.) in addition to HTTP responses
+- **Flexible Storage**: Supports multiple backends (in-memory, Redis, hybrid etc) for both response and data caching
+
+---
+
+## Redis Infrastructure
+
+The project uses **two separate Redis instances** for different purposes:
+
+### 1. redis-cache Ephemeral Cache
+- **No persistence** (data stored only in memory)
+- **Use Cases**: 
+  - **FusionCache** L2 distributed cache and backplane for multi-server cache synchronization
+  - **SignalR backplane** for real-time messaging across servers
+- **Why**: Cache data is regenerable, no need for disk I/O overhead
+
+### 2. redis-persistent - Persistent Storage
+- **AOF enabled** with synchronous disk writes for maximum durability
+- **Use Cases**: 
+  - **Hangfire** background job queues and state
+  - **Distributed locking** for coordinating operations
+- **Why**: Critical data that cannot be easily regenerated must survive restarts
+
+**Benefits**: Separation allows ephemeral cache to run faster while ensuring critical infrastructure data is never lost.
 
 ---
 
@@ -475,5 +535,13 @@ Interpretation:
 - `max-age=300`: Browser and in-memory cache for 5 minutes
 - `s-maxage=3600`: CDN edge and output cache for 1 hour
 - `public`: Can be cached in shared caches (CDN)
+
+---
+
+### AI Wiki: Answered Questions
+* [How does the bit Bit.TemplatePlayground AttachmentController interact with response caching? Why do users always see the latest profile pictures, even though no PurgeCache has been called and these assets are stored in the browser cache, which cannot be automatically purged?](https://deepwiki.com/search/how-does-the-bit-bit.templateplayground-a_4f042d5f-3ffb-4c14-b661-bb923825c21d)
+* [Why response caching doesn't work with stream pre-rendering in bit Bit.TemplatePlayground?](https://deepwiki.com/search/why-response-caching-doesnt-wo_2de1ba6c-1017-4c77-96f5-33c8ed001760)
+
+Ask your own question [here](https://wiki.bitplatform.dev)
 
 ---

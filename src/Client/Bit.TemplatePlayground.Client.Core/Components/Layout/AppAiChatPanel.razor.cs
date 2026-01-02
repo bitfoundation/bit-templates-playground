@@ -116,10 +116,13 @@ public partial class AppAiChatPanel
     {
         channel = Channel.CreateUnbounded<string>(new() { SingleReader = true, SingleWriter = true });
 
-        await foreach (var response in hubConnection.StreamAsync<string>("Chatbot",
-                                                                         new StartChatbotRequest()
+        // The following code streams user's input messages to the server and processes the streamed responses.
+        // It keeps the chat ongoing until CurrentCancellationToken is cancelled.
+        await foreach (var response in hubConnection.StreamAsync<string>(SharedAppMessages.StartChat,
+                                                                         new StartChatRequest()
                                                                          {
                                                                              CultureId = CultureInfo.CurrentCulture.LCID,
+                                                                             TimeZoneId = TimeZoneInfo.Local.Id,
                                                                              DeviceInfo = TelemetryContext.Platform,
                                                                              ChatMessagesHistory = chatMessages,
                                                                              ServerApiAddress = AbsoluteServerAddress.GetAddress()
@@ -135,12 +138,12 @@ public partial class AppAiChatPanel
             }
             else
             {
-                if (response is SharedChatProcessMessages.MESSAGE_RPOCESS_SUCESS)
+                if (response is SharedAppMessages.MESSAGE_PROCESS_SUCCESS)
                 {
                     responseCounter++;
                     isLoading = false;
                 }
-                else if (response is SharedChatProcessMessages.MESSAGE_RPOCESS_ERROR)
+                else if (response is SharedAppMessages.MESSAGE_PROCESS_ERROR)
                 {
                     responseCounter++;
                     if (responseCounter == expectedResponsesCount)

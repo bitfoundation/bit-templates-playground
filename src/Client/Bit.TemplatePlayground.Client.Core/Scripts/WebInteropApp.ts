@@ -9,8 +9,8 @@ export class WebInteropApp {
             const action = urlParams.get('actionName');
 
             switch (action) {
-                case 'SocialSignInCallback':
-                    await WebInteropApp.socialSignInCallback();
+                case 'ExternalSignInCallback':
+                    await WebInteropApp.externalSignInCallback();
                     break;
                 case 'GetWebAuthnCredential':
                     await WebInteropApp.getWebAuthnCredential();
@@ -42,7 +42,7 @@ export class WebInteropApp {
         }
     }
 
-    private static async socialSignInCallback() {
+    private static async externalSignInCallback() {
         const urlParams = new URLSearchParams(location.search);
         const urlToOpen = urlParams.get('url')!.toString();
         const localHttpPort = urlParams.get('localHttpPort')?.toString();
@@ -63,7 +63,7 @@ export class WebInteropApp {
         if (!localHttpPort) {
             // Blazor WebAssembly, Auto or Server:
             if (window.opener) {
-                window.opener.postMessage({ key: 'PUBLISH_MESSAGE', message: 'SOCIAL_SIGN_IN', payload: urlToOpen });
+                window.opener.postMessage({ key: 'PUBLISH_MESSAGE', message: 'EXTERNAL_SIGN_IN_CALLBACK', payload: urlToOpen });
             }
             else {
                 WebInteropApp.autoClose = false;
@@ -73,7 +73,7 @@ export class WebInteropApp {
         }
 
         // Blazor Hybrid:
-        await fetch(`http://localhost:${localHttpPort}/api/SocialSignInCallback?urlToOpen=${encodeURIComponent(urlToOpen)}`, {
+        await fetch(`http://localhost:${localHttpPort}/api/ExternalSignInCallback?urlToOpen=${encodeURIComponent(urlToOpen)}`, {
             method: 'POST',
             credentials: 'omit'
         });

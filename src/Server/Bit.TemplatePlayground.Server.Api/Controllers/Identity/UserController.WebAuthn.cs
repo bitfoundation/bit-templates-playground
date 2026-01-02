@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
-using Microsoft.Extensions.Caching.Distributed;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Identity;
@@ -9,7 +8,7 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers.Identity;
 public partial class UserController
 {
     [AutoInject] private IFido2 fido2 = default!;
-    [AutoInject] private IDistributedCache cache = default!;
+    [AutoInject] private IFusionCache cache = default!;
 
 
     [HttpGet]
@@ -53,7 +52,12 @@ public partial class UserController
         });
 
         var key = GetWebAuthnCacheKey(userId);
-        await cache.SetAsync(key, Encoding.UTF8.GetBytes(options.ToJson()), new() { SlidingExpiration = TimeSpan.FromMinutes(3) }, cancellationToken);
+        await cache.SetAsync(key, options,
+            new FusionCacheEntryOptions
+            {
+                Duration = TimeSpan.FromMinutes(3)
+            },
+            cancellationToken);
 
         return options;
     }
@@ -66,11 +70,10 @@ public partial class UserController
                     ?? throw new ResourceNotFoundException();
 
         var key = GetWebAuthnCacheKey(userId);
-        var cachedBytes = await cache.GetAsync(key, cancellationToken)
-                            ?? throw new ResourceNotFoundException();
+        var options = await cache.GetOrSetAsync<CredentialCreateOptions>(key,
+            async _ => throw new ResourceNotFoundException(),
+            token: cancellationToken);
 
-        var jsonOptions = Encoding.UTF8.GetString(cachedBytes);
-        var options = CredentialCreateOptions.FromJson(jsonOptions);
 
         var makeCredentialParams = new MakeNewCredentialParams
         {
@@ -100,7 +103,7 @@ public partial class UserController
 
         await DbContext.WebAuthnCredential.AddAsync(newCredential, cancellationToken);
 
-        await cache.RemoveAsync(key, cancellationToken);
+        await cache.RemoveAsync(key, token: cancellationToken);
 
         await DbContext.SaveChangesAsync(cancellationToken);
     }
@@ -118,16 +121,6 @@ public partial class UserController
 
         if (affectedRows == 0)
             throw new ResourceNotFoundException();
-    }
-
-    [HttpDelete]
-    public async Task DeleteAllWebAuthnCredentials(CancellationToken cancellationToken)
-    {
-        var userId = User.GetUserId();
-        var user = await userManager.FindByIdAsync(userId.ToString())
-                    ?? throw new ResourceNotFoundException();
-
-        var affectedRows = await DbContext.WebAuthnCredential.Where(c => c.UserId == userId).ExecuteDeleteAsync(cancellationToken);
     }
 
     private static string GetWebAuthnCacheKey(Guid userId) => $"WebAuthn_Options_{userId}";

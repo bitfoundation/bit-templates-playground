@@ -105,7 +105,7 @@ public partial class UsersPage
                 using var currentCts = loadRoleDataCts;
                 loadRoleDataCts = new();
 
-                await currentCts.CancelAsync();
+                await currentCts.TryCancel();
             }
 
             loadRoleDataCts = new();
@@ -181,11 +181,11 @@ public partial class UsersPage
     }
 
     /// <summary>
-    /// <inheritdoc cref="SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
+    /// <inheritdoc cref="SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
     /// </summary>
     private async Task ReadUserSessionLogs(Guid userSessionId)
     {
-        var logs = await hubConnection.InvokeAsync<DiagnosticLogDto[]>("GetUserSessionLogs", userSessionId);
+        var logs = await hubConnection.InvokeAsync<DiagnosticLogDto[]>(SharedAppMessages.GetUserSessionLogs, userSessionId);
 
         DiagnosticLogger.Store.Clear();
         foreach (var log in logs)
@@ -193,6 +193,6 @@ public partial class UsersPage
             DiagnosticLogger.Store.Enqueue(log);
         }
 
-        PubSubService.Publish(ClientPubSubMessages.SHOW_DIAGNOSTIC_MODAL);
+        PubSubService.Publish(ClientAppMessages.SHOW_DIAGNOSTIC_MODAL);
     }
 }

@@ -1,4 +1,4 @@
-namespace Bit.TemplatePlayground.Shared.Dtos.Categories;
+﻿namespace Bit.TemplatePlayground.Shared.Dtos.Categories;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class CategoryDto
@@ -15,5 +15,5 @@ public partial class CategoryDto
 
     public int ProductsCount { get; set; }
 
-    public byte[] ConcurrencyStamp { get; set; } = [];
+    public byte[] Version { get; set; } = [];
 }

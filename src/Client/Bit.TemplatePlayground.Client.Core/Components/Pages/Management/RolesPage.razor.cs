@@ -96,7 +96,7 @@ public partial class RolesPage
                 using var currentCts = loadRoleDataCts;
                 loadRoleDataCts = new();
 
-                await currentCts.CancelAsync();
+                await currentCts.TryCancel();
             }
 
             loadRoleDataCts = new();
@@ -169,7 +169,7 @@ public partial class RolesPage
         if (await AuthManager.TryEnterElevatedAccessMode(CurrentCancellationToken) is false) return;
         var roleId = Guid.Parse(selectedRoleItem.Key!);
         var role = ((RoleDto)selectedRoleItem.Data!);
-        await roleManagementController.Delete(roleId, role.ConcurrencyStamp!, CurrentCancellationToken);
+        await roleManagementController.Delete(roleId, CurrentCancellationToken);
 
         await LoadAllRoles();
     }
@@ -395,7 +395,7 @@ public partial class RolesPage
     {
         if (loadRoleDataCts is not null)
         {
-            await loadRoleDataCts.CancelAsync();
+            await loadRoleDataCts.TryCancel();
             loadRoleDataCts.Dispose();
         }
 

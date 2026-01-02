@@ -7,13 +7,12 @@ Welcome to Stage 15! In this stage, you'll learn about the comprehensive logging
 ## Table of Contents
 
 1. [ILogger for Errors, Warnings, and Information](#ilogger-for-errors-warnings-and-information)
-2. [Activity and AppActivitySource for Tracking Operations](#activity-and-appactivitysource-for-tracking-operations)
+2. [Activity and Meter for Tracking Operations](#activity-and-meter-for-tracking-operations)
 3. [Logging Configuration](#logging-configuration)
 4. [In-App Diagnostic Logger](#in-app-diagnostic-logger)
 5. [Integration with Sentry and Azure Application Insights](#integration-with-sentry-and-azure-application-insights)
 6. [Aspire Dashboard](#aspire-dashboard)
-7. [Critical Warning About Sensitive Data](#critical-warning-about-sensitive-data)
-8. [Health Checks](#health-checks)
+7. [Health Checks](#health-checks)
 
 ---
 
@@ -60,34 +59,16 @@ logger.LogError(exception, "Order processing failed");
 
 ---
 
-## 2. Activity and AppActivitySource for Tracking Operations
+## 2. Activity and Meter for Tracking Operations
 
-For tracking **operation count and duration**, the project uses **OpenTelemetry's Activity** and a custom **`AppActivitySource`**.
+For tracking **operation count and duration**, the project uses **OpenTelemetry's ActivitySource**.
 
-### AppActivitySource
-
-Located at [`src/Shared/Services/AppActivitySource.cs`](/src/Shared/Services/AppActivitySource.cs):
-
-```csharp
-using System.Diagnostics.Metrics;
-
-namespace Bit.TemplatePlayground.Shared.Services;
-
-/// <summary>
-/// Open telemetry activity source for the application.
-/// </summary>
-public class AppActivitySource
-{
-    public static readonly ActivitySource CurrentActivity = new("Bit.TemplatePlayground", typeof(AppActivitySource).Assembly.GetName().Version!.ToString());
-
-    public static readonly Meter CurrentMeter = new("Bit.TemplatePlayground", typeof(AppActivitySource).Assembly.GetName().Version!.ToString());
-}
-```
+### ActivitySource
 
 ### Using Activities to Track Operations
 
 ```csharp
-using var activity = AppActivitySource.CurrentActivity.StartActivity("ProcessOrder");
+using var activity = ActivitySource.Current.StartActivity("ProcessOrder");
 
 try
 {
@@ -108,7 +89,7 @@ For tracking **count metrics** (e.g., number of ongoing operations), use **OpenT
 ```csharp
 // Define a counter at class level
 private static readonly UpDownCounter<long> ongoingConversationsCount = 
-    AppActivitySource.CurrentMeter.CreateUpDownCounter<long>(
+    Meter.Current.CreateUpDownCounter<long>(
         "appHub.ongoing_conversations_count", 
         "Number of ongoing conversations in the chatbot hub.");
 
@@ -228,18 +209,11 @@ For **live support scenarios**, support staff can request diagnostic logs from a
 This is implemented in [`src/Server/Bit.TemplatePlayground.Server.Api/SignalR/AppHub.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/SignalR/AppHub.cs):
 
 ```csharp
-/// <inheritdoc cref="SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
-[Authorize(Policy: CustomPolicies.ViewUserSession)]
+/// <inheritdoc cref="SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
+[Authorize(Policy = AppFeatures.System.ManageLogs)]
 public async Task<DiagnosticLogDto[]> GetUserSessionLogs(Guid userSessionId, [FromServices] AppDbContext dbContext)
 {
-    var userId = await dbContext.UserSessions.Where(us => us.Id == userSessionId)
-                                             .Select(us => us.UserId)
-                                             .SingleOrDefaultAsync();
-
-    if (userId is null)
-        throw new ResourceNotFoundException(Localizer[nameof(AppStrings.UserSessionCouldNotBeFound)]);
-
-    return await hubConnection.InvokeAsync<DiagnosticLogDto[]>(nameof(UPLOAD_DIAGNOSTIC_LOGGER_STORE));
+    ...
 }
 ```
 
@@ -276,29 +250,12 @@ The project is **pre-configured** for easy integration with popular logging prov
 
 ### How It Works
 
-The OpenTelemetry configuration automatically exports to Application Insights if a connection string is provided:
+1- The OpenTelemetry configuration automatically exports to Application Insights if a connection string is provided:
 
-From [`src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/WebApplicationBuilderExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/WebApplicationBuilderExtensions.cs):
+From [`src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/IOpenTelemetryExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/IOpenTelemetryExtensions.cs):
 
-```csharp
-private static TBuilder AddOpenTelemetryExporters<TBuilder>(this TBuilder builder)
-    where TBuilder : IHostApplicationBuilder
-{
-    var appInsightsConnectionString = string.IsNullOrWhiteSpace(builder.Configuration["ApplicationInsights:ConnectionString"]) is false 
-        ? builder.Configuration["ApplicationInsights:ConnectionString"] 
-        : null;
-
-    if (appInsightsConnectionString is not null)
-    {
-        builder.Services.AddOpenTelemetry().UseAzureMonitor(options =>
-        {
-            builder.Configuration.Bind("ApplicationInsights", options);
-        }).AddAzureMonitorProfiler();
-    }
-
-    return builder;
-}
-```
+2- The Azure Application Insights JavaScript SDK added by `BlazorApplicationInsights` nuget in Client.Core project would collect JavaScript errors and more from
+Browser and Blazor Hybrid's WebView
 
 ### OpenTelemetry Configuration
 
@@ -308,14 +265,14 @@ The project tracks:
 - ASP.NET Core instrumentation (HTTP request metrics)
 - HTTP client instrumentation
 - Runtime instrumentation (GC, thread pool, etc.)
-- Custom metrics via `AppActivitySource.CurrentMeter`
+- Custom metrics via `Meter.Current`
 
 **Tracing:**
 - ASP.NET Core requests (excluding static files and health checks)
 - HTTP client calls
 - Entity Framework Core queries (excluding Hangfire queries)
 - Hangfire background jobs
-- Custom activities via `AppActivitySource.CurrentActivity`
+- Custom activities via `ActivitySource.Current`
 
 ---
 
@@ -336,7 +293,7 @@ The Aspire Dashboard is a web-based UI that displays:
 When running the project with .NET Aspire (via `Bit.TemplatePlayground.Server.AppHost`), the dashboard is automatically available at:
 
 ```
-https://localhost:2116
+https://localhost:2044
 ```
 
 ### Key Features

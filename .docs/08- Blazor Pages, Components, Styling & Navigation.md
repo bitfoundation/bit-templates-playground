@@ -113,7 +113,7 @@ public partial class ProductsPage
         if (deletingProduct is null) return;
 
         await productController.Delete(deletingProduct.Id, 
-            deletingProduct.ConcurrencyStamp.ToStampString(), 
+            deletingProduct.Version.ToStampString(), 
             CurrentCancellationToken);
 
         await RefreshData();
@@ -537,17 +537,6 @@ public static partial class PageUrls
     public const string Terms = "/terms";
     public const string Settings = "/settings";
     public const string About = "/about";
-    
-    public const string Categories = "/categories";
-    public const string Dashboard = "/dashboard";
-    public const string Products = "/products";
-    public const string AddOrEditProduct = "/add-edit-product";
-    public const string Todo = "/todo";
-    public const string SystemPrompts = "/system-prompts";
-    public const string Authorize = "/authorize";
-    public const string Roles = "/user-groups";
-    public const string Users = "/users";
-    public const string OfflineDatabaseDemo = "/offline-database-demo";
 }
 ```
 
@@ -607,7 +596,7 @@ This is the **base class for all components**. Most `.razor.cs` files inherit fr
 **Key features provided:**
 
 ```csharp
-public partial class AppComponentBase : ComponentBase, IAsyncDisposable
+public partial class AppComponentBase
 {
     [AutoInject] protected IJSRuntime JSRuntime = default!;
     [AutoInject] protected NavigationManager NavigationManager = default!;
@@ -701,10 +690,19 @@ public partial class ProductsPage
     private async Task DeleteProduct()
     {
         await productController.Delete(deletingProduct.Id, 
-            deletingProduct.ConcurrencyStamp.ToStampString(), 
+            deletingProduct.Version.ToStampString(), 
             CurrentCancellationToken);
     }
 }
 ```
+
+---
+
+### AI Wiki: Answered Questions
+* [How can I implement a `Grid System` and layout using `BitGrid` and `BitStack` components, especially if I'm familiar with the Bootstrap grid system?](https://deepwiki.com/search/how-can-i-implement-a-grid-sys_25d76f3c-d0a6-4c75-8b9c-7f86ae317fb6)
+* [What is the optimal way to load page data using `StateHasChanged` in conjunction with a `Skeleton UI` or `Shimmer` ?](https://deepwiki.com/search/what-is-the-optimal-way-to-loa_e9b729ca-d36b-4c61-a855-7d21ceb783ae)
+* [How is SCSS compiled to CSS in real-time within Visual Studio and Visual Studio Code?](https://deepwiki.com/search/how-is-scss-compiled-to-css-in_d4ea9c05-f002-4300-99df-076c167993d5)
+
+Ask your own question [here](https://wiki.bitplatform.dev)
 
 ---

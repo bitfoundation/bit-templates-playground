@@ -3,7 +3,6 @@ using System.Net.Mail;
 using System.IO.Compression;
 using System.ClientModel.Primitives;
 using Microsoft.SemanticKernel.Embeddings;
-using SmartComponents.LocalEmbeddings.SemanticKernel;
 using Microsoft.Data.Sqlite;
 using Microsoft.OpenApi;
 using Microsoft.Identity.Web;
@@ -31,6 +30,7 @@ using Bit.TemplatePlayground.Server.Api.Services.Jobs;
 using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Services.Identity;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Medallion.Threading;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
@@ -58,6 +58,11 @@ public static partial class Program
         services.AddScoped<EmailServiceJobsRunner>();
         services.AddScoped<PhoneService>();
         services.AddScoped<PhoneServiceJobsRunner>();
+        // Add MCP server with chatbot tools
+        services.AddMcpServer()
+            .WithHttpTransport()
+            .WithToolsFromAssembly();
+        services.AddScoped<SignalR.AppChatbot>();
         if (appSettings.Sms?.Configured is true)
         {
             TwilioClient.Init(appSettings.Sms.TwilioAccountSid, appSettings.Sms.TwilioAutoToken);
@@ -99,6 +104,12 @@ public static partial class Program
         });
         services.AddScoped<PushNotificationService>();
         services.AddScoped<PushNotificationJobRunner>();
+
+        // Register distributed lock factory
+        services.AddTransient(sp => new Func<string, IDistributedLock>((string lockKey) =>
+        {
+            return new Medallion.Threading.FileSystem.FileDistributedLock(new(Path.Combine(Path.GetTempPath(), $"Bit.TemplatePlayground-{lockKey}.lock")));
+        }));
 
         services.AddSingleton<ServerExceptionHandler>();
         services.AddSingleton(sp => (IProblemDetailsWriter)sp.GetRequiredService<ServerExceptionHandler>());
@@ -171,6 +182,9 @@ public static partial class Program
                 options.PayloadSerializerOptions.TypeInfoResolverChain.Add(chain);
             }
         });
+
+        // Use Redis as SignalR backplane for scaling out across multiple server instances
+
         if (string.IsNullOrEmpty(configuration["Azure:SignalR:ConnectionString"]) is false)
         {
             signalRBuilder.AddAzureSignalR(options =>
@@ -199,6 +213,7 @@ public static partial class Program
             });
         }
 
+
         services.AddOptions<IdentityOptions>()
             .Bind(configuration.GetRequiredSection(nameof(ServerApiSettings.Identity)))
             .ValidateDataAnnotations()
@@ -220,6 +235,8 @@ public static partial class Program
 
         services.AddOpenApi(options =>
         {
+            options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+
             options.AddOperationTransformer(async (operation, context, cancellationToken) =>
             {
                 var isAuthorizedAction = context.Description.ActionDescriptor.EndpointMetadata.Any(em => em is AuthorizeAttribute);
@@ -298,6 +315,14 @@ public static partial class Program
         {
             c.Timeout = TimeSpan.FromSeconds(10);
             c.BaseAddress = new Uri("https://api.cloudflare.com/client/v4/zones/");
+        });
+
+        services.AddHttpClient("Keycloak", c =>
+        {
+            c.BaseAddress = new Uri(configuration["KEYCLOAK_HTTP"]
+                ?? configuration["Authentication:Keycloak:KeycloakUrl"]
+                ?? throw new InvalidOperationException("KEYCLOAK_HTTP configuration is required"));
+            c.DefaultRequestVersion = HttpVersion.Version11;
         });
 
         services.AddFido2(options =>
@@ -385,46 +410,38 @@ public static partial class Program
             .UseOpenTelemetry();
             // .UseDistributedCache()
         }
-        else
-        {
-            services.AddEmbeddingGenerator(sp => new LocalTextEmbeddingGenerationService()
-                .AsEmbeddingGenerator())
-                .UseLogging()
-                .UseOpenTelemetry();
-            // .UseDistributedCache()
-        }
 
-        builder.Services.AddHangfire(configuration =>
+        // Configure Hangfire to use Redis for persistent background job storage
+        builder.Services.AddHangfire((sp, hangfireConfiguration) =>
         {
-            var efCoreStorage = configuration.UseEFCoreStorage(optionsBuilder =>
+            if (appSettings.Hangfire?.UseIsolatedStorage is true)
             {
-                if (appSettings.Hangfire?.UseIsolatedStorage is true)
+                hangfireConfiguration.UseEFCoreStorage(optionsBuilder =>
                 {
                     var connectionString = "Data Source=Bit.TemplatePlaygroundJobs.db;Mode=Memory;Cache=Shared;";
                     var connection = new Microsoft.Data.Sqlite.SqliteConnection(connectionString);
                     connection.Open();
                     AppContext.SetData("ReferenceTheKeepTheInMemorySQLiteDatabaseAlive", connection);
                     optionsBuilder.UseSqlite(connectionString);
-                }
-                else
+                }, new()
                 {
-                    AddDbContext(optionsBuilder);
-                }
-            }, new()
+                    Schema = "jobs",
+                    QueuePollInterval = new TimeSpan(0, 0, 1)
+                }).UseDatabaseCreator();
+            }
+            else
             {
-                Schema = "jobs",
-                QueuePollInterval = new TimeSpan(0, 0, 1)
-            });
-
-            if (appSettings.Hangfire?.UseIsolatedStorage is true)
-            {
-                efCoreStorage.UseDatabaseCreator();
+                hangfireConfiguration.UseEFCoreStorage(AddDbContext, new()
+                {
+                    Schema = "jobs",
+                    QueuePollInterval = new TimeSpan(0, 0, 1)
+                });
             }
 
-            configuration.UseRecommendedSerializerSettings();
-            configuration.UseSimpleAssemblyNameTypeSerializer();
-            configuration.UseIgnoredAssemblyVersionTypeResolver();
-            configuration.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
+            hangfireConfiguration.UseRecommendedSerializerSettings();
+            hangfireConfiguration.UseSimpleAssemblyNameTypeSerializer();
+            hangfireConfiguration.UseIgnoredAssemblyVersionTypeResolver();
+            hangfireConfiguration.SetDataCompatibilityLevel(CompatibilityLevel.Version_180);
         });
 
         builder.Services.AddHangfireServer(options =>
@@ -443,7 +460,7 @@ public static partial class Program
         configuration.Bind(appSettings);
         var identityOptions = appSettings.Identity;
 
-        services.AddIdentity<User, Role>()
+        services.AddIdentity<User, Models.Identity.Role>()
             .AddEntityFrameworkStores<AppDbContext>()
             .AddDefaultTokenProviders()
             .AddErrorDescriber<AppIdentityErrorDescriber>()
@@ -535,32 +552,31 @@ public static partial class Program
             });
         }
 
-        // While Google, GitHub, Twitter(X), Apple and AzureAD needs account creation in their corresponding developer portals,
-        // and configuring the client ID and secret, the following OpenID Connect configuration is for Duende IdentityServer demo server,
-        // which is a public server that allows you to test Social sign-in feature without needing to configure anything.
-        // Note: The following demo server doesn't require licensing and you can use the same approach to connect your project to KeyCloak server.
-        if (builder.Environment.IsDevelopment())
-        {
-            authenticationBuilder.AddOpenIdConnect("IdentityServerDemo", options =>
-            {
-                options.Authority = "https://demo.duendesoftware.com";
+        var keycloakBaseUrl = configuration["KEYCLOAK_HTTP"]
+            ?? configuration["Authentication:Keycloak:KeycloakUrl"];
 
-                options.ClientId = "interactive.confidential";
-                options.ClientSecret = "secret";
+        if (string.IsNullOrEmpty(keycloakBaseUrl) is false)
+        {
+            // In order to have better understanding of Keycloak integration, checkout .docs/07- ASP.NET Core Identity - Authentication & Authorization.md
+            authenticationBuilder.AddOpenIdConnect("Keycloak", options =>
+            {
+                configuration.GetRequiredSection("Authentication:Keycloak").Bind(options);
+
+                var realm = configuration["Authentication:Keycloak:Realm"] ?? throw new InvalidOperationException("Authentication:Keycloak:Realm configuration is required");
+
+                options.Authority = $"{keycloakBaseUrl.TrimEnd('/')}/realms/{realm}";
+
                 options.ResponseType = "code";
                 options.ResponseMode = "query";
 
                 options.Scope.Clear();
                 options.Scope.Add("openid");
                 options.Scope.Add("profile");
-                options.Scope.Add("api");
-                options.Scope.Add("offline_access");
                 options.Scope.Add("email");
+                options.Scope.Add("offline_access"); // To get refresh tokens
 
-                options.MapInboundClaims = false;
-                options.GetClaimsFromUserInfoEndpoint = true;
+                options.MapInboundClaims = true;
                 options.SaveTokens = true;
-                options.DisableTelemetry = true;
 
                 options.Prompt = "login"; // Force login every time
 

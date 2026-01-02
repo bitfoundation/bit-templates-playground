@@ -91,15 +91,15 @@ public partial class Category
 
     public string? Color { get; set; }
 
-    public byte[] ConcurrencyStamp { get; set; } = [];
+    public byte[] Version { get; set; } = [];
 
     public IList<Product> Products { get; set; } = [];
 }
 ```
 
-### **ConcurrencyStamp**
+### **Version** Concurrency Stamp
 ```csharp
-public byte[] ConcurrencyStamp { get; set; } = [];
+public byte[] Version { get; set; } = [];
 ```
 - **Critical for optimistic concurrency control**
 - Configured as a **row version** in SQL Server
@@ -143,7 +143,7 @@ public Guid CategoryId { get; set; }
 **Pattern: Nullable with `?`**
 
 - **Why nullable?** The related entity might not be loaded from the database
-- EF Core uses "lazy loading" or "explicit loading" - related entities aren't automatically fetched
+- EF Core does **not** automatically load related entities
 - Example: When you query `Products`, the `Category` property is `null` unless you explicitly include it:
   ```csharp
   // Category will be null
@@ -207,29 +207,29 @@ Configurations/
 ```csharp
 using Bit.TemplatePlayground.Server.Api.Models.Categories;
 
-namespace Bit.TemplatePlayground.Server.Api.Data.Configurations.Identity;
+namespace Bit.TemplatePlayground.Server.Api.Data.Configurations.Category;
 
-public partial class CategoryConfiguration : IEntityTypeConfiguration<Category>
+public partial class CategoryConfiguration : IEntityTypeConfiguration<Models.Categories.Category>
 {
-    public void Configure(EntityTypeBuilder<Category> builder)
+    public void Configure(EntityTypeBuilder<Models.Categories.Category> builder)
     {
         // Configure unique index on Name
         builder.HasIndex(p => p.Name).IsUnique();
 
         // Seed initial data
-        var defaultConcurrencyStamp = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+        var defaultVersion = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
         builder.HasData(
-            new Category { 
+            new () { 
                 Id = Guid.Parse("31d78bd0-0b4f-4e87-b02f-8f66d4ab2845"), 
                 Name = "Ford", 
                 Color = "#FFCD56", 
-                ConcurrencyStamp = defaultConcurrencyStamp 
+                Version = defaultVersion 
             },
-            new Category { 
+            new () { 
                 Id = Guid.Parse("582b8c19-0709-4dae-b7a6-fa0e704dad3c"), 
                 Name = "Nissan", 
                 Color = "#FF6384", 
-                ConcurrencyStamp = defaultConcurrencyStamp 
+                Version = defaultVersion 
             }
         );
     }
@@ -332,7 +332,7 @@ await dbContext.Database.MigrateAsync();
 Open a terminal in the `Bit.TemplatePlayground.Server.Api` project directory and run:
 
 ```bash
-dotnet ef migrations add Initial --output-dir Data/Migrations --verbose
+dotnet tool restore && dotnet ef migrations add Initial --output-dir Data/Migrations --verbose
 ```
 
 This creates migration files in the `/Data/Migrations/` folder.
@@ -348,7 +348,7 @@ The migration will be **automatically applied** when the application starts (tha
 When you modify entities or configurations, create a new migration:
 
 ```bash
-dotnet ef migrations add <MigrationName> --output-dir Data/Migrations --verbose
+dotnet tool restore && dotnet ef migrations add <MigrationName> --output-dir Data/Migrations --verbose
 ```
 
 ---

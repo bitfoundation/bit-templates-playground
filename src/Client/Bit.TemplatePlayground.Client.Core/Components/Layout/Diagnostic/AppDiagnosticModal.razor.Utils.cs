@@ -13,6 +13,7 @@ public partial class AppDiagnosticModal
     [AutoInject] private IStorageService storageService = default!;
     [AutoInject] private IUserController userController = default!;
     [AutoInject] private IAppUpdateService appUpdateService = default!;
+    [AutoInject] private ILogger<AppDiagnosticModal> logger = default!;
 
     private static async Task ThrowTestException()
     {
@@ -34,13 +35,19 @@ public partial class AppDiagnosticModal
         {
             signalRConnectionId = hubConnection.State == HubConnectionState.Connected ? hubConnection.ConnectionId : null;
         }
-        catch { }
+        catch (Exception exp)
+        {
+            logger.LogWarning(exp, "Failed to get SignalR ConnectionId for diagnostics.");
+        }
 
         try
         {
-            pushNotificationSubscriptionDeviceId = (await pushNotificationService.GetSubscription(CurrentCancellationToken)).DeviceId;
+            pushNotificationSubscriptionDeviceId = (await pushNotificationService.GetSubscription(CurrentCancellationToken))!.DeviceId;
         }
-        catch { }
+        catch (Exception exp)
+        {
+            logger.LogWarning(exp, "Failed to get Push Notification Subscription DeviceId for diagnostics.");
+        }
 
         var serverResult = await diagnosticsController.PerformDiagnostics(signalRConnectionId, pushNotificationSubscriptionDeviceId, CurrentCancellationToken);
 
@@ -100,33 +107,22 @@ public partial class AppDiagnosticModal
         return $"{memory / (1024.0 * 1024.0):F2} MB";
     }
 
-    private async Task ClearCache()
+    private async Task ClearAppFiles()
     {
-        try
-        {
-            await userController.DeleteAllWebAuthnCredentials(CurrentCancellationToken);
-        }
-        catch { }
 
         try
         {
             await authManager.SignOut(default);
         }
-        catch { }
-
-        await storageService.Clear();
-
-        foreach (var item in await cookie.GetAll())
+        catch (Exception exp)
         {
-            await cookie.Remove(new ButilCookie()
-            {
-                Name = item.Name,
-                Path = "/",
-                Domain = AbsoluteServerAddress.GetAddress().Host,
-                SameSite = SameSite.Strict,
-                Secure = AppEnvironment.IsDevelopment() is false
-            });
+            logger.LogWarning(exp, "Failed to sign out during ClearAppStorage.");
         }
+
+        await storageService.Clear(); // Blazor Hybrid stores key/value pairs outside webview's storage.
+
+        await JSRuntime.ClearWebStorages();
+
 
         if (AppPlatform.IsBlazorHybrid is false)
         {

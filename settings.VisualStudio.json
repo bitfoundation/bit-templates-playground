@@ -11,5 +11,10 @@
   "projectsAndSolutions.aspNetCore.general.hotReloadCssChanges": true,
   "copilot.general.completions.enableNextEditSuggestions": true,
   "copilot.general.editor.enableAdaptivePaste": true,
-  "copilot.general.chat.enablePlanning": true
+  "copilot.general.chat.enablePlanning": true,
+  "languages.razor.tabs.character": "space",
+  "languages.xml.tabs.character": "space",
+  "languages.t-sql90.tabs.character": "space",
+  "languages.sqlServerTools.tabs.character": "space",
+  "languages.dockerfile.tabs.character": "space"
 }

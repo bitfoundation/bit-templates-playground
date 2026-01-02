@@ -13,7 +13,7 @@ public partial class DefaultExternalNavigationService : IExternalNavigationServi
     private string? lastOpenedWindowId = null;
     private Action? pubSubUnsubscribe;
 
-    public async Task NavigateToAsync(string url)
+    public async Task NavigateTo(string url)
     {
         if (AppPlatform.IsBlazorHybrid)
         {
@@ -36,11 +36,11 @@ public partial class DefaultExternalNavigationService : IExternalNavigationServi
         else
         {
             pubSubUnsubscribe?.Invoke();
-            pubSubUnsubscribe = pubSubService.Subscribe(ClientPubSubMessages.SOCIAL_SIGN_IN, async _ =>
+            pubSubUnsubscribe = pubSubService.Subscribe(ClientAppMessages.EXTERNAL_SIGN_IN_CALLBACK, async _ =>
             {
                 if (lastOpenedWindowId != null)
                 {
-                    await window.Close(lastOpenedWindowId); // It's time to close the social sign-in popup / tab.
+                    await window.Close(lastOpenedWindowId); // It's time to close the external sign-in popup / tab.
                 }
             });
         }

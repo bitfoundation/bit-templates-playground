@@ -52,18 +52,18 @@ public static partial class MauiProgram
 
         builder.Logging.AddEventSourceLogger();
 
+
         if (AppPlatform.IsWindows)
         {
             builder.Logging.AddEventLog(options => configuration.GetRequiredSection("Logging:EventLog").Bind(options));
         }
 
-        
         services.AddOptions<ClientMauiSettings>()
             .Bind(configuration)
             .ValidateDataAnnotations()
             .ValidateOnStart();
 
-#if Android
+        #if Android
         services.AddClientMauiProjectAndroidServices(builder.Configuration);
 #elif iOS
         services.AddClientMauiProjectIosServices(builder.Configuration);
@@ -72,5 +72,5 @@ public static partial class MauiProgram
 #elif Windows
         services.AddClientMauiProjectWindowsServices(builder.Configuration);
 #endif
-    }
+            }
 }

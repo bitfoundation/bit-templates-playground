@@ -3,6 +3,7 @@ using Bit.TemplatePlayground.Shared.Dtos.Products;
 using Bit.TemplatePlayground.Shared.Dtos.Categories;
 using Bit.TemplatePlayground.Shared.Dtos.PushNotification;
 using Bit.TemplatePlayground.Shared.Dtos.Chatbot;
+using Bit.TemplatePlayground.Shared.Dtos.SignalR;
 using Bit.TemplatePlayground.Shared.Dtos.Identity;
 using Bit.TemplatePlayground.Shared.Dtos.Statistics;
 using Bit.TemplatePlayground.Shared.Dtos.Diagnostic;
@@ -12,7 +13,21 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 /// <summary>
 /// https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-source-generator/
 /// </summary>
-[JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase)]
+[JsonSourceGenerationOptions(
+
+
+
+  PropertyNameCaseInsensitive = true,
+  PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase,
+  DictionaryKeyPolicy = JsonKnownNamingPolicy.CamelCase,
+  UseStringEnumConverter = true,
+  WriteIndented = false,
+  GenerationMode = JsonSourceGenerationMode.Metadata,
+  AllowTrailingCommas = true,
+  DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault
+)]
+
+
 [JsonSerializable(typeof(Dictionary<string, JsonElement>))]
 [JsonSerializable(typeof(Dictionary<string, string?>))]
 [JsonSerializable(typeof(TimeSpan))]
@@ -25,10 +40,10 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(PushNotificationSubscriptionDto))]
 [JsonSerializable(typeof(CategoryDto))]
 [JsonSerializable(typeof(List<CategoryDto>))]
-[JsonSerializable(typeof(PagedResult<CategoryDto>))]
+[JsonSerializable(typeof(PagedResponse<CategoryDto>))]
 [JsonSerializable(typeof(ProductDto))]
 [JsonSerializable(typeof(List<ProductDto>))]
-[JsonSerializable(typeof(PagedResult<ProductDto>))]
+[JsonSerializable(typeof(PagedResponse<ProductDto>))]
 [JsonSerializable(typeof(List<ProductsCountPerCategoryResponseDto>))]
 [JsonSerializable(typeof(OverallAnalyticsStatsDataResponseDto))]
 [JsonSerializable(typeof(List<ProductPercentagePerCategoryResponseDto>))]
@@ -36,8 +51,9 @@ namespace Bit.TemplatePlayground.Shared.Dtos;
 [JsonSerializable(typeof(WebAuthnAssertionOptionsRequestDto))]
 
 [JsonSerializable(typeof(DiagnosticLogDto[]))]
-[JsonSerializable(typeof(StartChatbotRequest))]
+[JsonSerializable(typeof(StartChatRequest))]
 [JsonSerializable(typeof(List<SystemPromptDto>))]
+[JsonSerializable(typeof(BackgroundJobProgressDto))]
 public partial class AppJsonContext : JsonSerializerContext
 {
 }

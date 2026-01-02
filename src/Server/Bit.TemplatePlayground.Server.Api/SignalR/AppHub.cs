@@ -21,7 +21,6 @@ namespace Bit.TemplatePlayground.Server.Api.SignalR;
 [AllowAnonymous]
 public partial class AppHub : Hub
 {
-    [AutoInject] private ServerApiSettings settings = default!;
     [AutoInject] private IServiceProvider serviceProvider = default!;
     [AutoInject] private IOptionsMonitor<BearerTokenOptions> bearerTokenOptions = default!;
 
@@ -47,6 +46,7 @@ public partial class AppHub : Hub
     /// In this case, we need to update the authentication state of the SignalR connection.
     /// This method is called by AppClientCoordinator.cs
     /// </summary>
+    [HubMethodName(SharedAppMessages.ChangeAuthenticationState)]
     public Task ChangeAuthenticationState(string? accessToken)
     {
         ClaimsPrincipal? user = null;
@@ -62,9 +62,10 @@ public partial class AppHub : Hub
     }
 
     /// <summary>
-    /// <inheritdoc cref="SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
+    /// <inheritdoc cref="SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
     /// </summary>
     [Authorize(Policy = AppFeatures.System.ManageLogs)]
+    [HubMethodName(SharedAppMessages.GetUserSessionLogs)]
     public async Task<DiagnosticLogDto[]> GetUserSessionLogs(Guid userSessionId, [FromServices] AppDbContext dbContext)
     {
         var userSessionSignalRConnectionId = await dbContext.UserSessions
@@ -75,7 +76,7 @@ public partial class AppHub : Hub
         if (string.IsNullOrEmpty(userSessionSignalRConnectionId))
             return [];
 
-        return await Clients.Client(userSessionSignalRConnectionId).InvokeAsync<DiagnosticLogDto[]>(SignalRMethods.UPLOAD_DIAGNOSTIC_LOGGER_STORE, Context.ConnectionAborted);
+        return await Clients.Client(userSessionSignalRConnectionId).InvokeAsync<DiagnosticLogDto[]>(SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE, Context.ConnectionAborted);
     }
 
     private async Task ChangeAuthenticationStateImplementation(ClaimsPrincipal? user)

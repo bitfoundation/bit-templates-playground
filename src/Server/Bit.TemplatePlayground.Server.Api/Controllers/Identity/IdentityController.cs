@@ -41,7 +41,7 @@ public partial class IdentityController : AppControllerBase, IIdentityController
             throw new BadRequestException(Localizer[nameof(AppStrings.InvalidGoogleRecaptchaResponse)]);
 
         // Attempt to locate an existing user using either their email address or phone number. The enforcement of a unique username policy is integral to the aspnetcore identity framework.
-        var existingUser = await userManager.FindUserAsync(new() { Email = request.Email, PhoneNumber = request.PhoneNumber });
+        var existingUser = await userManager.FindUser(new() { Email = request.Email, PhoneNumber = request.PhoneNumber });
         if (existingUser is not null)
         {
 
@@ -80,7 +80,7 @@ public partial class IdentityController : AppControllerBase, IIdentityController
     {
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
 
-        var user = await userManager.FindUserAsync(request)
+        var user = await userManager.FindUser(request)
                     ?? await userManager.CreateUserWithDemoRole(request, request.Password); // Check out SignInModalService for more details
 
         await SignIn(request, user, cancellationToken);
@@ -103,8 +103,8 @@ public partial class IdentityController : AppControllerBase, IIdentityController
         bool isOtpSignIn = string.IsNullOrEmpty(request.Otp) is false;
 
         var (signInResult, firstStepAuthenticationMethod) = isOtpSignIn
-            ? await signInManager.OtpSignInAsync(user, request.Otp!)
-            : (await signInManager.PasswordSignInAsync(user!.UserName!, request.Password!, isPersistent: false, lockoutOnFailure: true), authenticationMethod: "Password");
+            ? await signInManager.OtpSignIn(user, request.Otp!)
+            : (await signInManager.PasswordSignInAsync(user, request.Password!, isPersistent: false, lockoutOnFailure: true), authenticationMethod: "Password");
 
         if (signInResult.IsNotAllowed && await userConfirmation.IsConfirmedAsync(userManager, user) is false)
         {
@@ -140,9 +140,6 @@ public partial class IdentityController : AppControllerBase, IIdentityController
 
         await DbContext.UserSessions.AddAsync(userSession, cancellationToken);
         user.TwoFactorTokenRequestedOn = null;
-        var addUserSessionResult = await userManager.UpdateAsync(user);
-        if (addUserSessionResult.Succeeded is false)
-            throw new ResourceValidationException(addUserSessionResult.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray()).WithData("UserId", user.Id);
         await DbContext.SaveChangesAsync(cancellationToken);
     }
 
@@ -229,15 +226,22 @@ public partial class IdentityController : AppControllerBase, IIdentityController
             if (refreshTicket?.Principal?.IsAuthenticated() is not true)
                 throw new UnauthorizedException();
 
+            HttpContext.Items[AppClaimTypes.METHOD] = refreshTicket.Principal.GetClaimValue<string?>(AppClaimTypes.METHOD);
+
+            var securityStamp = refreshTicket.Principal.GetClaimValue<string?>("AspNet.Identity.SecurityStamp") ?? throw new UnauthorizedException();
+
             var currentSessionId = refreshTicket.Principal.GetSessionId();
             userSession = await DbContext.UserSessions
+                .Include(us => us.User)
                 .FirstOrDefaultAsync(us => us.Id == currentSessionId, cancellationToken) ?? throw new UnauthorizedException().WithData("UserSessionId", currentSessionId); // User session has been deleted.
 
             if ((refreshTicket.Properties.ExpiresUtc ?? DateTimeOffset.MinValue) < DateTimeOffset.UtcNow)
                 throw new UnauthorizedException(); // refresh token is expired.
 
-            var user = await signInManager.ValidateSecurityStampAsync(refreshTicket.Principal) ?? throw new UnauthorizedException(); // Security stamp has been updated (for example after 2fa configuration)
-            var userId = refreshTicket.Principal.GetUserId().ToString();
+            var user = userSession.User!;
+
+            if (await signInManager.ValidateSecurityStampAsync(userSession.User, securityStamp) is false)
+                throw new UnauthorizedException(); // Security stamp has been updated (for example after 2fa configuration)
 
             if (string.IsNullOrEmpty(request.ElevatedAccessToken) is false)
             {
@@ -287,7 +291,7 @@ public partial class IdentityController : AppControllerBase, IIdentityController
     public async Task SendOtp(IdentityRequestDto request, string? returnUrl = null, CancellationToken cancellationToken = default)
     {
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
-        var user = await userManager.FindUserAsync(request)
+        var user = await userManager.FindUser(request)
                     ?? await userManager.CreateUserWithDemoRole(request); // Check out SignInModalService for more details
 
         if (await userConfirmation.IsConfirmedAsync(userManager, user) is false)
@@ -326,9 +330,13 @@ public partial class IdentityController : AppControllerBase, IIdentityController
             .Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed && us.UserId == user.Id)
             .Select(us => us.SignalRConnectionId!)
             .ToArrayAsync(cancellationToken);
-        sendMessagesTasks.Add(appHubContext.Clients.Clients(userConnectionIds).SendAsync(SignalREvents.SHOW_MESSAGE, pushMessage, null, cancellationToken));
+        sendMessagesTasks.Add(appHubContext.Clients.Clients(userConnectionIds).SendAsync(SharedAppMessages.SHOW_MESSAGE, pushMessage, null, cancellationToken));
 
-        sendMessagesTasks.Add(pushNotificationService.RequestPush(message: pushMessage, userRelatedPush: true, customSubscriptionFilter: s => s.UserSession!.UserId == user.Id, cancellationToken: cancellationToken));
+        sendMessagesTasks.Add(pushNotificationService.RequestPush(new()
+        {
+            Message = pushMessage,
+            UserRelatedPush = true
+        }, customSubscriptionFilter: s => s.UserSession!.UserId == user.Id, cancellationToken: cancellationToken));
 
         await Task.WhenAll(sendMessagesTasks);
     }
@@ -338,7 +346,7 @@ public partial class IdentityController : AppControllerBase, IIdentityController
     {
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
 
-        var user = await userManager.FindUserAsync(request)
+        var user = await userManager.FindUser(request)
                     ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.UserNotFound)]).WithData("Identifier", request);
 
         await SendTwoFactorToken(request, user, cancellationToken);
@@ -352,8 +360,8 @@ public partial class IdentityController : AppControllerBase, IIdentityController
         bool isOtpSignIn = string.IsNullOrEmpty(request.Otp) is false;
 
         var (signInResult, firstStepAuthenticationMethod) = isOtpSignIn
-            ? await signInManager.OtpSignInAsync(user, request.Otp!)
-            : (await signInManager.PasswordSignInAsync(user!.UserName!, request.Password!, isPersistent: false, lockoutOnFailure: true), authenticationMethod: "Password");
+            ? await signInManager.OtpSignIn(user, request.Otp!)
+            : (await signInManager.PasswordSignInAsync(user!, request.Password!, isPersistent: false, lockoutOnFailure: true), authenticationMethod: "Password");
 
         if (signInResult.RequiresTwoFactor is false)
             throw new BadRequestException().WithData("UserId", user.Id);
@@ -391,8 +399,12 @@ public partial class IdentityController : AppControllerBase, IIdentityController
                 .Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed && us.UserId == user.Id)
                 .Select(us => us.SignalRConnectionId!)
                 .ToArrayAsync(cancellationToken);
-            sendMessagesTasks.Add(appHubContext.Clients.Clients(userConnectionIds).SendAsync(SignalREvents.SHOW_MESSAGE, message, null, cancellationToken));
-            sendMessagesTasks.Add(pushNotificationService.RequestPush(message: message, userRelatedPush: true, customSubscriptionFilter: s => s.UserSession!.UserId == user.Id, cancellationToken: cancellationToken));
+            sendMessagesTasks.Add(appHubContext.Clients.Clients(userConnectionIds).SendAsync(SharedAppMessages.SHOW_MESSAGE, message, null, cancellationToken));
+            sendMessagesTasks.Add(pushNotificationService.RequestPush(new()
+            {
+                Message = message,
+                UserRelatedPush = true
+            }, customSubscriptionFilter: s => s.UserSession!.UserId == user.Id, cancellationToken: cancellationToken));
         }
 
         await Task.WhenAll(sendMessagesTasks);

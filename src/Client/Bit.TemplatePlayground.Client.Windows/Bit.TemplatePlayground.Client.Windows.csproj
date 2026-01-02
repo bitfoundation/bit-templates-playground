@@ -37,10 +37,12 @@
 
         <PackageReference Include="EmbedIO" />
         <PackageReference Include="Bit.BlazorES2019" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" />
         <PackageReference Include="Microsoft.Extensions.Logging.EventLog" />
         <PackageReference Include="Microsoft.Extensions.Logging.EventSource" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.WindowsForms" />
         <PackageReference Include="Microsoft.Web.WebView2" />
+        <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
         <PackageReference Include="Velopack" />
         <PackageReference Include="Newtonsoft.Json" />
         <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\index.html" Link="wwwroot\index.html">

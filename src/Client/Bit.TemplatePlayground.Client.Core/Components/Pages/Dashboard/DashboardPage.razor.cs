@@ -13,7 +13,7 @@ public partial class DashboardPage
     {
         await base.OnInitAsync();
 
-        unsubscribe = PubSubService.Subscribe(SharedPubSubMessages.DASHBOARD_DATA_CHANGED, async _ =>
+        unsubscribe = PubSubService.Subscribe(SharedAppMessages.DASHBOARD_DATA_CHANGED, async _ =>
         {
             NavigationManager.NavigateTo(PageUrls.Dashboard, replace: true);
         });

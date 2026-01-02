@@ -81,7 +81,8 @@ public partial class UserController : AppControllerBase, IUserController
         // Check out AppHub's comments for more info.
         if (userSession.SignalRConnectionId is not null)
         {
-            await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.SESSION_REVOKED, null, cancellationToken);
+            await appHubContext.Clients.Client(userSession.SignalRConnectionId)
+                .Publish(SharedAppMessages.SESSION_REVOKED, null, cancellationToken);
         }
     }
 
@@ -120,7 +121,7 @@ public partial class UserController : AppControllerBase, IUserController
             .Where(us => us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
             .Select(us => us.SignalRConnectionId!)
             .ToArrayAsync(cancellationToken);
-        await appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.PROFILE_UPDATED, updatedUser, cancellationToken);
+        await appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).Publish(SharedAppMessages.PROFILE_UPDATED, updatedUser, cancellationToken);
 
         return updatedUser;
     }
@@ -410,16 +411,20 @@ public partial class UserController : AppControllerBase, IUserController
             sendMessagesTasks.Add(phoneService.SendSms(smsMessage, user.PhoneNumber!));
         }
 
-        if (user.TwoFactorEnabled || (user.EmailConfirmed is false && user.PhoneNumberConfirmed is false /* Users signed-in through social sign-in */))
+        if (user.TwoFactorEnabled || (user.EmailConfirmed is false && user.PhoneNumberConfirmed is false /* Users signed-in through external sign-in */))
         {
             // Check out AppHub's comments for more info.
             var userSessionIdsExceptCurrentUserSessionId = await DbContext.UserSessions
                 .Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed && us.UserId == user.Id && us.Id != currentUserSessionId && us.SignalRConnectionId != null)
                 .Select(us => us.SignalRConnectionId!)
                 .ToArrayAsync(cancellationToken);
-            sendMessagesTasks.Add(appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SignalREvents.SHOW_MESSAGE, message, null, cancellationToken));
+            sendMessagesTasks.Add(appHubContext.Clients.Clients(userSessionIdsExceptCurrentUserSessionId).SendAsync(SharedAppMessages.SHOW_MESSAGE, message, null, cancellationToken));
 
-            sendMessagesTasks.Add(pushNotificationService.RequestPush(message: message, userRelatedPush: true, customSubscriptionFilter: us => us.UserSession!.UserId == user.Id && us.UserSessionId != currentUserSessionId, cancellationToken: cancellationToken));
+            sendMessagesTasks.Add(pushNotificationService.RequestPush(new()
+            {
+                Message = message,
+                UserRelatedPush = true
+            }, customSubscriptionFilter: us => us.UserSession!.UserId == user.Id && us.UserSessionId != currentUserSessionId, cancellationToken: cancellationToken));
         }
 
         await Task.WhenAll(sendMessagesTasks);
@@ -440,10 +445,14 @@ public partial class UserController : AppControllerBase, IUserController
 
         if (userSession.NotificationStatus is UserSessionNotificationStatus.Allowed)
         {
-            await pushNotificationService.RequestPush(message: Localizer[nameof(AppStrings.TestNotificationMessage1)], userRelatedPush: true, customSubscriptionFilter: us => us.UserSessionId == userSessionId, cancellationToken: cancellationToken);
+            await pushNotificationService.RequestPush(new()
+            {
+                Message = Localizer[nameof(AppStrings.TestNotificationMessage1)],
+                UserRelatedPush = true
+            }, customSubscriptionFilter: us => us.UserSessionId == userSessionId, cancellationToken: cancellationToken);
             if (userSession.SignalRConnectionId != null)
             {
-                await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SignalREvents.SHOW_MESSAGE, (string)Localizer[nameof(AppStrings.TestNotificationMessage2)], null, cancellationToken);
+                await appHubContext.Clients.Client(userSession.SignalRConnectionId).SendAsync(SharedAppMessages.SHOW_MESSAGE, (string)Localizer[nameof(AppStrings.TestNotificationMessage2)], null, cancellationToken);
             }
         }
 

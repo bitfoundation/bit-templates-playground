@@ -7,21 +7,21 @@ namespace Microsoft.AspNetCore.Identity;
 public static partial class SignInManagerExtensions
 {
     /// <summary>
-    /// The app invokes <see cref="OtpSignInAsync"/> in the following scenarios:
+    /// The app invokes <see cref="OtpSignIn"/> in the following scenarios:
     /// 
     /// 1. When the user opts to sign in using a 6-digit code received via SMS.
     /// 2. When the user chooses to sign in using a 6-digit code sent via email, typically within a magic link.
     /// 3. After a successful email confirmation after sign-up, to automatically sign in the confirmed user for an improved user experience.
     /// 4. After a successful phone number confirmation after sign-up, to automatically sign in the confirmed user for a smoother user experience.
-    /// 5. When the browser is redirected to a magic link created after a social sign-in, to automatically authenticate the user.
+    /// 5. When the browser is redirected to a magic link created after a external sign-in, to automatically authenticate the user.
     /// 6. When the user opts to sign in using a 6-digit code delivered via native push notification, web push or SignalR message (if configured).
     /// 7. When the system opts to sign in the user using a 6-digit code generated after a successful WebAuthn process.
     /// 
-    /// It's important to clarify the authentication method (e.g., Social, Email, SMS, Push, Social, or WebAuth) 
+    /// It's important to clarify the authentication method (e.g., External, Email, SMS, Push, or WebAuth) 
     /// to avoid sending a second step to the same communication channel: For successful two-step authentication, the user must use a different method for the second step.
     /// </summary>
 
-    public static async Task<(SignInResult signInResult, string? authenticationMethod)> OtpSignInAsync(this SignInManager<User> signInManager, User user, string otp)
+    public static async Task<(SignInResult signInResult, string? authenticationMethod)> OtpSignIn(this SignInManager<User> signInManager, User user, string otp)
     {
         var appSettings = signInManager.Context.RequestServices.GetRequiredService<ServerApiSettings>();
 
@@ -42,7 +42,7 @@ public static partial class SignInManagerExtensions
             "Email",
             "Sms",
             "Push", // => Native push notification, web push or SignalR message.
-            "Social",
+            "External",
             "WebAuthn"
         ];
 
@@ -61,6 +61,8 @@ public static partial class SignInManagerExtensions
             await userManager.AccessFailedAsync(user);
             return (SignInResult.Failed, null);
         }
+
+        signInManager.Context.Items[AppClaimTypes.METHOD] = authenticationMethod;
 
         return (await SignInOrTwoFactorAsync(signInManager, user), authenticationMethod); // See SignInManager.SignInOrTwoFactorAsync in aspnetcore repo
     }
@@ -83,7 +85,7 @@ public static partial class SignInManagerExtensions
         if (updateResult.Succeeded is false)
             throw new ResourceValidationException(updateResult.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray()).WithData("UserId", user.Id);
 
-        await signInManager.SignInWithClaimsAsync(user!, isPersistent: false, [new Claim("amr", "otp")]);
+        await signInManager.SignInAsync(user!, isPersistent: false);
 
         return SignInResult.Success;
     }

@@ -32,7 +32,7 @@ public partial class Product
 
     public Guid CategoryId { get; set; }
 
-    public byte[] ConcurrencyStamp { get; set; } = [];
+    public byte[] Version { get; set; } = [];
 
     public bool HasPrimaryImage { get; set; } = false;
 
