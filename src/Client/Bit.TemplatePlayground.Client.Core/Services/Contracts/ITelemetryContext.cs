@@ -1,11 +1,9 @@
-using Bit.TemplatePlayground.Client.Core.Components;
+﻿using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Core.Services.Contracts;
 
 public interface ITelemetryContext
 {
-    private static ITelemetryContext? _current;
-
     public static ITelemetryContext? Current
     {
         get
@@ -13,14 +11,14 @@ public interface ITelemetryContext
             if (AppPlatform.IsBlazorHybridOrBrowser is false)
                 throw new InvalidOperationException("ITelemetryContext.Current is only available in Blazor Hybrid or web assembly apps.");
 
-            return _current;
+            return field;
         }
         set
         {
             if (AppPlatform.IsBlazorHybridOrBrowser is false)
                 throw new InvalidOperationException("ITelemetryContext.Current is only available in Blazor Hybrid or web assembly apps.");
 
-            _current = value;
+            field = value;
         }
     }
 

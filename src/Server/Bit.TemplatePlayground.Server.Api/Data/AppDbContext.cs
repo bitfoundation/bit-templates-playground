@@ -4,7 +4,6 @@ using Bit.TemplatePlayground.Server.Api.Models.Identity;
 using Bit.TemplatePlayground.Server.Api.Data.Configurations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Bit.TemplatePlayground.Server.Api.Models.PushNotification;
-using System.Security.Cryptography;
 using Hangfire.EntityFrameworkCore;
 using Bit.TemplatePlayground.Server.Api.Models.Attachments;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
@@ -48,7 +47,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         try
         {
-            SetConcurrencyStamp();
+            OnSavingChanges();
 
 #pragma warning disable NonAsyncEFCoreMethodsUsageAnalyzer
             return base.SaveChanges(acceptAllChangesOnSuccess);
@@ -64,7 +63,7 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         try
         {
-            SetConcurrencyStamp();
+            OnSavingChanges();
 
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
         }
@@ -74,17 +73,24 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         }
     }
 
-    private void SetConcurrencyStamp()
+    private void OnSavingChanges()
     {
         ChangeTracker.DetectChanges();
 
+        foreach (var entry in ChangeTracker.Entries().Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        {
+            if (entry.Properties.Any(p => p.Metadata.Name == "UpdatedAt"))
+                entry.CurrentValues["UpdatedAt"] = DateTimeOffset.UtcNow;
+        }
+
         foreach (var entityEntry in ChangeTracker.Entries().Where(e => e.State is EntityState.Modified or EntityState.Deleted))
         {
-            if (entityEntry.CurrentValues.TryGetValue<object>("ConcurrencyStamp", out var currentConcurrencyStamp) is false
-                || currentConcurrencyStamp is not byte[])
+            if (entityEntry.CurrentValues.TryGetValue<object>("Version", out var currentVersion) is false
+                || currentVersion is not byte[])
                 continue;
 
-                entityEntry.CurrentValues.SetValues(new Dictionary<string, object> { { "ConcurrencyStamp", RandomNumberGenerator.GetBytes(8) } });
+            // https://github.com/dotnet/efcore/issues/35443
+            entityEntry.OriginalValues["Version"] = currentVersion;
         }
     }
 
@@ -127,8 +133,9 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         foreach (var entityType in modelBuilder.Model.GetEntityTypes())
         {
+
             foreach (var property in entityType.GetProperties()
-                .Where(p => p.Name is "ConcurrencyStamp" && p.PropertyInfo?.PropertyType == typeof(byte[])))
+                .Where(p => p.Name is "Version" && p.PropertyInfo?.PropertyType == typeof(byte[])))
             {
                 var builder = new PropertyBuilder(property);
 

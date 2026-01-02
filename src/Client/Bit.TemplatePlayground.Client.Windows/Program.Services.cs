@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using OpenTelemetry.Logs;
+using Microsoft.Extensions.Logging;
 using Bit.TemplatePlayground.Client.Windows.Services;
 using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
@@ -50,6 +51,19 @@ public static partial class Program
         {
             loggingBuilder.ConfigureLoggers(configuration);
             loggingBuilder.AddEventSourceLogger();
+
+            loggingBuilder.AddOpenTelemetry(options =>
+            {
+                options.IncludeFormattedMessage = true;
+                options.IncludeScopes = true;
+
+
+                var useOtlpExporter = string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]) is false;
+                if (useOtlpExporter)
+                {
+                    options.AddOtlpExporter();
+                }
+            });
 
             loggingBuilder.AddEventLog(options => configuration.GetRequiredSection("Logging:EventLog").Bind(options));
         });

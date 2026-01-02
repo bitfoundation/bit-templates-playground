@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <UserSecretsId>5EF6E154-8968-4DDC-96A9-123768AF52DD</UserSecretsId>
+        <UserSecretsId>DF5E168C-E8B4-4240-9CB5-A2336C02B23E</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
     </PropertyGroup>
@@ -37,10 +37,10 @@
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" />
         <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.AspNetCore.OData" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
         <PackageReference Include="Microsoft.EntityFrameworkCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
         <PackageReference Include="Microsoft.Azure.SignalR" />
+        <PackageReference Include="ModelContextProtocol.AspNetCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
         <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
         <PackageReference Include="AspNetCore.HealthChecks.Hangfire" />
@@ -59,8 +59,8 @@
         <PackageReference Include="Microsoft.Extensions.AI.AzureAIInference" />
         <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
         <PackageReference Include="Microsoft.SemanticKernel.Core" />
-        <PackageReference Include="SmartComponents.LocalEmbeddings.SemanticKernel" />
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" />
+        <PackageReference Include="DistributedLock.FileSystem" />
         <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
         <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
         <Using Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
@@ -74,6 +74,7 @@
         <Using Include="Microsoft.EntityFrameworkCore" />
         <Using Include="Microsoft.AspNetCore.OData.Query" />
         <Using Include="Microsoft.AspNetCore.Mvc" />
+        <Using Include="ZiggyCreatures.Caching.Fusion" />
 
         <Using Include="Microsoft.Extensions.AI" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Models.Chatbot" />

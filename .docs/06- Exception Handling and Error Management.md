@@ -29,7 +29,7 @@ These are **expected, business-logic exceptions** that represent predictable err
 **Characteristics:**
 - Their messages are **displayed directly to users** (user-friendly)
 - They are **localized** using `IStringLocalizer<AppStrings>`
-- They are logged as **warnings/errors** (not critical)
+- They are logged as **non critical errors**
 - They do NOT indicate bugs in the code
 
 **Examples of Known Exceptions in the project:**
@@ -53,7 +53,9 @@ These are **expected, business-logic exceptions** that represent predictable err
 5. **`ServerConnectionException`** ([`src/Shared/Exceptions/ServerConnectionException.cs`](/src/Shared/Exceptions/ServerConnectionException.cs))
    - Indicates connectivity issues between client and server
 
-**All Known Exceptions inherit from `RestException`** ([`src/Shared/Exceptions/RestException.cs`](/src/Shared/Exceptions/RestException.cs)), which inherits from `KnownException` and provides HTTP status code mapping for REST APIs.
+**Exception Inheritance:**
+- Exceptions that map to HTTP status codes (like `BadRequestException`, `UnauthorizedException`, `ResourceNotFoundException`) inherit from **`RestException`** ([`src/Shared/Exceptions/RestException.cs`](/src/Shared/Exceptions/RestException.cs)), which inherits from `KnownException` and provides HTTP status code mapping for REST APIs.
+- Exceptions that don't require HTTP status codes (like `DomainLogicException`, `ServerConnectionException`) inherit directly from **`KnownException`**.
 
 ---
 
@@ -155,15 +157,11 @@ exception.WithData(new()
 From [`src/Server/Bit.TemplatePlayground.Server.Api/Controllers/Identity/IdentityController.EmailConfirmation.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Controllers/Identity/IdentityController.EmailConfirmation.cs):
 
 ```csharp
-var user = await UserManager.FindByEmailAsync(request.Email, cancellationToken)
-    ?? throw new BadRequestException(Localizer[nameof(AppStrings.UserNotFound)])
-        .WithData("Email", request.Email);
+var user = await userManager.FindByEmailAsync(request.Email!)
+    ?? throw new BadRequestException(Localizer[nameof(AppStrings.UserNotFound)]).WithData("Email", request.Email);
 
-if (user.EmailConfirmed)
-{
-    throw new BadRequestException(Localizer[nameof(AppStrings.EmailAlreadyConfirmed)])
-        .WithData("UserId", user.Id);
-}
+if (await userManager.IsEmailConfirmedAsync(user))
+    throw new BadRequestException(Localizer[nameof(AppStrings.EmailAlreadyConfirmed)]).WithData("UserId", user.Id);
 ```
 
 ### Benefits
@@ -586,5 +584,12 @@ The project includes multiple exception handlers for different platforms, all in
 
 **Platform-Specific Behavior:**
 - Can integrate with **Windows-specific error reporting** (e.g., Windows Error Reporting API)
+
+---
+
+### AI Wiki: Answered Questions
+* [Tell me everything about ServerConnectionException](https://deepwiki.com/search/tell-me-everything-about-serve_9576ec69-a10d-4b72-ad88-086ab54db2bf)
+
+Ask your own question [here](https://wiki.bitplatform.dev)
 
 ---

@@ -266,6 +266,9 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="SystemPromptsSubTitle" xml:space="preserve">
     <value>View the system prompts for chatbot here.</value>
   </data>
+    <data name="PushNotificationJob" xml:space="preserve">
+    <value>Push notification job</value>
+  </data>
     <data name="FullName" xml:space="preserve">
     <value>Full name</value>
   </data>
@@ -614,8 +617,8 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <data name="AppleSignInButtonText" xml:space="preserve">
     <value>Sign in with Apple</value>
   </data>
-    <data name="IdentityServerDemoSignInButtonText" xml:space="preserve">
-    <value>Sign in with Test server</value>
+    <data name="KeycloakSignInButtonText" xml:space="preserve">
+    <value>Sign in with Enterprise SSO</value>
   </data>
     <data name="AzureEntraSignInButtonText" xml:space="preserve">
     <value>Sign in with Azure Entra</value>
@@ -1080,7 +1083,7 @@ After reaching {0}, extra sign-ins will have reduced functions.</value>
     <value>Greetings! I'm here to make your app experience awesome! Got a question or need a hand?</value>
   </data>
     <data name="AiChatPanelPrompt1" xml:space="preserve">
-    <value>How can I reset my password?</value>
+    <value>Open reset password page and tell me how it works</value>
   </data>
     <data name="AiChatPanelPrompt2" xml:space="preserve">
     <value>How can I install the PWA version of the app?</value>

@@ -20,8 +20,8 @@ public partial class MainLayout
         ];
 
 
-        var (dashboard, manageProductCatalog) = await (authorizationService.IsAuthorizedAsync(authUser!, AppFeatures.AdminPanel.Dashboard),
-            authorizationService.IsAuthorizedAsync(authUser!, AppFeatures.AdminPanel.ManageProductCatalog));
+        var (dashboard, manageProductCatalog) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.AdminPanel.Dashboard),
+            authorizationService.IsAuthorized(authUser!, AppFeatures.AdminPanel.ManageProductCatalog));
 
         if (dashboard || manageProductCatalog)
         {
@@ -65,7 +65,6 @@ public partial class MainLayout
         }
 
 
-
         navPanelItems.Add(new()
         {
             Text = localizer[nameof(AppStrings.Terms)],
@@ -80,9 +79,9 @@ public partial class MainLayout
             Url = PageUrls.About,
         });
 
-        var (manageRoles, manageUsers, manageAiPrompt) = await (authorizationService.IsAuthorizedAsync(authUser!, AppFeatures.Management.ManageRoles),
-            authorizationService.IsAuthorizedAsync(authUser!, AppFeatures.Management.ManageUsers),
-            authorizationService.IsAuthorizedAsync(authUser!, AppFeatures.Management.ManageAiPrompt));
+        var (manageRoles, manageUsers, manageAiPrompt) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.Management.ManageRoles),
+            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.ManageUsers),
+            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.ManageAiPrompt));
 
         if (manageRoles || manageUsers || manageAiPrompt)
         {

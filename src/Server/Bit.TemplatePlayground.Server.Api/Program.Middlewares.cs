@@ -54,8 +54,8 @@ public static partial class Program
 
         app.MapAppHealthChecks();
 
-        app.MapOpenApi();
-        app.MapScalarApiReference();
+        app.MapOpenApi().CacheOutput("AppResponseCachePolicy");
+        app.MapScalarApiReference().CacheOutput("AppResponseCachePolicy");
         app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
         app.MapGet("/swagger", () => Results.Redirect("/scalar")).ExcludeFromDescription();
 
@@ -69,9 +69,10 @@ public static partial class Program
         {
             RouteParameter = routeParameter,
             QueryStringParameter = queryStringParameter
-        }).WithTags("Test").CacheOutput("AppResponseCachePolicy");
+        }).WithTags("Test").CacheOutput("AppResponseCachePolicy").ExcludeFromDescription();
 
         app.MapHub<SignalR.AppHub>("/app-hub", options => options.AllowStatefulReconnects = true);
+        app.MapMcp("/mcp")/*.RequireAuthorization()*/; // Map MCP endpoints for chatbot tool
 
         app.MapControllers()
            .RequireAuthorization()

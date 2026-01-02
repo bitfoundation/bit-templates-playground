@@ -33,7 +33,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     public IQueryable<UserDto> GetAllUsers()
     {
         return userManager.Users
-                          .Where(u => u.EmailConfirmed || u.PhoneNumberConfirmed || u.Logins.Any() /*Social sign-in*/)
+                          .Where(u => u.EmailConfirmed || u.PhoneNumberConfirmed || u.Logins.Any() /*External sign-in*/)
                           .Project();
     }
 
@@ -55,7 +55,6 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = roleDto.Map();
 
-        role.ConcurrencyStamp = Guid.NewGuid().ToString();
         var result = await roleManager.CreateAsync(role);
 
         if (result.Succeeded is false)
@@ -68,13 +67,10 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task<RoleDto> Update(RoleDto roleDto, CancellationToken cancellationToken)
     {
-        var role = await GetRoleByIdAsync(roleDto.Id, cancellationToken);
+        var role = await GetRoleById(roleDto.Id, cancellationToken);
 
         if (AppRoles.IsBuiltInRole(role.Name!))
             throw new BadRequestException(Localizer[nameof(AppStrings.CanNotChangeBuiltInRole), role.Name!]);
-
-        if (role.ConcurrencyStamp != roleDto.ConcurrencyStamp)
-            throw new ConflictException();
 
         roleDto.Patch(role);
 
@@ -86,17 +82,14 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
         return role.Map();
     }
 
-    [HttpDelete("{roleId}/{concurrencyStamp}")]
+    [HttpDelete("{roleId}")]
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
-    public async Task Delete(Guid roleId, string concurrencyStamp, CancellationToken cancellationToken)
+    public async Task Delete(Guid roleId, CancellationToken cancellationToken)
     {
-        var role = await GetRoleByIdAsync(roleId, cancellationToken);
+        var role = await GetRoleById(roleId, cancellationToken);
 
         if (AppRoles.IsBuiltInRole(role.Name!))
             throw new BadRequestException(Localizer[nameof(AppStrings.CanNotChangeBuiltInRole), role.Name!]);
-
-        if (role.ConcurrencyStamp != concurrencyStamp)
-            throw new ConflictException();
 
         await roleManager.DeleteAsync(role);
     }
@@ -107,7 +100,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         List<RoleClaim> entities = [];
 
-        var role = await GetRoleByIdAsync(roleId, cancellationToken);
+        var role = await GetRoleById(roleId, cancellationToken);
 
         if (role.Name == AppRoles.SuperAdmin)
             throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
@@ -125,7 +118,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task UpdateClaims(Guid roleId, List<ClaimDto> claims, CancellationToken cancellationToken)
     {
-        var role = await GetRoleByIdAsync(roleId, cancellationToken);
+        var role = await GetRoleById(roleId, cancellationToken);
 
         if (role.Name == AppRoles.SuperAdmin)
             throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
@@ -148,7 +141,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task DeleteClaims(Guid roleId, List<ClaimDto> claims, CancellationToken cancellationToken)
     {
-        var role = await GetRoleByIdAsync(roleId, cancellationToken);
+        var role = await GetRoleById(roleId, cancellationToken);
 
         if (role.Name == AppRoles.SuperAdmin)
             throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
@@ -203,7 +196,7 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task RemoveAllUsersFromRole(Guid roleId, CancellationToken cancellationToken)
     {
-        var role = await GetRoleByIdAsync(roleId, cancellationToken);
+        var role = await GetRoleById(roleId, cancellationToken);
 
         await DbContext.UserRoles.Where(ur => ur.RoleId == roleId).ExecuteDeleteAsync(cancellationToken);
     }
@@ -218,17 +211,20 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
                                                                .Select(us => us.SignalRConnectionId!).ToArrayAsync(cancellationToken);
 
         await appHubContext.Clients.Clients(signalRConnectionIds)
-                                   .SendAsync(SignalREvents.SHOW_MESSAGE, dto.Message, dto.PageUrl is null ? null : new Dictionary<string, string?> { { "pageUrl", dto.PageUrl } }, cancellationToken);
+                                   .SendAsync(SharedAppMessages.SHOW_MESSAGE, dto.Message, dto.PageUrl is null ? null : new Dictionary<string, string?> { { "pageUrl", dto.PageUrl } }, cancellationToken);
 
-        await pushNotificationService.RequestPush(message: dto.Message,
-                                                  pageUrl: dto.PageUrl,
-                                                  userRelatedPush: true,
-                                                  customSubscriptionFilter: s => s.UserSession!.User!.Roles.Any(r => r.RoleId == dto.RoleId),
+        await pushNotificationService.RequestPush(new()
+        {
+            Message = dto.Message,
+            PageUrl = dto.PageUrl,
+            UserRelatedPush = true,
+            RequesterUserSessionId = User.GetSessionId()
+        }, customSubscriptionFilter: s => s.UserSession!.User!.Roles.Any(r => r.RoleId == dto.RoleId),
                                                   cancellationToken: cancellationToken);
     }
 
 
-    private async Task<Role> GetRoleByIdAsync(Guid id, CancellationToken cancellationToken)
+    private async Task<Role> GetRoleById(Guid id, CancellationToken cancellationToken)
     {
         var role = await roleManager.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken)
                     ?? throw new ResourceNotFoundException();

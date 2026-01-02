@@ -266,6 +266,9 @@
     <data name="SystemPromptsSubTitle" xml:space="preserve">
     <value>این‌جا میتونید پرامپت‌های سیستمی مورد استفاده چت بات رو مشاهده کنید</value>
   </data>
+    <data name="PushNotificationJob" xml:space="preserve">
+    <value>عملیات ارسال پوش نوتیفیکیشن</value>
+  </data>
     <data name="FullName" xml:space="preserve">
     <value>نام کامل</value>
   </data>
@@ -617,8 +620,8 @@
     <data name="SignOut" xml:space="preserve">
     <value>خروج از سیستم</value>
   </data>
-    <data name="IdentityServerDemoSignInButtonText" xml:space="preserve">
-    <value>ورود با سرور تستی</value>
+    <data name="KeycloakSignInButtonText" xml:space="preserve">
+    <value>ورود با SSO سازمانی</value>
   </data>
     <data name="AzureEntraSignInButtonText" xml:space="preserve">
     <value>ورود با Azure Entra</value>
@@ -1080,7 +1083,7 @@
     <value>سلام! من اینجا هستم تا تجربه اپلیکیشن شما رو فوق‌العاده کنم! سؤالی دارید یا به کمک نیاز دارید؟</value>
   </data>
     <data name="AiChatPanelPrompt1" xml:space="preserve">
-    <value>چگونه میتوانم رمزعبور خود را ریست کنم؟</value>
+    <value>صفحه ریست کردن پسورد رو باز کن و بگو چطوری کار میکنه</value>
   </data>
     <data name="AiChatPanelPrompt2" xml:space="preserve">
     <value>چگونه میتوانم نسخه PWA برنامه رو نصب کنم؟</value>

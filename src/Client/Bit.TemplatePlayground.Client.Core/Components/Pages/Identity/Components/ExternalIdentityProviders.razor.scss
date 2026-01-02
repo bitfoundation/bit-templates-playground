@@ -1,0 +1,28 @@
+@import '../../../../Styles/abstracts/_media-queries.scss';
+
+section {
+    width: 100%;
+    margin-top: 1rem;
+}
+
+::deep {
+    .external-sign-in-button {
+        width: 60px;
+        height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .lg-sep {
+        @include lt-md {
+            display: none;
+        }
+    }
+
+    .sm-sep {
+        @include gt-sm {
+            display: none;
+        }
+    }
+}

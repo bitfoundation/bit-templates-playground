@@ -1,16 +1,14 @@
-﻿using System.Text;
-using Bit.TemplatePlayground.Server.Api.Models.Identity;
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
-using Fido2NetLib;
+﻿using Fido2NetLib;
 using Fido2NetLib.Objects;
-using Microsoft.Extensions.Caching.Distributed;
+using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Server.Api.Models.Identity;
 
 namespace Bit.TemplatePlayground.Server.Api.Controllers.Identity;
 
 public partial class IdentityController
 {
     [AutoInject] private IFido2 fido2 = default!;
-    [AutoInject] private IDistributedCache cache = default!;
+    [AutoInject] private IFusionCache cache = default!;
     [AutoInject] protected JsonSerializerOptions jsonSerializerOptions = default!;
 
 
@@ -42,7 +40,12 @@ public partial class IdentityController
         });
 
         var key = new string([.. options.Challenge.Select(b => (char)b)]);
-        await cache.SetAsync(key, Encoding.UTF8.GetBytes(options.ToJson()), new() { SlidingExpiration = TimeSpan.FromMinutes(3) }, cancellationToken);
+        await cache.SetAsync(key, options,
+            new FusionCacheEntryOptions
+            {
+                Duration = TimeSpan.FromMinutes(3)
+            },
+            cancellationToken);
 
         return options;
     }
@@ -95,14 +98,13 @@ public partial class IdentityController
                         ?? throw new InvalidOperationException("Invalid client data.");
 
         var key = new string([.. response.Challenge.Select(b => (char)b)]);
-        var cachedBytes = await cache.GetAsync(key, cancellationToken)
-                             ?? throw new ResourceNotFoundException();
+        var options = await cache.GetOrSetAsync<AssertionOptions>(key,
+            async _ => throw new ResourceNotFoundException(),
+            token: cancellationToken);
 
-        var jsonOptions = Encoding.UTF8.GetString(cachedBytes);
-        var options = AssertionOptions.FromJson(jsonOptions);
 
         // since the TFA needs this option we won't remove it from cache manually and just wait for it to expire.
-        // await cache.RemoveAsync(key, cancellationToken);
+        // await cache.RemoveAsync(key, token: cancellationToken);
 
         var credential = (await DbContext.WebAuthnCredential.FirstOrDefaultAsync(c => c.Id == clientResponse.RawId, cancellationToken))
                             ?? throw new ResourceNotFoundException();

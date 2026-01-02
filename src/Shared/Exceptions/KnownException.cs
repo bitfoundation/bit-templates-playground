@@ -1,6 +1,6 @@
-namespace Bit.TemplatePlayground.Shared.Exceptions;
+﻿namespace Bit.TemplatePlayground.Shared.Exceptions;
 
-public abstract partial class KnownException : Exception
+public abstract partial class KnownException : ApplicationException
 {
     public KnownException(string message)
         : base(message)

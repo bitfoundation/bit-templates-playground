@@ -137,7 +137,7 @@ public partial class CategoryDto
 
     public int ProductsCount { get; set; }
 
-    public byte[] ConcurrencyStamp { get; set; } = [];
+    public byte[] Version { get; set; } = [];
 }
 ```
 
@@ -318,7 +318,7 @@ All components that inherit from `AppComponentBase` or pages that inherit from `
 **Base class location**: `src/Client/Bit.TemplatePlayground.Client.Core/Components/AppComponentBase.cs`
 
 ```csharp
-public partial class AppComponentBase : ComponentBase
+public partial class AppComponentBase
 {
     [AutoInject] protected IStringLocalizer<AppStrings> Localizer = default!;
     // ... other injected services
@@ -382,8 +382,8 @@ public async Task<CategoryDto> Get(Guid id, CancellationToken cancellationToken)
     return dto;
 }
 
-[HttpDelete("{id}/{concurrencyStamp}")]
-public async Task Delete(Guid id, string concurrencyStamp, CancellationToken cancellationToken)
+[HttpDelete("{id}/{version}")]
+public async Task Delete(Guid id, string version, CancellationToken cancellationToken)
 {
     if (await DbContext.Products.AnyAsync(p => p.CategoryId == id, cancellationToken))
     {

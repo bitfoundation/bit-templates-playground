@@ -16,10 +16,7 @@
                 </BitText>
             </BitStack>
 
-            <SocialRow IsWaiting="isWaiting" OnClick="SocialSignUp" />
-
-            <BitSeparator Border="BitColorKind.Tertiary" Background="BitColorKind.Secondary" Class="lg-sep">@Localizer[AppStrings.Or]</BitSeparator>
-            <BitSeparator Border="BitColorKind.Secondary" Background="BitColorKind.Primary" Class="sm-sep">@Localizer[AppStrings.Or]</BitSeparator>
+            <ExternalIdentityProviders IsWaiting="isWaiting" OnClick="ExternalSignUp" />
 
             <EditForm Model="signUpModel" OnValidSubmit="WrapHandled(DoSignUp)" novalidate>
                 <AppDataAnnotationsValidator />

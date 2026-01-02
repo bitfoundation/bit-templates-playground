@@ -58,7 +58,7 @@ public partial class ExceptionDelegatingHandler(PubSubService pubSubService,
             }
             catch (ClientNotSupportedException)
             {
-                pubSubService.Publish(ClientPubSubMessages.FORCE_UPDATE, persistent: true);
+                pubSubService.Publish(ClientAppMessages.FORCE_UPDATE, persistent: true);
                 throw;
             }
             catch (Exception exp) when (IsServerConnectionException(exp) || (exp is HttpRequestException && serverCommunicationSuccess is false))
@@ -70,7 +70,7 @@ public partial class ExceptionDelegatingHandler(PubSubService pubSubService,
             {
                 if (isInternalRequest)
                 {
-                    pubSubService.Publish(ClientPubSubMessages.IS_ONLINE_CHANGED, serverCommunicationSuccess);
+                    pubSubService.Publish(ClientAppMessages.IS_ONLINE_CHANGED, serverCommunicationSuccess);
                 }
             }
         }

@@ -24,12 +24,9 @@ public static partial class PageUrls
 
     public const string SystemPrompts = "/system-prompts";
 
-    public const string Authorize = "/authorize";
-
     public const string Roles = "/user-groups";
 
     public const string Users = "/users";
-
 
     public const string WebInteropApp = "/web-interop-app.html";
 }

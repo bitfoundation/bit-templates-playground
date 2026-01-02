@@ -1,4 +1,5 @@
-﻿using Twilio.Rest.Api.V2010.Account;
+﻿using Hangfire.Server;
+using Twilio.Rest.Api.V2010.Account;
 
 namespace Bit.TemplatePlayground.Server.Api.Services.Jobs;
 
@@ -7,7 +8,9 @@ public partial class PhoneServiceJobsRunner
     [AutoInject] private ServerExceptionHandler serverExceptionHandler = default!;
 
     [AutomaticRetry(Attempts = 3, DelaysInSeconds = [30] /*We primarily send tokens via sms, which expire after 2 minutes by default. It's not worth retrying more than 3 times, with a 30-second delay between attempts.*/)]
-    public async Task SendSms(string phoneNumber, string from, string messageText, CancellationToken cancellationToken)
+    public async Task SendSms(string phoneNumber, string from, string messageText,
+        PerformContext context = null!,
+        CancellationToken cancellationToken = default)
 
     {
         try
@@ -25,7 +28,11 @@ public partial class PhoneServiceJobsRunner
         }
         catch (Exception exp)
         {
-            serverExceptionHandler.Handle(exp, new() { { "PhoneNumber", phoneNumber } });
+            serverExceptionHandler.Handle(exp, new()
+            {
+                { "PhoneNumber", phoneNumber },
+                { "JobId", context.BackgroundJob.Id }
+            });
             if (exp is not KnownException && cancellationToken.IsCancellationRequested is false)
                 throw; // To retry the job
         }

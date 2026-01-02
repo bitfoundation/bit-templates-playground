@@ -1,4 +1,4 @@
-// bit version: 10.0.0
+// bit version: 10.3.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -89,7 +89,7 @@ self.serverHandledUrls = [
 // self.mode = 'FullOffline'; // Traditional PWA app that **first** downloads all assets and **then** runs the app.
 // This ensures the app won't break if network connectivity is lost and the user navigates to a new page requiring lazy-loaded JS/WASM/image files.
 // Recommended if the app primarily uses PWA for offline support and has local/offline database such as IndexedeDB or SQLite (Checkout Bit.Besql)
-// Demo: https://todo-offline.bitplatform.cc/offline-database-demo
+// Demo: https://todo-offline.bitplatform.cc/offline-todo
 
 self.mode = 'NoPrerender'; // Modern PWA app that **starts immediately** and lazy-loads assets as needed.
 // If network connectivity is lost and the user navigates to a new page requiring lazy-loaded JS/WASM/image files, the app might break.

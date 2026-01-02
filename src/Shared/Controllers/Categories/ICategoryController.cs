@@ -1,4 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Categories;
+﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
 
 namespace Bit.TemplatePlayground.Shared.Controllers.Categories;
 
@@ -10,7 +10,7 @@ public interface ICategoryController : IAppController
     Task<CategoryDto> Get(Guid id, CancellationToken cancellationToken);
 
     [HttpGet]
-    Task<PagedResult<CategoryDto>> GetCategories(CancellationToken cancellationToken) => default!;
+    Task<PagedResponse<CategoryDto>> GetCategories(CancellationToken cancellationToken) => default!;
 
     [HttpGet]
     Task<List<CategoryDto>> Get(CancellationToken cancellationToken) => default!;
@@ -21,6 +21,6 @@ public interface ICategoryController : IAppController
     [HttpPut]
     Task<CategoryDto> Update(CategoryDto dto, CancellationToken cancellationToken);
 
-    [HttpDelete("{id}/{concurrencyStamp}")]
-    Task Delete(Guid id, string concurrencyStamp, CancellationToken cancellationToken);
+    [HttpDelete("{id}/{version}")]
+    Task Delete(Guid id, string version, CancellationToken cancellationToken);
 }

@@ -7,6 +7,8 @@ namespace Bit.TemplatePlayground.Server.Api.Controllers.Chatbot;
     Authorize(Policy = AppFeatures.Management.ManageAiPrompt)]
 public partial class ChatbotController : AppControllerBase, IChatbotController
 {
+    [AutoInject] private IFusionCache cache = default!;
+
     [HttpGet]
     [EnableQuery]
     public IQueryable<SystemPromptDto> GetSystemPrompts()
@@ -24,6 +26,9 @@ public partial class ChatbotController : AppControllerBase, IChatbotController
         dto.Patch(entityToUpdate);
 
         await DbContext.SaveChangesAsync(cancellationToken);
+
+        // Invalidate cache for the updated system prompt
+        await cache.RemoveAsync($"SystemPrompt_{dto.PromptKind}");
 
         return entityToUpdate.Map();
     }

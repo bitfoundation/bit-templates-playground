@@ -47,8 +47,11 @@ public partial class TestsInitializer
 
         await aspireApp.StartAsync(testContext.CancellationToken);
 
-        Environment.SetEnvironmentVariable("ConnectionStrings__smtp", await aspireApp.GetConnectionStringAsync("smtp", testContext.CancellationToken));
-        await aspireApp.ResourceNotifications.WaitForResourceAsync("smtp", KnownResourceStates.Running, testContext.CancellationToken);
+        foreach (var connectionString in aspireBuilder.Resources.OfType<IResourceWithConnectionString>())
+        {
+            Environment.SetEnvironmentVariable($"ConnectionStrings__{connectionString.Name}", await aspireApp.GetConnectionStringAsync(connectionString.Name, testContext.CancellationToken));
+            await aspireApp.ResourceNotifications.WaitForResourceAsync(connectionString.Name, [.. KnownResourceStates.TerminalStates, KnownResourceStates.Running], testContext.CancellationToken);
+        }
     }
 
     //SQLite database in in-memory mode only lives as long as at least one connection to it is open

@@ -26,7 +26,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     {
         // Example for method call after object instantiation with dependency injection.
 
-        unsubscribe = pubSubService.Subscribe(SharedPubSubMessages.SESSION_REVOKED, _ => SignOut(default));
+        unsubscribe = pubSubService.Subscribe(SharedAppMessages.SESSION_REVOKED, _ => SignOut(default));
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     private SemaphoreSlim semaphore = new(1, 1);
     private TaskCompletionSource<string?>? accessTokenTsc = null;
 
-    public Task<string?> RefreshToken(string requestedBy, string? elevatedAccessToken = null)
+    public Task<string?> RefreshToken(string requestedBy, string? elevatedAccessToken = null, bool ignoreServerConnectionException = false)
     {
         if (accessTokenTsc is null)
         {
@@ -124,11 +124,14 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
                 }
                 catch (Exception exp)
                 {
-                    exceptionHandler.Handle(exp, parameters: new()
+                    if (exp is not ServerConnectionException || ignoreServerConnectionException is false)
                     {
-                        { "AdditionalData", "Refreshing access token failed." },
-                        { "RefreshTokenRequestedBy", requestedBy }
-                    }, displayKind: ExceptionDisplayKind.NonInterrupting);
+                        exceptionHandler.Handle(exp, parameters: new()
+                        {
+                            { "AdditionalData", "Refreshing access token failed." },
+                            { "RefreshTokenRequestedBy", requestedBy }
+                        }, displayKind: ExceptionDisplayKind.NonInterrupting);
+                    }
 
                     if (exp is UnauthorizedException) // refresh token is also invalid
                     {
@@ -173,7 +176,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     public async Task<bool> TryEnterElevatedAccessMode(CancellationToken cancellationToken)
     {
         var user = IAuthTokenProvider.ParseAccessToken(await tokenProvider.GetAccessToken(), validateExpiry: true);
-        var hasElevatedAccess = await authorizationService.IsAuthorizedAsync(user, AuthPolicies.ELEVATED_ACCESS);
+        var hasElevatedAccess = await authorizationService.IsAuthorized(user, AuthPolicies.ELEVATED_ACCESS);
         if (hasElevatedAccess)
             return true;
 
@@ -198,7 +201,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
         return string.IsNullOrEmpty(accessToken) is false;
     }
 
-    public async Task<string?> GetFreshAccessToken(string requestedBy)
+    public async Task<string?> GetFreshAccessToken(string requestedBy, bool ignoreServerConnectionException = false)
     {
         var accessToken = await tokenProvider.GetAccessToken();
 
@@ -209,7 +212,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
 
         if (isValid) return accessToken;
 
-        return await RefreshToken(requestedBy);
+        return await RefreshToken(requestedBy, ignoreServerConnectionException: ignoreServerConnectionException);
     }
 
     private async Task ClearTokens()

@@ -17,7 +17,7 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
                         DataPathPrefixes = [
                             "/en-US", "/en-GB", "/nl-NL", "/fa-IR", "sv-SE", "hi-IN", "zh-CN", "es-ES", "fr-FR", "ar-SA", "de-DE",
                             PageUrls.Confirm, PageUrls.ForgotPassword, PageUrls.Settings, PageUrls.ResetPassword, PageUrls.SignIn,
-                            PageUrls.SignUp, PageUrls.NotAuthorized, PageUrls.NotFound, PageUrls.Terms, PageUrls.About, PageUrls.Authorize,
+                            PageUrls.SignUp, PageUrls.NotAuthorized, PageUrls.NotFound, PageUrls.Terms, PageUrls.About,
                             PageUrls.Roles, PageUrls.Users,
                             PageUrls.AddOrEditProduct, PageUrls.Categories, PageUrls.Dashboard, PageUrls.Products,
                             PageUrls.SystemPrompts,
@@ -57,7 +57,7 @@ public partial class MainActivity : MauiAppCompatActivity
 
     private static void HandlePushNotificationTap(Intent? intent)
     {
-        if (intent is null) 
+        if (intent is null)
             return;
 
         var dataString = intent.GetStringExtra(LocalNotificationCenter.ReturnRequest);

@@ -48,8 +48,8 @@ This project uses **TypeScript** for type-safe JavaScript development, along wit
 ```json
 {
     "devDependencies": {
-        "esbuild": "0.25.12",
-        "sass": "1.93.3",
+        "esbuild": "0.27.0",
+        "sass": "1.94.0",
         "typescript": "5.9.3"
     }
 }
@@ -210,13 +210,10 @@ public static ValueTask<string> GetTimeZone(this IJSRuntime jsRuntime)
 @code {
     private string? userTimeZone;
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override async Task OnAfterFirstRenderAsync()
     {
-        if (firstRender)
-        {
-            userTimeZone = await JSRuntime.GetTimeZone();
-            StateHasChanged();
-        }
+        userTimeZone = await JSRuntime.GetTimeZone();
+        StateHasChanged();
     }
 }
 ```
@@ -257,8 +254,8 @@ After running the commands, your `package.json` should look like this:
         "uuid": "^11.0.3"
     },
     "devDependencies": {
-        "esbuild": "0.25.12",
-        "sass": "1.93.3",
+        "esbuild": "0.27.0",
+        "sass": "1.94.0",
         "typescript": "5.9.3",
         "@types/uuid": "^10.0.0"
     }
@@ -335,7 +332,7 @@ The build process will:
 
 ---
 
-## 8. Common Scenarios
+## 6. Common Scenarios
 
 ### Adding a New TypeScript File
 

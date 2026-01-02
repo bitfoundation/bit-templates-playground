@@ -26,7 +26,7 @@ public partial class ProductController : AppControllerBase, IProductController
     }
 
     [HttpGet]
-    public async Task<PagedResult<ProductDto>> GetProducts(ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
+    public async Task<PagedResponse<ProductDto>> GetProducts(ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
     {
         var query = (IQueryable<ProductDto>)odataQuery.ApplyTo(Get(), ignoreQueryOptions: AllowedQueryOptions.Top | AllowedQueryOptions.Skip);
 
@@ -35,11 +35,11 @@ public partial class ProductController : AppControllerBase, IProductController
         query = query.SkipIf(odataQuery.Skip is not null, odataQuery.Skip?.Value)
                      .TakeIf(odataQuery.Top is not null, odataQuery.Top?.Value);
 
-        return new PagedResult<ProductDto>(await query.ToArrayAsync(cancellationToken), totalCount);
+        return new PagedResponse<ProductDto>(await query.ToArrayAsync(cancellationToken), totalCount);
     }
 
     [HttpGet("{searchQuery}")]
-    public async Task<PagedResult<ProductDto>> SearchProducts(string searchQuery, ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
+    public async Task<PagedResponse<ProductDto>> SearchProducts(string searchQuery, ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
     {
         throw new NotImplementedException(); // Embedding based search is only implemented for PostgreSQL and SQL Server only.
     }
@@ -94,13 +94,13 @@ public partial class ProductController : AppControllerBase, IProductController
         return entityToUpdate.Map();
     }
 
-    [HttpDelete("{id}/{concurrencyStamp}")]
-    public async Task Delete(Guid id, string concurrencyStamp, CancellationToken cancellationToken)
+    [HttpDelete("{id}/{version}")]
+    public async Task Delete(Guid id, string version, CancellationToken cancellationToken)
     {
         var entityToDelete = await DbContext.Products.FindAsync([id], cancellationToken)
             ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.ProductCouldNotBeFound)]);
 
-        entityToDelete.ConcurrencyStamp = Convert.FromHexString(concurrencyStamp);
+        entityToDelete.Version = Convert.FromHexString(version);
 
         DbContext.Remove(entityToDelete);
 
@@ -115,7 +115,7 @@ public partial class ProductController : AppControllerBase, IProductController
     {
         // Check out AppHub's comments for more info.
         // In order to exclude current user session, gets its signalR connection id from database and use GroupExcept instead.
-        await appHubContext.Clients.Group("AuthenticatedClients").SendAsync(SignalREvents.PUBLISH_MESSAGE, SharedPubSubMessages.DASHBOARD_DATA_CHANGED, null, cancellationToken);
+        await appHubContext.Clients.Group("AuthenticatedClients").Publish(SharedAppMessages.DASHBOARD_DATA_CHANGED, null, cancellationToken);
     }
 
     private async Task Validate(Product product, CancellationToken cancellationToken)

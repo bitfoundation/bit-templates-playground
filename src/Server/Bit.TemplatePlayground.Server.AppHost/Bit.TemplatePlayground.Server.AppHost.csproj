@@ -1,17 +1,18 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.0.0">
+<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <IsAspireHost>true</IsAspireHost>
         <EntryPointAccessibility>public</EntryPointAccessibility>
-        <UserSecretsId>5EF6E154-8968-4DDC-96A9-123768AF52DD</UserSecretsId>
+        <UserSecretsId>DF5E168C-E8B4-4240-9CB5-A2336C02B23E</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <Content Include=".config\dotnet-tools.json" />
         <PackageReference Include="Aspire.Hosting.AppHost" />
         <PackageReference Include="Aspire.Hosting.DevTunnels" />
+        <PackageReference Include="Aspire.Hosting.Keycloak" />
+        <PackageReference Include="Aspire.Hosting.Maui" />
         <PackageReference Include="CommunityToolkit.Aspire.Hosting.MailPit" />
         <PackageReference Include="CommunityToolkit.Aspire.Hosting.Sqlite" />
     </ItemGroup>
