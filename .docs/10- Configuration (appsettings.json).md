@@ -20,19 +20,39 @@ Each project in the solution has its own set of `appsettings.json` files:
 - [`src/Client/Bit.TemplatePlayground.Client.Core/appsettings.Development.json`](/src/Client/Bit.TemplatePlayground.Client.Core/appsettings.Development.json) - Development overrides
 - [`src/Client/Bit.TemplatePlayground.Client.Core/appsettings.Production.json`](/src/Client/Bit.TemplatePlayground.Client.Core/appsettings.Production.json) - Production overrides
 
-### Platform-Specific Configuration
-- **Blazor WebAssembly**: [`src/Client/Bit.TemplatePlayground.Client.Web/appsettings.json`](/src/Client/Bit.TemplatePlayground.Client.Web/appsettings.json)
-- **.NET MAUI**: [`src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.json`](/src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.json)
-- **Windows**: [`src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.json`](/src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.json)
+### Platform-Specific Client Configuration
+- **Blazor WebAssembly**: 
+  - [`src/Client/Bit.TemplatePlayground.Client.Web/appsettings.json`](/src/Client/Bit.TemplatePlayground.Client.Web/appsettings.json)
+  - [`src/Client/Bit.TemplatePlayground.Client.Web/appsettings.Development.json`](/src/Client/Bit.TemplatePlayground.Client.Web/appsettings.Development.json)
+  - [`src/Client/Bit.TemplatePlayground.Client.Web/appsettings.Production.json`](/src/Client/Bit.TemplatePlayground.Client.Web/appsettings.Production.json)
+- **.NET MAUI**: 
+  - [`src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.json`](/src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.json)
+  - [`src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.Development.json`](/src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.Development.json)
+  - [`src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.Production.json`](/src/Client/Bit.TemplatePlayground.Client.Maui/appsettings.Production.json)
+- **Windows**: 
+  - [`src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.json`](/src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.json)
+  - [`src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.Development.json`](/src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.Development.json)
+  - [`src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.Production.json`](/src/Client/Bit.TemplatePlayground.Client.Windows/appsettings.Production.json)
 
 ### Server Configuration
-- **API Server**: [`src/Server/Bit.TemplatePlayground.Server.Api/appsettings.json`](/src/Server/Bit.TemplatePlayground.Server.Api/appsettings.json)
-- **Web Server**: Server.Web uses standard ASP.NET Core configuration hierarchy
-- **AppHost**: [`src/Server/Bit.TemplatePlayground.Server.AppHost/appsettings.json`](/src/Server/Bit.TemplatePlayground.Server.AppHost/appsettings.json)
+- **API Server**: 
+  - [`src/Server/Bit.TemplatePlayground.Server.Api/appsettings.json`](/src/Server/Bit.TemplatePlayground.Server.Api/appsettings.json)
+  - [`src/Server/Bit.TemplatePlayground.Server.Api/appsettings.Development.json`](/src/Server/Bit.TemplatePlayground.Server.Api/appsettings.Development.json)
+  - [`src/Server/Bit.TemplatePlayground.Server.Api/appsettings.Production.json`](/src/Server/Bit.TemplatePlayground.Server.Api/appsettings.Production.json)
+- **Web Server**:
+  - [`src/Server/Bit.TemplatePlayground.Server.Web/appsettings.json`](/src/Server/Bit.TemplatePlayground.Server.Web/appsettings.json)
+  - [`src/Server/Bit.TemplatePlayground.Server.Web/appsettings.Development.json`](/src/Server/Bit.TemplatePlayground.Server.Web/appsettings.Development.json)
+  - [`src/Server/Bit.TemplatePlayground.Server.Web/appsettings.Production.json`](/src/Server/Bit.TemplatePlayground.Server.Web/appsettings.Production.json)
+- **AppHost**: 
+  - [`src/Server/Bit.TemplatePlayground.Server.AppHost/appsettings.json`](/src/Server/Bit.TemplatePlayground.Server.AppHost/appsettings.json)
+  - [`src/Server/Bit.TemplatePlayground.Server.AppHost/appsettings.Development.json`](/src/Server/Bit.TemplatePlayground.Server.AppHost/appsettings.Development.json)
 
 ## Configuration Priority Hierarchy
 
-The configuration system loads settings in a specific order, with **later sources overriding earlier ones**. This is defined in [`IConfigurationBuilderExtensions.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Extensions/IConfigurationBuilderExtensions.cs):
+The configuration system loads settings in a specific order, with **later sources overriding earlier ones**. This is implemented in two locations:
+
+- Server.Web, Client.Web, Client.Windows & Client.Maui: [`src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Extensions/IConfigurationBuilderExtensions.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Extensions/IConfigurationBuilderExtensions.cs)
+- Server.Api: [`src/Shared/Infrastructure/Extensions/IConfigurationBuilderExtensions.cs`](/src/Shared/Infrastructure/Extensions/IConfigurationBuilderExtensions.cs)
 
 ### Configuration Priority (Lowest to Highest)
 
@@ -200,7 +220,6 @@ In [`src/Server/Bit.TemplatePlayground.Server.Api/appsettings.json`](/src/Server
         }
     },
     "Identity": {
-        "JwtIssuerSigningKeySecret": "VeryLongJWTIssuerSigningKeySecret...",
         "Issuer": "Bit.TemplatePlayground",
         "Audience": "Bit.TemplatePlayground",
         "BearerTokenExpiration": "0.00:05:00",
@@ -389,6 +408,6 @@ The project supports four environments by default:
 
 Environment is determined by `AppEnvironment.Current` which is set during build time based on the `-p:Environment` msbuild switch.
 
-See [`Directory.Build.props`](/src/Directory.Build.props) for environment configuration and [`AppEnvironment.cs`](/src/Shared/Services/AppEnvironment.cs) for the environment service.
+See [`Directory.Build.props`](/src/Directory.Build.props) for environment configuration and [`src/Shared/Infrastructure/Services/AppEnvironment.cs`](/src/Shared/Infrastructure/Services/AppEnvironment.cs) for the environment service.
 
 ---

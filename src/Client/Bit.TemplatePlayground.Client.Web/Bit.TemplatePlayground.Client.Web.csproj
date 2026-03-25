@@ -41,9 +41,9 @@
         <Content Remove="appsettings*.json" />
         <EmbeddedResource Include="appsettings*.json" />
         <Using Include="Microsoft.JSInterop" />
-        <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components" />
-        <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts" />
     </ItemGroup>
 
     <ItemGroup>

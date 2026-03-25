@@ -1,6 +1,5 @@
 ﻿
-using Bit.TemplatePlayground.Shared.Dtos.Chatbot;
-using Bit.TemplatePlayground.Shared.Controllers.Chatbot;
+using Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages;
 

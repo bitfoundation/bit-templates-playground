@@ -1,6 +1,5 @@
 ﻿using UIKit;
 using Foundation;
-using UserNotifications;
 using Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst.Services;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst;

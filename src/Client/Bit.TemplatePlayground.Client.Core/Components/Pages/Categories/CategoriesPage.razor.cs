@@ -1,5 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Categories;
-using Bit.TemplatePlayground.Shared.Controllers.Categories;
+﻿using Bit.TemplatePlayground.Shared.Features.Categories;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Categories;
 
@@ -98,7 +97,7 @@ public partial class CategoriesPage
 
         try
         {
-            await categoryController.Delete(deletingCategory.Id, deletingCategory.Version.ToStampString(), CurrentCancellationToken);
+            await categoryController.Delete(deletingCategory.Id, deletingCategory.Version, CurrentCancellationToken);
 
             await RefreshData();
         }

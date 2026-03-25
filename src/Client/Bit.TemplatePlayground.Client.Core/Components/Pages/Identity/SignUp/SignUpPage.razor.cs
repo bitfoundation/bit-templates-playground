@@ -1,5 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Identity;
-using Bit.TemplatePlayground.Shared.Controllers.Identity;
+﻿using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.SignUp;
 
@@ -10,7 +10,7 @@ public partial class SignUpPage
 
     private bool isWaiting;
     private Action? pubSubUnsubscribe;
-    private readonly SignUpRequestDto signUpModel = new() { UserName = Guid.NewGuid().ToString() };
+    private readonly SignUpRequestDto signUpModel = new() { UserName = Guid.CreateVersion7().ToString() };
 
     [AutoInject] private ILocalHttpServer localHttpServer = default!;
     [AutoInject] private IIdentityController identityController = default!;

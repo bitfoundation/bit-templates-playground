@@ -1,7 +1,7 @@
 ﻿using OpenTelemetry.Logs;
 using Microsoft.Extensions.Logging;
-using Bit.TemplatePlayground.Client.Windows.Services;
-using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 

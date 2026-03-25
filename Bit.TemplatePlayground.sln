@@ -13,6 +13,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".SolutionItems", ".Solution
         .editorconfig = .editorconfig
         .gitignore = .gitignore
         .vsconfig = .vsconfig
+		AGENTS.md = AGENTS.md
         Bit.ResxTranslator.json = Bit.ResxTranslator.json
         settings.VisualStudio.json = settings.VisualStudio.json
         Clean.bat = Clean.bat
@@ -35,15 +36,13 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Bit.TemplatePlayground.Client.Maui", "src\Client\Bit.TemplatePlayground.Client.Maui\Bit.TemplatePlayground.Client.Maui.csproj", "{22816913-64D5-4AE8-9B34-6F188B71FAD1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{3E577755-186F-4E63-8153-B8DE890015C9}"
-    ProjectSection(SolutionItems) = preProject
-        .github\copilot-instructions.md = .github\copilot-instructions.md
-    EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "prompts", "prompts", "{4A5D6E7F-8B9C-1A2B-3C4D-5E6F7A8B9C0D}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "agents", "agents", "{4A5D6E7F-8B9C-1A2B-3C4D-5E6F7A8B9C0D}"
     ProjectSection(SolutionItems) = preProject
-        .github\prompts\resx.prompt.md = .github\prompts\resx.prompt.md
-        .github\prompts\bitify.prompt.md = .github\prompts\bitify.prompt.md
-        .github\prompts\scaffold.prompt.md = .github\prompts\scaffold.prompt.md
+        .github\agents\resx.agent.md = .github\agents\resx.agent.md
+		.github\agents\code-reviewer.agent.md = .github\agents\code-reviewer.agent.md
+        .github\agents\bitify.agent.md = .github\agents\bitify.agent.md
+        .github\agents\scaffold.agent.md = .github\agents\scaffold.agent.md
     EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "workflows", "workflows", "{2347E3B2-FDDE-427E-A0AE-E4DCD47C2989}"

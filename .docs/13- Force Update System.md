@@ -237,7 +237,7 @@ public interface IAppUpdateService
 
 ### Web Platform: Auto-Update via Service Worker
 
-**File**: [`src/Client/Bit.TemplatePlayground.Client.Web/Services/WebAppUpdateService.cs`](/src/Client/Bit.TemplatePlayground.Client.Web/Services/WebAppUpdateService.cs)
+**File**: [`src/Client/Bit.TemplatePlayground.Client.Web/Infrastructure/Services/WebAppUpdateService.cs`](/src/Client/Bit.TemplatePlayground.Client.Web/Infrastructure/Services/WebAppUpdateService.cs)
 
 ```csharp
 public partial class WebAppUpdateService : IAppUpdateService

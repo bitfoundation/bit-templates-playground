@@ -1,10 +1,11 @@
 ﻿using Microsoft.Net.Http.Headers;
 using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Client.Web;
-using Bit.TemplatePlayground.Server.Web.Services;
+using Bit.TemplatePlayground.Server.Shared;
 using Microsoft.AspNetCore.Antiforgery;
-using Bit.TemplatePlayground.Client.Core.Services.Contracts;
-using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -45,7 +46,6 @@ public static partial class Program
         var services = builder.Services;
         var configuration = builder.Configuration;
 
-        services.AddTransient<IAntiforgery, NoOpAntiforgery>();
         services.AddTransient<IPrerenderStateService, WebServerPrerenderStateService>();
         services.AddScoped<IExceptionHandler, WebServerExceptionHandler>();
         services.AddScoped<IAuthTokenProvider, ServerSideAuthTokenProvider>();

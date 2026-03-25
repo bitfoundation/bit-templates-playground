@@ -1,6 +1,6 @@
-﻿using Bit.TemplatePlayground.Server.Api.Data;
-using Bit.TemplatePlayground.Server.Web.Services;
-using Bit.TemplatePlayground.Client.Core.Services.Contracts;
+﻿using Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
+using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Server.Web;
 

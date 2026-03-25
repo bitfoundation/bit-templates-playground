@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
-using Bit.TemplatePlayground.Client.Maui.Services;
-using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Client.Maui;
 

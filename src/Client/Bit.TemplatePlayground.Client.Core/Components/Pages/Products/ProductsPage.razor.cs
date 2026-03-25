@@ -1,5 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Products;
-using Bit.TemplatePlayground.Shared.Controllers.Products;
+﻿using Bit.TemplatePlayground.Shared.Features.Products;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Products;
 
@@ -112,7 +111,7 @@ public partial class ProductsPage
 
         try
         {
-            await productController.Delete(deletingProduct.Id, deletingProduct.Version.ToStampString(), CurrentCancellationToken);
+            await productController.Delete(deletingProduct.Id, deletingProduct.Version, CurrentCancellationToken);
 
             await RefreshData();
         }

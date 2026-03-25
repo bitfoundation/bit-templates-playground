@@ -20,7 +20,7 @@
         <Configuration Condition="'$(Configuration)'==''">Debug</Configuration>
         <Configurations>Debug;Release;DebugBlazorServer;</Configurations>
 
-        <!-- See Bit.TemplatePlayground.Shared.AppEnvironment for more info. -->
+        <!-- See Bit.TemplatePlayground.Shared.Infrastructure.Services.AppEnvironment for more info. -->
         <Environment Condition="'$(Environment)' == '' AND '$(Configuration)' == 'Release'">Production</Environment>
         <Environment Condition="'$(Environment)' == '' AND  $(Configuration.Contains('Debug'))">Development</Environment>
 
@@ -62,12 +62,13 @@
         <Using Include="Microsoft.Extensions.DependencyInjection" />
         <Using Include="Microsoft.Extensions.DependencyInjection.Extensions" />
         <Using Include="Bit.TemplatePlayground" />
-        <Using Include="Bit.TemplatePlayground.Shared.Dtos" />
-        <Using Include="Bit.TemplatePlayground.Shared.Enums" />
+        <Using Include="Bit.TemplatePlayground.Shared" />
         <Using Include="Bit.TemplatePlayground.Shared.Resources" />
-        <Using Include="Bit.TemplatePlayground.Shared.Exceptions" />
-        <Using Include="Bit.TemplatePlayground.Shared.Services" />
-        <Using Include="Bit.TemplatePlayground.Shared.Services.Contracts" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Dtos" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Services" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Exceptions" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Attributes" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Services.Contracts" />
         <Using Include="System.Diagnostics" />
 
         <PackageReference Include="Bit.CodeAnalyzers" />

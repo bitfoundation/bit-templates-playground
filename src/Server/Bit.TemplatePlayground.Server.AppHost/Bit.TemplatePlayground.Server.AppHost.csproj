@@ -1,15 +1,14 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.1.0">
+<Project Sdk="Aspire.AppHost.Sdk/13.2.0">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <IsAspireHost>true</IsAspireHost>
         <EntryPointAccessibility>public</EntryPointAccessibility>
-        <UserSecretsId>DF5E168C-E8B4-4240-9CB5-A2336C02B23E</UserSecretsId>
+        <UserSecretsId>E6E17AF6-16D1-40D8-81D7-562F2AD71204</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.AppHost" />
         <PackageReference Include="Aspire.Hosting.DevTunnels" />
         <PackageReference Include="Aspire.Hosting.Keycloak" />
         <PackageReference Include="Aspire.Hosting.Maui" />
