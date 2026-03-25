@@ -28,7 +28,6 @@ Service registration is organized through `*ServiceCollectionExtensions.cs` and 
    services.AddScoped<IDateTimeProvider, DateTimeProvider>();
    services.AddSingleton<SharedSettings>();
    services.AddLocalization();
-   services.AddMemoryCache();
    ```
 
 2. **`IClientCoreServiceCollectionExtensions.cs`** ([`src/Client/Bit.TemplatePlayground.Client.Core/Extensions/`](/src/Client/Bit.TemplatePlayground.Client.Core/Extensions/IClientCoreServiceCollectionExtensions.cs))
@@ -56,11 +55,11 @@ Service registration is organized through `*ServiceCollectionExtensions.cs` and 
    
    | File | Purpose |
    |------|---------|
-   | [`Bit.TemplatePlayground.Server.Api/Program.Services.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Program.Services.cs) | API server services (DbContext, Identity, Email, SMS, Push Notifications, AI, Hangfire) |
-   | [`Bit.TemplatePlayground.Server.Web/Program.Services.cs`](/src/Server/Bit.TemplatePlayground.Server.Web/Program.Services.cs) | Blazor Server/SSR services (combines API + Client services) |
-   | [`Bit.TemplatePlayground.Client.Web/Program.Services.cs`](/src/Client/Bit.TemplatePlayground.Client.Web/Program.Services.cs) | Blazor WebAssembly-specific services |
-   | [`Bit.TemplatePlayground.Client.Maui/MauiProgram.Services.cs`](/src/Client/Bit.TemplatePlayground.Client.Maui/MauiProgram.Services.cs) | MAUI services (Android, iOS, macOS, Windows via MAUI) |
-   | [`Bit.TemplatePlayground.Client.Windows/Program.Services.cs`](/src/Client/Bit.TemplatePlayground.Client.Windows/Program.Services.cs) | Windows Forms Blazor Hybrid services |
+   | `Bit.TemplatePlayground.Server.Api/Program.Services.cs` | API server services (DbContext, Identity, Email, SMS, Push Notifications, AI, Hangfire) |
+   | `Bit.TemplatePlayground.Server.Web/Program.Services.cs` | Blazor Server/SSR services (combines API + Client services) |
+   | `Bit.TemplatePlayground.Client.Web/Program.Services.cs` | Blazor WebAssembly-specific services |
+   | `Bit.TemplatePlayground.Client.Maui/MauiProgram.Services.cs` | MAUI services (Android, iOS, macOS, Windows via MAUI) |
+   | `Bit.TemplatePlayground.Client.Windows/Program.Services.cs` | Windows Forms Blazor Hybrid services |
 
 4. **Platform-specific extensions** (MAUI only)
    - Each mobile/desktop platform can register its own specialized services

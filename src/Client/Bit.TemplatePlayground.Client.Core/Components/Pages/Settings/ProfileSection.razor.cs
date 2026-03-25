@@ -1,6 +1,6 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers;
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
-using Bit.TemplatePlayground.Shared.Controllers.Identity;
+﻿using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Features.Attachments;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Settings;
 
@@ -115,7 +115,7 @@ public partial class ProfileSection
 
     private async Task<string> GetUploadUrl()
     {
-        var uploadUrl = new Uri(AbsoluteServerAddress, $"/api/Attachment/UploadUserProfilePicture").ToString();
+        var uploadUrl = new Uri(AbsoluteServerAddress, $"/api/v1/Attachment/UploadUserProfilePicture").ToString();
 
         if (CultureInfoManager.InvariantGlobalization is false)
         {

@@ -1,6 +1,6 @@
 ﻿using System.Reflection;
-using Bit.TemplatePlayground.Shared.Controllers.Identity;
-using Bit.TemplatePlayground.Shared.Dtos.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 

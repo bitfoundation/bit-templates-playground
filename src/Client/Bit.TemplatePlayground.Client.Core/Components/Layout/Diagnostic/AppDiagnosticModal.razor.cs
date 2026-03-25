@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.SignalR.Client;
-using Bit.TemplatePlayground.Shared.Controllers.Diagnostics;
-using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
 using System.Text.RegularExpressions;
-using Bit.TemplatePlayground.Shared.Dtos.Diagnostic;
+using Bit.TemplatePlayground.Shared.Features.Diagnostic;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Diagnostic;
 
@@ -19,7 +18,7 @@ public partial class AppDiagnosticModal
     [AutoInject] private HubConnection hubConnection = default!;
     [AutoInject] private ITelemetryContext telemetryContext = default!;
     [AutoInject] private BitMessageBoxService messageBoxService = default!;
-    [AutoInject] private IDiagnosticsController diagnosticsController = default!;
+    [AutoInject] private IDiagnosticController diagnosticController = default!;
     [AutoInject] private IPushNotificationService pushNotificationService = default!;
 
 

@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Controllers.Identity;
+﻿using Bit.TemplatePlayground.Shared.Features.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Settings.Account;
 

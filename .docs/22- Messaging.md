@@ -15,9 +15,9 @@ At the heart of the Bit.TemplatePlayground messaging architecture is **AppMessag
 - From JavaScript to C# code
 - From web service workers to the C# code
 
-**Location**: [`src/Shared/Services/SharedAppMessages.cs`](/src/Shared/Services/SharedAppMessages.cs)
+**Location**: [`src/Shared/Infrastructure/Services/SharedAppMessages.cs`](/src/Shared/Infrastructure/Services/SharedAppMessages.cs)
 
-**Location**: [`src/Shared/Services/ClientAppMessages.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Services/ClientAppMessages.cs)
+**Location**: [`src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Services/ClientAppMessages.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Services/ClientAppMessages.cs)
 
 ### Message Structure
 
@@ -46,7 +46,7 @@ public partial class SharedAppMessages
 
 **ClientAppMessages** (Client-Only):
 
-**Location**: [`src/Client/Bit.TemplatePlayground.Client.Core/Services/ClientAppMessages.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Services/ClientAppMessages.cs)
+**Location**: [`src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Services/ClientAppMessages.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Services/ClientAppMessages.cs)
 
 ```csharp
 public partial class ClientAppMessages : SharedAppMessages
@@ -74,7 +74,7 @@ The Bit.TemplatePlayground project provides multiple communication channels that
 
 **PubSubService** is the foundation for client-side messaging. It implements a publish/subscribe pattern for decoupled communication between components.
 
-**Location**: [`src/Client/Bit.TemplatePlayground.Client.Core/Services/PubSubService.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Services/PubSubService.cs)
+**Location**: [`src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Services/PubSubService.cs`](/src/Client/Bit.TemplatePlayground.Client.Core/Infrastructure/Services/PubSubService.cs)
 
 **When to use**:
 - Communication between Blazor components
@@ -123,7 +123,7 @@ PubSubService.Publish(ClientAppMessages.PROFILE_UPDATED, user, persistent: true)
 
 **SignalR** enables the server to send messages to clients in real-time. In the Bit.TemplatePlayground project, SignalR messages are automatically bridged to PubSubService, creating a seamless experience.
 
-**Server-Side Hub**: [`src/Server/Bit.TemplatePlayground.Server.Api/SignalR/AppHub.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/SignalR/AppHub.cs)
+**Server-Side Hub**: [`src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/SignalR/AppHub.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/SignalR/AppHub.cs)
 
 **When to use**:
 - Notifying clients of data changes

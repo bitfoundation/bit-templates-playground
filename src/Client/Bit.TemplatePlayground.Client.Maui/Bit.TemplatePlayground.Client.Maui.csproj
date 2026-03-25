@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Razor">
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
 
     <PropertyGroup>
         <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
@@ -50,11 +50,11 @@
 
         <ApplicationVersion>
             $([MSBuild]::Add(
-            $([MSBuild]::Add(
-            $([MSBuild]::Multiply($(MajorVersion), 10000)),
-            $([MSBuild]::Multiply($(MinorVersion), 100))
-            )),
-            $(PatchVersion)
+                $([MSBuild]::Add(
+                    $([MSBuild]::Multiply($(MajorVersion), 10000)),
+                    $([MSBuild]::Multiply($(MinorVersion), 100))
+                )),
+                $(PatchVersion)
             ))
         </ApplicationVersion>
         <ApplicationVersion>$(ApplicationVersion.Trim())</ApplicationVersion>
@@ -121,11 +121,11 @@
         </Content>
 
         <Using Include="Microsoft.AspNetCore.Components.WebView.Maui" />
-        <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Pages" />
-        <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
-        <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
         <Using Include="Bit.TemplatePlayground.Shared" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts" />
     </ItemGroup>
 
     <ItemGroup>

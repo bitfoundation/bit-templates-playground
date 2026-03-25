@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Components;
-using Bit.TemplatePlayground.Client.Core.Services;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.Rendering;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 namespace Bit.TemplatePlayground.Server.Web.Components;
 

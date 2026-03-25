@@ -1,11 +1,12 @@
 {
     "name": "Bit.TemplatePlayground",
-    "image": "mcr.microsoft.com/dotnet/nightly/sdk:10.0.101",
+    "image": "mcr.microsoft.com/dotnet/sdk:10.0.201",
     "hostRequirements": {
         "cpus": 8
     },
-    "onCreateCommand": "dotnet workload install wasm-tools && dotnet dev-certs https --trust",
+    "onCreateCommand": "dotnet workload install wasm-tools",
     "waitFor": "onCreateCommand",
+    "postCreateCommand": "dotnet dev-certs https --trust",
     "customizations": {
         "codespaces": {
             "openFiles": [
@@ -28,12 +29,12 @@
         }
     },
     "forwardPorts": [
-        2044,
-        2252,
-        2033,
-        4196,
+        2142,
+        2267,
+        2242,
+        4089,
         5000,
-        5045
+        5110
     ],
     "features": {
         "ghcr.io/devcontainers/features/python": {},

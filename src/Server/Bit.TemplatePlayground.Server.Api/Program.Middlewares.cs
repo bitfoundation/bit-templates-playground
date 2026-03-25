@@ -1,6 +1,8 @@
 ﻿
 using Scalar.AspNetCore;
-using Microsoft.AspNetCore.Localization.Routing;
+using Microsoft.IdentityModel.Tokens;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.RequestPipeline;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
@@ -28,10 +30,7 @@ public static partial class Program
             app.UseHttpsRedirection();
             app.UseResponseCompression();
 
-            app.UseHsts();
-            app.UseXContentTypeOptions();
-            app.UseXXssProtection(options => options.EnabledWithBlockMode());
-            app.UseXfo(options => options.SameOrigin());
+            app.UseSecurityHeaders();
         }
 
         if (env.IsDevelopment())
@@ -42,6 +41,7 @@ public static partial class Program
         app.UseStaticFiles();
 
         app.UseCors();
+        app.UseRateLimiter();
 
         app.UseMiddleware<ForceUpdateMiddleware>();
 
@@ -54,10 +54,13 @@ public static partial class Program
 
         app.MapAppHealthChecks();
 
-        app.MapOpenApi().CacheOutput("AppResponseCachePolicy");
-        app.MapScalarApiReference().CacheOutput("AppResponseCachePolicy");
-        app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
-        app.MapGet("/swagger", () => Results.Redirect("/scalar")).ExcludeFromDescription();
+        if (env.IsProduction() is false)
+        {
+            app.MapOpenApi().CacheOutput("AppResponseCachePolicy");
+            app.MapScalarApiReference().CacheOutput("AppResponseCachePolicy");
+            app.MapGet("/", () => Results.Redirect("/scalar")).ExcludeFromDescription();
+            app.MapGet("/swagger", () => Results.Redirect("/scalar")).ExcludeFromDescription();
+        }
 
         app.UseHangfireDashboard(options: new()
         {
@@ -71,11 +74,45 @@ public static partial class Program
             QueryStringParameter = queryStringParameter
         }).WithTags("Test").CacheOutput("AppResponseCachePolicy").ExcludeFromDescription();
 
-        app.MapHub<SignalR.AppHub>("/app-hub", options => options.AllowStatefulReconnects = true);
-        app.MapMcp("/mcp")/*.RequireAuthorization()*/; // Map MCP endpoints for chatbot tool
+        app.MapHub<Infrastructure.SignalR.AppHub>("/app-hub", options => options.AllowStatefulReconnects = true);
+        app.MapMcp("/mcp").RequireAuthorization(); // Map MCP endpoints for chatbot tool
+
+        app.MapOpenIdConfiguration();
 
         app.MapControllers()
            .RequireAuthorization()
            .CacheOutput("AppResponseCachePolicy");
+    }
+
+
+    /// <summary>
+    /// This allows other backends to retrieve the OpenID Connect configuration and the public key for validating JWT tokens issued by this server.
+    /// Checkout AppCertificate.md for more information.
+    /// </summary>
+    public static WebApplication MapOpenIdConfiguration(this WebApplication app)
+    {
+        var publicKey = AppCertificateService.GetPublicSecurityKey(app.Configuration);
+        var jwk = JsonWebKeyConverter.ConvertFromRSASecurityKey(publicKey);
+        jwk.Use = "sig";
+
+        app.MapGet("/.well-known/openid-configuration", (HttpRequest request) =>
+        {
+            var baseUrl = request.GetBaseUrl();
+            return new
+            {
+                issuer = app.Configuration["Identity:Issuer"],
+                jwks_uri = new Uri(baseUrl, ".well-known/jwks"),
+            };
+        });
+
+        app.MapGet("/.well-known/jwks", () =>
+        {
+            return new
+            {
+                keys = new[] { jwk }
+            };
+        });
+
+        return app;
     }
 }

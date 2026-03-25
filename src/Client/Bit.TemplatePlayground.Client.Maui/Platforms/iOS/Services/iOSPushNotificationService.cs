@@ -2,7 +2,6 @@
 using UserNotifications;
 using Plugin.LocalNotification;
 using Microsoft.Extensions.Logging;
-using Bit.TemplatePlayground.Shared.Dtos.PushNotification;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.iOS.Services;
 

@@ -1,16 +1,20 @@
 ﻿using Velopack;
-using Microsoft.Web.WebView2.Core;
+
+using System.Diagnostics.CodeAnalysis;
+
 using Bit.TemplatePlayground.Client.Core.Components;
-using Bit.TemplatePlayground.Client.Windows.Services;
-using Microsoft.Extensions.Logging;
+using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
+
+using Microsoft.Web.WebView2.Core;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
-using Velopack.Logging;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 
 public partial class Program
 {
     [STAThread]
+    [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(HeadOutlet))]
     public static void Main(string[] args)
     {
         Application.ThreadException += (_, e) => LogException(e.Exception, reportedBy: nameof(Application.ThreadException));
@@ -94,7 +98,7 @@ public partial class Program
 
         blazorWebView.WebView.DefaultBackgroundColor = ColorTranslator.FromHtml("#0D2960");
 
-
+        blazorWebView.RootComponents.Add(new RootComponent("head::after", typeof(HeadOutlet), null));
         blazorWebView.RootComponents.Add(new RootComponent("#app-container", typeof(Routes), null));
 
         blazorWebView.BlazorWebViewInitialized += delegate

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <UserSecretsId>DF5E168C-E8B4-4240-9CB5-A2336C02B23E</UserSecretsId>
+        <UserSecretsId>E6E17AF6-16D1-40D8-81D7-562F2AD71204</UserSecretsId>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     </PropertyGroup>
 
@@ -14,7 +14,6 @@
 
     <ItemGroup>
         <PackageReference Include="Bit.BlazorES2019" />
-        <PackageReference Include="NWebsec.AspNetCore.Middleware" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" />
     </ItemGroup>
 
@@ -22,10 +21,8 @@
         <ProjectReference Include="..\Bit.TemplatePlayground.Server.Shared\Bit.TemplatePlayground.Server.Shared.csproj" />
         <ProjectReference Include="..\Bit.TemplatePlayground.Server.Api\Bit.TemplatePlayground.Server.Api.csproj" />
         <ProjectReference Include="..\..\Client\Bit.TemplatePlayground.Client.Web\Bit.TemplatePlayground.Client.Web.csproj" />
-    </ItemGroup>
-
-    <ItemGroup>
-        <Using Include="Bit.TemplatePlayground.Shared.Enums" />
+        <ProjectReference Include="..\..\Client\Bit.TemplatePlayground.Client.Core\Bit.TemplatePlayground.Client.Core.csproj" />
+        <!-- By referencing Client.Core in Server.Web project, you can build the Client.Web project just once and then unload it during development with Blazor Server, which significantly speeds up build times. -->
     </ItemGroup>
 
     <ItemGroup Condition="'$(Environment)' == 'Development'">
@@ -33,13 +30,18 @@
         <PackageReference Include="Meziantou.Framework.Win32.Jobs" />
     </ItemGroup>
     <ItemGroup Condition="'$(Environment)' != 'Development'">
-        <Compile Remove="Services\ScssCompilerService.cs" />
+        <Compile Remove="Infrastructure\Services\ScssCompilerService.cs" />
     </ItemGroup>
 
     <ItemGroup>
         <None Include="..\Bit.TemplatePlayground.Server.Api\appsettings*.json">
             <Link>%(Filename)%(Extension)</Link>
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="..\Bit.TemplatePlayground.Server.Api\AppCertificate*">
+            <Link>%(Filename)%(Extension)</Link>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+            <DependentUpon>AppCertificate.md</DependentUpon>
         </None>
     </ItemGroup>
 

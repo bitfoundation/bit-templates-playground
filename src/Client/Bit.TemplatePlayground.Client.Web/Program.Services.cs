@@ -1,6 +1,7 @@
-﻿using Bit.TemplatePlayground.Client.Web.Services;
+﻿
+using Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Bit.TemplatePlayground.Client.Core.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Client.Web;
 

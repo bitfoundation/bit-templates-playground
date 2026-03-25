@@ -1,0 +1,45 @@
+﻿using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+
+namespace Bit.TemplatePlayground.Shared.Features.Identity;
+
+/// <summary>
+/// https://devblogs.microsoft.com/dotnet/try-the-new-system-text-json-source-generator/
+/// </summary>
+[JsonSourceGenerationOptions(
+  AllowTrailingCommas = true,
+  PropertyNameCaseInsensitive = true,
+  GenerationMode = JsonSourceGenerationMode.Default,
+  DictionaryKeyPolicy = JsonKnownNamingPolicy.CamelCase,
+  PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase
+)]
+[JsonSerializable(typeof(UserDto))]
+[JsonSerializable(typeof(IdentityRequestDto))]
+[JsonSerializable(typeof(SignInRequestDto))]
+[JsonSerializable(typeof(SignInResponseDto))]
+[JsonSerializable(typeof(TokenResponseDto))]
+[JsonSerializable(typeof(RefreshTokenRequestDto))]
+[JsonSerializable(typeof(SignUpRequestDto))]
+[JsonSerializable(typeof(EditUserRequestDto))]
+[JsonSerializable(typeof(SendEmailTokenRequestDto))]
+[JsonSerializable(typeof(SendPhoneTokenRequestDto))]
+[JsonSerializable(typeof(ConfirmEmailRequestDto))]
+[JsonSerializable(typeof(ChangeEmailRequestDto))]
+[JsonSerializable(typeof(ConfirmPhoneRequestDto))]
+[JsonSerializable(typeof(ChangePhoneNumberRequestDto))]
+[JsonSerializable(typeof(SendResetPasswordTokenRequestDto))]
+[JsonSerializable(typeof(ResetPasswordRequestDto))]
+[JsonSerializable(typeof(TwoFactorAuthRequestDto))]
+[JsonSerializable(typeof(TwoFactorAuthResponseDto))]
+[JsonSerializable(typeof(List<UserSessionDto>))]
+[JsonSerializable(typeof(RoleDto))]
+[JsonSerializable(typeof(List<RoleDto>))]
+[JsonSerializable(typeof(List<UserDto>))]
+[JsonSerializable(typeof(List<ClaimDto>))]
+[JsonSerializable(typeof(UserRoleDto))]
+[JsonSerializable(typeof(UpdateUserSessionRequestDto))]
+[JsonSerializable(typeof(SendNotificationToRoleDto))]
+[JsonSerializable(typeof(VerifyWebAuthnAndSignInRequestDto))]
+[JsonSerializable(typeof(WebAuthnAssertionOptionsRequestDto))]
+public partial class IdentityJsonContext : JsonSerializerContext
+{
+}

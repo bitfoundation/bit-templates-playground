@@ -1,5 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.Statistics;
-using Bit.TemplatePlayground.Shared.Controllers.Statistics;
+﻿using Bit.TemplatePlayground.Shared.Features.Statistics;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Home;
 

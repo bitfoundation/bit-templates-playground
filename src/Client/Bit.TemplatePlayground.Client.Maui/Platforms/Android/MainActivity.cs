@@ -4,7 +4,7 @@ using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Gms.Tasks;
-using Plugin.LocalNotification;
+using Plugin.LocalNotification.Core.Models;
 using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
@@ -60,7 +60,7 @@ public partial class MainActivity : MauiAppCompatActivity
         if (intent is null)
             return;
 
-        var dataString = intent.GetStringExtra(LocalNotificationCenter.ReturnRequest);
+        var dataString = intent.GetStringExtra(RequestConstants.ReturnRequest);
         string? pageUrl = null;
         if (string.IsNullOrEmpty(dataString) is false)
         {

@@ -91,7 +91,6 @@ You can configure token expiration in [`appsettings.json`](/src/Server/Bit.Templ
 "Identity": {
     "BearerTokenExpiration": "0.00:05:00",  // Format: D.HH:mm:ss (5 minutes)
     "RefreshTokenExpiration": "14.00:00:00", // 14 days
-    "JwtIssuerSigningKeySecret": "VeryLongJWTIssuerSigningKeySecretThatIsMoreThan64BytesToEnsureCompatibilityWithHS512Algorithm"
 }
 ```
 
@@ -103,7 +102,7 @@ Unlike traditional session cookies, this project implements **server-side sessio
 
 #### The UserSession Entity
 
-User sessions are persisted in the database through the [`UserSession`](/src/Server/Bit.TemplatePlayground.Server.Api/Models/Identity/UserSession.cs) entity:
+User sessions are persisted in the database through the [`UserSession`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/Models/UserSession.cs) entity:
 
 ```csharp
 public partial class UserSession
@@ -140,7 +139,7 @@ The session ID is embedded in both access and refresh tokens as a claim (`AppCla
 
 #### Session Creation Example
 
-From [`IdentityController.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Controllers/Identity/IdentityController.cs):
+From [`IdentityController.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/IdentityController.cs):
 
 ```csharp
 private async Task<UserSession> CreateUserSession(Guid userId, CancellationToken cancellationToken)
@@ -205,7 +204,7 @@ External provider settings are configured in [`appsettings.json`](/src/Server/Bi
 
 #### External Sign-In Flow
 
-From [`IdentityController.ExternalSignIn.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Controllers/Identity/IdentityController.ExternalSignIn.cs):
+From [`IdentityController.ExternalSignIn.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/IdentityController.ExternalSignIn.cs):
 
 ```csharp
 [HttpGet]
@@ -256,7 +255,7 @@ The project defines **authorization policies** that can be used throughout the a
 
 #### Policy Configuration
 
-Policies are defined in [`ISharedServiceCollectionExtensions.cs`](/src/Shared/Extensions/ISharedServiceCollectionExtensions.cs):
+Policies are defined in [`ISharedServiceCollectionExtensions.cs`](/src/Shared/Infrastructure/Extensions/ISharedServiceCollectionExtensions.cs):
 
 ```csharp
 public static void ConfigureAuthorizationCore(this IServiceCollection services)
@@ -285,7 +284,7 @@ public static void ConfigureAuthorizationCore(this IServiceCollection services)
 
 #### Built-in Authorization Policies
 
-Defined in [`AuthPolicies.cs`](/src/Shared/Services/AuthPolicies.cs):
+Defined in [`AuthPolicies.cs`](/src/Shared/Infrastructure/Services/AuthPolicies.cs):
 
 **1. TFA_ENABLED**
 ```csharp
@@ -329,7 +328,7 @@ public const string ELEVATED_ACCESS = nameof(ELEVATED_ACCESS);
 
 #### Privileged Session Logic
 
-From [`IdentityController.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Controllers/Identity/IdentityController.cs):
+From [`IdentityController.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/IdentityController.cs):
 
 ```csharp
 private async Task UpdateUserSessionPrivilegeStatus(UserSession userSession, 
@@ -368,7 +367,7 @@ private async Task UpdateUserSessionPrivilegeStatus(UserSession userSession,
 
 #### Feature-Based Policies
 
-Defined in [`AppFeatures.cs`](/src/Shared/Services/AppFeatures.cs):
+Defined in [`AppFeatures.cs`](/src/Shared/Infrastructure/Services/AppFeatures.cs):
 
 ```csharp
 public class AppFeatures
@@ -433,7 +432,7 @@ From actual pages in the project:
 
 #### System Claim Types
 
-Defined in [`AppClaimTypes.cs`](/src/Shared/Services/AppClaimTypes.cs):
+Defined in [`AppClaimTypes.cs`](/src/Shared/Infrastructure/Services/AppClaimTypes.cs):
 
 ```csharp
 /// <summary>
@@ -470,7 +469,6 @@ public class AppClaimTypes
 
 ```json
 "Identity": {
-    "JwtIssuerSigningKeySecret": "VeryLongJWTIssuerSigningKeySecretThatIsMoreThan64BytesToEnsureCompatibilityWithHS512Algorithm",
     "Issuer": "Bit.TemplatePlayground",
     "Audience": "Bit.TemplatePlayground",
     "BearerTokenExpiration": "0.00:05:00",
@@ -549,7 +547,7 @@ The project implements a **secure one-time token system** with automatic expirat
 
 #### Token Request Tracking
 
-Each token type has a corresponding `RequestedOn` timestamp in the [`User`](/src/Server/Bit.TemplatePlayground.Server.Api/Models/Identity/User.cs) entity:
+Each token type has a corresponding `RequestedOn` timestamp in the [`User`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/Models/User.cs) entity:
 
 ```csharp
 public partial class User : IdentityUser<Guid>
@@ -571,7 +569,7 @@ public partial class User : IdentityUser<Guid>
 
 When a token is generated, the `RequestedOn` timestamp is set to the **current time** and **embedded in the token purpose string**.
 
-From [`IdentityController.EmailConfirmation.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Controllers/Identity/IdentityController.EmailConfirmation.cs):
+From [`IdentityController.EmailConfirmation.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/IdentityController.EmailConfirmation.cs):
 
 ```csharp
 private async Task SendConfirmEmailToken(User user, string? returnUrl, 
@@ -610,7 +608,7 @@ When validating a token, the system checks:
 2. **One-Time Use**: Does the token match the **latest** `RequestedOn` timestamp?
 3. **Invalidation**: Is the `RequestedOn` timestamp set to `null` (invalidated)?
 
-From [`IdentityController.EmailConfirmation.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Controllers/Identity/IdentityController.EmailConfirmation.cs):
+From [`IdentityController.EmailConfirmation.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/IdentityController.EmailConfirmation.cs):
 
 ```csharp
 [HttpPost, Produces<TokenResponseDto>()]
@@ -701,54 +699,6 @@ Let's walk through a password reset scenario:
 
 ## Advanced Topics
 
-### JWT Token Signing with PFX Certificates
-
-By default, the Bit Bit.TemplatePlayground uses a string-based secret (`JwtIssuerSigningKeySecret`) for signing JWT tokens in the [`AppJwtSecureDataFormat`](/src/Server/Bit.TemplatePlayground.Server.Api/Services/Identity/AppJwtSecureDataFormat.cs) class. While this approach is valid and secure, using a **PFX certificate** is considered best practice for production environments, especially when:
-
-- You need to share JWT validation across multiple backend services
-- You want to follow industry-standard cryptographic practices
-- You're deploying to enterprise environments with strict security requirements
-
-**Why We Didn't Use PFX by Default**
-
-We chose the string-based secret as the default because:
-- **Easier Deployment**: PFX certificates require additional configuration on shared hosting providers
-- **Simplified Development**: Developers can get started immediately without certificate management
-- **Good Security**: String-based secrets with HS512 are still cryptographically secure
-
-**How to Migrate to PFX Certificates**
-
-If you want to use PFX certificates, you'll need to modify [`AppJwtSecureDataFormat`](/src/Server/Bit.TemplatePlayground.Server.Api/Services/Identity/AppJwtSecureDataFormat.cs) to use `AsymmetricSecurityKey` instead of `SymmetricSecurityKey`:
-
-```csharp
-// Instead of:
-IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(appSettings.Identity.JwtIssuerSigningKeySecret))
-
-// Use:
-var certificate = new X509Certificate2("path/to/certificate.pfx", "password");
-IssuerSigningKey = new X509SecurityKey(certificate)
-```
-
-**Protecting ASP.NET Core Data Protection Keys**
-
-Additionally, you should protect the Data Protection keys stored in the database. In [`Program.Services.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Program.Services.cs), update the following code:
-
-```csharp
-services.AddDataProtection()
-   .PersistKeysToDbContext<AppDbContext>()
-   .ProtectKeysWithCertificate(certificate); // Add this line
-```
-
-**Cross-Service JWT Validation**
-
-When using PFX certificates, you can share the **public key** with other backend services to validate JWTs issued by your ASP.NET Core Identity system. Other services can use the `AddJwtAuthentication` method to validate tokens without needing the private key.
-
-This enables scenarios where:
-- Multiple microservices validate the same JWT
-- Third-party services can verify your tokens
-
----
-
 ### Keycloak Integration
 
 Bit Bit.TemplatePlayground includes built-in support for **Keycloak**, a free, open-source identity and access management solution. Keycloak provides enterprise-grade features like:
@@ -764,7 +714,7 @@ When you run the project with .NET Aspire enabled (default configuration), Keycl
 
 #### Demo User Accounts
 
-The Keycloak instance comes pre-configured with the following demo accounts (Provided by [src\Server\Bit.TemplatePlayground.Server.AppHost\Realms\dev-realm.json](..\src\Server\Bit.TemplatePlayground.Server.AppHost\Realms\dev-realm.json)):
+The Keycloak instance comes pre-configured with the following demo accounts (Provided by [src\Server\Bit.TemplatePlayground.Server.AppHost\Infrastructure\Realms\dev-realm.json](..\src\Server\Bit.TemplatePlayground.Server.AppHost\Infrastructure\Realms\dev-realm.json)):
 
 | Username | Password | Role | Description |
 |----------|----------|------|-------------|
@@ -774,7 +724,7 @@ The Keycloak instance comes pre-configured with the following demo accounts (Pro
 
 #### How Keycloak Mapping Works
 
-The Bit.TemplatePlayground template integrates Keycloak with ASP.NET Core Identity through a custom mapping system in [`AppUserClaimsPrincipalFactory`](/src/Server/Bit.TemplatePlayground.Server.Api/Services/Identity/AppUserClaimsPrincipalFactory.cs):
+The Bit.TemplatePlayground template integrates Keycloak with ASP.NET Core Identity through a custom mapping system in [`AppUserClaimsPrincipalFactory`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/Services/AppUserClaimsPrincipalFactory.cs):
 
 **1. Groups → Roles**
 - Keycloak **groups** are mapped to ASP.NET Core Identity **roles**
