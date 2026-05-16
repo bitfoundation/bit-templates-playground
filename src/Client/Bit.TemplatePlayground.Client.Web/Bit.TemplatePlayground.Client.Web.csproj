@@ -10,8 +10,8 @@
         <ServiceWorkerAssetsManifest>service-worker-assets.js</ServiceWorkerAssetsManifest>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
         <WasmEnableSIMD Condition="'$(Environment)' != 'Development'">true</WasmEnableSIMD>
-        <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
-        <ResolveStaticWebAssetsInputsDependsOn>
+                <WasmStripILAfterAOT>true</WasmStripILAfterAOT>
+                <ResolveStaticWebAssetsInputsDependsOn>
             BeforeBuildTasks;
             $(ResolveStaticWebAssetsInputsDependsOn)
         </ResolveStaticWebAssetsInputsDependsOn>
@@ -33,8 +33,8 @@
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" PrivateAssets="all" />
         <PackageReference Include="Bit.Bswup" />
-        <PackageReference Include="Newtonsoft.Json" />
-    </ItemGroup>
+                <PackageReference Include="Newtonsoft.Json" />
+            </ItemGroup>
 
     <ItemGroup>
         <ProjectReference Include="..\Bit.TemplatePlayground.Client.Core\Bit.TemplatePlayground.Client.Core.csproj" />
@@ -46,7 +46,7 @@
         <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts" />
     </ItemGroup>
 
-    <ItemGroup>
+        <ItemGroup>
         <BlazorWebAssemblyLazyLoad Include="System.Data.Common.wasm" />
     </ItemGroup>
     <ItemGroup>
@@ -55,7 +55,7 @@
     <ItemGroup>
         <BlazorWebAssemblyLazyLoad Include="Newtonsoft.Json.wasm" />
     </ItemGroup>
-
+    
     <Target Name="BeforeBuildTasks" AfterTargets="CoreCompile">
         <CallTarget Targets="BuildCssFiles" />
     </Target>

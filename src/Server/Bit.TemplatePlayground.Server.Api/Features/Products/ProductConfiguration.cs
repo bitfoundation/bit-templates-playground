@@ -11,7 +11,7 @@ public partial class ProductConfiguration : IEntityTypeConfiguration<Product>
 
 
         var defaultVersion = 1;
-        DateTimeOffset baseDate = DateTimeOffset.Parse("2026-03-25", styles: DateTimeStyles.AssumeUniversal);
+        DateTimeOffset baseDate = DateTimeOffset.Parse("2026-05-16", styles: DateTimeStyles.AssumeUniversal);
 
         // --- Benz Entries (19 cars) ---
         // https://www.mercedes-benz.ca/en/all-vehicles

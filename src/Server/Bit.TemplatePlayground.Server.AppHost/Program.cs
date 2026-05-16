@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -10,6 +10,7 @@ var sqlite = builder.AddSqlite("sqlite", databaseFileName: "Bit.TemplatePlaygrou
 
 // https://aspire.dev/integrations/security/keycloak/
 var keycloak = builder.AddKeycloak("keycloak", 8080)
+    .WithOtlpExporter()
     .WithDataVolume()
     .WithRealmImport("./Infrastructure/Realms");
 

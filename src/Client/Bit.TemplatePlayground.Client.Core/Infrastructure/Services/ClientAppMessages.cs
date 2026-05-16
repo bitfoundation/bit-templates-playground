@@ -35,11 +35,6 @@ public partial class ClientAppMessages
     public const string CLOSE_NAV_PANEL = nameof(CLOSE_NAV_PANEL);
 
     /// <summary>
-    /// A publisher that sends this message announces that the subscriber should navigate to a specific page.
-    /// </summary>
-    public const string NAVIGATE_TO = nameof(NAVIGATE_TO);
-
-    /// <summary>
     /// A publisher that sends this message announces that the subscriber should show the diagnostic modal.
     /// </summary>
     public const string SHOW_DIAGNOSTIC_MODAL = nameof(SHOW_DIAGNOSTIC_MODAL);
@@ -50,8 +45,6 @@ public partial class ClientAppMessages
     /// A publisher that sends this message announces that the subscriber should force the app to check for updates and install them.
     /// </summary>
     public const string FORCE_UPDATE = nameof(FORCE_UPDATE);
-
-
 
 
 
