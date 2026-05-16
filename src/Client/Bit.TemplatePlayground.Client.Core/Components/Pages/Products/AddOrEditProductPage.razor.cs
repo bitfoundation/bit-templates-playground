@@ -1,8 +1,6 @@
-﻿using System.IO;
-using Bit.TemplatePlayground.Shared.Controllers;
-using Bit.TemplatePlayground.Shared.Controllers.Categories;
-using Bit.TemplatePlayground.Shared.Controllers.Products;
-using Bit.TemplatePlayground.Shared.Dtos.Products;
+﻿using Bit.TemplatePlayground.Shared.Features.Products;
+using Bit.TemplatePlayground.Shared.Features.Categories;
+using Bit.TemplatePlayground.Shared.Features.Attachments;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Products;
 
@@ -15,7 +13,7 @@ public partial class AddOrEditProductPage
     private bool isSaving;
     private bool isManagingFile;
     private bool isLoading = true;
-    private ProductDto product = new() { Id = Guid.NewGuid() };
+    private ProductDto product = new() { Id = Guid.CreateSequentialGuid() };
     private BitFileUpload fileUploadRef = default!;
     private string selectedCategoryId = string.Empty;
     private BitRichTextEditor richTextEditorRef = default!;
@@ -125,7 +123,7 @@ public partial class AddOrEditProductPage
 
     private async Task<string> GetUploadUrl()
     {
-        var uploadUrl = new Uri(AbsoluteServerAddress, $"/api/Attachment/UploadProductPrimaryImage/{Id ?? product.Id}").ToString();
+        var uploadUrl = new Uri(AbsoluteServerAddress, $"/api/v1/Attachment/UploadProductPrimaryImage/{Id ?? product.Id}").ToString();
 
         if (CultureInfoManager.InvariantGlobalization is false)
         {

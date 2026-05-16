@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Hosting;
 
 var builder = DistributedApplication.CreateBuilder(args);
 
@@ -6,12 +6,13 @@ var builder = DistributedApplication.CreateBuilder(args);
 
 
 var sqlite = builder.AddSqlite("sqlite", databaseFileName: "Bit.TemplatePlaygroundDb.db")
-    .WithSqliteWeb(config => config.WithVolume("/var/lib/sqliteweb/Bit.TemplatePlayground/data"));
+    .WithSqliteWeb();
 
 // https://aspire.dev/integrations/security/keycloak/
 var keycloak = builder.AddKeycloak("keycloak", 8080)
+    .WithOtlpExporter()
     .WithDataVolume()
-    .WithRealmImport("./Realms");
+    .WithRealmImport("./Infrastructure/Realms");
 
 var serverWebProject = builder.AddProject("serverweb", "../Bit.TemplatePlayground.Server.Web/Bit.TemplatePlayground.Server.Web.csproj")
     .WithExternalHttpEndpoints();

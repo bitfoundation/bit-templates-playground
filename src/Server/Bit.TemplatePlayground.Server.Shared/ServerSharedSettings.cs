@@ -1,5 +1,4 @@
 ﻿using System.Text.RegularExpressions;
-using Bit.TemplatePlayground.Shared;
 using Microsoft.AspNetCore.Builder;
 
 namespace Bit.TemplatePlayground.Server.Shared;

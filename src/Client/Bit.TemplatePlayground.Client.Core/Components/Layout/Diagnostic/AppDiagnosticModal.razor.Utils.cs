@@ -1,7 +1,6 @@
 ﻿using System.Text;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
-using Bit.TemplatePlayground.Shared.Controllers.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Diagnostic;
@@ -26,7 +25,7 @@ public partial class AppDiagnosticModal
             : new DomainLogicException("Something bad happened.").WithData("TestData", 2);
     }
 
-    private async Task CallDiagnosticsApi()
+    private async Task CallDiagnosticApi()
     {
         string? signalRConnectionId = null;
         string? pushNotificationSubscriptionDeviceId = null;
@@ -37,7 +36,7 @@ public partial class AppDiagnosticModal
         }
         catch (Exception exp)
         {
-            logger.LogWarning(exp, "Failed to get SignalR ConnectionId for diagnostics.");
+            logger.LogWarning(exp, "Failed to get SignalR ConnectionId for diagnostic.");
         }
 
         try
@@ -46,10 +45,10 @@ public partial class AppDiagnosticModal
         }
         catch (Exception exp)
         {
-            logger.LogWarning(exp, "Failed to get Push Notification Subscription DeviceId for diagnostics.");
+            logger.LogWarning(exp, "Failed to get Push Notification Subscription DeviceId for diagnostic.");
         }
 
-        var serverResult = await diagnosticsController.PerformDiagnostics(signalRConnectionId, pushNotificationSubscriptionDeviceId, CurrentCancellationToken);
+        var serverResult = await diagnosticController.PerformDiagnostic(signalRConnectionId, pushNotificationSubscriptionDeviceId, CurrentCancellationToken);
 
         StringBuilder resultBuilder = new(serverResult);
         try
@@ -79,7 +78,7 @@ public partial class AppDiagnosticModal
             resultBuilder.AppendLine($"{Environment.NewLine}Error while getting diagnostic data: {exp.Message}");
         }
 
-        await messageBoxService.Show("Diagnostics Result", resultBuilder.ToString());
+        await messageBoxService.Show("Diagnostic Result", resultBuilder.ToString());
     }
 
     private async Task OpenDevTools()

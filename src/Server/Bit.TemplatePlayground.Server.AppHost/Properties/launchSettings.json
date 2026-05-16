@@ -5,12 +5,12 @@
             "commandName": "Project",
             "dotnetRunMessages": true,
             "launchBrowser": true,
-            "applicationUrl": "https://localhost:2044",
+            "applicationUrl": "https://localhost:2024",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
                 "DOTNET_ENVIRONMENT": "Development",
-                "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:2252",
-                "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:2033"
+                "DOTNET_DASHBOARD_OTLP_ENDPOINT_URL": "https://localhost:2278",
+                "DOTNET_RESOURCE_SERVICE_ENDPOINT_URL": "https://localhost:2272"
             }
         }
     }

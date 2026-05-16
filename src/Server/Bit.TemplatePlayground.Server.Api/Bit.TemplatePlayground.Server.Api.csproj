@@ -1,8 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <UserSecretsId>DF5E168C-E8B4-4240-9CB5-A2336C02B23E</UserSecretsId>
+        <UserSecretsId>6D3FA4F8-BF48-4B4F-86E6-D5C900A54576</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
     </PropertyGroup>
@@ -16,12 +16,29 @@
     <ItemGroup>
         <Using Include="Microsoft.Extensions.Options" />
         <Using Include="Microsoft.AspNetCore.Authorization" />
-        <Using Include="Bit.TemplatePlayground.Shared.Enums" />
-        <Using Include="Bit.TemplatePlayground.Server.Api.Components" />
-        <Using Include="Bit.TemplatePlayground.Server.Api.Resources" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.Data" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.Controllers" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Features.Identity.Resources" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Features.Identity.Components" />
+        <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
+        <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
+        <Using Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+        <Using Include="Hangfire" />
+        <Using Include="Asp.Versioning" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Attributes" />
+        <Using Include="Microsoft.AspNetCore.Identity" />
+        <Using Include="Microsoft.EntityFrameworkCore" />
+        <Using Include="Microsoft.AspNetCore.OData.Query" />
+        <Using Include="Microsoft.AspNetCore.Mvc" />
+        <Using Include="ZiggyCreatures.Caching.Fusion" />
+        <Using Include="Microsoft.Extensions.AI" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Features.Chatbot" />
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Asp.Versioning.Mvc" />
+        <PackageReference Include="Asp.Versioning.Mvc.ApiExplorer" />
         <PackageReference Include="Fido2.AspNet" />
         <PackageReference Include="Hangfire.AspNetCore" />
         <PackageReference Include="Hangfire.EntityFrameworkCore" />
@@ -29,7 +46,6 @@
         <PackageReference Include="libphonenumber-csharp" />
         <PackageReference Include="Humanizer" />
         <PackageReference Include="Microsoft.AspNetCore.DataProtection.EntityFrameworkCore" />
-        <PackageReference Include="NWebsec.AspNetCore.Middleware" />
         <PackageReference Include="QRCoder" />
         <PackageReference Include="Magick.NET-Q16-AnyCPU" />
         <PackageReference Include="FluentEmail.Smtp" />
@@ -42,8 +58,10 @@
         <PackageReference Include="Microsoft.Azure.SignalR" />
         <PackageReference Include="ModelContextProtocol.AspNetCore" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
-        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
+        <PackageReference Include="AspNetCore.HealthChecks.Uris" />
         <PackageReference Include="AspNetCore.HealthChecks.Hangfire" />
+        <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks.EntityFrameworkCore" />
         <PackageReference Include="Scalar.AspNetCore" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" />
         <PackageReference Include="Microsoft.Identity.Web" />
@@ -60,43 +78,31 @@
         <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
         <PackageReference Include="Microsoft.SemanticKernel.Core" />
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" />
+        <PackageReference Include="Microsoft.Agents.AI" />
         <PackageReference Include="DistributedLock.FileSystem" />
-        <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
-        <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
-        <Using Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
-        <Using Include="Hangfire" />
-        <Using Include="Bit.TemplatePlayground.Shared" />
-        <Using Include="Bit.TemplatePlayground.Shared.Attributes" />
-        <Using Include="Bit.TemplatePlayground.Server.Api.Data" />
-        <Using Include="Bit.TemplatePlayground.Server.Api.Mappers" />
-        <Using Include="Bit.TemplatePlayground.Server.Api.RequestPipeline" />
-        <Using Include="Microsoft.AspNetCore.Identity" />
-        <Using Include="Microsoft.EntityFrameworkCore" />
-        <Using Include="Microsoft.AspNetCore.OData.Query" />
-        <Using Include="Microsoft.AspNetCore.Mvc" />
-        <Using Include="ZiggyCreatures.Caching.Fusion" />
-
-        <Using Include="Microsoft.Extensions.AI" />
-        <Using Include="Bit.TemplatePlayground.Server.Api.Models.Chatbot" />
-        <Content Include="..\..\..\Bit.ResxTranslator.json" Link="Resources\Bit.ResxTranslator.json" />
-
-        <Content Include=".config\dotnet-tools.json" />
     </ItemGroup>
 
     <ItemGroup>
+        <Content Include=".config\dotnet-tools.json" />
+        <Content Include="..\..\..\Bit.ResxTranslator.json" Link="Features\Identity\Resources\Bit.ResxTranslator.json" />
         <ProjectReference Include="..\Bit.TemplatePlayground.Server.Shared\Bit.TemplatePlayground.Server.Shared.csproj" />
     </ItemGroup>
 
     <ItemGroup>
-        <EmbeddedResource Update="Resources\EmailStrings.resx">
+        <EmbeddedResource Update="Features\Identity\Resources\EmailStrings.resx">
             <Generator>MSBuild:Compile</Generator>
-            <LastGenOutput>Resources\EmailStrings.Designer.cs</LastGenOutput>
+            <LastGenOutput>Features\Identity\Resources\EmailStrings.Designer.cs</LastGenOutput>
             <StronglyTypedFileName>$(IntermediateOutputPath)\EmailStrings.Designer.cs</StronglyTypedFileName>
             <StronglyTypedLanguage>CSharp</StronglyTypedLanguage>
-            <StronglyTypedNamespace>Bit.TemplatePlayground.Server.Api.Resources</StronglyTypedNamespace>
+            <StronglyTypedNamespace>Bit.TemplatePlayground.Server.Api.Features.Identity.Resources</StronglyTypedNamespace>
             <StronglyTypedClassName>EmailStrings</StronglyTypedClassName>
             <PublicClass>true</PublicClass>
         </EmbeddedResource>
+
+        <None Update="AppCertificate.*">
+            <DependentUpon>AppCertificate.md</DependentUpon>
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
     </ItemGroup>
 
     <!--

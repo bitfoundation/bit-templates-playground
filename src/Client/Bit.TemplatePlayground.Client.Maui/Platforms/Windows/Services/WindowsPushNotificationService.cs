@@ -1,6 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Dtos.PushNotification;
-
-namespace Bit.TemplatePlayground.Client.Maui.Platforms.Windows.Services;
+﻿namespace Bit.TemplatePlayground.Client.Maui.Platforms.Windows.Services;
 
 public partial class WindowsPushNotificationService : PushNotificationServiceBase
 {

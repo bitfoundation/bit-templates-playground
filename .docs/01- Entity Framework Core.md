@@ -21,7 +21,7 @@ In this stage, you'll learn about:
 
 ### Location
 The main database context is located at:
-[`/src/Server/Bit.TemplatePlayground.Server.Api/Data/AppDbContext.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Data/AppDbContext.cs)
+[`/src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/Data/AppDbContext.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/Data/AppDbContext.cs)
 
 ### What is AppDbContext?
 
@@ -55,19 +55,25 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
 
 ### Location
 Entity models are organized by domain in:
-[`/src/Server/Bit.TemplatePlayground.Server.Api/Models/`](/src/Server/Bit.TemplatePlayground.Server.Api/Models/)
+[`/src/Server/Bit.TemplatePlayground.Server.Api/Features/`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/)
 
 The folder structure is:
 ```
-Models/
+Features/
 ├── Categories/
-│   └── Category.cs
+│   ├── Category.cs
+│   └── CategoryConfiguration.cs
 ├── Products/
-│   └── Product.cs
+│   ├── Product.cs
+│   └── ProductConfiguration.cs
 ├── Todo/
-│   └── TodoItem.cs
+│   ├── TodoItem.cs
+│   └── TodoConfiguration.cs
 ├── Identity/
-│   └── User.cs, Role.cs, etc.
+│   ├── Models/
+│   │   ├── User.cs, Role.cs, etc.
+│   └── Configurations/
+│       ├── UserConfiguration.cs, RoleConfiguration.cs, etc.
 └── ... other domains
 ```
 
@@ -75,12 +81,12 @@ Models/
 
 Let's examine the `Category` entity from the project:
 
-**File:** [`/src/Server/Bit.TemplatePlayground.Server.Api/Models/Categories/Category.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Models/Categories/Category.cs)
+**File:** [`/src/Server/Bit.TemplatePlayground.Server.Api/Features/Categories/Category.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Categories/Category.cs)
 
 ```csharp
-using Bit.TemplatePlayground.Server.Api.Models.Products;
+using Bit.TemplatePlayground.Server.Api.Features.Products;
 
-namespace Bit.TemplatePlayground.Server.Api.Models.Categories;
+namespace Bit.TemplatePlayground.Server.Api.Features.Categories;
 
 public partial class Category
 {
@@ -91,7 +97,7 @@ public partial class Category
 
     public string? Color { get; set; }
 
-    public byte[] Version { get; set; } = [];
+    public long Version { get; set; }
 
     public IList<Product> Products { get; set; } = [];
 }
@@ -99,7 +105,7 @@ public partial class Category
 
 ### **Version** Concurrency Stamp
 ```csharp
-public byte[] Version { get; set; } = [];
+public long Version { get; set; }
 ```
 - **Critical for optimistic concurrency control**
 - Configured as a **row version** in SQL Server
@@ -185,39 +191,44 @@ public IList<Product> Products { get; set; } = [];
 ## 3. Entity Type Configurations - The Professional Approach
 
 ### Location
-Entity configurations are located at:
-[`/src/Server/Bit.TemplatePlayground.Server.Api/Data/Configurations/`](/src/Server/Bit.TemplatePlayground.Server.Api/Data/Configurations/)
+Entity configurations are colocated with their entities in:
+[`/src/Server/Bit.TemplatePlayground.Server.Api/Features/`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/)
 
-The folder structure mirrors the Models folder:
+For the Identity domain, configurations are organized in a dedicated Configurations folder:
 ```
-Configurations/
-├── Category/
+Features/
+├── Categories/
+│   ├── Category.cs
 │   └── CategoryConfiguration.cs
-├── Product/
+├── Products/
+│   ├── Product.cs
 │   └── ProductConfiguration.cs
 ├── Identity/
-│   └── UserConfiguration.cs, RoleConfiguration.cs
-└── ... other configurations
+│   ├── Models/
+│   │   ├── User.cs, Role.cs, etc.
+│   └── Configurations/
+│       ├── UserConfiguration.cs, RoleConfiguration.cs, etc.
+└── ... other features
 ```
 
 ### Example: CategoryConfiguration
 
-**File:** [`/src/Server/Bit.TemplatePlayground.Server.Api/Data/Configurations/Category/CategoryConfiguration.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Data/Configurations/Category/CategoryConfiguration.cs)
+**File:** [`/src/Server/Bit.TemplatePlayground.Server.Api/Features/Categories/CategoryConfiguration.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Categories/CategoryConfiguration.cs)
 
 ```csharp
-using Bit.TemplatePlayground.Server.Api.Models.Categories;
+using Bit.TemplatePlayground.Server.Api.Features.Categories;
 
-namespace Bit.TemplatePlayground.Server.Api.Data.Configurations.Category;
+namespace Bit.TemplatePlayground.Server.Api.Features.Categories;
 
-public partial class CategoryConfiguration : IEntityTypeConfiguration<Models.Categories.Category>
+public partial class CategoryConfiguration : IEntityTypeConfiguration<Category>
 {
-    public void Configure(EntityTypeBuilder<Models.Categories.Category> builder)
+    public void Configure(EntityTypeBuilder<Category> builder)
     {
         // Configure unique index on Name
         builder.HasIndex(p => p.Name).IsUnique();
 
         // Seed initial data
-        var defaultVersion = new byte[] { 0, 0, 0, 0, 0, 0, 0, 0 };
+        var defaultVersion = 1;
         builder.HasData(
             new () { 
                 Id = Guid.Parse("31d78bd0-0b4f-4e87-b02f-8f66d4ab2845"), 
@@ -308,7 +319,7 @@ If you decide to use migrations, follow these steps:
 Replace `EnsureCreatedAsync()` with `MigrateAsync()` in these 3 files:
 1. [`/src/Server/Bit.TemplatePlayground.Server.Api/Program.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Program.cs)
 2. [`/src/Server/Bit.TemplatePlayground.Server.Web/Program.cs`](/src/Server/Bit.TemplatePlayground.Server.Web/Program.cs)
-3. [`/src/Tests/TestsInitializer.cs`](/src/Tests/TestsInitializer.cs)
+3. [`/src/Tests/Infrastructure/TestsAssemblyInitializer.cs`](/src/Tests/Infrastructure/TestsAssemblyInitializer.cs)
 
 **Before:**
 ```csharp
@@ -332,10 +343,10 @@ await dbContext.Database.MigrateAsync();
 Open a terminal in the `Bit.TemplatePlayground.Server.Api` project directory and run:
 
 ```bash
-dotnet tool restore && dotnet ef migrations add Initial --output-dir Data/Migrations --verbose
+dotnet tool restore && dotnet ef migrations add Initial --output-dir Infrastructure/Data/Migrations --verbose
 ```
 
-This creates migration files in the `/Data/Migrations/` folder.
+This creates migration files in the `/Infrastructure/Data/Migrations/` folder.
 
 #### Step 4: Apply the Migration
 
@@ -348,7 +359,7 @@ The migration will be **automatically applied** when the application starts (tha
 When you modify entities or configurations, create a new migration:
 
 ```bash
-dotnet tool restore && dotnet ef migrations add <MigrationName> --output-dir Data/Migrations --verbose
+dotnet tool restore && dotnet ef migrations add <MigrationName> --output-dir Infrastructure/Data/Migrations --verbose
 ```
 
 ---

@@ -10,7 +10,7 @@ Welcome to Stage 16! In this stage, you'll learn about the comprehensive CI/CD p
 
 The project uses a unified environment configuration system that works consistently across all platforms - from ASP.NET Core backend to native mobile apps.
 
-**Location**: [`/src/Shared/Services/AppEnvironment.cs`](/src/Shared/Services/AppEnvironment.cs)
+**Location**: [`/src/Shared/Infrastructure/Services/AppEnvironment.cs`](/src/Shared/Infrastructure/Services/AppEnvironment.cs)
 
 **Why This Matters**:
 Unlike ASP.NET Core which uses environment variables (that can be set at runtime), Android, iOS, Windows, and macOS don't support the exact same concept. `AppEnvironment` provides a unified abstraction that works everywhere.
@@ -533,14 +533,14 @@ build_api_blazor:
     - uses: actions/setup-dotnet@v5
     - uses: actions/setup-node@v6
     - run: dotnet publish ...
-    - uses: actions/upload-artifact@v5  # Save artifact
+    - uses: actions/upload-artifact@v7  # Save artifact
 
 # Phase 2: Deploy (has production access)
 deploy_api_blazor:
   needs: build_api_blazor  # Depends on Phase 1
   runs-on: ubuntu-24.04
   steps:
-    - uses: actions/download-artifact@v6  # Get pre-built artifact
+    - uses: actions/download-artifact@v8  # Get pre-built artifact
     - uses: azure/webapps-deploy@v3      # Deploy to production
 ```
 

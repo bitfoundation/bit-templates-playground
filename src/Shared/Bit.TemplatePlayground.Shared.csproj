@@ -15,14 +15,14 @@
         <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" />
         <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" />
         <PackageReference Include="Riok.Mapperly" PrivateAssets="all" ExcludeAssets="runtime">
-            <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
     </ItemGroup>
 
     <ItemGroup>
         <SupportedPlatform Include="browser" />
-        <Using Include="Bit.TemplatePlayground.Shared.Attributes" />
-        <Using Include="Bit.TemplatePlayground.Shared.Services.Contracts" />
+        <Using Include="Riok.Mapperly.Abstractions" />
+        <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Attributes" />
     </ItemGroup>
 
     <ItemGroup>
@@ -59,8 +59,8 @@
         <EmbeddedResource Update="appsettings.*.json">
             <DependentUpon>appsettings.json</DependentUpon>
         </EmbeddedResource>
-        <Compile Update="Urls.*.cs">
-            <DependentUpon>Urls.cs</DependentUpon>
+        <Compile Update="PageUrls.*.cs">
+            <DependentUpon>PageUrls.cs</DependentUpon>
         </Compile>
     </ItemGroup>
 

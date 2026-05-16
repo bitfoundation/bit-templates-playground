@@ -28,7 +28,8 @@
                         <AuthorizeView Policy="@AppFeatures.Management.ManageAiPrompt">
                             <BitMarkdownEditor @bind-Value="systemPrompt.Markdown" Class="md-editor" />
                         </AuthorizeView>
-                        <BitMarkdownViewer Markdown="@systemPrompt.Markdown" Class="md-viewer" />
+                        <BitMarkdownViewer NoPrerender Markdown="@systemPrompt.Markdown" Class="md-viewer"
+                                           JsMiddlewareIdentifier="App.sanitizeHtml" />
                     </BitStack>
                 </BitPivotItem>
             }

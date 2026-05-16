@@ -27,7 +27,7 @@
         <Using Include="System.Net.Http.Json" />
         <Using Include="Bit.TemplatePlayground.Shared" />
         <Using Include="Bit.TemplatePlayground.Server.Web" />
-        <Using Include="Bit.TemplatePlayground.Shared.Enums" />
+        <Using Include="Bit.TemplatePlayground.Tests.Infrastructure" />
         <Using Include="Microsoft.AspNetCore.Http" />
         <Using Include="Microsoft.AspNetCore.Components" />
         <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />

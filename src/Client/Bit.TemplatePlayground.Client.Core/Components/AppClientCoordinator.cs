@@ -1,10 +1,9 @@
 ﻿using System.Web;
 using Microsoft.AspNetCore.SignalR;
-using Bit.TemplatePlayground.Shared.Dtos.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
 using Microsoft.AspNetCore.Components.Routing;
-using Bit.TemplatePlayground.Shared.Controllers.Identity;
-using Bit.TemplatePlayground.Client.Core.Services.DiagnosticLog;
+using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
@@ -16,9 +15,10 @@ namespace Bit.TemplatePlayground.Client.Core.Components;
 public partial class AppClientCoordinator : AppComponentBase
 {
     [AutoInject] private Notification notification = default!;
-    [AutoInject] private HubConnection hubConnection = default!;
     [AutoInject] private ThemeService themeService = default!;
+    [AutoInject] private HubConnection hubConnection = default!;
     [AutoInject] private CultureService cultureService = default!;
+    [AutoInject] private SignInModalService signInModalService = default!;
     [AutoInject] private UserAgent userAgent = default!;
     [AutoInject] private IJSRuntime jsRuntime = default!;
     [AutoInject] private IUserController userController = default!;
@@ -248,6 +248,13 @@ public partial class AppClientCoordinator : AppComponentBase
         signalROnDisposables.Add(hubConnection.On(SharedAppMessages.UPLOAD_LAST_ERROR, async () =>
         {
             return DiagnosticLogger.Store.LastOrDefault(l => l.Level is LogLevel.Error or LogLevel.Critical);
+        }));
+
+        hubConnection.Remove(SharedAppMessages.SHOW_SIGN_IN_MODAL);
+        signalROnDisposables.Add(hubConnection.On(SharedAppMessages.SHOW_SIGN_IN_MODAL, async () =>
+        {
+            await signInModalService.SignIn();
+            return await StorageService.GetItem("access_token");
         }));
 
         hubConnection.Closed += HubConnectionStateChange;

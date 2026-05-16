@@ -2,7 +2,7 @@
 using Microsoft.Maui.LifecycleEvents;
 using Plugin.LocalNotification;
 using Bit.TemplatePlayground.Client.Core.Styles;
-using Bit.TemplatePlayground.Client.Maui.Services;
+using Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 using Maui.AppStores;
 #if iOS || Mac
 using UIKit;

@@ -1,6 +1,4 @@
-using Bit.TemplatePlayground.Shared.Dtos.Diagnostic;
-
-namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Diagnostic;
+﻿namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Diagnostic;
 
 public partial class DiagnosticLogModal
 {

@@ -31,8 +31,8 @@
     <ItemGroup>
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Pages" />
-        <Using Include="Bit.TemplatePlayground.Client.Core.Services.Contracts" />
-        <Using Include="Bit.TemplatePlayground.Client.Core.Services" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts" />
         <Using Include="Bit.TemplatePlayground.Shared" />
 
         <PackageReference Include="EmbedIO" />
@@ -44,8 +44,8 @@
         <PackageReference Include="Microsoft.Web.WebView2" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" />
         <PackageReference Include="Velopack" />
-        <PackageReference Include="Newtonsoft.Json" />
-        <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\index.html" Link="wwwroot\index.html">
+                <PackageReference Include="Newtonsoft.Json" />
+                <Content Include="..\Bit.TemplatePlayground.Client.Maui\wwwroot\index.html" Link="wwwroot\index.html">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </Content>
         <Content Include="..\Bit.TemplatePlayground.Client.Web\wwwroot\web-interop-app.html" Link="wwwroot\web-interop-app.html">

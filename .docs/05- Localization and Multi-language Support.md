@@ -24,7 +24,7 @@ Resource files are organized across two locations in the project:
 - **`IdentityStrings.fa.resx`**: Persian identity strings
 - **`IdentityStrings.sv.resx`**: Swedish identity strings
 
-#### Server API Resources (`src/Server/Bit.TemplatePlayground.Server.Api/Resources/`)
+#### Server API Resources (`src/Server/Bit.TemplatePlayground.Server.Api/Features/Identity/Resources/`)
 - **`EmailStrings.resx`**: Default email template strings
 - **`EmailStrings.fa.resx`**: Persian email templates
 - **`EmailStrings.sv.resx`**: Swedish email templates
@@ -137,7 +137,7 @@ public partial class CategoryDto
 
     public int ProductsCount { get; set; }
 
-    public byte[] Version { get; set; } = [];
+    public long Version { get; set; }
 }
 ```
 
@@ -315,7 +315,9 @@ The `IStringLocalizer<T>` interface is the primary way to access localized strin
 
 All components that inherit from `AppComponentBase` or pages that inherit from `AppPageBase` automatically have access to the `Localizer` property.
 
-**Base class location**: `src/Client/Bit.TemplatePlayground.Client.Core/Components/AppComponentBase.cs`
+**Base class locations**: 
+- Components: `src/Client/Bit.TemplatePlayground.Client.Core/Components/AppComponentBase.cs`
+- Pages: `src/Client/Bit.TemplatePlayground.Client.Core/Components/Pages/AppPageBase.cs`
 
 ```csharp
 public partial class AppComponentBase
@@ -355,7 +357,7 @@ This means **every component in the project** automatically has the `Localizer` 
 
 All API controllers that inherit from `AppControllerBase` have automatic access to the `Localizer` property.
 
-**Base class location**: `src/Server/Bit.TemplatePlayground.Server.Api/Controllers/AppControllerBase.cs`
+**Base class location**: `src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/Controllers/AppControllerBase.cs`
 
 ```csharp
 public partial class AppControllerBase : ControllerBase

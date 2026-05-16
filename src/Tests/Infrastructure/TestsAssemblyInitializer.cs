@@ -1,0 +1,90 @@
+using Microsoft.EntityFrameworkCore;
+using Aspire.Hosting;
+using Aspire.Hosting.Testing;
+using Aspire.Hosting.DevTunnels;
+using Aspire.Hosting.ApplicationModel;
+using Microsoft.Data.Sqlite;
+using Microsoft.Extensions.Hosting;
+using Bit.TemplatePlayground.Tests.Features.Identity;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
+
+namespace Bit.TemplatePlayground.Tests.Infrastructure;
+
+[TestClass]
+public partial class TestsAssemblyInitializer
+{
+    private static DistributedApplication? aspireApp;
+
+    [AssemblyInitialize]
+    public static async Task Initialize(TestContext testContext)
+    {
+        await RunAspireHost(testContext);
+        await using var testServer = new AppTestServer();
+
+        await testServer.Build().Start(testContext.CancellationToken);
+
+        await InitializeDatabase(testServer);
+    }
+
+    /// <summary>
+    /// Aspire.Hosting.Testing executes the complete application, including dependencies like databases, 
+    /// closely mimicking a production environment. However, it has a limitation: backend services cannot 
+    /// be overridden in tests if needed, unlike <see cref="AppTestServer"/> used in <see cref="UITests"/> 
+    /// and <see cref="IntegrationTests"/>. The code below runs the Aspire app without the server web 
+    /// project, retrieves necessary connection strings (e.g., database connection string), and passes 
+    /// them to <see cref="AppTestServer"/>, so you can override services in the server project.
+    /// </summary>
+    private static async Task RunAspireHost(TestContext testContext)
+    {
+        var aspireAppBuilder = await DistributedApplicationTestingBuilder
+            .CreateAsync<Program>(testContext.CancellationToken);
+
+        foreach (var res in aspireAppBuilder.Resources.Where(r => r is ProjectResource or IResourceWithParent<ProjectResource>).ToList())
+            aspireAppBuilder.Resources.Remove(res);
+
+        // The following resources are not that much useful in tests and just add to the startup time, so we remove them from the application.
+        foreach (var res in aspireAppBuilder.Resources.Where(r => r is DevTunnelResource or DevTunnelPortResource
+            or SqliteWebResource
+            or Aspire.Hosting.Maui.MauiAndroidDeviceResource
+            or Aspire.Hosting.Maui.MauiAndroidEmulatorResource
+            || r.GetType().Name is "OtlpLoopbackResource").ToList())
+        {
+            aspireAppBuilder.Resources.Remove(res);
+        }
+
+        aspireApp = await aspireAppBuilder.BuildAsync(testContext.CancellationToken);
+
+        await aspireApp.StartAsync(testContext.CancellationToken);
+
+        foreach (var connectionString in aspireAppBuilder.Resources.OfType<IResourceWithConnectionString>())
+        {
+            Environment.SetEnvironmentVariable($"ConnectionStrings__{connectionString.Name}", await aspireApp.GetConnectionStringAsync(connectionString.Name, testContext.CancellationToken));
+            await aspireApp.ResourceNotifications.WaitForResourceAsync(connectionString.Name, [.. KnownResourceStates.TerminalStates, KnownResourceStates.Running], testContext.CancellationToken);
+        }
+    }
+
+    //SQLite database in in-memory mode only lives as long as at least one connection to it is open
+    //This connection is required to keep the database alive during the test run.
+    private static SqliteConnection connection = null!;
+    private static async Task InitializeDatabase(AppTestServer testServer)
+    {
+        if (testServer.WebApp.Environment.IsDevelopment())
+        {
+            await using var scope = testServer.WebApp.Services.CreateAsyncScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+                connection = new SqliteConnection(dbContext.Database.GetConnectionString());
+                await connection.OpenAsync();
+            await dbContext.Database.EnsureCreatedAsync(); // It's recommended to start using ef-core migrations.
+        }
+    }
+
+    [AssemblyCleanup]
+    public static async Task Cleanup()
+    {
+        if (aspireApp is not null)
+        {
+            await aspireApp.StopAsync();
+            await aspireApp.DisposeAsync();
+        }
+    }
+}

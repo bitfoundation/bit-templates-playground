@@ -2,7 +2,6 @@
 using Plugin.LocalNotification;
 using Microsoft.Extensions.Logging;
 using static Android.Provider.Settings;
-using Bit.TemplatePlayground.Shared.Dtos.PushNotification;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android.Services;
 

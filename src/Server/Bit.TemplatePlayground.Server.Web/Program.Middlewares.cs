@@ -4,14 +4,10 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Components.Endpoints;
-using Microsoft.AspNetCore.Localization.Routing;
-using Bit.TemplatePlayground.Shared;
-using Bit.TemplatePlayground.Shared.Attributes;
 using Hangfire;
 using Scalar.AspNetCore;
 using Bit.TemplatePlayground.Server.Api;
-using Bit.TemplatePlayground.Server.Api.RequestPipeline;
-using Bit.TemplatePlayground.Server.Api.Services;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.RequestPipeline;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -43,10 +39,7 @@ public static partial class Program
             app.UseHttpsRedirection();
             app.UseResponseCompression();
 
-            app.UseHsts();
-            app.UseXContentTypeOptions();
-            app.UseXXssProtection(options => options.EnabledWithBlockMode());
-            app.UseXfo(options => options.SameOrigin());
+            app.UseSecurityHeaders();
         }
 
         app.Handle40XStatusCodes();
@@ -56,18 +49,16 @@ public static partial class Program
             app.UseDirectoryBrowser();
         }
 
-
-        app.Use(async (context, next) =>
+        app.UseStaticFiles(options: new()
         {
-            context.Response.OnStarting(async () =>
+            OnPrepareResponse = staticFileResponseContext =>
             {
                 if (env.IsDevelopment() is false)
                 {
                     // Caching static files on the Browser and CDN's edge servers.
-                    if (context.Request.Query.Any(q => string.Equals(q.Key, "v", StringComparison.InvariantCultureIgnoreCase)) &&
-                        env.WebRootFileProvider.GetFileInfo(context.Request.Path).Exists)
+                    if (staticFileResponseContext.Context.Request.Query.Any(q => string.Equals(q.Key, "v", StringComparison.InvariantCultureIgnoreCase)))
                     {
-                        context.Response.GetTypedHeaders().CacheControl = new()
+                        staticFileResponseContext.Context.Response.GetTypedHeaders().CacheControl = new()
                         {
                             Public = true,
                             NoTransform = true,
@@ -75,11 +66,8 @@ public static partial class Program
                         };
                     }
                 }
-            });
-
-            await next.Invoke();
+            }
         });
-        app.UseStaticFiles();
 
         if (string.IsNullOrEmpty(env.WebRootPath) is false && Path.Exists(Path.Combine(env.WebRootPath, @".well-known")))
         {
@@ -94,7 +82,7 @@ public static partial class Program
         }
 
         app.UseCors();
-
+        app.UseRateLimiter();
         app.UseMiddleware<ForceUpdateMiddleware>();
 
         app.UseAuthentication();
@@ -106,9 +94,12 @@ public static partial class Program
 
         app.MapAppHealthChecks();
 
-        app.MapOpenApi().CacheOutput("AppResponseCachePolicy");
-        app.MapScalarApiReference().CacheOutput("AppResponseCachePolicy");
-        app.MapGet("/swagger", () => Results.Redirect("/scalar")).ExcludeFromDescription();
+        if (env.IsProduction() is false)
+        {
+            app.MapOpenApi().CacheOutput("AppResponseCachePolicy");
+            app.MapScalarApiReference().CacheOutput("AppResponseCachePolicy");
+            app.MapGet("/swagger", () => Results.Redirect("/scalar")).ExcludeFromDescription();
+        }
 
         app.UseHangfireDashboard(options: new()
         {
@@ -136,8 +127,10 @@ public static partial class Program
             //    and use the Server.Web project solely as a Blazor Server or pre-rendering service provider.
             throw new InvalidOperationException("Azure SignalR is not supported with Blazor Server and Auto");
         }
-        app.MapHub<Api.SignalR.AppHub>("/app-hub", options => options.AllowStatefulReconnects = true);
-        app.MapMcp("/mcp")/*.RequireAuthorization()*/; // Map MCP endpoints for chatbot tool
+        app.MapHub<Api.Infrastructure.SignalR.AppHub>("/app-hub", options => options.AllowStatefulReconnects = true);
+        app.MapMcp("/mcp").RequireAuthorization(); // Map MCP endpoints for chatbot tool
+
+        app.MapOpenIdConfiguration();
 
         app.MapControllers()
            .RequireAuthorization()

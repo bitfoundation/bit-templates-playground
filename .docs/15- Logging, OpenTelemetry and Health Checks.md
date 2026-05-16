@@ -206,7 +206,7 @@ For **live support scenarios**, support staff can request diagnostic logs from a
 4. The device uploads its in-memory logs to the server
 5. Support staff can view the logs in real-time
 
-This is implemented in [`src/Server/Bit.TemplatePlayground.Server.Api/SignalR/AppHub.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/SignalR/AppHub.cs):
+This is implemented in [`src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/SignalR/AppHub.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/SignalR/AppHub.cs):
 
 ```csharp
 /// <inheritdoc cref="SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
@@ -250,10 +250,9 @@ The project is **pre-configured** for easy integration with popular logging prov
 
 ### How It Works
 
-1- The OpenTelemetry configuration automatically exports to Application Insights if a connection string is provided:
+1- The OpenTelemetry configuration automatically exports to Application Insights if a connection string is provided.
 
-From [`src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/IOpenTelemetryExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/IOpenTelemetryExtensions.cs):
-
+From [`src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/Infrastructure/WebApplicationBuilderExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationBuilderExtensions.cs):
 2- The Azure Application Insights JavaScript SDK added by `BlazorApplicationInsights` nuget in Client.Core project would collect JavaScript errors and more from
 Browser and Blazor Hybrid's WebView
 
@@ -293,7 +292,7 @@ The Aspire Dashboard is a web-based UI that displays:
 When running the project with .NET Aspire (via `Bit.TemplatePlayground.Server.AppHost`), the dashboard is automatically available at:
 
 ```
-https://localhost:2044
+https://localhost:2024
 ```
 
 ### Key Features
@@ -317,7 +316,7 @@ The project includes **health check endpoints** to monitor application health.
 
 ### Health Check Implementation
 
-From [`src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/WebApplicationExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/WebApplicationExtensions.cs):
+From [`src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationExtensions.cs):
 
 ```csharp
 public static WebApplication MapAppHealthChecks(this WebApplication app)
@@ -353,15 +352,15 @@ public static WebApplication MapAppHealthChecks(this WebApplication app)
 
 ### Default Health Checks
 
-From [`src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/WebApplicationBuilderExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/WebApplicationBuilderExtensions.cs):
+From [`src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationBuilderExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationBuilderExtensions.cs):
 
 ```csharp
 public static IHealthChecksBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder)
     where TBuilder : IHostApplicationBuilder
 {
     return builder.Services.AddHealthChecks()
-        .AddDiskStorageHealthCheck(opt => 
-            opt.AddDrive(Path.GetPathRoot(Directory.GetCurrentDirectory())!, 
+        .AddDiskStorageHealthCheck(options => 
+            options.AddDrive(Path.GetPathRoot(Directory.GetCurrentDirectory())!, 
             minimumFreeMegabytes: 5 * 1024), 
             tags: ["live"]);
 }
@@ -371,7 +370,7 @@ This checks that at least **5GB of free disk space** is available.
 
 ### Custom Health Check Example
 
-The project includes a custom health check for storage in [`src/Server/Bit.TemplatePlayground.Server.Api/Services/AppStorageHealthCheck.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Services/AppStorageHealthCheck.cs):
+The project includes a custom health check for storage in [`src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/Services/AppStorageHealthCheck.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/Services/AppStorageHealthCheck.cs):
 
 ```csharp
 /// <summary>
