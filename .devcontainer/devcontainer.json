@@ -1,6 +1,6 @@
 {
     "name": "Bit.TemplatePlayground",
-    "image": "mcr.microsoft.com/dotnet/sdk:10.0.201",
+    "image": "mcr.microsoft.com/dotnet/sdk:10.0.300",
     "hostRequirements": {
         "cpus": 8
     },
@@ -29,12 +29,12 @@
         }
     },
     "forwardPorts": [
-        2142,
-        2267,
-        2242,
-        4089,
+        2146,
+        2254,
+        2281,
+        4273,
         5000,
-        5110
+        5250
     ],
     "features": {
         "ghcr.io/devcontainers/features/python": {},

@@ -46,7 +46,8 @@ public static class WebApplicationBuilderExtensions
         }
 
 
-        services.AddFusionCache()
+        services
+            .AddFusionCache()
             .AsHybridCache()
             .WithRegisteredMemoryCache()
             .WithDefaultEntryOptions(options => options.Size = 1)
@@ -96,7 +97,7 @@ public static class WebApplicationBuilderExtensions
         {
             http.ConfigureHttpClient(httpClient =>
             {
-                httpClient.DefaultRequestVersion = HttpVersion.Version30;
+                httpClient.DefaultRequestVersion = HttpVersion.Version20;
                 httpClient.DefaultVersionPolicy = HttpVersionPolicy.RequestVersionOrHigher;
             });
 
@@ -219,6 +220,6 @@ public static class WebApplicationBuilderExtensions
             build: static policy => policy.Expire(TimeSpan.FromSeconds(10))));
 
         return builder.Services.AddHealthChecks()
-            .AddDiskStorageHealthCheck(options => options.AddDrive(Path.GetPathRoot(Directory.GetCurrentDirectory())!, minimumFreeMegabytes: 5 * 1024), tags: ["live"]);
+            .AddDiskStorageHealthCheck(options => options.AddDrive(Path.GetPathRoot(Directory.GetCurrentDirectory())!, minimumFreeMegabytes: 5 * 1024), name: "binStorage", tags: ["live"]);
     }
 }

@@ -8,3 +8,4 @@ import { WebInteropApp } from './WebInteropApp';
 // Expose classes on window global
 (window as any).App = App;
 (window as any).WebInteropApp = WebInteropApp;
+//#endif

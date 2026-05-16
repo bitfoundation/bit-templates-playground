@@ -292,7 +292,7 @@ The Aspire Dashboard is a web-based UI that displays:
 When running the project with .NET Aspire (via `Bit.TemplatePlayground.Server.AppHost`), the dashboard is automatically available at:
 
 ```
-https://localhost:2142
+https://localhost:2146
 ```
 
 ### Key Features
