@@ -14,8 +14,3 @@ This sample project gets created by the following command:
 ```bash
 dotnet new install Bit.Boilerplate && dotnet new bit-bp --name Bit.TemplatePlayground --database sqlite --module admin --captcha reCaptcha --signalR --aspire
 ```
-<<<<<<< HEAD
-
-Note: In order to view sign-up's `confirmation email`, read [Email settings docs](https://bitplatform.dev/templates/settings).
-=======
->>>>>>> ac524ca1846d483fb4b5ea699f48a7c0f675beae
