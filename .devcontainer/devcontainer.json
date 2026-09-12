@@ -2,7 +2,7 @@
     "name": "Bit.TemplatePlayground",
     "image": "mcr.microsoft.com/dotnet/sdk:10.0.302",
     "hostRequirements": {
-        "cpus": 8
+        "cpus": 4
     },
     "onCreateCommand": "dotnet workload install wasm-tools",
     "waitFor": "onCreateCommand",
