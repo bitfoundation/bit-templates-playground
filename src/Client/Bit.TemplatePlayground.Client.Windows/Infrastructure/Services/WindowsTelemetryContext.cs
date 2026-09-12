@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
 
 public class WindowsTelemetryContext : AppTelemetryContext
 {

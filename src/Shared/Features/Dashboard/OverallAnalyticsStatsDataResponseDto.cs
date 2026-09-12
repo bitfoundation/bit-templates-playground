@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Dashboard;
+namespace Bit.TemplatePlayground.Shared.Features.Dashboard;
 
 public partial class OverallAnalyticsStatsDataResponseDto
 {

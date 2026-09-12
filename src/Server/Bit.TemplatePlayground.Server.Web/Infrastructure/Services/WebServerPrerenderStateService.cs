@@ -1,8 +1,8 @@
-﻿
+
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Components;
 using Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
+using Microsoft.AspNetCore.Components;
 
 namespace Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
 

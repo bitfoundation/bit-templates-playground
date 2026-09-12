@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 public partial class ClientSideAuthTokenProvider : IAuthTokenProvider
 {

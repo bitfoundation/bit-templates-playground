@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.PushNotification;
+namespace Bit.TemplatePlayground.Shared.Features.PushNotification;
 
 [Route("api/v1/[controller]/[action]/")]
 public interface IPushNotificationController : IAppController

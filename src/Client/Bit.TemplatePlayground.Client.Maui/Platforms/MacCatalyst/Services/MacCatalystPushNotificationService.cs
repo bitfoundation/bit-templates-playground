@@ -1,7 +1,7 @@
-﻿using UIKit;
-using UserNotifications;
-using Plugin.LocalNotification;
 using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
+using UIKit;
+using UserNotifications;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst.Services;
 

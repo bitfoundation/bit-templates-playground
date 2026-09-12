@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Common;
+namespace Bit.TemplatePlayground.Client.Core.Components.Common;
 
 public partial class RedirectToSignIn : AppComponentBase
 {

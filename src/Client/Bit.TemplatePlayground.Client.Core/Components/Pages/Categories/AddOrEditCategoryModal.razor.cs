@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Categories;
+using Bit.TemplatePlayground.Shared.Features.Categories;
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.AspNetCore.Components.Routing;
 

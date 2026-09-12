@@ -125,4 +125,11 @@ main {
         inset-block-end: 0;
         inset-inline-end: 0;
     }
+
+    .current-tenant {
+        max-width: 60%;
+        position: absolute;
+        inset-block-end: 0;
+        inset-inline-start: 0;
+    }
 }

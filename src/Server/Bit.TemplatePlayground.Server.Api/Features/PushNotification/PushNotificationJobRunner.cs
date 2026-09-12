@@ -1,12 +1,12 @@
-﻿using AdsPush;
-using AdsPush.Abstraction;
 using System.Collections.Concurrent;
-using Hangfire.Server;
 using System.Net;
-using Microsoft.AspNetCore.SignalR;
+using AdsPush;
+using AdsPush.Abstraction;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 using Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
+using Hangfire.Server;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 
@@ -14,7 +14,7 @@ public partial class PushNotificationJobRunner
 {
     [AutoInject] private AppDbContext dbContext = default!;
     [AutoInject] private IAdsPushSender adsPushSender = default!;
-    [AutoInject] private ServerExceptionHandler serverExceptionHandler = default!;
+    [AutoInject] private ApiServerExceptionHandler serverExceptionHandler = default!;
     [AutoInject] private IHubContext<AppHub> hubContext = default!;
 
     public async Task RequestPush(int[] pushNotificationSubscriptionIds,
@@ -65,7 +65,7 @@ public partial class PushNotificationJobRunner
                 var target = subscription.Platform is "browser" ? AdsPushTarget.BrowserAndPwa
                                     : subscription.Platform is "fcmV1" ? AdsPushTarget.Android
                                     : subscription.Platform is "apns" ? AdsPushTarget.Ios
-                                    : throw new NotImplementedException();
+                                    : throw new NotImplementedException($"Platform {subscription.Platform} is not supported.");
 
                 await adsPushSender.BasicSendAsync(target, subscription.PushChannel, payload, default);
 

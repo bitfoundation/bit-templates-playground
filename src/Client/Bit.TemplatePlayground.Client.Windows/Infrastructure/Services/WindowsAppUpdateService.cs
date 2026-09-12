@@ -1,4 +1,4 @@
-﻿using Velopack;
+using Velopack;
 
 namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
 

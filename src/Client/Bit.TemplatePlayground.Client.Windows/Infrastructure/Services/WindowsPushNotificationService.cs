@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
 
 public partial class WindowsPushNotificationService : PushNotificationServiceBase
 {

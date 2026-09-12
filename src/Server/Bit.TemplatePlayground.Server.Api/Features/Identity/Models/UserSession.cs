@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 
@@ -29,6 +30,14 @@ public partial class UserSession
 
     [ForeignKey(nameof(UserId))]
     public User? User { get; set; }
+
+    /// <summary>
+    /// The tenant the session is currently signed into. It gets updated whenever the user switches into another tenant.
+    /// </summary>
+    [ForeignKey(nameof(TenantId))]
+    public Tenant? Tenant { get; set; }
+
+    public Guid? TenantId { get; set; }
 
     public PushNotificationSubscription? PushNotificationSubscription { get; set; }
 

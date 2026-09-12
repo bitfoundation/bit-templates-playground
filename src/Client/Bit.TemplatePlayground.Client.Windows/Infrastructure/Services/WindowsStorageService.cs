@@ -1,4 +1,4 @@
-﻿using System.IO.IsolatedStorage;
+using System.IO.IsolatedStorage;
 
 namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
 

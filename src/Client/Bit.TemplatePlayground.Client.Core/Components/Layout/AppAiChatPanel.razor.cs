@@ -1,4 +1,4 @@
-﻿using System.Threading.Channels;
+using System.Threading.Channels;
 using Bit.TemplatePlayground.Shared.Features.Chatbot;
 using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 using Microsoft.AspNetCore.Components.Web;

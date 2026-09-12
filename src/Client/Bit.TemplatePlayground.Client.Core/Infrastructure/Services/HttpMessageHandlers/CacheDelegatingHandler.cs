@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Microsoft.Extensions.Caching.Memory;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;

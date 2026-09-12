@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Components;
 

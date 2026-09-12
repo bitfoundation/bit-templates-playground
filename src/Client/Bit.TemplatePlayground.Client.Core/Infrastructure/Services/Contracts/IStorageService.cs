@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 
 public interface IStorageService
 {

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Server.Api;
+namespace Bit.TemplatePlayground.Server.Api;
 
 public static partial class Program
 {

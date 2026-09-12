@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Statistics;
+namespace Bit.TemplatePlayground.Shared.Features.Statistics;
 
 [Route("api/v1/[controller]/[action]/")]
 public interface IStatisticsController : IAppController

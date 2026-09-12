@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.PushNotification;
+using Bit.TemplatePlayground.Shared.Features.PushNotification;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 

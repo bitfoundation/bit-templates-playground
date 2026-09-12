@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity;
 using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 using Microsoft.AspNetCore.Components.Routing;
 

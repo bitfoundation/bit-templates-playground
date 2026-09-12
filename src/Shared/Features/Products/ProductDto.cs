@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Attachments;
+using Bit.TemplatePlayground.Shared.Features.Attachments;
 
 namespace Bit.TemplatePlayground.Shared.Features.Products;
 

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
 
 public class BackgroundJobProgressDto
 {

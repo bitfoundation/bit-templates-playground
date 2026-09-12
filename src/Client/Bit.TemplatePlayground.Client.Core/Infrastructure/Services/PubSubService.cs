@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
@@ -58,7 +58,7 @@ public partial class PubSubService
 
     private void HandleException(Task t)
     {
-        serviceProvider.GetRequiredService<IExceptionHandler>().Handle(t.Exception!);
+        serviceProvider.GetRequiredService<ClientExceptionHandlerBase>().Handle(t.Exception!);
     }
 
     private class WeakHandler

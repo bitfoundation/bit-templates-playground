@@ -1,5 +1,5 @@
-﻿using Microsoft.IdentityModel.Tokens;
 using System.Security.Cryptography.X509Certificates;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 

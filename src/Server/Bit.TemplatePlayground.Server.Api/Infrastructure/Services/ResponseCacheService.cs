@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 

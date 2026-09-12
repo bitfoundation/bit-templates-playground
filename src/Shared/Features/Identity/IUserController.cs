@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Bit.TemplatePlayground.Shared.Features.Tenants.Dtos;
 
 namespace Bit.TemplatePlayground.Shared.Features.Identity;
 
@@ -62,4 +63,17 @@ public interface IUserController : IAppController
 
     [HttpPost("{userSessionId}")]
     Task<UserSessionNotificationStatus> ToggleNotification(Guid userSessionId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns the active tenants the user can switch into.
+    /// Returns all active tenants if the user has the <see cref="AppFeatures.Management.Tenants_Manage_Global"/> feature.
+    /// </summary>
+    [HttpGet]
+    Task<List<TenantDto>> GetTenants(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Leaves the tenant the user is currently signed into by clearing TenantUser's AcceptedOn.
+    /// </summary>
+    [HttpPost("{tenantId}")]
+    Task LeaveTenant(Guid tenantId, CancellationToken cancellationToken);
 }

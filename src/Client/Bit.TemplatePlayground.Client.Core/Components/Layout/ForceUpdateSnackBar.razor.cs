@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
+namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
 public partial class ForceUpdateSnackBar
 {

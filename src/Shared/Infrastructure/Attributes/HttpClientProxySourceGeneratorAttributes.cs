@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Attributes;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Attributes;
 
 [AttributeUsage(AttributeTargets.Interface | AttributeTargets.Method)]
 internal partial class RouteAttribute(string template) : Attribute

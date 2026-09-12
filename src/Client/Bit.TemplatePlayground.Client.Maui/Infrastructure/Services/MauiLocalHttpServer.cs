@@ -1,6 +1,6 @@
-﻿using System.Net;
-using System.Text;
+using System.Net;
 using System.Net.Sockets;
+using System.Text;
 using EmbedIO;
 using EmbedIO.Actions;
 
@@ -10,7 +10,7 @@ namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 public partial class MauiLocalHttpServer : ILocalHttpServer
 {
     [AutoInject] private PubSubService pubSubService;
-    [AutoInject] private IExceptionHandler exceptionHandler;
+    [AutoInject] private ClientExceptionHandlerBase exceptionHandler;
 
     public MauiWebAuthnService? WebAuthnService { get; set; }
 

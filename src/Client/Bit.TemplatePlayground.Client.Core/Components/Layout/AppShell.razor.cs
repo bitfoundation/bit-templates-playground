@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components.Routing;
+using Bit.TemplatePlayground.Shared.Features.Tenants.Dtos;
+using Microsoft.AspNetCore.Components.Routing;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
@@ -7,6 +8,11 @@ public partial class AppShell
     [Parameter] public bool? IsIdentityPage { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public List<BitNavItem> NavPanelItems { get; set; } = [];
+
+    /// <summary>
+    /// The tenant the user is currently signed into, or null when none is selected. Shown next to the app version.
+    /// </summary>
+    [CascadingParameter] public TenantDto? CurrentTenant { get; set; }
 
 
     [AutoInject] private IAppUpdateService appUpdateService = default!;

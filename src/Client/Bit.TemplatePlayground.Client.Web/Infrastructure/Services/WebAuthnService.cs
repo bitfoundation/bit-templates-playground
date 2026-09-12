@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
 
 public partial class WebAuthnService : WebAuthnServiceBase
 {

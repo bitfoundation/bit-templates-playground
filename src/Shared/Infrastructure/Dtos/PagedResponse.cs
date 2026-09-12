@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
 
 public partial class PagedResponse<T>
 {

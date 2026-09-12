@@ -1,11 +1,12 @@
-﻿using AdsPush.Vapid;
 using System.Linq.Expressions;
+using AdsPush.Vapid;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 
 public partial class PushNotificationService
 {
     [AutoInject] private AppDbContext dbContext = default!;
+    [AutoInject] private TimeProvider timeProvider = default!;
     [AutoInject] private ServerApiSettings serverApiSettings = default!;
     [AutoInject] private IHttpContextAccessor httpContextAccessor = default!;
     [AutoInject] private IBackgroundJobClient backgroundJobClient = default!;
@@ -31,8 +32,8 @@ public partial class PushNotificationService
 
         subscription.Tags = [.. tags];
         subscription.UserSessionId = userSessionId;
-        subscription.RenewedOn = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
-        subscription.ExpirationTime = DateTimeOffset.UtcNow.AddMonths(1).ToUnixTimeSeconds();
+        subscription.RenewedOn = timeProvider.GetUtcNow().ToUnixTimeSeconds();
+        subscription.ExpirationTime = timeProvider.GetUtcNow().AddMonths(1).ToUnixTimeSeconds();
 
         if (subscription.Platform is "browser")
         {
@@ -46,7 +47,7 @@ public partial class PushNotificationService
         Expression<Func<PushNotificationSubscription, bool>>? customSubscriptionFilter = null,
         CancellationToken cancellationToken = default)
     {
-        var now = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+        var now = timeProvider.GetUtcNow().ToUnixTimeSeconds();
 
         // userRelatedPush: If the BearerTokenExpiration is 14 days, it's not practical to send push notifications 
         // with sensitive information, like an OTP code to a device where the user hasn't used the app for over 14 days.  

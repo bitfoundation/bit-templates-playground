@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+namespace Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 
 public class PushNotificationSubscriptionConfiguration : IEntityTypeConfiguration<PushNotificationSubscription>
 {
@@ -10,9 +10,6 @@ public class PushNotificationSubscriptionConfiguration : IEntityTypeConfiguratio
             .HasForeignKey<PushNotificationSubscription>(sub => sub.UserSessionId)
             .OnDelete(DeleteBehavior.SetNull);
 
-        builder
-            .HasIndex(b => b.UserSessionId)
-            .HasFilter($"[{nameof(PushNotificationSubscription.UserSessionId)}] IS NOT NULL")
-            .IsUnique();
+        builder.HasUniqueIndexOnNullable(b => b.UserSessionId);
     }
 }

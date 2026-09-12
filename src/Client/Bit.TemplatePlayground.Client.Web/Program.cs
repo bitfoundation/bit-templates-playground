@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.Components;
+using Bit.Butil;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Bit.Butil;
 
 namespace Bit.TemplatePlayground.Client.Web;
 
@@ -10,6 +10,7 @@ public static partial class Program
     public static async Task Main(string[] args)
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
+
 
         AppEnvironment.Set(builder.HostEnvironment.Environment);
 
@@ -60,7 +61,7 @@ public static partial class Program
     {
         if (host.Services is IServiceProvider services && error is Exception exp)
         {
-            services.GetRequiredService<IExceptionHandler>().Handle(exp, parameters: new()
+            services.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
             }, displayKind: AppEnvironment.IsDevelopment() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);

@@ -1,12 +1,12 @@
-using Microsoft.EntityFrameworkCore;
 using Aspire.Hosting;
-using Aspire.Hosting.Testing;
-using Aspire.Hosting.DevTunnels;
 using Aspire.Hosting.ApplicationModel;
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Hosting;
-using Bit.TemplatePlayground.Tests.Features.Identity;
+using Aspire.Hosting.DevTunnels;
+using Aspire.Hosting.Testing;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
+using Bit.TemplatePlayground.Tests.Features.Identity;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Hosting;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure;
 
@@ -14,6 +14,12 @@ namespace Bit.TemplatePlayground.Tests.Infrastructure;
 public partial class TestsAssemblyInitializer
 {
     private static DistributedApplication? aspireApp;
+
+    /// <summary>
+    /// The running Aspire host - with real backing containers such as Redis
+    /// Started by <see cref="RunAspireHost"/> during assembly initialization.
+    /// </summary>
+    internal static DistributedApplication AspireApp => aspireApp ?? throw new InvalidOperationException();
 
     [AssemblyInitialize]
     public static async Task Initialize(TestContext testContext)
@@ -72,8 +78,8 @@ public partial class TestsAssemblyInitializer
         {
             await using var scope = testServer.WebApp.Services.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                connection = new SqliteConnection(dbContext.Database.GetConnectionString());
-                await connection.OpenAsync();
+            connection = new SqliteConnection(dbContext.Database.GetConnectionString());
+            await connection.OpenAsync();
             await dbContext.Database.EnsureCreatedAsync(); // It's recommended to start using ef-core migrations.
         }
     }

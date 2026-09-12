@@ -1,6 +1,6 @@
-﻿using Humanizer;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Humanizer;
 using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
@@ -21,12 +21,12 @@ public partial class IdentityController
             throw new BadRequestException(Localizer[nameof(AppStrings.UserIsNotConfirmed)]).WithData("UserId", user.Id);
         }
 
-        var resendDelay = (DateTimeOffset.Now - user.ResetPasswordTokenRequestedOn) - AppSettings.Identity.ResetPasswordTokenLifetime;
+        var resendDelay = (TimeProvider.GetUtcNow() - user.ResetPasswordTokenRequestedOn) - AppSettings.Identity.ResetPasswordTokenLifetime;
 
         if (resendDelay < TimeSpan.Zero)
             throw new TooManyRequestsException(Localizer[nameof(AppStrings.WaitForResetPasswordTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithData("UserId", user.Id).WithExtensionData("TryAgainIn", resendDelay);
 
-        user.ResetPasswordTokenRequestedOn = DateTimeOffset.Now;
+        user.ResetPasswordTokenRequestedOn = TimeProvider.GetUtcNow();
 
         var result = await userManager.UpdateAsync(user);
 
@@ -75,14 +75,14 @@ public partial class IdentityController
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
         var user = await userManager.FindUser(request) ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.UserNotFound)]).WithData("Identifier", request);
 
-        var expired = (DateTimeOffset.Now - user.ResetPasswordTokenRequestedOn) > AppSettings.Identity.ResetPasswordTokenLifetime;
+        var expired = (TimeProvider.GetUtcNow() - user.ResetPasswordTokenRequestedOn) > AppSettings.Identity.ResetPasswordTokenLifetime;
 
         if (expired)
             throw new BadRequestException(nameof(AppStrings.ExpiredToken)).WithData("UserId", user.Id);
 
         if (await userManager.IsLockedOutAsync(user))
         {
-            var tryAgainIn = (user.LockoutEnd! - DateTimeOffset.UtcNow).Value;
+            var tryAgainIn = (user.LockoutEnd! - TimeProvider.GetUtcNow()).Value;
             throw new BadRequestException(Localizer[nameof(AppStrings.UserLockedOut), tryAgainIn.Humanize(culture: CultureInfo.CurrentUICulture)]).WithData("UserId", user.Id).WithExtensionData("TryAgainIn", tryAgainIn);
         }
 

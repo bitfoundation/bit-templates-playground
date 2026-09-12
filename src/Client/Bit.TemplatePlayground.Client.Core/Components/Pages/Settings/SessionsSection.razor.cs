@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity;
 using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Settings;
@@ -101,15 +101,15 @@ public partial class SessionsSection
 
     private BitPersonaPresence GetPresence(DateTimeOffset renewedOn)
     {
-        return DateTimeOffset.UtcNow - renewedOn < TimeSpan.FromMinutes(5) ? BitPersonaPresence.Online
-                    : DateTimeOffset.UtcNow - renewedOn < TimeSpan.FromMinutes(15) ? BitPersonaPresence.Away
+        return TimeProvider.GetUtcNow() - renewedOn < TimeSpan.FromMinutes(5) ? BitPersonaPresence.Online
+                    : TimeProvider.GetUtcNow() - renewedOn < TimeSpan.FromMinutes(15) ? BitPersonaPresence.Away
                     : BitPersonaPresence.Offline;
     }
 
     private string GetLastSeenOn(DateTimeOffset renewedOn)
     {
-        return DateTimeOffset.UtcNow - renewedOn < TimeSpan.FromMinutes(5) ? Localizer[nameof(AppStrings.Online)]
-                    : DateTimeOffset.UtcNow - renewedOn < TimeSpan.FromMinutes(15) ? Localizer[nameof(AppStrings.Recently)]
+        return TimeProvider.GetUtcNow() - renewedOn < TimeSpan.FromMinutes(5) ? Localizer[nameof(AppStrings.Online)]
+                    : TimeProvider.GetUtcNow() - renewedOn < TimeSpan.FromMinutes(15) ? Localizer[nameof(AppStrings.Recently)]
                     : renewedOn.ToLocalTime().ToString("g");
     }
 

@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 
+<CascadingValue Value="currentTenant">
 <CascadingValue Value="currentDir">
     <CascadingValue Value="currentUser">
         <CascadingValue Value="currentTheme">
@@ -18,10 +19,12 @@
                     <AppDiagnosticModal />
                     <JobProgress />
                     <BitModalContainer ModalParameters="ModalParameters" />
+                    <BitProModalContainer ModalParameters="ProModalParameters" />
                     <AppJsBridge />
 
                 </CascadingValue>
             </CascadingValue>
         </CascadingValue>
     </CascadingValue>
+</CascadingValue>
 </CascadingValue>

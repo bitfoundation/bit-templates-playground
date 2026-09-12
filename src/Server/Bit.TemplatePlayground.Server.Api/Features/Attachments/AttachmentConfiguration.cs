@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Server.Api.Features.Attachments;
+namespace Bit.TemplatePlayground.Server.Api.Features.Attachments;
 
 public class AttachmentConfiguration : IEntityTypeConfiguration<Attachment>
 {

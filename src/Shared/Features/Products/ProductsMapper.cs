@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Products;
+namespace Bit.TemplatePlayground.Shared.Features.Products;
 
 [Mapper(UseDeepCloning = true)]
 public static partial class ProductsMapper

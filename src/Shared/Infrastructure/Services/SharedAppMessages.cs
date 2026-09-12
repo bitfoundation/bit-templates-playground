@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Services;
 
 /// <summary>
 /// This class is located in the Shared project to define

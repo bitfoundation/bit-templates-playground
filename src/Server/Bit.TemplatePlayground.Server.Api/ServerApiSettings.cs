@@ -1,7 +1,7 @@
-﻿using AdsPush.Abstraction.Settings;
 using System.Text;
-using Bit.TemplatePlayground.Server.Shared;
+using AdsPush.Abstraction.Settings;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
+using Bit.TemplatePlayground.Server.Shared;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
@@ -109,7 +109,7 @@ public partial class AppIdentityOptions : IdentityOptions
     public TimeSpan TwoFactorTokenLifetime { get; set; }
 
     /// <summary>
-    /// <see cref="SignInManagerExtensions.OtpSignIn(SignInManager{Models.Identity.User}, Models.Identity.User, string)"/>
+    /// <see cref="SignInManagerExtensions.OtpSignIn"/>
     /// </summary>
     public TimeSpan OtpTokenLifetime { get; set; }
 
@@ -122,22 +122,10 @@ public partial class AppIdentityOptions : IdentityOptions
 public partial class AIOptions
 {
     public OpenAIOptions? OpenAI { get; set; }
-    public AzureOpenAIOptions? AzureOpenAI { get; set; }
     public HuggingFaceOptions? HuggingFace { get; set; }
 }
 
 public class OpenAIOptions
-{
-    public string? ChatModel { get; set; }
-    public Uri? ChatEndpoint { get; set; }
-    public string? ChatApiKey { get; set; }
-
-    public string? EmbeddingModel { get; set; }
-    public Uri? EmbeddingEndpoint { get; set; }
-    public string? EmbeddingApiKey { get; set; }
-}
-
-public class AzureOpenAIOptions
 {
     public string? ChatModel { get; set; }
     public Uri? ChatEndpoint { get; set; }

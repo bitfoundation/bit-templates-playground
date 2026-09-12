@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Diagnostic;
+namespace Bit.TemplatePlayground.Shared.Features.Diagnostic;
 
 [Route("api/v1/[controller]/[action]/")]
 public interface IDiagnosticController : IAppController

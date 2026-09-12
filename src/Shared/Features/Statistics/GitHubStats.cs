@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Statistics;
+namespace Bit.TemplatePlayground.Shared.Features.Statistics;
 
 public record GitHubStats(
     [property: JsonPropertyName("name")] string Name,

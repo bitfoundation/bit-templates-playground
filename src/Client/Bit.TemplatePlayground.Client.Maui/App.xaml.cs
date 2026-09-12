@@ -1,5 +1,5 @@
-﻿using Plugin.Maui.AppRating;
 using Microsoft.Extensions.Logging;
+using Plugin.Maui.AppRating;
 
 namespace Bit.TemplatePlayground.Client.Maui;
 
@@ -8,7 +8,7 @@ public partial class App
     private readonly Page mainPage;
 
     private readonly ILogger<App> logger;
-    private readonly IExceptionHandler exceptionHandler;
+    private readonly ClientExceptionHandlerBase exceptionHandler;
     private readonly IBitDeviceCoordinator deviceCoordinator;
     private readonly IStringLocalizer<AppStrings> localizer;
     private readonly Action pubSubHandlerReferenceToKeepAlive;
@@ -17,7 +17,7 @@ public partial class App
         PubSubService pubSubService,
         IStorageService storageService,
         ILogger<App> logger,
-        IExceptionHandler exceptionHandler,
+        ClientExceptionHandlerBase exceptionHandler,
         IBitDeviceCoordinator deviceCoordinator,
         IStringLocalizer<AppStrings> localizer)
     {
@@ -67,7 +67,7 @@ public partial class App
             base.OnStart();
 
             await deviceCoordinator.ApplyTheme(AppInfo.Current.RequestedTheme is AppTheme.Dark);
-            #if Android
+#if Android
             const int minimumSupportedWebViewVersion = 85;
             // Download link for Android emulator (x86 or x86_64)
             // https://www.apkmirror.com/apk/google-inc/chrome/chrome-85-0-4183-127-release/
@@ -82,7 +82,7 @@ public partial class App
                 await Launcher.OpenAsync($"https://play.google.com/store/apps/details?id={webViewName}");
             }
 #endif
-                    }
+        }
         catch (Exception exp)
         {
             exceptionHandler.Handle(exp);

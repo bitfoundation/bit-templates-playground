@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
 
 /// <summary>
 /// Represents the user's preference and status for receiving push notifications on specific devices/sessions.

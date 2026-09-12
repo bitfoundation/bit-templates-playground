@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 
 public partial class MauiWebAuthnService : WebAuthnServiceBase
 {

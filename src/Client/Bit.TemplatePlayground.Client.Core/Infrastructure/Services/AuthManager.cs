@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Shared.Features.Identity;
 using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
@@ -13,11 +14,10 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     [AutoInject] private IUserController userController = default!;
     [AutoInject] private ILogger<AuthManager> authLogger = default!;
     [AutoInject] private IAuthTokenProvider tokenProvider = default!;
-    [AutoInject] private IExceptionHandler exceptionHandler = default!;
+    [AutoInject] private ClientExceptionHandlerBase exceptionHandler = default!;
     [AutoInject] private IStringLocalizer<AppStrings> localizer = default!;
     [AutoInject] private IIdentityController identityController = default!;
     [AutoInject] private IAuthorizationService authorizationService = default!;
-    [AutoInject] private AbsoluteServerAddressProvider absoluteServerAddress = default!;
 
     public void OnInit()
     {
@@ -57,7 +57,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
         {
             await userController.SignOut(cancellationToken);
         }
-        catch (Exception exp) when (exp is ServerConnectionException or UnauthorizedException or ResourceNotFoundException or ClientNotSupportedException)
+        catch (Exception exp) when (exp is TransientException or UnauthorizedException or ResourceNotFoundException or ClientNotSupportedException)
         {
             // If the client's access token is expired, the client would attempt to refresh it,
             // but if the client is offline or outdated, the refresh token request will fail.
@@ -75,7 +75,9 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     private SemaphoreSlim semaphore = new(1, 1);
     private TaskCompletionSource<string?>? accessTokenTsc = null;
 
-    public Task<string?> RefreshToken(string requestedBy, string? elevatedAccessToken = null, bool ignoreServerConnectionException = false)
+    public Task<string?> RefreshToken(string requestedBy, string? elevatedAccessToken = null, bool ignoreServerConnectionException = false
+        , Guid? requestedTenantId = null // The id of the tenant the user is trying to switch into.
+        )
     {
         if (accessTokenTsc is null)
         {
@@ -100,14 +102,15 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
                     var refreshTokenResponse = await identityController.Refresh(new()
                     {
                         RefreshToken = refreshToken,
-                        ElevatedAccessToken = elevatedAccessToken
+                        ElevatedAccessToken = elevatedAccessToken,
+                        RequestedTenantId = requestedTenantId,
                     }, default);
                     await StoreTokens(refreshTokenResponse);
                     accessTokenTsc.SetResult(refreshTokenResponse.AccessToken!);
                 }
                 catch (Exception exp)
                 {
-                    if (exp is not ServerConnectionException || ignoreServerConnectionException is false)
+                    if (exp is not TransientException || ignoreServerConnectionException is false)
                     {
                         exceptionHandler.Handle(exp, parameters: new()
                         {
@@ -181,6 +184,22 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
             await accessTokenTsc.Task; // Wait for any ongoing token refresh to complete.
         }
         var accessToken = await RefreshToken(requestedBy: "RequestElevatedAccess", token);
+        return string.IsNullOrEmpty(accessToken) is false;
+    }
+
+    /// <summary>
+    /// Switches the user into the given tenant by refreshing the access token (See RefreshTokenRequestDto.TenantId).
+    /// Passing the id of a tenant that the user doesn't have access to (or is not active) ends up kicking the user out.
+    /// </summary>
+    public async Task<bool> SwitchTenant(Guid tenantId, CancellationToken cancellationToken)
+    {
+        if (accessTokenTsc != null)
+        {
+            await accessTokenTsc.Task; // Wait for any ongoing token refresh to complete.
+        }
+
+        var accessToken = await RefreshToken(requestedBy: "SwitchTenant", requestedTenantId: tenantId);
+
         return string.IsNullOrEmpty(accessToken) is false;
     }
 

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <UserSecretsId>E2CB5677-5539-49C9-AFFA-977AA706B293</UserSecretsId>
+        <UserSecretsId>C1520087-2E30-4924-BB85-AEF022158E21</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
     </PropertyGroup>
@@ -74,11 +74,11 @@
         <PackageReference Include="Twilio" />
         <PackageReference Include="AdsPush" />
         <PackageReference Include="Microsoft.Extensions.AI" />
-        <PackageReference Include="Microsoft.Extensions.AI.AzureAIInference" />
         <PackageReference Include="Microsoft.Extensions.AI.OpenAI" />
         <PackageReference Include="Microsoft.SemanticKernel.Core" />
         <PackageReference Include="Microsoft.SemanticKernel.Connectors.HuggingFace" />
         <PackageReference Include="Microsoft.Agents.AI" />
+        <PackageReference Include="Microsoft.Agents.AI.Hosting" />
         <PackageReference Include="DistributedLock.FileSystem" />
     </ItemGroup>
 

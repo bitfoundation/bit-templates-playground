@@ -1,9 +1,9 @@
-﻿using System.Text;
-using Microsoft.AspNetCore.SignalR;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
-using Bit.TemplatePlayground.Shared.Features.Diagnostic;
+using System.Text;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
+using Bit.TemplatePlayground.Shared.Features.Diagnostic;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Diagnostic;
 
@@ -48,7 +48,7 @@ public partial class DiagnosticController : AppControllerBase, IDiagnosticContro
             await pushNotificationService.RequestPush(new()
             {
                 Title = "Test Push",
-                Message = $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}",
+                Message = $"Open terms page. {TimeProvider.GetUtcNow():HH:mm:ss} UTC",
                 Action = "testAction",
                 PageUrl = PageUrls.Terms,
                 UserRelatedPush = false
@@ -57,10 +57,10 @@ public partial class DiagnosticController : AppControllerBase, IDiagnosticContro
 
         if (string.IsNullOrEmpty(signalRConnectionId) is false)
         {
-            var success = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Open terms page. {DateTimeOffset.Now:HH:mm:ss}", new Dictionary<string, string?> { { "pageUrl", PageUrls.Terms }, { "action", "testAction" } }, cancellationToken);
+            var success = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Open terms page. {TimeProvider.GetUtcNow():HH:mm:ss} UTC", new Dictionary<string, string?> { { "pageUrl", PageUrls.Terms }, { "action", "testAction" } }, cancellationToken);
             if (success is false) // Client would return false if it's unable to show the message with custom action.
             {
-                _ = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Simple message. {DateTimeOffset.Now:HH:mm:ss}", null, cancellationToken);
+                _ = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Simple message. {TimeProvider.GetUtcNow():HH:mm:ss} UTC", null, cancellationToken);
             }
         }
 
@@ -74,6 +74,7 @@ public partial class DiagnosticController : AppControllerBase, IDiagnosticContro
         }
 
         result.AppendLine();
+        result.AppendLine($"TenantId: {TenantProvider.GetCurrentTenantId()}");
         result.AppendLine($"Environment: {env.EnvironmentName}");
         result.AppendLine("Base url: " + Request.GetBaseUrl());
         result.AppendLine("Web app url: " + Request.GetWebAppUrl());

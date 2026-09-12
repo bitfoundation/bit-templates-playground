@@ -417,7 +417,7 @@ dotnet publish -c Release \
 1. **Setup Apple Development Environment**
    ```yaml
    - Setup .NET SDK
-   - Setup Xcode 26.0 (latest)
+   - Setup Xcode 26.6 (latest)
    - Setup Node.js 24
    - Translate resources (bit-resx-translate)
    - Update appsettings.json with ServerAddress
@@ -529,7 +529,7 @@ The workflow follows a **security-focused two-phase deployment** pattern that se
 build_api_blazor:
   runs-on: ubuntu-24.04
   steps:
-    - uses: actions/checkout@v6
+    - uses: actions/checkout@v7
     - uses: actions/setup-dotnet@v5
     - uses: actions/setup-node@v6
     - run: dotnet publish ...

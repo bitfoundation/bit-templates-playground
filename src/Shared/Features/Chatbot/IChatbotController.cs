@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
+namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 [AuthorizedApi]
 [Route("api/v1/[controller]/[action]/")]

@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Shared.Features.Identity;
 
@@ -24,6 +24,7 @@ namespace Bit.TemplatePlayground.Shared.Features.Identity;
 [JsonSerializable(typeof(SendPhoneTokenRequestDto))]
 [JsonSerializable(typeof(ConfirmEmailRequestDto))]
 [JsonSerializable(typeof(ChangeEmailRequestDto))]
+[JsonSerializable(typeof(ChangePasswordRequestDto))]
 [JsonSerializable(typeof(ConfirmPhoneRequestDto))]
 [JsonSerializable(typeof(ChangePhoneNumberRequestDto))]
 [JsonSerializable(typeof(SendResetPasswordTokenRequestDto))]

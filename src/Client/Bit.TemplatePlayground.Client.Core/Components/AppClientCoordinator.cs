@@ -1,9 +1,9 @@
-﻿using System.Web;
+using System.Web;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
+using Bit.TemplatePlayground.Shared.Features.Identity;
+using Microsoft.AspNetCore.Components.Routing;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.AspNetCore.SignalR.Client;
-using Microsoft.AspNetCore.Components.Routing;
-using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
@@ -223,17 +223,20 @@ public partial class AppClientCoordinator : AppComponentBase
         hubConnection.Remove(SharedAppMessages.CHANGE_THEME);
         signalROnDisposables.Add(hubConnection.On(SharedAppMessages.CHANGE_THEME, async (string requestedTheme) =>
         {
+            bool themeChanged = false;
+
             await InvokeAsync(async () =>
             {
                 var currentTheme = (await themeService.GetCurrentTheme()).ToString();
 
-                if (string.Equals(currentTheme, requestedTheme) is false)
+                if (string.Equals(currentTheme, requestedTheme, StringComparison.InvariantCultureIgnoreCase) is false)
                 {
                     await themeService.ToggleTheme();
+                    themeChanged = true;
                 }
             });
 
-            return true;
+            return themeChanged;
         }));
 
         hubConnection.Remove(SharedAppMessages.CLEAR_APP_FILES);

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Tests.Features.Identity;
+namespace Bit.TemplatePlayground.Tests.Features.Identity;
 
 public partial class TestData
 {

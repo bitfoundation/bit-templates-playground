@@ -1,8 +1,8 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Diagnostic;
+using Bit.TemplatePlayground.Shared.Features.Diagnostic;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
 
-public partial class DiagnosticLogger : ILogger, IDisposable
+public partial class DiagnosticLogger(TimeProvider timeProvider) : ILogger, IDisposable
 {
     public static ConcurrentQueue<DiagnosticLogDto> Store { get; } = [];
 
@@ -39,7 +39,7 @@ public partial class DiagnosticLogger : ILogger, IDisposable
 
         Store.Enqueue(new()
         {
-            CreatedOn = DateTimeOffset.Now,
+            CreatedOn = timeProvider.GetUtcNow(),
             Level = logLevel,
             Message = message,
             Category = Category,

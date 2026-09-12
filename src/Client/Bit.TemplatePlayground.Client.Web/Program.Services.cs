@@ -1,67 +1,74 @@
-﻿
-using Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
+
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 
 namespace Bit.TemplatePlayground.Client.Web;
 
 public static partial class Program
 {
-    public static void ConfigureServices(this WebAssemblyHostBuilder builder)
+    extension(WebAssemblyHostBuilder builder)
     {
-        var services = builder.Services;
-        var configuration = builder.Configuration;
-        // The following services are blazor web assembly only.
-
-        builder.Logging.ConfigureLoggers(configuration);
-
-        services.AddClientWebProjectServices(configuration);
-
-        Uri.TryCreate(configuration.GetServerAddress(), UriKind.RelativeOrAbsolute, out var serverAddress);
-
-        if (serverAddress!.IsAbsoluteUri is false)
+        public void ConfigureServices()
         {
-            serverAddress = new Uri(new Uri(builder.HostEnvironment.BaseAddress), serverAddress);
-        }
+            var services = builder.Services;
+            var configuration = builder.Configuration;
+            // The following services are blazor web assembly only.
 
-        services.AddScoped<HttpClient>(sp =>
-        {
-            var handlerFactory = sp.GetRequiredService<HttpMessageHandlersChainFactory>();
-            var httpClient = new HttpClient(handlerFactory.Invoke())
+            builder.Logging.ConfigureLoggers(configuration);
+
+            services.AddClientWebProjectServices(configuration);
+
+            Uri.TryCreate(configuration.GetServerAddress(), UriKind.RelativeOrAbsolute, out var serverAddress);
+
+            if (serverAddress!.IsAbsoluteUri is false)
             {
-                BaseAddress = serverAddress
-            };
+                serverAddress = new Uri(new Uri(builder.HostEnvironment.BaseAddress), serverAddress);
+            }
 
-            httpClient.DefaultRequestHeaders.Add("X-Origin", builder.HostEnvironment.BaseAddress);
+            services.AddScoped<HttpClient>(sp =>
+            {
+                var handlerFactory = sp.GetRequiredService<HttpMessageHandlersChainFactory>();
+                var httpClient = new HttpClient(handlerFactory.Invoke())
+                {
+                    BaseAddress = serverAddress
+                };
 
-            return httpClient;
-        });
-        services.AddScoped<IExceptionHandler, WebClientExceptionHandler>();
+                httpClient.DefaultRequestHeaders.Add("X-Origin", builder.HostEnvironment.BaseAddress);
 
-        services.AddTransient<IPrerenderStateService, WebClientPrerenderStateService>();
+                return httpClient;
+            });
+            services.AddScoped<ClientExceptionHandlerBase, WebClientExceptionHandler>();
+            services.AddScoped<SharedExceptionHandler>(sp => sp.GetRequiredService<ClientExceptionHandlerBase>());
+
+            services.AddTransient<IPrerenderStateService, WebClientPrerenderStateService>();
+        }
     }
 
-    public static void AddClientWebProjectServices(this IServiceCollection services, IConfiguration configuration)
+    extension(IServiceCollection services)
     {
-        services.AddClientCoreProjectServices(configuration);
-        // The following services work both in blazor web assembly and server side for pre-rendering and blazor server.
-
-        services.AddScoped<IBitDeviceCoordinator, WebDeviceCoordinator>();
-        services.AddScoped<IStorageService, WebStorageService>();
-        services.AddScoped<IPushNotificationService, WebPushNotificationService>();
-        services.AddScoped<IWebAuthnService, WebAuthnService>();
-        services.AddScoped<IAppUpdateService, WebAppUpdateService>();
-
-        services.AddSingleton(sp =>
+        public void AddClientWebProjectServices(IConfiguration configuration)
         {
-            ClientWebSettings settings = new();
-            configuration.Bind(settings);
-            return settings;
-        });
+            services.AddClientCoreProjectServices(configuration);
+            // The following services work both in blazor web assembly and server side for pre-rendering and blazor server.
 
-        services.AddOptions<ClientWebSettings>()
-            .Bind(configuration)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
+            services.AddScoped<IBitDeviceCoordinator, WebDeviceCoordinator>();
+            services.AddScoped<IStorageService, WebStorageService>();
+            services.AddScoped<IPushNotificationService, WebPushNotificationService>();
+            services.AddScoped<IWebAuthnService, WebAuthnService>();
+            services.AddScoped<IAppUpdateService, WebAppUpdateService>();
+
+            services.AddSingleton(sp =>
+            {
+                ClientWebSettings settings = new();
+                configuration.Bind(settings);
+                return settings;
+            });
+
+            services.AddOptions<ClientWebSettings>()
+                .Bind(configuration)
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
+namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 public class SystemPromptDto
 {

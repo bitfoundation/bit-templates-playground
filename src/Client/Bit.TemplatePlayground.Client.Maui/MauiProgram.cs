@@ -1,9 +1,9 @@
-﻿using Microsoft.Maui.Platform;
-using Microsoft.Maui.LifecycleEvents;
-using Plugin.LocalNotification;
 using Bit.TemplatePlayground.Client.Core.Styles;
 using Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 using Maui.AppStores;
+using Microsoft.Maui.LifecycleEvents;
+using Microsoft.Maui.Platform;
+using Plugin.LocalNotification;
 #if iOS || Mac
 using UIKit;
 using WebKit;
@@ -30,17 +30,18 @@ public static partial class MauiProgram
         ITelemetryContext.Current = new MauiTelemetryContext();
 
         var builder = MauiApp.CreateBuilder();
+        builder.Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Maui");
 
-                builder
-            .UseMauiApp<App>()
-            .UseAppStoreInfo()
-            .Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Maui");
+        builder
+    .UseMauiApp<App>()
+    .UseAppStoreInfo()
+    ;
 
         if (AppPlatform.IsWindows is false)
         {
             builder.UseLocalNotification();
         }
-        
+
         builder.ConfigureServices();
 
         builder.ConfigureLifecycleEvents(lifecycle =>
@@ -194,7 +195,7 @@ public static partial class MauiProgram
     {
         if (IPlatformApplication.Current?.Services is IServiceProvider services && error is Exception exp)
         {
-            services.GetRequiredService<IExceptionHandler>().Handle(exp, parameters: new()
+            services.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
             }, displayKind: AppEnvironment.IsDevelopment() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);

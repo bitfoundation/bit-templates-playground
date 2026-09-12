@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class PushNotificationSubscriptionDto

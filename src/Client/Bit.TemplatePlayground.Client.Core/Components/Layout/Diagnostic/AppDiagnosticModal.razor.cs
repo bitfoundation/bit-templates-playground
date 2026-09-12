@@ -1,7 +1,7 @@
-﻿using Microsoft.AspNetCore.SignalR.Client;
 using System.Text.RegularExpressions;
-using Bit.TemplatePlayground.Shared.Features.Diagnostic;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
+using Bit.TemplatePlayground.Shared.Features.Diagnostic;
+using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Diagnostic;
 

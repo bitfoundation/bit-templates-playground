@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Categories;
+namespace Bit.TemplatePlayground.Shared.Features.Categories;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class CategoryDto

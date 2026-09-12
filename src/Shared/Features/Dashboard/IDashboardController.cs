@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Dashboard;
+namespace Bit.TemplatePlayground.Shared.Features.Dashboard;
 
 [Route("api/v1/[controller]/[action]/"), AuthorizedApi]
 public interface IDashboardController : IAppController

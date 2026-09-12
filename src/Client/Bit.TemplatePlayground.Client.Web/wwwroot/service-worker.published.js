@@ -1,4 +1,4 @@
-// bit version: 10.4.4
+// bit version: 10.5.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -45,11 +45,6 @@ self.assetsExclude = [
     /bit\.blazorui\.fluent-dark\.css$/,
     /bit\.blazorui\.fluent-light\.css$/,
 
-    // If a PDF reader (https://blazorui.bitplatform.dev/components/pdfreader) is needed in the PWA, remove these two lines:
-    /pdfjs-4\.7\.76\.js$/,
-    /pdfjs-4\.7\.76-worker\.js$/,
-
-
     // country flags
     /_content\/Bit\.BlazorUI\.Extras\/flags/
 ];
@@ -83,6 +78,7 @@ self.serverHandledUrls = [
     /\/.well-known/,
     /\/sitemap.xml/,
     /\/sitemap_index.xml/,
+    /\/llms.txt/,
     /\/web-interop-app.html/
 ];
 

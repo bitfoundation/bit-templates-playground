@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Styles;
+using Bit.TemplatePlayground.Client.Core.Styles;
 
 namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 

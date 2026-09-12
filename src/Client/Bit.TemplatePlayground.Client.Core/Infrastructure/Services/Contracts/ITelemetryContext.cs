@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Components;
+using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 
@@ -59,7 +59,7 @@ public interface ITelemetryContext
             { nameof(AppVersion), AppVersion },
             { nameof(PageUrl), PageUrl },
             { nameof(TimeZone), TimeZone },
-            { "ClientDateTime", DateTimeOffset.UtcNow.ToString("u") },
+            { "ClientDateTime", TimeProvider.GetUtcNow().ToString("u") },
             { nameof(Culture), Culture },
             { nameof(Environment), Environment },
             { nameof(IsOnline), IsOnline }

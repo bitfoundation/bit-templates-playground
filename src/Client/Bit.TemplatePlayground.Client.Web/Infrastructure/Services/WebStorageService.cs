@@ -1,4 +1,4 @@
-﻿using Bit.Butil;
+using Bit.Butil;
 
 namespace Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
 

@@ -1,6 +1,6 @@
-﻿using Fido2NetLib;
-using Bit.TemplatePlayground.Shared.Features.Statistics;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
+using Bit.TemplatePlayground.Shared.Features.Statistics;
+using Fido2NetLib;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 

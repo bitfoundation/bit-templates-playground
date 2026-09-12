@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
+namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 
 public partial class GoogleRecaptchaService
 {

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Products;
+namespace Bit.TemplatePlayground.Shared.Features.Products;
 
 [Route("api/v1/[controller]/[action]/")]
 [AuthorizedApi]

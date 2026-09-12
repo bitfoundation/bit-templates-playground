@@ -1,4 +1,4 @@
-﻿using Meziantou.Framework.Win32;
+using Meziantou.Framework.Win32;
 
 namespace Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
 

@@ -1,8 +1,8 @@
-﻿using System.Runtime.CompilerServices;
+using System.Runtime.CompilerServices;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
-public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandler, IExceptionHandler
+public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandler
 {
     [AutoInject] protected readonly PubSubService PubSubService = default!;
     [AutoInject] protected readonly SnackBarService SnackBarService = default!;
@@ -17,25 +17,26 @@ public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandle
         [CallerMemberName] string memberName = "",
         [CallerFilePath] string filePath = "")
     {
-        parameters = TelemetryContext.ToDictionary(parameters);
+        parameters ??= [];
 
         parameters[nameof(filePath)] = filePath;
         parameters[nameof(memberName)] = memberName;
         parameters[nameof(lineNumber)] = lineNumber;
-        parameters["exceptionId"] = Guid.CreateVersion7(); // This will remain consistent across different registered loggers, such as Sentry, Application Insights, etc.
+
+        Handle(exception, displayKind, parameters);
+    }
+
+    protected virtual void Handle(Exception exception,
+        ExceptionDisplayKind displayKind,
+        Dictionary<string, object?> parameters)
+    {
+        parameters = TelemetryContext.ToDictionary(parameters);
 
         foreach (var item in GetExceptionData(exception))
         {
             parameters[item.Key] = item.Value;
         }
 
-        Handle(exception, displayKind, parameters.ToDictionary(i => i.Key, i => i.Value ?? string.Empty));
-    }
-
-    protected virtual void Handle(Exception exception,
-        ExceptionDisplayKind displayKind,
-        Dictionary<string, object> parameters)
-    {
         var isDevEnv = AppEnvironment.IsDevelopment();
 
         using (var scope = Logger.BeginScope(parameters.ToDictionary(i => i.Key, i => i.Value ?? string.Empty)))
@@ -75,7 +76,7 @@ public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandle
 
     private ExceptionDisplayKind GetDisplayKind(Exception exception)
     {
-        if (exception is ServerConnectionException)
+        if (exception is TransientException)
             return ExceptionDisplayKind.NonInterrupting;
 
         if (exception is UnauthorizedException)
@@ -90,4 +91,24 @@ public abstract partial class ClientExceptionHandlerBase : SharedExceptionHandle
             exception is OperationCanceledException ||
             exception is TimeoutException || base.IgnoreException(exception);
     }
+}
+
+public enum ExceptionDisplayKind
+{
+    /// <summary>
+    /// No error message is shown to the user.
+    /// </summary>
+    None,
+    /// <summary>
+    /// Requires the user to acknowledge the error (e.g., by tapping "OK").
+    /// </summary>
+    Interrupting,
+    /// <summary>
+    /// Shows an auto-dismissed message (e.g., a snack bar)
+    /// </summary>
+    NonInterrupting,
+    /// <summary>
+    /// Automatically selects the exception display type based on the exception type. <see cref="ClientExceptionHandlerBase.GetDisplayKind(Exception)"/>
+    /// </summary>
+    Default
 }

@@ -1,13 +1,10 @@
-﻿using Velopack;
-
 using System.Diagnostics.CodeAnalysis;
-
 using Bit.TemplatePlayground.Client.Core.Components;
 using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
-
-using Microsoft.Web.WebView2.Core;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
+using Microsoft.Web.WebView2.Core;
+using Velopack;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 
@@ -82,7 +79,7 @@ public partial class Program
             }
             catch (Exception exp)
             {
-                Services.GetRequiredService<IExceptionHandler>().Handle(exp);
+                Services.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp);
             }
         });
 
@@ -134,7 +131,7 @@ public partial class Program
     {
         if (Services is not null && error is Exception exp)
         {
-            Services.GetRequiredService<IExceptionHandler>().Handle(exp, parameters: new()
+            Services.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
             }, displayKind: AppEnvironment.IsDevelopment() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);

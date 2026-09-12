@@ -1,5 +1,5 @@
-﻿using Bit.TemplatePlayground.Client.Web;
 using Bit.TemplatePlayground.Client.Core;
+using Bit.TemplatePlayground.Client.Web;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -7,12 +7,11 @@ namespace Bit.TemplatePlayground.Server.Web;
 
 public partial class ServerWebSettings : ClientWebSettings
 {
-    public ForwardedHeadersOptions? ForwardedHeaders { get; set; } = default!;
-
     /// <summary>
     /// Specifies the allowed origins for CORS requests, URLs returned after external sign-in and email confirmation, and permitted origins for Web Auth, as well as forwarded headers middleware in ASP.NET Core.
+    /// Each entry may contain the <c>*</c> wildcard (e.g. <c>https://*.myapp.com</c>) so a single entry can trust every tenant subdomain.
     /// </summary>
-    public Uri[] TrustedOrigins { get; set; } = [];
+    public string[] TrustedOrigins { get; set; } = [];
     [Required]
     public WebAppRenderOptions WebAppRender { get; set; } = default!;
 
@@ -34,11 +33,6 @@ public partial class ServerWebSettings : ClientWebSettings
 
         Validator.TryValidateObject(WebAppRender, new ValidationContext(WebAppRender), validationResults, true);
 
-        if (ForwardedHeaders is not null)
-        {
-            Validator.TryValidateObject(ForwardedHeaders, new ValidationContext(ForwardedHeaders), validationResults, true);
-        }
-
         return validationResults;
     }
 }
@@ -59,10 +53,10 @@ public partial class WebAppRenderOptions
             // you can switch between to `DebugBlazorServer` configuration to have optimized build times during development.  
             // If `DebugBlazorServer` is selected, `BlazorMode` will be set to `BlazorServer`  
             // regardless of its value in appsettings.json
-            #if DebugBlazorServer
+#if DebugBlazorServer
             mode = BlazorWebAppMode.BlazorServer;
 #endif
-            
+
             return mode switch
             {
                 BlazorWebAppMode.BlazorAuto => new InteractiveAutoRenderMode(PrerenderEnabled),

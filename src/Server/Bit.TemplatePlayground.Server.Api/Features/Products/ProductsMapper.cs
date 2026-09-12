@@ -1,5 +1,5 @@
-﻿using Riok.Mapperly.Abstractions;
 using Bit.TemplatePlayground.Shared.Features.Products;
+using Riok.Mapperly.Abstractions;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Products;
 

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components;
+namespace Bit.TemplatePlayground.Client.Core.Components;
 
 public partial class Routes
 {
@@ -35,3 +35,11 @@ public partial class Routes
         });
     }
 }
+
+/// <summary>
+/// This class is only a workaround for limitations we faced in razor files inside .NET project templates.
+/// You could simply delete it in your own project and use the base class directly in Routes.razor file.
+/// </summary>
+public class AppRouter :
+    Brouter
+{ }

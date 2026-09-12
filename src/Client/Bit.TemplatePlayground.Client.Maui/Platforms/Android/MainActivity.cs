@@ -1,11 +1,11 @@
-﻿using Java.Net;
-using Android.OS;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Gms.Tasks;
-using Plugin.LocalNotification.Core.Models;
+using Android.OS;
 using Bit.TemplatePlayground.Client.Core.Components;
+using Java.Net;
+using Plugin.LocalNotification.Core.Models;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
 
@@ -15,10 +15,11 @@ namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
                         // the following app links will be opened in app instead of browser if the app is installed on Android device.
                         DataPaths = [PageUrls.Home],
                         DataPathPrefixes = [
-                            "/en-US", "/en-GB", "/nl-NL", "/fa-IR", "sv-SE", "hi-IN", "zh-CN", "es-ES", "fr-FR", "ar-SA", "de-DE",
+                            "/en-US", "/en-GB", "/nl-NL", "/fa-IR", "/sv-SE", "/hi-IN", "/zh-CN", "/es-ES", "/fr-FR", "/ar-SA", "/de-DE",
                             PageUrls.Confirm, PageUrls.ForgotPassword, PageUrls.Settings, PageUrls.ResetPassword, PageUrls.SignIn,
-                            PageUrls.SignUp, PageUrls.NotAuthorized, PageUrls.NotFound, PageUrls.Terms, PageUrls.About,
+                            PageUrls.SignUp, PageUrls.NotAuthorized, PageUrls.NotFound, PageUrls.Terms, PageUrls.PrivacyPolicy, PageUrls.About,
                             PageUrls.Roles, PageUrls.Users,
+                            PageUrls.ManageMyTenants, PageUrls.ManageAllTenants,
                             PageUrls.AddOrEditProduct, PageUrls.Categories, PageUrls.Dashboard, PageUrls.Products,
                             PageUrls.SystemPrompts,
                             ],

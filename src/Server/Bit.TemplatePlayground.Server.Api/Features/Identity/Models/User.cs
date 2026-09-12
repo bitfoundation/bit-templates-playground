@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 
@@ -38,6 +39,8 @@ public partial class User : IdentityUser<Guid>
 
 
     public List<WebAuthnCredential> WebAuthnCredentials { get; set; } = [];
+
+    public List<TenantUser> Tenants { get; set; } = [];
 
     public List<UserRole> Roles { get; set; } = [];
     public List<UserClaim> Claims { get; set; } = [];

@@ -1,13 +1,14 @@
-﻿using Microsoft.AspNetCore.SignalR;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 using Bit.TemplatePlayground.Shared.Features.Categories;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Categories;
 
 [ApiVersion(1)]
 [ApiController, Route("api/v{v:apiVersion}/[controller]/[action]"),
+    Authorize(Policy = AuthPolicies.TENANT_SELECTED),
     Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS),
-    Authorize(Policy = AppFeatures.AdminPanel.ManageProductCatalog)]
+    Authorize(Policy = AppFeatures.AdminPanel.ProductCatalog_Manage)]
 public partial class CategoryController : AppControllerBase, ICategoryController
 {
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
@@ -84,9 +85,14 @@ public partial class CategoryController : AppControllerBase, ICategoryController
             throw new BadRequestException(Localizer[nameof(AppStrings.CategoryNotEmpty)]);
         }
 
-        DbContext.Categories.Remove(new() { Id = id, Version = version });
-
-        await DbContext.SaveChangesAsync(cancellationToken);
+        if (await DbContext.Categories
+            .Where(c => c.Id == id && c.Version == version)
+            .ExecuteDeleteAsync(cancellationToken) == 0)
+        {
+            // This could be also because of Conflict, when another user has updated the entity in the meantime,
+            // but it doesn't worth to check for that
+            throw new ResourceNotFoundException(Localizer[nameof(AppStrings.CategoryCouldNotBeFound)]);
+        }
 
         await PublishDashboardDataChanged(cancellationToken);
     }

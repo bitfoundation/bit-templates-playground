@@ -1,15 +1,16 @@
-﻿using Microsoft.AspNetCore.SignalR;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 using Bit.TemplatePlayground.Shared.Features.Products;
 using Ganss.Xss;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Products;
 
 [ApiVersion(1)]
 [ApiController, Route("api/v{v:apiVersion}/[controller]/[action]")]
-[Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS)]
-[Authorize(Policy = AppFeatures.AdminPanel.ManageProductCatalog)]
+[Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS),
+    Authorize(Policy = AuthPolicies.TENANT_SELECTED),
+    Authorize(Policy = AppFeatures.AdminPanel.ProductCatalog_Manage)]
 public partial class ProductController : AppControllerBase, IProductController
 {
     [AutoInject] private HtmlSanitizer htmlSanitizer = default!;
@@ -40,7 +41,7 @@ public partial class ProductController : AppControllerBase, IProductController
     [HttpGet("{searchQuery}")]
     public async Task<PagedResponse<ProductDto>> SearchProducts(string searchQuery, ODataQueryOptions<ProductDto> odataQuery, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException(); // Embedding based search is only implemented for PostgreSQL and SQL Server only.
+        throw new NotImplementedException("Embedding based search is only implemented for PostgreSQL and SQL Server only.");
     }
 
     [HttpGet("{id}")]
@@ -58,6 +59,8 @@ public partial class ProductController : AppControllerBase, IProductController
         dto.DescriptionHTML = htmlSanitizer.Sanitize(dto.DescriptionHTML ?? string.Empty);
 
         var entityToAdd = dto.Map();
+
+        entityToAdd.CreatedOn = TimeProvider.GetUtcNow();
 
         await DbContext.Products.AddAsync(entityToAdd, cancellationToken);
 

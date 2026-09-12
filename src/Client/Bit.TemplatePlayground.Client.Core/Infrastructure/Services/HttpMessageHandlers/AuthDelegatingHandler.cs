@@ -1,4 +1,4 @@
-﻿using System.Net.Http.Headers;
+using System.Net.Http.Headers;
 using Bit.TemplatePlayground.Shared.Features.Identity;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;

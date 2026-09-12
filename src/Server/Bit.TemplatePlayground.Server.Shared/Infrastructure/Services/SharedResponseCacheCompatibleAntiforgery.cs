@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Http;
 
 namespace Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
 

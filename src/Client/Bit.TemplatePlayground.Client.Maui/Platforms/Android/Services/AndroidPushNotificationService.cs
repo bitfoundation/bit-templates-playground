@@ -1,6 +1,6 @@
-﻿using Firebase.Messaging;
-using Plugin.LocalNotification;
+using Firebase.Messaging;
 using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
 using static Android.Provider.Settings;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android.Services;

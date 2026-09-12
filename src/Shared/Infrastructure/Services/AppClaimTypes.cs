@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Services;
 
 public class AppClaimTypes
 {
@@ -17,7 +17,9 @@ public class AppClaimTypes
     public const string MAX_PRIVILEGED_SESSIONS = "mx-p-s";
 
     /// <summary>
-    /// true/false
+    /// Unix time seconds: the moment until which the session stays elevated (stored like the JWT's exp claim).
+    /// The session is considered elevated as long as the current time hasn't passed this value, so a stale
+    /// (already-passed) value is harmless and can be safely carried across refresh token calls.
     /// <inheritdoc cref="AuthPolicies.ELEVATED_ACCESS"/>
     /// </summary>
     public const string ELEVATED_SESSION = "e-s";
@@ -33,4 +35,9 @@ public class AppClaimTypes
     /// External (Social), Sms (Web-OTP), Email (Magic Link or 6 digit code), Push notification (6 digit code), WebAuthn (Face-Id, Fingerprint etc), Password.
     /// </summary>
     public const string METHOD = "method";
+
+    /// <summary>
+    /// Guid: The id of the tenant the user is currently signed into (if any).
+    /// </summary>
+    public const string TENANT_ID = "t-id";
 }

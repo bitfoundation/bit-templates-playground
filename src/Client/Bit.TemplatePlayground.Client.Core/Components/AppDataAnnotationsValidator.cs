@@ -1,8 +1,8 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
+using System.Reflection;
 using System.Runtime.CompilerServices;
-using Microsoft.AspNetCore.Components.Forms;
+using System.Runtime.InteropServices;
 using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 

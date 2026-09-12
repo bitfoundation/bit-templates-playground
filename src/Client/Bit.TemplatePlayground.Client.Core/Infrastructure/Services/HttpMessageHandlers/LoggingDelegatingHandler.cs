@@ -1,4 +1,4 @@
-﻿using System.Web;
+using System.Web;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 

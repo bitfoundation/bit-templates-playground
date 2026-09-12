@@ -1,4 +1,4 @@
-﻿using Maui.AppStores;
+using Maui.AppStores;
 
 namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 

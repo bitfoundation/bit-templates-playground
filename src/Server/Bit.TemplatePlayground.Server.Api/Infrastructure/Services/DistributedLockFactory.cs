@@ -1,4 +1,4 @@
-﻿using Medallion.Threading;
+using Medallion.Threading;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 

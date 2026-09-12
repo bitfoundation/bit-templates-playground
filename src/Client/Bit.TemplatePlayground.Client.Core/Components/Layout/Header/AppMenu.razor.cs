@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity;
 using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 using Microsoft.AspNetCore.Components.Routing;
 
@@ -25,6 +25,14 @@ public partial class AppMenu
     private bool showCultures;
     private bool isSignOutConfirmOpen;
     private BitChoiceGroupItem<string>[] cultures = default!;
+    private bool showTenants;
+    private string? currentTenantId;
+    private BitChoiceGroupItem<string>[] tenants = [];
+
+    private bool ShowMainMenu =>
+        showCultures is false
+        && showTenants is false
+        ;
 
 
     private string? ProfileImageUrl => CurrentUser?.GetProfileImageUrl(AbsoluteServerAddress);
@@ -35,6 +43,7 @@ public partial class AppMenu
         await base.OnInitAsync();
 
         NavigationManager.LocationChanged += NavigationManager_LocationChanged;
+        AuthManager.AuthenticationStateChanged += AuthManager_AuthenticationStateChanged;
 
         if (CultureInfoManager.InvariantGlobalization is false)
         {
@@ -56,6 +65,33 @@ public partial class AppMenu
         await cultureService.ChangeCulture(cultureName);
     }
 
+    private async Task ShowTenants()
+    {
+        showTenants = true;
+
+        var user = (await AuthenticationStateTask).User;
+        currentTenantId = user.GetTenantId()?.ToString();
+
+        tenants = [.. (await userController.GetTenants(CurrentCancellationToken))
+                        .Select(t => new BitChoiceGroupItem<string> { Value = t.Id.ToString(), Text = t.Title ?? t.Name })];
+    }
+
+    private async Task OnTenantChanged(string? tenantId)
+    {
+        if (Guid.TryParse(tenantId, out var newTenantId) is false || tenantId == currentTenantId)
+            return;
+
+        isOpen = false;
+
+        // Switching calls the refresh token api that stores the new tenant id in the token's claims (See IdentityController.Refresh).
+        if (await AuthManager.SwitchTenant(newTenantId, CurrentCancellationToken))
+        {
+            NavigationManager.RefreshCurrentPage(); // Re-renders the current page so it reflects the new tenant's data.
+            // The layout's tenant display (next to the app version) updates on its own: switching changes the tenant claim, which
+            // triggers the authentication-state change that MainLayout re-resolves the current tenant from (See MainLayout.SetCurrentTenantIfNeeded).
+        }
+    }
+
     private async Task ToggleTheme()
     {
         await themeService.ToggleTheme();
@@ -66,12 +102,25 @@ public partial class AppMenu
         NavigationManager.NavigateTo(PageUrls.Settings);
     }
 
+    private void OnDropMenuDismiss()
+    {
+        showCultures = false;
+        showTenants = false;
+    }
+
+    private void AuthManager_AuthenticationStateChanged(Task<AuthenticationState> task)
+    {
+        showTenants = false; // This would help refreshing the list of tenants, so they would get loaded again the next time user opens the tenant menu.
+        StateHasChanged();
+    }
+
 
     protected override async ValueTask DisposeAsync(bool disposing)
     {
         await base.DisposeAsync(disposing);
 
         NavigationManager.LocationChanged -= NavigationManager_LocationChanged;
+        AuthManager.AuthenticationStateChanged -= AuthManager_AuthenticationStateChanged;
     }
 
     private async Task ModalSignIn()

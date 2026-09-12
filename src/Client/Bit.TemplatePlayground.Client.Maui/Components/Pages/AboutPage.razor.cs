@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui.Components.Pages;
+namespace Bit.TemplatePlayground.Client.Maui.Components.Pages;
 
 public partial class AboutPage
 {
@@ -26,10 +26,10 @@ public partial class AboutPage
         appVersion = telemetryContext.AppVersion!;
         if (AppPlatform.IsAndroid)
         {
-            #if Android
+#if Android
             appVersion += " / " + Platform.CurrentActivity!.PackageManager!.GetPackageInfo(AppInfo.PackageName, default(Android.Content.PM.PackageInfoFlags))!.VersionCode;
 #endif
-                    }
+        }
         processId = Environment.ProcessId.ToString();
     }
 }

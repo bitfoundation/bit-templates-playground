@@ -1,5 +1,5 @@
-﻿using System.Text;
 using System.Runtime.CompilerServices;
+using System.Text;
 using Bit.TemplatePlayground.Shared.Features.Identity;
 using Microsoft.AspNetCore.SignalR.Client;
 

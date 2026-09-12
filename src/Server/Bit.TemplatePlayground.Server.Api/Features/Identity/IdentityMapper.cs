@@ -1,6 +1,6 @@
-﻿using Riok.Mapperly.Abstractions;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Riok.Mapperly.Abstractions;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 

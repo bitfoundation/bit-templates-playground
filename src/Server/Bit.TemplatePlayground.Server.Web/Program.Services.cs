@@ -1,11 +1,13 @@
-﻿using Microsoft.Net.Http.Headers;
-using Bit.TemplatePlayground.Server.Api;
-using Bit.TemplatePlayground.Client.Web;
-using Bit.TemplatePlayground.Server.Shared;
-using Microsoft.AspNetCore.Antiforgery;
-using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Web;
+using Bit.TemplatePlayground.Server.Api;
+using Bit.TemplatePlayground.Server.Shared;
+using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -47,7 +49,8 @@ public static partial class Program
         var configuration = builder.Configuration;
 
         services.AddTransient<IPrerenderStateService, WebServerPrerenderStateService>();
-        services.AddScoped<IExceptionHandler, WebServerExceptionHandler>();
+        services.AddScoped<ClientExceptionHandlerBase, WebServerExceptionHandler>();
+
         services.AddScoped<IAuthTokenProvider, ServerSideAuthTokenProvider>();
         services.AddScoped<HttpClient>(sp =>
         {
@@ -73,7 +76,8 @@ public static partial class Program
                 BaseAddress = serverAddress
             };
 
-            var forwardedHeadersOptions = sp.GetRequiredService<ServerWebSettings>().ForwardedHeaders;
+            var forwardedHeadersSection = configuration.GetSection("ForwardedHeaders");
+            var forwardedHeadersOptions = forwardedHeadersSection.Exists() ? forwardedHeadersSection.DynamicBind<ForwardedHeadersOptions>() : null;
 
             foreach (var xHeader in currentRequest.Headers.Where(h => h.Key.StartsWith("X-", StringComparison.InvariantCultureIgnoreCase)))
             {

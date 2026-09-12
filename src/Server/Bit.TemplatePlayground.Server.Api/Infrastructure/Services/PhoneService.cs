@@ -1,4 +1,4 @@
-﻿using PhoneNumbers;
+using PhoneNumbers;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 

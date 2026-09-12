@@ -1,7 +1,7 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
 using Bit.TemplatePlayground.Shared.Features.Diagnostic;
+using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Management;

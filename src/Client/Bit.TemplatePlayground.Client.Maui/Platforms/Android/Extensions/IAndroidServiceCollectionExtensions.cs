@@ -4,12 +4,15 @@ namespace Microsoft.Extensions.DependencyInjection;
 
 public static partial class IAndroidServiceCollectionExtensions
 {
-    public static IServiceCollection AddClientMauiProjectAndroidServices(this IServiceCollection services, IConfiguration configuration)
+    extension(IServiceCollection services)
     {
-        // Services being registered here can get injected in Maui/Android.
+        public IServiceCollection AddClientMauiProjectAndroidServices(IConfiguration configuration)
+        {
+            // Services being registered here can get injected in Maui/Android.
 
-        services.AddSingleton<IPushNotificationService, AndroidPushNotificationService>();
+            services.AddSingleton<IPushNotificationService, AndroidPushNotificationService>();
 
-        return services;
+            return services;
+        }
     }
 }

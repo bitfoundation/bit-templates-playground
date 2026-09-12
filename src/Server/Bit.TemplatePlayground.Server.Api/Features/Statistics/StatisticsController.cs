@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Statistics;
+using Bit.TemplatePlayground.Shared.Features.Statistics;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Statistics;
 

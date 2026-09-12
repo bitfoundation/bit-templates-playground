@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
 /// <summary>
 /// The generated HTTP client proxy by Bit.SourceGenerators will automatically include these request options in the constructed HttpRequestMessage.

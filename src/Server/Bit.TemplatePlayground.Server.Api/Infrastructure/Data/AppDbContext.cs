@@ -1,11 +1,15 @@
-﻿using Bit.TemplatePlayground.Server.Api.Features.Products;
+using System.Reflection;
+using Bit.TemplatePlayground.Server.Api.Features.Attachments;
 using Bit.TemplatePlayground.Server.Api.Features.Categories;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
+using Bit.TemplatePlayground.Server.Api.Features.Products;
 using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 using Hangfire.EntityFrameworkCore;
-using Bit.TemplatePlayground.Server.Api.Features.Attachments;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
 
@@ -13,6 +17,9 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     : IdentityDbContext<User, Role, Guid, UserClaim, UserRole, UserLogin, RoleClaim, UserToken>(options), IDataProtectionKeyContext
 {
     public DbSet<UserSession> UserSessions { get; set; } = default!;
+
+    public DbSet<Tenant> Tenants { get; set; } = default!;
+    public DbSet<TenantUser> TenantUsers { get; set; } = default!;
 
     public DbSet<Category> Categories { get; set; } = default!;
     public DbSet<Product> Products { get; set; } = default!;
@@ -38,6 +45,8 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(AppDbContext).Assembly);
 
         ConfigureIdentityTableNames(modelBuilder);
+
+        ConfigureTenantAwareEntities(modelBuilder);
 
         ConfigureConcurrencyToken(modelBuilder);
 
@@ -77,10 +86,15 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
     {
         ChangeTracker.DetectChanges();
 
+        foreach (var entry in ChangeTracker.Entries<ITenantAware>().Where(e => e.State is EntityState.Added && e.Entity.TenantId == default))
+        {
+            entry.Entity.TenantId = CurrentTenantId;
+        }
+
         foreach (var entry in ChangeTracker.Entries().Where(e => e.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
         {
             if (entry.Properties.Any(p => p.Metadata.Name == "UpdatedAt"))
-                entry.CurrentValues["UpdatedAt"] = DateTimeOffset.UtcNow;
+                entry.CurrentValues["UpdatedAt"] = this.GetService<TimeProvider>().GetUtcNow();
         }
 
         foreach (var entityEntry in ChangeTracker.Entries().Where(e => e.State is EntityState.Modified or EntityState.Deleted))
@@ -93,9 +107,9 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-            // SQLite does not support expressions of type 'DateTimeOffset' in ORDER BY clauses. Convert the values to a supported type:
-            configurationBuilder.Properties<DateTimeOffset>().HaveConversion<DateTimeOffsetToBinaryConverter>();
-            configurationBuilder.Properties<DateTimeOffset?>().HaveConversion<DateTimeOffsetToBinaryConverter>();
+        // SQLite does not support expressions of type 'DateTimeOffset' in ORDER BY clauses. Convert the values to a supported type:
+        configurationBuilder.Properties<DateTimeOffset>().HaveConversion<DateTimeOffsetToBinaryConverter>();
+        configurationBuilder.Properties<DateTimeOffset?>().HaveConversion<DateTimeOffsetToBinaryConverter>();
 
 
 
@@ -103,6 +117,36 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
         configurationBuilder.Properties<decimal?>().HavePrecision(18, 3);
 
         base.ConfigureConventions(configurationBuilder);
+    }
+
+    private TenantProvider tenantProvider => field ??= this.GetService<TenantProvider>();
+    private Guid CurrentTenantId => tenantProvider.GetCurrentTenantId();
+
+    /// <summary>
+    /// While reads are protected by the following row level security global query filters,
+    /// INSERTs/Creates assign the TenantId explicitly from User.GetTenantId() (See CategoryController.Create as an example).
+    /// </summary>
+    private void ConfigureTenantAwareEntities(ModelBuilder modelBuilder)
+    {
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes().Where(et => typeof(ITenantAware).IsAssignableFrom(et.ClrType)))
+        {
+            typeof(AppDbContext)
+                .GetMethod(nameof(ConfigureTenantAwareEntity), BindingFlags.NonPublic | BindingFlags.Instance)!
+                .MakeGenericMethod(entityType.ClrType).Invoke(this, [modelBuilder]);
+        }
+    }
+
+    private void ConfigureTenantAwareEntity<TEntity>(ModelBuilder modelBuilder)
+        where TEntity : class, ITenantAware
+    {
+        // Referencing CurrentTenantId (an AppDbContext's instance property) makes EF Core evaluate the filter per context instance.
+        modelBuilder.Entity<TEntity>().HasQueryFilter(x => x.TenantId == CurrentTenantId);
+
+        modelBuilder.Entity<TEntity>()
+            .HasOne(x => x.Tenant)
+            .WithMany()
+            .HasForeignKey(x => x.TenantId)
+            .OnDelete(DeleteBehavior.NoAction);
     }
 
     private void ConfigureIdentityTableNames(ModelBuilder builder)

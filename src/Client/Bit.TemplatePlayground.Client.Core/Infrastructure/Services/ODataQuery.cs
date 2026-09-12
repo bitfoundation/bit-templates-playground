@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 /// <summary>
 /// https://docs.microsoft.com/en-us/odata/concepts/queryoptions-overview

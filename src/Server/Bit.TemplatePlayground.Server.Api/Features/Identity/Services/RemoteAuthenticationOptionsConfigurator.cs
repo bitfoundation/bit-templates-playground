@@ -1,11 +1,11 @@
-using Microsoft.Identity.Web;
 using AspNet.Security.OAuth.Apple;
 using AspNet.Security.OAuth.GitHub;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.Twitter;
+using Microsoft.Identity.Web;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 
@@ -67,50 +67,53 @@ public class RemoteAuthenticationOptionsConfigurator(IHttpClientFactory httpClie
 /// </summary>
 public static class RemoteAuthenticationOptionsExtensions
 {
-    public static void ConfigureHttpClientFactoryForExternalIdentityProviders(this IServiceCollection services)
+    extension(IServiceCollection services)
     {
-        services.AddHttpClient("GitHub", httpClient =>
+        public void ConfigureHttpClientFactoryForExternalIdentityProviders()
         {
-            httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Bit.TemplatePlayground-Client");
-        });
+            services.AddHttpClient("GitHub", httpClient =>
+            {
+                httpClient.DefaultRequestHeaders.UserAgent.ParseAdd("Bit.TemplatePlayground-Client");
+            });
 
-        services.AddHttpClient("Apple", httpClient =>
-        {
+            services.AddHttpClient("Apple", httpClient =>
+            {
 
-        });
+            });
 
-        services.AddHttpClient("Google", httpClient =>
-        {
+            services.AddHttpClient("Google", httpClient =>
+            {
 
-        });
+            });
 
-        services.AddHttpClient("Twitter", httpClient =>
-        {
+            services.AddHttpClient("Twitter", httpClient =>
+            {
 
-        });
+            });
 
-        services.AddHttpClient("Facebook", httpClient =>
-        {
+            services.AddHttpClient("Facebook", httpClient =>
+            {
 
-        });
+            });
 
-        services.AddHttpClient("Keycloak", httpClient =>
-        {
+            services.AddHttpClient("Keycloak", httpClient =>
+            {
 
-        });
+            });
 
-        services.AddHttpClient("AzureAD", httpClient =>
-        {
+            services.AddHttpClient("AzureAD", httpClient =>
+            {
 
-        });
+            });
 
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<GoogleOptions>, RemoteAuthenticationOptionsConfigurator>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, RemoteAuthenticationOptionsConfigurator>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<FacebookOptions>, RemoteAuthenticationOptionsConfigurator>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<OpenIdConnectOptions>, RemoteAuthenticationOptionsConfigurator>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<MicrosoftIdentityOptions>, RemoteAuthenticationOptionsConfigurator>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<AppleAuthenticationOptions>, RemoteAuthenticationOptionsConfigurator>());
-        services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<GitHubAuthenticationOptions>, RemoteAuthenticationOptionsConfigurator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<GoogleOptions>, RemoteAuthenticationOptionsConfigurator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<TwitterOptions>, RemoteAuthenticationOptionsConfigurator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<FacebookOptions>, RemoteAuthenticationOptionsConfigurator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<OpenIdConnectOptions>, RemoteAuthenticationOptionsConfigurator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<MicrosoftIdentityOptions>, RemoteAuthenticationOptionsConfigurator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<AppleAuthenticationOptions>, RemoteAuthenticationOptionsConfigurator>());
+            services.TryAddEnumerable(ServiceDescriptor.Singleton<IPostConfigureOptions<GitHubAuthenticationOptions>, RemoteAuthenticationOptionsConfigurator>());
 
+        }
     }
 }

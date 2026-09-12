@@ -1,8 +1,10 @@
-﻿using Bit.TemplatePlayground.Server.Api.Features.Categories;
+using Bit.TemplatePlayground.Server.Api.Features.Categories;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Products;
 
 public partial class Product
+    : ITenantAware
 {
     public Guid Id { get; set; }
 
@@ -25,7 +27,7 @@ public partial class Product
     [MaxLength(4096)]
     public string? DescriptionText { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedOn { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
     public Category? Category { get; set; }
@@ -33,6 +35,11 @@ public partial class Product
     public Guid CategoryId { get; set; }
 
     public long Version { get; set; }
+
+    [ForeignKey(nameof(TenantId))]
+    public Tenant? Tenant { get; set; }
+
+    public Guid TenantId { get; set; }
 
     public bool HasPrimaryImage { get; set; } = false;
 

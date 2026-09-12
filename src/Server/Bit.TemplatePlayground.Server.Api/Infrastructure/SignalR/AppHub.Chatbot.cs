@@ -1,8 +1,8 @@
-﻿using System.Diagnostics.Metrics;
-using Microsoft.AspNetCore.SignalR;
+using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
-using Bit.TemplatePlayground.Shared.Features.Chatbot;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
+using Bit.TemplatePlayground.Shared.Features.Chatbot;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 
@@ -94,7 +94,7 @@ public partial class AppHub
     private async Task HandleException(Exception exp, CancellationToken cancellationToken)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
-        var serverExceptionHandler = scope.ServiceProvider.GetRequiredService<ServerExceptionHandler>();
+        var serverExceptionHandler = scope.ServiceProvider.GetRequiredService<ApiServerExceptionHandler>();
         var problemDetails = serverExceptionHandler.Handle(exp);
         if (problemDetails is null || serverExceptionHandler.IgnoreException(serverExceptionHandler.UnWrapException(exp)))
             return;

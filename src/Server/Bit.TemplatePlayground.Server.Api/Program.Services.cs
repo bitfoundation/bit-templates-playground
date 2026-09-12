@@ -1,34 +1,38 @@
-﻿using System.Net;
-using System.Net.Mail;
 using System.ClientModel.Primitives;
-using Microsoft.Data.Sqlite;
-using Microsoft.OpenApi;
-using Microsoft.Identity.Web;
-using Microsoft.AspNetCore.OData;
-using Microsoft.Net.Http.Headers;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Cors.Infrastructure;
-using Twilio;
-using Ganss.Xss;
-using Fido2NetLib;
-using PhoneNumbers;
-using FluentStorage;
-using FluentEmail.Core;
-using FluentStorage.Blobs;
-using Hangfire.EntityFrameworkCore;
+using System.Net;
+using System.Net.Mail;
 using AdsPush;
 using AdsPush.Abstraction;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
-using Medallion.Threading;
-using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Server.Api.Features.Statistics;
-using Bit.TemplatePlayground.Shared.Infrastructure.Resources;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.RequestPipeline;
-using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 using Bit.TemplatePlayground.Server.Api.Features.Products;
+using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Server.Api.Features.Statistics;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.RequestPipeline;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
+using Bit.TemplatePlayground.Shared.Features.Chatbot;
+using Bit.TemplatePlayground.Shared.Features.Identity;
+using Bit.TemplatePlayground.Shared.Infrastructure.Resources;
+using Fido2NetLib;
+using FluentEmail.Core;
+using FluentStorage;
+using FluentStorage.Storage;
+using Ganss.Xss;
+using Hangfire.EntityFrameworkCore;
+using Medallion.Threading;
+using Microsoft.Agents.AI;
+using Microsoft.Agents.AI.Hosting;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Cors.Infrastructure;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.OData;
+using Microsoft.Data.Sqlite;
+using Microsoft.Identity.Web;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi;
+using PhoneNumbers;
+using Twilio;
 
 namespace Bit.TemplatePlayground.Server.Api;
 
@@ -63,12 +67,12 @@ public static partial class Program
         }
 
         services.AddSingleton(_ => PhoneNumberUtil.GetInstance());
-        services.AddSingleton<IBlobStorage>(sp =>
+        services.AddSingleton<IStore>(sp =>
         {
             var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
             var appDataDirPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data");
             Directory.CreateDirectory(appDataDirPath);
-            return StorageFactory.Blobs.DirectoryFiles(appDataDirPath);
+            return StorageFactory.Disk(appDataDirPath);
         });
 
 
@@ -112,8 +116,9 @@ public static partial class Program
             return new Medallion.Threading.FileSystem.FileDistributedLock(new(Path.Combine(Path.GetTempPath(), $"Bit.TemplatePlayground-{lockKey}.lock")));
         }));
 
-        services.AddSingleton<ServerExceptionHandler>();
-        services.AddSingleton(sp => (IProblemDetailsWriter)sp.GetRequiredService<ServerExceptionHandler>());
+        services.AddSingleton<ApiServerExceptionHandler>();
+        services.AddSingleton<SharedExceptionHandler>(sp => sp.GetRequiredService<ApiServerExceptionHandler>());
+        services.AddSingleton(sp => (IProblemDetailsWriter)sp.GetRequiredService<ApiServerExceptionHandler>());
         services.AddProblemDetails();
 
         services.AddCors(builder =>
@@ -204,8 +209,9 @@ public static partial class Program
             });
         }
 
-        services.AddPooledDbContextFactory<AppDbContext>(AddDbContext);
+
         services.AddDbContextPool<AppDbContext>(AddDbContext);
+        services.AddPooledDbContextFactory<AppDbContext>(AddDbContext);
 
         void AddDbContext(DbContextOptionsBuilder options)
         {
@@ -373,20 +379,8 @@ public static partial class Program
             .UseFunctionInvocation()
             .UseOpenTelemetry(configure: c => c.EnableSensitiveData = env.IsDevelopment());
             // .UseDistributedCache()
-        }
-        else if (string.IsNullOrEmpty(appSettings.AI?.AzureOpenAI?.ChatApiKey) is false)
-        {
-            // https://github.com/dotnet/extensions/tree/main/src/Libraries/Microsoft.Extensions.AI.AzureAIInference#microsoftextensionsaiazureaiinference
-            services.AddChatClient(sp => new Azure.AI.Inference.ChatCompletionsClient(endpoint: appSettings.AI.AzureOpenAI.ChatEndpoint,
-                credential: new Azure.AzureKeyCredential(appSettings.AI.AzureOpenAI.ChatApiKey),
-                options: new()
-                {
-                    Transport = new Azure.Core.Pipeline.HttpClientTransport(sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"))
-                }).AsIChatClient(appSettings.AI.AzureOpenAI.ChatModel))
-            .UseLogging()
-            .UseFunctionInvocation()
-            .UseOpenTelemetry(configure: c => c.EnableSensitiveData = env.IsDevelopment());
-            // .UseDistributedCache()
+
+            builder.AddAppAIAgents();
         }
 
         if (string.IsNullOrEmpty(appSettings.AI?.OpenAI?.EmbeddingApiKey) is false)
@@ -396,18 +390,6 @@ public static partial class Program
                 Endpoint = appSettings.AI.OpenAI.EmbeddingEndpoint,
                 Transport = new HttpClientPipelineTransport(sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"))
             }).AsIEmbeddingGenerator())
-            .UseLogging()
-            .UseOpenTelemetry(configure: c => c.EnableSensitiveData = env.IsDevelopment());
-            // .UseDistributedCache()
-        }
-        else if (string.IsNullOrEmpty(appSettings.AI?.AzureOpenAI?.EmbeddingApiKey) is false)
-        {
-            services.AddEmbeddingGenerator(sp => new Azure.AI.Inference.EmbeddingsClient(endpoint: appSettings.AI.AzureOpenAI.EmbeddingEndpoint,
-                credential: new Azure.AzureKeyCredential(appSettings.AI.AzureOpenAI.EmbeddingApiKey),
-                options: new()
-                {
-                    Transport = new Azure.Core.Pipeline.HttpClientTransport(sp.GetRequiredService<IHttpClientFactory>().CreateClient("AI"))
-                }).AsIEmbeddingGenerator(appSettings.AI.AzureOpenAI.EmbeddingModel))
             .UseLogging()
             .UseOpenTelemetry(configure: c => c.EnableSensitiveData = env.IsDevelopment());
             // .UseDistributedCache()
@@ -436,13 +418,12 @@ public static partial class Program
             }
             else
             {
+                var isRunningInsideDocker = Directory.Exists("/container_volume"); // It's supposed to be a mounted volume named /container_volume
+                var appDataDirPath = Path.Combine(isRunningInsideDocker ? "/container_volume" : Directory.GetCurrentDirectory(), "App_Data");
+                Directory.CreateDirectory(appDataDirPath);
                 hangfireConfiguration.UseEFCoreStorage(optionsBuilder =>
                 {
-                    var connectionString = "Data Source=Bit.TemplatePlaygroundJobs.db;Mode=Memory;Cache=Shared;";
-                    var connection = new Microsoft.Data.Sqlite.SqliteConnection(connectionString);
-                    connection.Open();
-                    AppContext.SetData("ReferenceTheKeepTheInMemorySQLiteDatabaseAlive", connection);
-                    optionsBuilder.UseSqlite(connectionString);
+                    optionsBuilder.UseSqlite($"Data Source={Path.Combine(appDataDirPath, "Bit.TemplatePlaygroundJobDb.db")};");
                 }, new()
                 {
                     Schema = "jobs",
@@ -464,6 +445,46 @@ public static partial class Program
         });
     }
 
+    private static void AddAppAIAgents(this WebApplicationBuilder builder)
+    {
+        static string GetSystemPrompt(PromptKind promptKind, IServiceProvider sp)
+        {
+            var cache = sp.GetRequiredService<IFusionCache>();
+            var dbContext = sp.GetRequiredService<AppDbContext>();
+            var tenantId = sp.GetRequiredService<TenantProvider>().GetCurrentTenantId();
+            var cacheKey = $"SystemPrompt_{tenantId}_{promptKind}";
+            var result = cache.GetOrSet(
+                cacheKey, _ =>
+                {
+                    var prompt = dbContext.SystemPrompts.FirstOrDefault(p => p.PromptKind == promptKind);
+                    return prompt?.Markdown ?? throw new ResourceNotFoundException().WithData("Reason", $"System prompt for '{promptKind}' not found.");
+                },
+                options => options.Duration = TimeSpan.FromHours(1));
+            return result;
+        }
+
+        builder.AddAIAgent("AnalyzeProductImageAgent", (sp, _) => sp.GetRequiredService<IChatClient>().AsAIAgent(instructions: GetSystemPrompt(PromptKind.AnalyzeProductImage, sp),
+                    name: "AnalyzeProductImageAgent",
+                    description: "Analyzes product images to ensure they meet catalog standards for car products"), lifetime: ServiceLifetime.Scoped);
+
+        builder.AddAIAgent("SupportAgent", (sp, _) =>
+        {
+            var aiFunctions = sp.GetRequiredService<AppChatbot>().GetAIFunctions();
+
+            return sp.GetRequiredService<IChatClient>().AsAIAgent(instructions: GetSystemPrompt(PromptKind.Support, sp),
+                    name: "SupportAgent",
+                    description: "Provides support and assistance to users", tools: [.. aiFunctions]);
+        }, lifetime: ServiceLifetime.Scoped);
+
+        builder.AddAIAgent("FollowUpSuggestionsAgent", (sp, _) =>
+        {
+            var aiFunctions = sp.GetRequiredService<AppChatbot>().GetAIFunctions();
+            return sp.GetRequiredService<IChatClient>().AsAIAgent(instructions: GetSystemPrompt(PromptKind.FollowUpSuggestion, sp),
+                    name: "FollowUpSuggestionsAgent",
+                    description: "Generates follow-up suggestions based on user interactions", tools: [.. aiFunctions]);
+        }, lifetime: ServiceLifetime.Scoped);
+    }
+
     private static void AddIdentity(WebApplicationBuilder builder)
     {
         var services = builder.Services;
@@ -481,6 +502,9 @@ public static partial class Program
             .AddApiEndpoints();
 
         services.AddScoped<UserClaimsService>();
+        services.AddSingleton<TenantProvider>();
+        // Replaces the default RoleValidator to scope the role name uniqueness by the role's TenantId.
+        services.Replace(ServiceDescriptor.Scoped<IRoleValidator<Features.Identity.Models.Role>, AppRoleValidator>());
         services.AddScoped<IUserConfirmation<User>, AppUserConfirmation>();
         services.AddScoped(sp => (IUserEmailStore<User>)sp.GetRequiredService<IUserStore<User>>());
         services.AddScoped(sp => (IUserPhoneNumberStore<User>)sp.GetRequiredService<IUserStore<User>>());
@@ -613,7 +637,7 @@ public static partial class Program
         }
         return defaultValue ?? throw new ArgumentException($"Invalid connection string: '{key}' not found.");
     }
-    
+
     private static WebApplicationBuilder AddServerApiHealthChecks(this WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
@@ -622,10 +646,10 @@ public static partial class Program
         configuration.Bind(appSettings);
 
         var healthChecksBuilder = builder.AddDefaultHealthChecks()
-            .AddDbContextCheck<AppDbContext>(tags: ["live"])
-            .AddHangfire(setup => setup.MinimumAvailableServers = 1, tags: ["live"])
-            .AddCheck<UserProfileImagesStorageHealthCheck>("userProfileImages", tags: ["live"])
-            .AddCheck<TwilioHealthCheck>("sms", tags: ["live"]);
+            .AddDbContextCheck<AppDbContext>()
+            .AddHangfire(setup => setup.MinimumAvailableServers = 1)
+            .AddCheck<UserProfileImagesStorageHealthCheck>("userProfileImages")
+            .AddCheck<TwilioHealthCheck>("sms");
 
         // Cloudflare Cache Purge API
         if (appSettings.Cloudflare?.Configured is true)
@@ -634,7 +658,7 @@ public static partial class Program
             healthChecksBuilder.AddUrlGroup(
                 new Uri($"https://api.cloudflare.com/client/v4/zones/{appSettings.Cloudflare.ZoneId}"),
                 name: "cloudflare",
-                tags: ["ready"],
+                tags: [],
                 configureClient: (_, client) =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(10);
@@ -649,7 +673,7 @@ public static partial class Program
             healthChecksBuilder.AddUrlGroup(
                 new Uri($"{keycloakBaseUrl.TrimEnd('/')}/realms/{realm}/.well-known/openid-configuration"),
                 name: "keycloakIdentity",
-                tags: ["ready"],
+                tags: [],
                 configureClient: (_, client) => client.Timeout = TimeSpan.FromSeconds(10));
         }
 

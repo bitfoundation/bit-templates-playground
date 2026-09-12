@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class ClaimDto
@@ -17,5 +17,20 @@ public partial class ClaimDto
     {
         return @this.ClaimType != that.ClaimType
              || @this.ClaimValue != that.ClaimValue;
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (ReferenceEquals(this, obj))
+        {
+            return true;
+        }
+
+        if (ReferenceEquals(obj, null))
+        {
+            return false;
+        }
+
+        throw new NotImplementedException();
     }
 }

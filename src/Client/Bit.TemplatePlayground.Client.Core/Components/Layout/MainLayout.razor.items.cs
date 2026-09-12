@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
+namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
 public partial class MainLayout
 {
@@ -19,9 +19,15 @@ public partial class MainLayout
             }
         ];
 
+        var tenantIsSelected = await authorizationService.IsAuthorized(authUser!, AuthPolicies.TENANT_SELECTED);
 
-        var (dashboard, manageProductCatalog) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.AdminPanel.Dashboard),
-            authorizationService.IsAuthorized(authUser!, AppFeatures.AdminPanel.ManageProductCatalog));
+        var (dashboard, manageProductCatalog) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.AdminPanel.Dashboard_View),
+            authorizationService.IsAuthorized(authUser!, AppFeatures.AdminPanel.ProductCatalog_Manage));
+
+        if (tenantIsSelected is false)
+        {
+            dashboard = manageProductCatalog = false;
+        }
 
         if (dashboard || manageProductCatalog)
         {
@@ -79,11 +85,20 @@ public partial class MainLayout
             Url = PageUrls.About,
         });
 
-        var (manageRoles, manageUsers, manageAiPrompt) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.Management.ManageRoles),
-            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.ManageUsers),
-            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.ManageAiPrompt));
+        var (manageRoles, manageUsers, manageAiPrompt) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Roles_Manage),
+            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Users_Manage),
+            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.SystemPrompts_Write));
 
-        if (manageRoles || manageUsers || manageAiPrompt)
+        if (tenantIsSelected is false)
+        {
+            manageRoles = manageUsers = manageAiPrompt = false;
+        }
+
+        var manageTenantsGlobally = await authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Tenants_Manage_Global);
+
+        if (manageRoles || manageUsers || manageAiPrompt
+            || manageTenantsGlobally
+            )
         {
             BitNavItem managementItem = new()
             {
@@ -121,6 +136,16 @@ public partial class MainLayout
                     Text = localizer[nameof(AppStrings.SystemPromptsTitle)],
                     IconName = BitIconName.TextDocumentSettings,
                     Url = PageUrls.SystemPrompts,
+                });
+            }
+
+            if (manageTenantsGlobally)
+            {
+                managementItem.ChildItems.Add(new()
+                {
+                    Text = localizer[nameof(AppStrings.ManageAllTenants)],
+                    IconName = BitIconName.Org,
+                    Url = PageUrls.ManageAllTenants,
                 });
             }
         }

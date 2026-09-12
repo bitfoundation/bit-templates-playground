@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Header;
+namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Header;
 
 public partial class IdentityHeader : AppComponentBase
 {

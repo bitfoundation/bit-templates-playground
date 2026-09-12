@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Dashboard;
+namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Dashboard;
 
 public partial class OverallStatusCard
 {

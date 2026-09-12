@@ -1,6 +1,6 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Diagnostic;
 using Bit.TemplatePlayground.Server.Api.Features.Identity;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
+using Bit.TemplatePlayground.Shared.Features.Diagnostic;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 using Microsoft.AspNetCore.SignalR;
 
@@ -64,7 +64,7 @@ public partial class AppHub : Hub
     /// <summary>
     /// <inheritdoc cref="SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
     /// </summary>
-    [Authorize(Policy = AppFeatures.System.ManageLogs)]
+    [Authorize(Policy = AppFeatures.System.Logs_View)]
     [HubMethodName(SharedAppMessages.GetUserSessionLogs)]
     public async Task<DiagnosticLogDto[]> GetUserSessionLogs(Guid userSessionId, [FromServices] AppDbContext dbContext)
     {
