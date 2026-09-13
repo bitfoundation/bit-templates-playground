@@ -1,3 +1,6 @@
+// [mirror] apple app delegate - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/iOS/AppDelegate.cs
+
 using Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst.Services;
 using Foundation;
 using UIKit;
@@ -14,13 +17,25 @@ public partial class AppDelegate : MauiUIApplicationDelegate
     [Export("application:didFinishLaunchingWithOptions:")]
     public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
     {
-        NotificationService.IsAvailable(default).ContinueWith(async task =>
+        NotificationService.IsAvailable(default).ContinueWith(task =>
         {
-            if (task.Result)
+            if (task.IsFaulted)
             {
-                await MacCatalystPushNotificationService.Configure();
+                MauiProgram.LogException(task.Exception, reportedBy: nameof(NotificationService.IsAvailable));
+                return;
             }
-        });
+
+            if (task.Result is false)
+                return;
+
+            _ = MacCatalystPushNotificationService.Configure().ContinueWith(configure =>
+            {
+                if (configure.IsFaulted)
+                {
+                    MauiProgram.LogException(configure.Exception, reportedBy: nameof(MacCatalystPushNotificationService.Configure));
+                }
+            }, TaskScheduler.Default);
+        }, TaskScheduler.Default);
 
         // Use the following code the get the action value from the push notification when the app is launched by tapping on the push notification.
         using var userInfo = launchOptions?.ObjectForKey(UIApplication.LaunchOptionsRemoteNotificationKey) as NSDictionary;

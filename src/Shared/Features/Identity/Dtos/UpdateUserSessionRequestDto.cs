@@ -16,4 +16,9 @@ public partial class UpdateUserSessionRequestDto
     /// The culture selected by the user in this session.
     /// </summary>
     public string? CultureName { get; set; }
+
+    /// <summary>
+    /// The device's own choice (See NotificationPreferenceService), so a new sign-in on it follows what it was set to.
+    /// </summary>
+    public UserSessionNotificationStatus NotificationStatus { get; set; }
 }

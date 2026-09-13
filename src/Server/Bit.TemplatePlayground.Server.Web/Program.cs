@@ -1,4 +1,3 @@
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
 using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
 
@@ -38,7 +37,7 @@ public static partial class Program
         app.ConfigureMiddlewares();
 
 #if Development
-        _ = ScssCompilerService.WatchScssFiles(app);
+        await FileWatcherService.StartAsync(app);
 #endif
 
         await app.RunAsync();
@@ -52,7 +51,7 @@ public static partial class Program
             scope.ServiceProvider.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
-            }, displayKind: AppEnvironment.IsDevelopment() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);
+            }, displayKind: ExceptionDisplayKind.None);
         }
         else
         {

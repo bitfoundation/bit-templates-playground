@@ -1,13 +1,11 @@
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
-using Humanizer;
-using Microsoft.AspNetCore.SignalR;
+
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 
 public partial class IdentityController
 {
-    [HttpPost]
+    [HttpPost, EnableRateLimiting(RateLimitOptionsExtensions.IDENTITY)]
     public async Task SendResetPasswordToken(SendResetPasswordTokenRequestDto request, CancellationToken cancellationToken)
     {
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
@@ -34,9 +32,10 @@ public partial class IdentityController
             throw new ResourceValidationException(result.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray()).WithData("UserId", user.Id);
 
         var token = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"ResetPassword,{user.ResetPasswordTokenRequestedOn?.ToUniversalTime()}"));
-        var isEmail = string.IsNullOrEmpty(request.Email) is false;
+        var isEmail = string.IsNullOrWhiteSpace(request.Email) is false;
         var qs = $"{(isEmail ? "email" : "phoneNumber")}={Uri.EscapeDataString(isEmail ? request.Email! : request.PhoneNumber!)}";
-        var url = $"{PageUrls.ResetPassword}?token={Uri.EscapeDataString(token)}&{qs}&culture={CultureInfo.CurrentUICulture.Name}&return-url={Uri.EscapeDataString(request.ReturnUrl ?? PageUrls.Home)}";
+        var returnUrl = Uri.IsAppRelativeUrl(request.ReturnUrl, requireLeadingSlash: false) ? request.ReturnUrl : PageUrls.Home;
+        var url = $"{PageUrls.ResetPassword}?token={Uri.EscapeDataString(token)}&{qs}&culture={CultureInfo.CurrentUICulture.Name}&return-url={Uri.EscapeDataString(returnUrl)}";
         var link = new Uri(HttpContext.Request.GetWebAppUrl(), url);
 
         List<Task> sendMessagesTasks = [];
@@ -55,7 +54,7 @@ public partial class IdentityController
         }
 
         var userConnectionIds = await DbContext.UserSessions
-            .Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed && us.UserId == user.Id)
+            .Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed && us.UserId == user.Id && us.SignalRConnectionId != null)
             .Select(us => us.SignalRConnectionId!)
             .ToArrayAsync(cancellationToken);
         sendMessagesTasks.Add(appHubContext.Clients.Clients(userConnectionIds).SendAsync(SharedAppMessages.SHOW_MESSAGE, message, null, cancellationToken));
@@ -75,7 +74,8 @@ public partial class IdentityController
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
         var user = await userManager.FindUser(request) ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.UserNotFound)]).WithData("Identifier", request);
 
-        var expired = (TimeProvider.GetUtcNow() - user.ResetPasswordTokenRequestedOn) > AppSettings.Identity.ResetPasswordTokenLifetime;
+        var expired = user.ResetPasswordTokenRequestedOn is null ||
+                      (TimeProvider.GetUtcNow() - user.ResetPasswordTokenRequestedOn.Value) > AppSettings.Identity.ResetPasswordTokenLifetime;
 
         if (expired)
             throw new BadRequestException(nameof(AppStrings.ExpiredToken)).WithData("UserId", user.Id);

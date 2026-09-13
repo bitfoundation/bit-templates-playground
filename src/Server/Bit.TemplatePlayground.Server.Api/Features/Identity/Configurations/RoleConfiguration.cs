@@ -1,4 +1,3 @@
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Configurations;

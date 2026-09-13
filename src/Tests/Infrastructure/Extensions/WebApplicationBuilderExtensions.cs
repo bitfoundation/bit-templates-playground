@@ -1,10 +1,7 @@
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
-using Bit.TemplatePlayground.Tests.Infrastructure.Services;
 using Hangfire;
 using Hangfire.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.AspNetCore.Builder;
 

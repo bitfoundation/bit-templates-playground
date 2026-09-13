@@ -1,5 +1,3 @@
-using Microsoft.AspNetCore.Components.Routing;
-
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Header;
 
 public partial class SignOutConfirmDialog

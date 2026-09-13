@@ -1,14 +1,15 @@
 {
+    // [mirror] the Docker profile is kept in sync with:
+    // - src/Server/Bit.TemplatePlayground.Server.Api/Properties/launchSettings.json
     "profiles": {
         "Bit.TemplatePlayground.Server.Web": {
             "commandName": "Project",
             "launchBrowser": true,
             "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "IN_APP_SCSS_COMPILER_ENABLED": "true"
+                "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "dotnetRunMessages": true,
-            "applicationUrl": "http://*:5000"
+            "applicationUrl": "http://localhost:5000;http://*:5000"
         },
         "Bit.TemplatePlayground.Server.Web-Scalar": {
             "commandName": "Project",
@@ -18,19 +19,18 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "dotnetRunMessages": true,
-            "applicationUrl": "http://*:5000"
+            "applicationUrl": "http://localhost:5000;http://*:5000"
         },
         "Bit.TemplatePlayground.Server.Web-BlazorWebAssembly": {
             "commandName": "Project",
             "launchBrowser": true,
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "WebAppRender:BlazorMode": "BlazorWebAssembly",
-                "IN_APP_SCSS_COMPILER_ENABLED": "true"
+                "WebAppRender:BlazorMode": "BlazorWebAssembly"
             },
             "dotnetRunMessages": true,
             "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
-            "applicationUrl": "http://*:5000"
+            "applicationUrl": "http://localhost:5000;http://*:5000"
         },
         "WSL": {
             "commandName": "WSL2",
@@ -38,7 +38,7 @@
             "launchUrl": "http://localhost:5000/",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://*:5000"
+                "ASPNETCORE_URLS": "http://localhost:5000;http://*:5000"
             }
         },
         "Docker": {
@@ -46,11 +46,11 @@
             "launchBrowser": true,
             "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/",
             "environmentVariables": {
-                "ASPNETCORE_HTTP_PORTS": "5000",
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ConnectionStrings__sqlite": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
+                "ConnectionStrings__sqlite": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;",
+                "ASPNETCORE_HTTP_PORTS": "5000"
             },
-            "DockerfileRunArguments": "-v C:\\DockerVolumes\\C1520087-2E30-4924-BB85-AEF022158E21:/container_volume",
+            "DockerfileRunArguments": "-v C:\\DockerVolumes\\6677C159-204A-4DB6-8787-2CCCEF43F9AC:/container_volume",
             "publishAllPorts": true,
             "useSSL": false,
             "httpPort": 5000
@@ -59,16 +59,14 @@
             "commandName": "IISExpress",
             "launchBrowser": true,
             "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "IN_APP_SCSS_COMPILER_ENABLED": "true"
+                "ASPNETCORE_ENVIRONMENT": "Development"
             }
         },
         "IIS": {
             "commandName": "IIS",
             "launchBrowser": true,
             "environmentVariables": {
-                "ASPNETCORE_ENVIRONMENT": "Development",
-                "IN_APP_SCSS_COMPILER_ENABLED": "true"
+                "ASPNETCORE_ENVIRONMENT": "Development"
             }
         }
     },

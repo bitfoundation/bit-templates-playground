@@ -1,3 +1,6 @@
+// [mirror] telemetry context properties - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Windows/Infrastructure/Services/WindowsTelemetryContext.cs
+
 namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 
 public class MauiTelemetryContext : AppTelemetryContext

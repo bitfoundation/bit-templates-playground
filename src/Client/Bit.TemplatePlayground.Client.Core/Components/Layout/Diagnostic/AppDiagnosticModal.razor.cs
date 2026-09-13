@@ -1,7 +1,6 @@
 using System.Text.RegularExpressions;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
 using Bit.TemplatePlayground.Shared.Features.Diagnostic;
-using Microsoft.AspNetCore.SignalR.Client;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Diagnostic;
 
@@ -15,11 +14,6 @@ public partial class AppDiagnosticModal
 
 
     [AutoInject] private Clipboard clipboard = default!;
-    [AutoInject] private HubConnection hubConnection = default!;
-    [AutoInject] private ITelemetryContext telemetryContext = default!;
-    [AutoInject] private BitMessageBoxService messageBoxService = default!;
-    [AutoInject] private IDiagnosticController diagnosticController = default!;
-    [AutoInject] private IPushNotificationService pushNotificationService = default!;
 
 
     private static bool showKnownException = true;
@@ -33,9 +27,15 @@ public partial class AppDiagnosticModal
     private bool isDescendingSort = true;
     private List<Action> unsubscribers = [];
     private IEnumerable<string>? filterCategoryValues;
+    private readonly HashSet<string> seenCategories = [];
+    /// <summary>
+    /// Logs fetched from another device for inspection. Null means the modal is showing this device's own store.
+    /// </summary>
+    private DiagnosticLogDto[]? inspectedLogs;
     private DiagnosticLogDto[] allLogs = default!;
     private BitDropdownItem<string>[] allCategoryItems = [];
     private DiagnosticLogDto[] filteredLogs = default!;
+    private (DiagnosticLogDto item, int index)[] indexedFilteredLogs = [];
     private BitBasicList<(DiagnosticLogDto, int)> logStackRef = default!;
     private readonly BitDropdownItem<LogLevel>[] logLevelItems = Enum.GetValues<LogLevel>().Select(v => new BitDropdownItem<LogLevel>() { Value = v, Text = v.ToString() }).ToArray();
     private IEnumerable<LogLevel> filterLogLevelValues = AppEnvironment.IsDevelopment()
@@ -47,10 +47,12 @@ public partial class AppDiagnosticModal
     {
         await base.OnInitAsync();
 
-        unsubscribers.Add(PubSubService.Subscribe(ClientAppMessages.SHOW_DIAGNOSTIC_MODAL, async _ =>
+        unsubscribers.Add(PubSubService.Subscribe(ClientAppMessages.SHOW_DIAGNOSTIC_MODAL, async payload =>
         {
             isOpen = true;
-            ReloadLogs();
+            // A payload means someone else's logs were fetched for inspection (UsersPage). Without one the modal
+            // shows this device's own store.
+            SetLogSource(payload as DiagnosticLogDto[]);
             await InvokeAsync(StateHasChanged);
         }));
 
@@ -65,11 +67,6 @@ public partial class AppDiagnosticModal
     {
         isDescendingSort = !isDescendingSort;
         FilterLogs();
-    }
-
-    private async Task CopyTelemetry()
-    {
-        await clipboard.WriteText(string.Join(Environment.NewLine, telemetryContext.ToDictionary().Select(c => $"{c.Key}: {c.Value}")));
     }
 
     private async Task CopyLog(DiagnosticLogDto? log)
@@ -117,7 +114,28 @@ public partial class AppDiagnosticModal
 
     private async Task ClearLogs()
     {
-        DiagnosticLogger.Store.Clear();
+        if (inspectedLogs is null)
+        {
+            DiagnosticLogger.ClearStore();
+        }
+        else
+        {
+            inspectedLogs = [];
+        }
+
+        ReloadLogs();
+    }
+
+    /// <summary>
+    /// Switches between this device's own log store (<paramref name="logs"/> null) and a set of logs fetched for
+    /// inspection. The category filter is reset on every switch, because the two sets do not share categories.
+    /// </summary>
+    private void SetLogSource(DiagnosticLogDto[]? logs)
+    {
+        inspectedLogs = logs;
+        seenCategories.Clear();
+        filterCategoryValues = null;
+
         ReloadLogs();
     }
 
@@ -125,13 +143,16 @@ public partial class AppDiagnosticModal
     {
         allLogs = logs;
 
-        var allCategories = allLogs.Where(c => string.IsNullOrEmpty(c.Category) is false)
+        var allCategories = allLogs.Where(c => string.IsNullOrWhiteSpace(c.Category) is false)
                                    .Select(l => l.Category!)
                                    .Distinct()
                                    .Order()
                                    .ToArray();
 
-        filterCategoryValues ??= [.. allCategories];
+        // Every category not seen before joins the selection. Latching the filter on the first load would silently
+        // hide whatever arrives later - including the exception the error boundary opened this modal to show - while
+        // still honouring a category the user has deliberately deselected.
+        filterCategoryValues = [.. (filterCategoryValues ?? []).Concat(allCategories.Where(seenCategories.Add))];
 
         allCategoryItems = [.. allCategories.Select(c => new BitDropdownItem<string>() { Text = c, Value = c })];
 
@@ -140,7 +161,7 @@ public partial class AppDiagnosticModal
 
     private void ReloadLogs()
     {
-        LoadLogs([.. DiagnosticLogger.Store]);
+        LoadLogs(inspectedLogs ?? [.. DiagnosticLogger.Store]);
     }
 
     private void FilterLogs()
@@ -153,23 +174,25 @@ public partial class AppDiagnosticModal
                                    .OrderByIf(isDescendingSort is false, l => l.CreatedOn);
 
         filteredLogs = [.. query];
+        indexedFilteredLogs = [.. filteredLogs.Indexed()];
 
         IEnumerable<DiagnosticLogDto> FilterSearchText(DiagnosticLogDto[] logs)
         {
-            if (string.IsNullOrEmpty(searchText)) return logs;
+            if (string.IsNullOrWhiteSpace(searchText)) return logs;
 
             if (enableRegExp)
             {
                 try
                 {
-                    var regExp = new Regex(searchText, RegexOptions.IgnoreCase);
+                    var regExp = new Regex(searchText, RegexOptions.IgnoreCase, TimeSpan.FromMilliseconds(200));
 
                     return [.. logs.Where(l => regExp.IsMatch(l.Message ?? string.Empty) ||
                                                regExp.IsMatch(l.Category ?? string.Empty) ||
                                                l.State?.Any(s => regExp.IsMatch(s.Key) || regExp.IsMatch(s.Value ?? string.Empty)) is true)];
                 }
-                catch
+                catch (Exception exp) when (exp is RegexParseException or RegexMatchTimeoutException)
                 {
+                    SnackBarService.Warning("Regular expression", exp.Message);
                     return [];
                 }
             }

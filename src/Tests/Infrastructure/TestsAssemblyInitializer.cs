@@ -1,12 +1,7 @@
 using Aspire.Hosting;
 using Aspire.Hosting.ApplicationModel;
-using Aspire.Hosting.DevTunnels;
 using Aspire.Hosting.Testing;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
-using Bit.TemplatePlayground.Tests.Features.Identity;
 using Microsoft.Data.Sqlite;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Hosting;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure;
 
@@ -49,11 +44,16 @@ public partial class TestsAssemblyInitializer
             aspireAppBuilder.Resources.Remove(res);
 
         // The following resources are not that much useful in tests and just add to the startup time, so we remove them from the application.
-        foreach (var res in aspireAppBuilder.Resources.Where(r => r is DevTunnelResource or DevTunnelPortResource
-            or SqliteWebResource
-            or Aspire.Hosting.Maui.MauiAndroidDeviceResource
-            or Aspire.Hosting.Maui.MauiAndroidEmulatorResource
-            || r.GetType().Name is "OtlpLoopbackResource").ToList())
+        // Matched by name because some of them (OtlpLoopbackResource, CloudflareTunnelInstallerResource) are internal types.
+        string[] typeNamesToBeRemoved = [
+            "OtlpLoopbackResource",
+            nameof(Aspire.Hosting.ApplicationModel.CloudflareTunnelResource),
+            nameof(Aspire.Hosting.ApplicationModel.CloudflareQuickTunnelResource),
+            "CloudflareTunnelInstallerResource",
+            nameof(SqliteWebResource),
+        ];
+
+        foreach (var res in aspireAppBuilder.Resources.Where(r => typeNamesToBeRemoved.Contains(r.GetType().Name)).ToList())
         {
             aspireAppBuilder.Resources.Remove(res);
         }
@@ -69,8 +69,9 @@ public partial class TestsAssemblyInitializer
         }
     }
 
-    //SQLite database in in-memory mode only lives as long as at least one connection to it is open
-    //This connection is required to keep the database alive during the test run.
+    // The app's SQLite database is file-based in every shipped configuration, so this keep-alive connection only
+    // matters when ConnectionStrings__sqlite is overridden to an in-memory database (Mode=Memory), which lives
+    // only as long as at least one connection to it stays open.
     private static SqliteConnection connection = null!;
     private static async Task InitializeDatabase(AppTestServer testServer)
     {

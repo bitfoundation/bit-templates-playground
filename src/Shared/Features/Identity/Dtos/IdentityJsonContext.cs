@@ -1,4 +1,3 @@
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Shared.Features.Identity;
 
@@ -9,7 +8,6 @@ namespace Bit.TemplatePlayground.Shared.Features.Identity;
   AllowTrailingCommas = true,
   PropertyNameCaseInsensitive = true,
   GenerationMode = JsonSourceGenerationMode.Default,
-  DictionaryKeyPolicy = JsonKnownNamingPolicy.CamelCase,
   PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase
 )]
 [JsonSerializable(typeof(UserDto))]

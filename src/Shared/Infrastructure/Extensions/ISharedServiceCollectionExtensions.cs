@@ -2,7 +2,7 @@ using System.Text;
 using Bit.TemplatePlayground.Shared.Features.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
@@ -19,12 +19,7 @@ public static partial class ISharedServiceCollectionExtensions
 
             services.AddSingleton(TimeProvider.System);
 
-            services.AddSingleton(sp =>
-            {
-                SharedSettings settings = new();
-                configuration.Bind(settings);
-                return settings;
-            });
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<SharedSettings>>().Value);
             services.TryAddSingleton(sp =>
             {
                 JsonSerializerOptions options = new JsonSerializerOptions(AppJsonContext.Default.Options);
@@ -74,6 +69,7 @@ public static partial class ISharedServiceCollectionExtensions
             {
                 options.AddPolicy(AuthPolicies.PRIVILEGED_ACCESS, x => x.RequireClaim(AppClaimTypes.PRIVILEGED_SESSION, "true"));
                 options.AddPolicy(AuthPolicies.ELEVATED_ACCESS, x => x.RequireAssertion(ctx => ctx.User.GetElevatedSessionExpiresOn() > TimeProvider.GetUtcNow()));
+                options.AddPolicy(AuthPolicies.TFA_ENABLED, x => x.RequireClaim(AppClaimTypes.AMR, "mfa"));
                 options.AddPolicy(AuthPolicies.TENANT_SELECTED, x => x.RequireAssertion(ctx => ctx.User.GetTenantId() is not null));
 
                 foreach (var feat in AppFeatures.GetGlobalAdminFeatures())

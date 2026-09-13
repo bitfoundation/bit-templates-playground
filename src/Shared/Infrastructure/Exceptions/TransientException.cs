@@ -6,7 +6,7 @@ namespace Bit.TemplatePlayground.Shared.Infrastructure.Exceptions;
 public partial class TransientException : KnownException
 {
     public TransientException()
-        : base(nameof(AppStrings.ServerConnectionException))
+        : base(nameof(AppStrings.TransientException))
     {
     }
 

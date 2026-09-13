@@ -85,18 +85,24 @@ public partial class MainLayout
             Url = PageUrls.About,
         });
 
-        var (manageRoles, manageUsers, manageAiPrompt) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Roles_Manage),
-            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Users_Manage),
-            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.SystemPrompts_Write));
+        var (manageRoles, manageUsers) = await (authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Roles_Manage),
+            authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Users_Manage));
+
+        var manageOAuthClients = await authorizationService.IsAuthorized(authUser!, AppFeatures.System.OAuthClients_Manage);
+
+        var manageAiPrompt = await authorizationService.IsAuthorized(authUser!, AppFeatures.Management.SystemPrompts_Write);
 
         if (tenantIsSelected is false)
         {
-            manageRoles = manageUsers = manageAiPrompt = false;
+            manageRoles = manageUsers = false;
+            manageAiPrompt = false;
         }
 
         var manageTenantsGlobally = await authorizationService.IsAuthorized(authUser!, AppFeatures.Management.Tenants_Manage_Global);
 
-        if (manageRoles || manageUsers || manageAiPrompt
+        // Every flag in this condition has to be able to contribute a child item below, or the group renders empty.
+        if (manageRoles || manageUsers || manageOAuthClients
+            || manageAiPrompt
             || manageTenantsGlobally
             )
         {
@@ -126,6 +132,16 @@ public partial class MainLayout
                     Text = localizer[nameof(AppStrings.Users)],
                     IconName = BitIconName.SecurityGroup,
                     Url = PageUrls.Users,
+                });
+            }
+
+            if (manageOAuthClients)
+            {
+                managementItem.ChildItems.Add(new()
+                {
+                    Text = localizer["Applications"],
+                    IconName = BitIconName.PlugConnected,
+                    Url = PageUrls.OAuthClients,
                 });
             }
 
@@ -163,6 +179,7 @@ public partial class MainLayout
                     $"{PageUrls.Settings}/{PageUrls.SettingsSections.Account}",
                     $"{PageUrls.Settings}/{PageUrls.SettingsSections.Tfa}",
                     $"{PageUrls.Settings}/{PageUrls.SettingsSections.Sessions}",
+                    $"{PageUrls.Settings}/{PageUrls.SettingsSections.Privacy}",
                     $"{PageUrls.Settings}/{PageUrls.SettingsSections.UpgradeAccount}",
                 ]
             });

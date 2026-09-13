@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Logging;
 using Plugin.Maui.AppRating;
 
 namespace Bit.TemplatePlayground.Client.Maui;

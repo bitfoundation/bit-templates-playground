@@ -1,5 +1,4 @@
 using Bit.TemplatePlayground.Shared.Features.Tenants.Dtos;
-using Microsoft.AspNetCore.Components.Routing;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 

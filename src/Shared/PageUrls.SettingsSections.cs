@@ -18,6 +18,9 @@ public static partial class PageUrls
         [Description("View all devices/browsers you are signed in on and revoke sessions remotely. Requires sign-in.")]
         public static readonly string Sessions = nameof(Sessions).ToLower();
 
+        [Description("Download a copy of everything the app holds about you. Requires sign-in.")]
+        public static readonly string Privacy = nameof(Privacy).ToLower();
+
         public static readonly string UpgradeAccount = nameof(UpgradeAccount).ToLower();
     }
 }

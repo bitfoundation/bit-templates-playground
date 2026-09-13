@@ -17,8 +17,7 @@
         <PackageReference Include="Bit.BlazorUI" />
         <PackageReference Include="Bit.BlazorUI.Icons" />
         <PackageReference Include="Bit.BlazorUI.Assets" />
-                <Using Include="Bit.Brouter" />
-        <PackageReference Include="Bit.Brouter" />
+        <Using Include="Microsoft.AspNetCore.SignalR.Client" />
         <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" />
                 <PackageReference Include="Bit.BlazorUI.Extras" />
         <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" />
@@ -27,20 +26,26 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" />
 
+        <Using Include="System.Reflection" />
         <Using Include="System.Net.Http.Json" />
         <Using Include="System.Collections.Concurrent" />
+        <Using Include="System.Runtime.CompilerServices" />
         <Using Include="Microsoft.JSInterop" />
         <Using Include="Microsoft.Extensions.Logging" />
         <Using Include="Microsoft.AspNetCore.Components" />
         <Using Include="Microsoft.AspNetCore.Authorization" />
+        <Using Include="Microsoft.AspNetCore.Components.Routing" />
         <Using Include="Microsoft.AspNetCore.Components.Authorization" />
         <Using Include="Bit.Butil" />
         <Using Include="Bit.BlazorUI" />
         <Using Include="Bit.TemplatePlayground.Shared" />
+        <Using Include="Bit.TemplatePlayground.Shared.Features.Identity" />
+        <Using Include="Bit.TemplatePlayground.Shared.Features.Identity.Dtos" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Layout" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Components.Common" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services" />
         <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts" />
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers" />
     </ItemGroup>
 
     <ItemGroup>
@@ -57,11 +62,11 @@
         <CallTarget Targets="BuildCssFiles" />
     </Target>
 
-    <Target Name="InstallNodejsDependencies" Inputs="package.json" Outputs="node_modules\.package-lock.json">
+    <Target Name="InstallNodejsDependencies" Inputs="package.json;package-lock.json" Outputs="node_modules\.package-lock.json">
         <Exec Command="npm install" StandardOutputImportance="high" StandardErrorImportance="high" />
     </Target>
 
-    <Target Name="BuildJavaScript" Inputs="@(TypeScriptFiles);tsconfig.json;package.json" Outputs="wwwroot\scripts\app.js">
+    <Target Name="BuildJavaScript" Inputs="@(TypeScriptFiles);tsconfig.json;package.json;package-lock.json" Outputs="wwwroot\scripts\app.js">
         <Exec Command="node_modules/.bin/tsc" StandardOutputImportance="high" StandardErrorImportance="high" />
         <Exec Condition=" '$(Environment)' == 'Development' " Command="node_modules/.bin/esbuild Scripts/index.ts --bundle --target=safari15,firefox100,chrome95 --outfile=wwwroot/scripts/app.js" StandardOutputImportance="high" StandardErrorImportance="high" />
         <Exec Condition=" '$(Environment)' != 'Development' " Command="node_modules/.bin/esbuild Scripts/index.ts --bundle --target=safari15,firefox100,chrome95 --outfile=wwwroot/scripts/app.js --minify" StandardOutputImportance="high" StandardErrorImportance="high" />

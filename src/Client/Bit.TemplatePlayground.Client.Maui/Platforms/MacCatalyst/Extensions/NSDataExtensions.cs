@@ -1,3 +1,6 @@
+// [mirror] NSData extensions - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/iOS/Extensions/NSDataExtensions.cs
+
 using System.Text;
 
 namespace Foundation;

@@ -1,5 +1,3 @@
-using System.Net;
-
 namespace Bit.TemplatePlayground.Shared.Infrastructure.Exceptions;
 
 public partial class ResourceValidationException : RestException

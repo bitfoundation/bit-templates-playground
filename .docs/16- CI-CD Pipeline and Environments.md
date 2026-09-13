@@ -487,9 +487,13 @@ The workflow follows a **security-focused two-phase deployment** pattern that se
 **Characteristics**:
 - Has full SDK installations (.NET, Node.js, Android SDK, Xcode)
 - Performs compilation, transpilation, bundling
-- Runs tests and quality checks
 - Uploads artifacts to GitHub (or Azure DevOps)
 - **No production access** - isolated from production systems
+
+> **The build phase does not run tests.** `cd-template.yml` goes straight from `dotnet workload install` to
+> `dotnet publish`; `ci.yml` is the only workflow that runs the test suite, and it triggers on **pull requests**,
+> not on the push that starts a deploy. If you want deploys to be test-gated, protect `main` and `test` with a
+> required status check on `ci.yml`.
 
 ### Phase 2: Deploy
 **Purpose**: Take pre-built artifacts and deploy them  
@@ -568,11 +572,20 @@ Variables:
   SERVER_ADDRESS = https://api.myapp.com
   APP_VERSION = 1.0.0
   APP_TITLE = My App
+  APP_ID = com.myapp                       (bundle id / Velopack package id)
+  APP_SERVICE_NAME = my-app-service        (Azure App Service name)
+  WINDOWS_UPDATE_FILES_URL = https://api.myapp.com/windows
+  OPENAI_ENDPOINT = <optional, only if you use Bit.ResxTranslator>
 
 Secrets:
   AZURE_PUBLISH_PROFILE = <production publish profile>
   PUBLIC_VAPIDKEY = <production VAPID key>
+  OPENAI_APIKEY = <optional - when unset, the Bit.ResxTranslator step is skipped>
 ```
+
+The mobile/desktop jobs additionally need `ANDROID_RELEASE_KEYSTORE_FILE_BASE64`,
+`ANDROID_RELEASE_KEYSTORE_PASSWORD`, `ANDROID_RELEASE_SIGNING_PASSWORD` and, for iOS, the
+`APPSTORE_*` code-signing secrets plus the `IOS_CODE_SIGN_PROVISION` variable.
 
 **Test Environment**:
 ```
@@ -661,4 +674,10 @@ Enabling/Disabling LLVM during `dotnet publish` command has the most impact. `do
 Enabling/Disabling AOT during `dotnet publish` command has the most impact. `dotnet new` parameters or x86/x64 don't have much affect on this.
 ---
 - **iOS/macOS** => 120MB to 130MB
+---
+
+### AI Wiki
+
+Ask your own question [here](https://bitplatform.dev/ask)
+
 ---

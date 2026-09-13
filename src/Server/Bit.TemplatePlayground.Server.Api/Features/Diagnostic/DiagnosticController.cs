@@ -1,9 +1,5 @@
-using System.Text;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 using Bit.TemplatePlayground.Shared.Features.Diagnostic;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Diagnostic;
 
@@ -12,38 +8,34 @@ namespace Bit.TemplatePlayground.Server.Api.Features.Diagnostic;
 [Route("api/v{v:apiVersion}/[controller]/[action]")]
 public partial class DiagnosticController : AppControllerBase, IDiagnosticController
 {
-    [AutoInject] private IHostEnvironment env = default!;
     [AutoInject] private PushNotificationService pushNotificationService = default!;
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
+    [AutoInject] private ServerDiagnosticService diagnostic = default!;
 
     [HttpGet]
-    public async Task<string> PerformDiagnostic([FromQuery] string? signalRConnectionId, [FromQuery] string? pushNotificationSubscriptionDeviceId, CancellationToken cancellationToken)
+    public async Task<string[]> PerformDiagnostic([FromQuery] string? signalRConnectionId, [FromQuery] string? pushNotificationSubscriptionDeviceId, CancellationToken cancellationToken)
     {
-        StringBuilder result = new();
+        Response.Headers.CacheControl = "no-store";
 
-        result.AppendLine($"Client IP: {HttpContext.Connection.RemoteIpAddress}");
+        // Only what this endpoint alone does - the test push and the test SignalR message - goes above the report, so
+        // it isn't buried under the headers. The report itself comes from the shared service, so /dev-mcp and the hub
+        // answer identically.
+        List<string> sections = [];
 
-        result.AppendLine($"Trace => {Request.HttpContext.TraceIdentifier}");
+        // The report is reachable anonymously (7 header taps / Ctrl+Shift+X / the /diagnostic page), and an anonymous
+        // visitor's subscription or connection is owned by no UserSession - so the rule is ownership, not
+        // authentication: an identifier owned by nobody passes, one owned by a session only for that session.
+        var callerUserSessionId = User.IsAuthenticated() ? User.GetSessionId() : (Guid?)null;
 
-        var isAuthenticated = User.IsAuthenticated();
-        Guid? userSessionId = null;
-        UserSession? userSession = null;
-
-        if (isAuthenticated)
+        if (string.IsNullOrWhiteSpace(pushNotificationSubscriptionDeviceId) is false)
         {
-            userSessionId = User.GetSessionId();
-            userSession = await DbContext
-                .UserSessions.SingleAsync(us => us.Id == userSessionId, cancellationToken);
-        }
-
-        result.AppendLine($"IsAuthenticated: {isAuthenticated.ToString().ToLowerInvariant()}");
-
-        if (string.IsNullOrEmpty(pushNotificationSubscriptionDeviceId) is false)
-        {
-            var subscription = await DbContext.PushNotificationSubscriptions.Include(us => us.UserSession)
+            var subscription = await DbContext.PushNotificationSubscriptions
                 .FirstOrDefaultAsync(d => d.DeviceId == pushNotificationSubscriptionDeviceId, cancellationToken);
 
-            result.AppendLine($"Subscription exists: {(subscription is not null).ToString().ToLowerInvariant()}");
+            sections.Add($"Subscription exists: {(subscription is not null).ToString().ToLowerInvariant()}");
+
+            if (subscription?.UserSessionId is not null && subscription.UserSessionId != callerUserSessionId)
+                throw new ResourceNotFoundException().WithData("Reason", "The push notification subscription belongs to another user session.");
 
             await pushNotificationService.RequestPush(new()
             {
@@ -53,32 +45,33 @@ public partial class DiagnosticController : AppControllerBase, IDiagnosticContro
                 PageUrl = PageUrls.Terms,
                 UserRelatedPush = false
             }, s => s.DeviceId == pushNotificationSubscriptionDeviceId, cancellationToken);
+
+            sections.Add("Test push requested.");
         }
 
-        if (string.IsNullOrEmpty(signalRConnectionId) is false)
+        if (string.IsNullOrWhiteSpace(signalRConnectionId) is false)
         {
-            var success = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Open terms page. {TimeProvider.GetUtcNow():HH:mm:ss} UTC", new Dictionary<string, string?> { { "pageUrl", PageUrls.Terms }, { "action", "testAction" } }, cancellationToken);
-            if (success is false) // Client would return false if it's unable to show the message with custom action.
-            {
-                _ = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Simple message. {TimeProvider.GetUtcNow():HH:mm:ss} UTC", null, cancellationToken);
-            }
+            var connectionOwnerUserSessionId = await DbContext.UserSessions
+                .Where(us => us.SignalRConnectionId == signalRConnectionId)
+                .Select(us => (Guid?)us.Id)
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (connectionOwnerUserSessionId is not null && connectionOwnerUserSessionId != callerUserSessionId)
+                throw new ResourceNotFoundException().WithData("Reason", "The SignalR connection belongs to another user session.");
+
+            var withAction = await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Open terms page. {TimeProvider.GetUtcNow():HH:mm:ss} UTC", new Dictionary<string, string?> { { "pageUrl", PageUrls.Terms }, { "action", "testAction" } }, cancellationToken);
+
+            // Which of the two got through, not just whether anything did: a client that shows a plain message but no
+            // custom action is a different diagnosis from one the message never reached.
+            var delivered = withAction
+                ? "with custom action"
+                : await appHubContext.Clients.Client(signalRConnectionId).InvokeAsync<bool>(SharedAppMessages.SHOW_MESSAGE, $"Simple message. {TimeProvider.GetUtcNow():HH:mm:ss} UTC", null, cancellationToken)
+                    ? "as a simple message, the custom action was refused"
+                    : "no";
+
+            sections.Add($"SignalR test message delivered: {delivered}.");
         }
 
-        result.AppendLine($"Culture => C: {CultureInfo.CurrentCulture.Name}, UC: {CultureInfo.CurrentUICulture.Name}");
-
-        result.AppendLine();
-
-        foreach (var header in Request.Headers.OrderBy(h => h.Key))
-        {
-            result.AppendLine($"{header.Key}: {header.Value}");
-        }
-
-        result.AppendLine();
-        result.AppendLine($"TenantId: {TenantProvider.GetCurrentTenantId()}");
-        result.AppendLine($"Environment: {env.EnvironmentName}");
-        result.AppendLine("Base url: " + Request.GetBaseUrl());
-        result.AppendLine("Web app url: " + Request.GetWebAppUrl());
-
-        return result.ToString();
+        return [.. sections, .. diagnostic.BuildSections(DiagnosticReportSource.Http)];
     }
 }

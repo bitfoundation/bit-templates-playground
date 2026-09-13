@@ -1,9 +1,8 @@
 using System.Net;
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
-internal class CacheDelegatingHandler(IMemoryCache memoryCache, HttpMessageHandler handler)
+internal class CacheDelegatingHandler(IMemoryCache memoryCache, IAuthTokenProvider tokenProvider, HttpMessageHandler handler)
     : DelegatingHandler(handler)
 {
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
@@ -14,7 +13,7 @@ internal class CacheDelegatingHandler(IMemoryCache memoryCache, HttpMessageHandl
 
         try
         {
-            var cacheKey = $"{request.Method}-{request.RequestUri}";
+            var cacheKey = useCache ? await BuildCacheKey(request) : string.Empty;
 
             if (useCache && memoryCache.TryGetValue(cacheKey, out ResponseMemoryCacheItems? cachedResponse))
             {
@@ -54,7 +53,7 @@ internal class CacheDelegatingHandler(IMemoryCache memoryCache, HttpMessageHandl
                     LogScopeData = logScopeData.ToDictionary()
                 }, options: new()
                 {
-                    Size = 1,
+                    Size = responseContent.Length,
                     AbsoluteExpirationRelativeToNow = maxAge
                 });
             }
@@ -65,6 +64,22 @@ internal class CacheDelegatingHandler(IMemoryCache memoryCache, HttpMessageHandl
         {
             logScopeData["MemoryCacheStatus"] = memoryCacheStatus;
         }
+    }
+
+    private async Task<string> BuildCacheKey(HttpRequestMessage request)
+    {
+        var user = IAuthTokenProvider.ParseAccessToken(await tokenProvider.GetAccessToken(), validateExpiry: false);
+
+        var identity = "anonymous";
+
+        if (user.IsAuthenticated())
+        {
+            identity = FormattableString.Invariant($"{user.GetUserId()}-{user.GetTenantId()}");
+        }
+
+        var culture = CultureInfoManager.InvariantGlobalization ? string.Empty : CultureInfo.CurrentUICulture.Name;
+
+        return FormattableString.Invariant($"{identity}-{culture}-{request.Method}-{request.RequestUri}");
     }
 
     public class ResponseMemoryCacheItems

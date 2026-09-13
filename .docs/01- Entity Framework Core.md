@@ -363,3 +363,11 @@ dotnet tool restore && dotnet ef migrations add <MigrationName> --output-dir Inf
 ```
 
 ---
+
+---
+
+### AI Wiki
+
+Ask your own question [here](https://bitplatform.dev/ask)
+
+---

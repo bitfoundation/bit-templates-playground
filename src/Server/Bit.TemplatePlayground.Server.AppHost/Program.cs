@@ -8,11 +8,7 @@ var builder = DistributedApplication.CreateBuilder(args);
 var sqlite = builder.AddSqlite();
 
 
-// https://aspire.dev/integrations/security/keycloak/
-var keycloak = builder.AddKeycloak("keycloak", 8080)
-    .WithDataVolume()
-    .WithOtlpExporter()
-    .WithRealmImport("./Infrastructure/Realms");
+var keycloak = builder.AddKeycloak();
 
 var serverWebProject = builder.AddProject("serverweb", "../Bit.TemplatePlayground.Server.Web/Bit.TemplatePlayground.Server.Web.csproj")
     .WithExternalHttpEndpoints();
@@ -28,6 +24,12 @@ if (builder.Environment.IsDevelopment())
 serverWebProject.WithReference(sqlite).WaitFor(sqlite);
 serverWebProject.WithReference(keycloak);
 
+builder.ExposeWildcardEndpointsToLan();
+
+// cloudflared connects straight to the projects (no reverse proxy) - possible now that RemoveWildcardEndpoints drops http2.
+builder.AddCloudflareTunnels(serverWebProject
+    );
+
 if (builder.ExecutionContext.IsRunMode) // The following project is only added for testing purposes.
 {
     // Blazor WebAssembly Standalone project.
@@ -40,11 +42,6 @@ if (builder.ExecutionContext.IsRunMode) // The following project is only added f
 
     serverWebProject.WithReference(mailpit);
 
-
-    var tunnel = builder.AddDevTunnel("web-dev-tunnel")
-        .WithAnonymousAccess()
-        .WithReference(serverWebProject.WithHttpEndpoint(name: "devTunnel", port: 5000).GetEndpoint("devTunnel"));
-
     if (OperatingSystem.IsWindows())
     {
         // Blazor Hybrid Windows project.
@@ -52,7 +49,15 @@ if (builder.ExecutionContext.IsRunMode) // The following project is only added f
             .WithExplicitStart();
     }
 
-    builder.AddMaui(serverWebProject, tunnel);
+    // Every container is created from scratch on each run and is destroyed as soon as the app host stops.
+    // Uncommenting the following line keeps them alive and reuses them instead, which makes starting the project
+    // (F5 / `aspire start`) and running the automated tests considerably faster.
+    // The costs are that those containers keep consuming memory even while you're not debugging the project (you can
+    // stop them from Docker Desktop whenever you need those resources back)
+    // Check out the `.docs/20- .NET Aspire.md` file for more details.
+
+    //builder.UsePersistentContainers();
+
 }
 
 await builder

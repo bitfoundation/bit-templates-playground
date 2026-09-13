@@ -1,9 +1,7 @@
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Resources;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Components.Web;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure.Services;
@@ -15,7 +13,7 @@ namespace Bit.TemplatePlayground.Tests.Infrastructure.Services;
 /// so there is no e-mail body to parse - and reliable under parallel test load, where the in-memory Hangfire storage can
 /// starve and never run the delivery job. Not calling <c>base</c> also means no e-mail ever reaches SMTP.
 /// </summary>
-public class TestIdentityEmailService : IdentityEmailService
+public partial class TestIdentityEmailService : IdentityEmailService
 {
     private readonly EmailCaptureStore captureStore;
 
@@ -26,12 +24,13 @@ public class TestIdentityEmailService : IdentityEmailService
     public TestIdentityEmailService(
         EmailCaptureStore captureStore,
         IBackgroundJobClient backgroundJobClient,
+        AppDbContext dbContext,
         IStringLocalizer<EmailStrings> emailLocalizer,
         IHostEnvironment hostEnvironment,
         HtmlRenderer htmlRenderer,
         IHttpContextAccessor httpContextAccessor,
         ILogger<IdentityEmailService> logger)
-        : base(backgroundJobClient, emailLocalizer, hostEnvironment, htmlRenderer, httpContextAccessor, logger)
+        : base(backgroundJobClient, dbContext, emailLocalizer, hostEnvironment, htmlRenderer, httpContextAccessor, logger)
     {
         this.captureStore = captureStore;
     }

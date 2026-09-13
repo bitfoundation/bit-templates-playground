@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <UserSecretsId>C1520087-2E30-4924-BB85-AEF022158E21</UserSecretsId>
+        <UserSecretsId>6677C159-204A-4DB6-8787-2CCCEF43F9AC</UserSecretsId>
         <CoreCompileDependsOn>PrepareResources;$(CompileDependsOn)</CoreCompileDependsOn>
         <StaticWebAssetProjectMode>Default</StaticWebAssetProjectMode>
     </PropertyGroup>
@@ -14,26 +14,40 @@
     </PropertyGroup>
 
     <ItemGroup>
+        <Using Include="System.Text" />
         <Using Include="Microsoft.Extensions.Options" />
         <Using Include="Microsoft.AspNetCore.Authorization" />
+        <Using Include="Microsoft.AspNetCore.Authentication" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.Data" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.Services" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.Controllers" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.RequestPipeline" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Features.Identity.Models" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Features.Identity.Services" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Features.Identity.Resources" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Features.Identity.Components" />
         <Using Include="Microsoft.EntityFrameworkCore.Migrations" />
         <Using Include="Microsoft.EntityFrameworkCore.Metadata.Builders" />
         <Using Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
         <Using Include="Hangfire" />
+        <Using Include="Humanizer" />
         <Using Include="Asp.Versioning" />
+        <Using Include="Riok.Mapperly.Abstractions" />
         <Using Include="Bit.TemplatePlayground.Shared.Infrastructure" />
         <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Attributes" />
+        <Using Include="Bit.TemplatePlayground.Shared.Features.Identity" />
+        <Using Include="Bit.TemplatePlayground.Shared.Features.Identity.Dtos" />
         <Using Include="Microsoft.AspNetCore.Identity" />
         <Using Include="Microsoft.EntityFrameworkCore" />
         <Using Include="Microsoft.AspNetCore.OData.Query" />
         <Using Include="Microsoft.AspNetCore.Mvc" />
         <Using Include="ZiggyCreatures.Caching.Fusion" />
         <Using Include="Microsoft.Extensions.AI" />
+        <Using Include="Microsoft.AspNetCore.SignalR" />
         <Using Include="Bit.TemplatePlayground.Server.Api.Features.Chatbot" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR" />
+        <Using Include="Bit.TemplatePlayground.Server.Api.Infrastructure.DevMcp" />
+        <Using Include="ModelContextProtocol.Server" />
     </ItemGroup>
 
     <ItemGroup>
@@ -57,6 +71,7 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" />
         <PackageReference Include="Microsoft.Azure.SignalR" />
         <PackageReference Include="ModelContextProtocol.AspNetCore" />
+        <PackageReference Include="System.Linq.Dynamic.Core" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" PrivateAssets="all" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" PrivateAssets="all" />
         <PackageReference Include="AspNetCore.HealthChecks.Uris" />

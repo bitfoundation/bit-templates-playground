@@ -1,9 +1,9 @@
-using Riok.Mapperly.Abstractions;
+using Bit.TemplatePlayground.Shared.Features.PushNotification;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 
 /// <summary>
-/// More info at Server/Mappers/README.md
+/// More info at src/Server/Bit.TemplatePlayground.Server.Api/Features/Mappers.md
 /// </summary>
 [Mapper]
 public static partial class PushNotificationMapper

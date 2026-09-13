@@ -17,7 +17,7 @@ public partial class TwilioHealthCheck : IHealthCheck
             if (settings.Sms?.Configured is not true)
                 return HealthCheckResult.Healthy("Twilio SMS is not configured - skipping check.");
 
-            var account = await AccountResource.FetchAsync();
+            var account = await AccountResource.FetchAsync().WaitAsync(cancellationToken);
 
             return account.Status == AccountResource.StatusEnum.Active
                 ? HealthCheckResult.Healthy("Twilio account is active.")
@@ -25,7 +25,7 @@ public partial class TwilioHealthCheck : IHealthCheck
         }
         catch (Exception exp)
         {
-            return HealthCheckResult.Unhealthy("Twilio SMS health check failed.", exp);
+            return new HealthCheckResult(context.Registration.FailureStatus, "Twilio SMS health check failed.", exp);
         }
     }
 }

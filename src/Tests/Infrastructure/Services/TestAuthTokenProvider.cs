@@ -1,5 +1,3 @@
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
-
 namespace Bit.TemplatePlayground.Tests.Services;
 
 public partial class TestAuthTokenProvider : IAuthTokenProvider

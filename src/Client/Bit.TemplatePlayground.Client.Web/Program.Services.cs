@@ -2,6 +2,7 @@
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 using Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
+using Microsoft.Extensions.Options;
 
 namespace Bit.TemplatePlayground.Client.Web;
 
@@ -57,13 +58,9 @@ public static partial class Program
             services.AddScoped<IPushNotificationService, WebPushNotificationService>();
             services.AddScoped<IWebAuthnService, WebAuthnService>();
             services.AddScoped<IAppUpdateService, WebAppUpdateService>();
+            services.AddScoped<IPermissionService, WebPermissionService>();
 
-            services.AddSingleton(sp =>
-            {
-                ClientWebSettings settings = new();
-                configuration.Bind(settings);
-                return settings;
-            });
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<ClientWebSettings>>().Value);
 
             services.AddOptions<ClientWebSettings>()
                 .Bind(configuration)

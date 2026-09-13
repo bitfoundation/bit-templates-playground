@@ -1,4 +1,3 @@
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Shared.Features.Identity;
 

@@ -1,5 +1,3 @@
-using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity;
 
@@ -54,11 +52,11 @@ public partial class ForgotPasswordPage
             {
                 { "return-url", ReturnUrlQueryString }
             };
-            if (string.IsNullOrEmpty(model.Email) is false)
+            if (string.IsNullOrWhiteSpace(model.Email) is false)
             {
                 queryParams.Add("email", model.Email);
             }
-            if (string.IsNullOrEmpty(model.PhoneNumber) is false)
+            if (string.IsNullOrWhiteSpace(model.PhoneNumber) is false)
             {
                 queryParams.Add("phoneNumber", model.PhoneNumber);
             }
@@ -86,11 +84,11 @@ public partial class ForgotPasswordPage
         {
             { "return-url", ReturnUrlQueryString }
         };
-        if (string.IsNullOrEmpty(model.Email) is false)
+        if (string.IsNullOrWhiteSpace(model.Email) is false)
         {
             queryParams.Add("email", model.Email);
         }
-        if (string.IsNullOrEmpty(model.PhoneNumber) is false)
+        if (string.IsNullOrWhiteSpace(model.PhoneNumber) is false)
         {
             queryParams.Add("phoneNumber", model.PhoneNumber);
         }

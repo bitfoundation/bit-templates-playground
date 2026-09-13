@@ -1,5 +1,4 @@
 using System.Net;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Server.Web.Infrastructure.Services;

@@ -1,4 +1,7 @@
-// bit version: 10.5.0
+// [mirror] push notification and notificationclick handlers - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Web/wwwroot/service-worker.js
+
+// bit version: 10.6.0-pre-05
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -6,20 +9,28 @@ self.addEventListener('push', function (event) {
 
     const eventData = event.data.json();
 
-    self.registration.showNotification(eventData.title, {
+    event.waitUntil(self.registration.showNotification(eventData.title, {
 
         data: eventData.data,
         body: eventData.message,
         icon: '/images/icons/bit-icon-512.png'
 
-    });
+    }));
 
 });
+
+function isAppRelativeUrl(pageUrl) {
+    try {
+        return new URL(pageUrl, self.registration.scope).href.startsWith(self.registration.scope);
+    } catch {
+        return false;
+    }
+}
 
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     const pageUrl = event.notification.data.pageUrl;
-    if (pageUrl != null) {
+    if (pageUrl != null && isAppRelativeUrl(pageUrl)) {
         event.waitUntil(
             clients
                 .matchAll({
@@ -46,7 +57,11 @@ self.assetsExclude = [
     /bit\.blazorui\.fluent-light\.css$/,
 
     // country flags
-    /_content\/Bit\.BlazorUI\.Extras\/flags/
+    /_content\/Bit\.BlazorUI\.Extras\/flags/,
+
+    // Host configuration, not app assets: the host consumes them and answers 404, which stalls the offline install.
+    /staticwebapp\.config\.json$/,
+    /_headers$/
 ];
 self.externalAssets = [
     {
@@ -75,6 +90,7 @@ self.serverHandledUrls = [
     /\/swagger/,
     /\/scalar/,
     /\/signin-/,
+    /\/oauth\//,
     /\/.well-known/,
     /\/sitemap.xml/,
     /\/sitemap_index.xml/,

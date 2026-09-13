@@ -41,6 +41,7 @@ public partial class ContentSecurityPolicy
 
         connectSrc.Add("https://*.service.signalr.net");
         connectSrc.Add(apiUrl.Replace("http:", "ws:").Replace("https:", "wss:"));
+        mediaSrc.Add("blob:");
 
         // --- Add Google Fonts ---
         fontSrc.Add("https://fonts.gstatic.com");
@@ -50,6 +51,8 @@ public partial class ContentSecurityPolicy
         imgSrc.Add("https://img.shields.io");
         connectSrc.Add("https://api.github.com");
 
+        // Inert today - the component only renders the meta tag when the environment is NOT Development - and kept
+        // as the record of what a Development policy would have to allow, for whoever relaxes that guard.
         if (AppEnvironment.IsDevelopment())
         {
             connectSrc.Add("ws://localhost:* wss://localhost:*"); // Allow localhost WebSocket connections during development (hot reload / debugging)
@@ -57,7 +60,9 @@ public partial class ContentSecurityPolicy
             connectSrc.Add("https://cdn.jsdelivr.net/"); // eruda dev tools
         }
 
-        scriptSrc.Add("https://cdn.jsdelivr.net/npm/eruda"); // eruda dev tools
+        // The exact pinned url the diagnostic modal loads, not the jsdelivr host: a host-wide entry would let any
+        // package on that CDN execute here. Keep it in sync with erudaUrl in Scripts/App.ts.
+        scriptSrc.Add("https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.min.js"); // eruda dev tools
 
         // Construct the final CSP string
         CspContent = $"default-src {string.Join(" ", ownOrigins)}; " + // Fallback for all directives.

@@ -1,5 +1,3 @@
-using System.Runtime.CompilerServices;
-
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 /// <summary>

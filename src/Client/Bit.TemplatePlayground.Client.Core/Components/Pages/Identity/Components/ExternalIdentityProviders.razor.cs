@@ -1,5 +1,3 @@
-using Bit.TemplatePlayground.Shared.Features.Identity;
-
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.Components;
 
 public partial class ExternalIdentityProviders

@@ -1,17 +1,16 @@
-<Project Sdk="Aspire.AppHost.Sdk/13.4.6">
+<Project Sdk="Aspire.AppHost.Sdk/13.5.3">
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net10.0</TargetFramework>
         <IsAspireHost>true</IsAspireHost>
         <EntryPointAccessibility>public</EntryPointAccessibility>
-        <UserSecretsId>C1520087-2E30-4924-BB85-AEF022158E21</UserSecretsId>
+        <UserSecretsId>6677C159-204A-4DB6-8787-2CCCEF43F9AC</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Aspire.Hosting.DevTunnels" />
+        <PackageReference Include="Shirubasoft.Aspire.CloudflareTunnels" />
         <PackageReference Include="Aspire.Hosting.Keycloak" />
-        <PackageReference Include="Aspire.Hosting.Maui" />
         <PackageReference Include="CommunityToolkit.Aspire.Hosting.MailPit" />
         <PackageReference Include="CommunityToolkit.Aspire.Hosting.Sqlite" />
     </ItemGroup>

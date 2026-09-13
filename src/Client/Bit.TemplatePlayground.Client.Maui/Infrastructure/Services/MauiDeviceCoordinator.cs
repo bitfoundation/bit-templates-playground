@@ -1,3 +1,6 @@
+// [mirror] IBitDeviceCoordinator - applying the theme to native chrome - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Windows/Infrastructure/Services/WindowsDeviceCoordinator.cs
+
 using Bit.TemplatePlayground.Client.Core.Styles;
 
 namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;

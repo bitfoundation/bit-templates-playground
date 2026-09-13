@@ -33,9 +33,9 @@ public partial class ProductsPage
             };
 
             var filter = string.Join(" and ", req.Filters
-                .Where(f => string.IsNullOrEmpty(f.Value?.ToString()) is false)
+                .Where(f => string.IsNullOrWhiteSpace(f.Value?.ToString()) is false)
                 .Select(f => $"contains(tolower({f.ColumnId}),'{f.Value!.ToString()!.ToLower().Replace("'", "''")}')"));
-            if (string.IsNullOrEmpty(filter) is false)
+            if (string.IsNullOrWhiteSpace(filter) is false)
             {
                 query.Filter = filter;
             }
@@ -91,12 +91,4 @@ public partial class ProductsPage
         await RefreshData();
     }
 
-    protected override async ValueTask OnActivated(BrouterRouteActivation activation)
-    {
-        if (activation.IsFirstActivation is false)
-        {
-            await RefreshData();
-        }
-        await base.OnActivated(activation);
-    }
 }

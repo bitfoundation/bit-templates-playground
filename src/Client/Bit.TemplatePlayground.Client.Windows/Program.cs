@@ -1,8 +1,13 @@
+// [mirror] the WebView2 permission allow-list - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/MauiProgram.cs (HandlePermissionRequested, inside the Windows target)
+// Only that handler mirrors: the culture bootstrap, LogException and the PAGE_DATA_CHANGED subscription below
+// deliberately differ from their MAUI counterparts, because the APIs available to each host differ.
 using System.Diagnostics.CodeAnalysis;
 using Bit.TemplatePlayground.Client.Core.Components;
 using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
+using Microsoft.Extensions.Options;
 using Microsoft.Web.WebView2.Core;
 using Velopack;
 
@@ -14,6 +19,8 @@ public partial class Program
     [DynamicDependency(DynamicallyAccessedMemberTypes.All, typeof(HeadOutlet))]
     public static void Main(string[] args)
     {
+        VelopackApp.Build().Run();
+
         Application.ThreadException += (_, e) => LogException(e.Exception, reportedBy: nameof(Application.ThreadException));
         AppDomain.CurrentDomain.UnhandledException += (_, e) => LogException(e.ExceptionObject, reportedBy: nameof(AppDomain.UnhandledException));
         TaskScheduler.UnobservedTaskException += (_, e) => { LogException(e.Exception, reportedBy: nameof(TaskScheduler.UnobservedTaskException)); e.SetObserved(); };
@@ -33,6 +40,8 @@ public partial class Program
         var services = new ServiceCollection();
         services.AddClientWindowsProjectServices(configuration);
         Services = services.BuildServiceProvider();
+
+        Services.GetService<IStartupValidator>()?.Validate();
 
         if (CultureInfoManager.InvariantGlobalization is false)
         {
@@ -56,11 +65,7 @@ public partial class Program
             Icon = Icon.ExtractAssociatedIcon(Application.ExecutablePath)
         };
         var pubSubService = Services.GetRequiredService<PubSubService>();
-        _ = pubSubService.Subscribe(ClientAppMessages.CULTURE_CHANGED, async culture =>
-        {
-            Application.Restart();
-        });
-        _ = pubSubService.Subscribe(ClientAppMessages.PAGE_DATA_CHANGED, async args =>
+        pubSubHandlerReferenceToKeepAlive = pubSubService.Subscribe(ClientAppMessages.PAGE_DATA_CHANGED, async args =>
         {
             var (title, _, __) = ((string? title, string?, bool))args!;
             await form.InvokeAsync(() =>
@@ -69,8 +74,6 @@ public partial class Program
             });
         });
 
-        // https://github.com/velopack/velopack
-        VelopackApp.Build().Run();
         _ = Task.Run(async () =>
         {
             try
@@ -83,7 +86,7 @@ public partial class Program
             }
         });
 
-        Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--unsafely-treat-insecure-origin-as-secure=https://0.0.0.1 --enable-notifications");
+        Environment.SetEnvironmentVariable("WEBVIEW2_ADDITIONAL_BROWSER_ARGUMENTS", "--unsafely-treat-insecure-origin-as-secure=https://0.0.0.1 --enable-notifications --remote-debugging-port=9222");
 
         var blazorWebView = new BlazorWebView
         {
@@ -100,17 +103,15 @@ public partial class Program
 
         blazorWebView.BlazorWebViewInitialized += delegate
         {
-            blazorWebView.WebView.CoreWebView2.PermissionRequested += async (sender, args) =>
+            blazorWebView.WebView.CoreWebView2.PermissionRequested += (sender, args) =>
             {
+                if (args.PermissionKind is not (CoreWebView2PermissionKind.Microphone
+                             or CoreWebView2PermissionKind.ClipboardRead
+                             or CoreWebView2PermissionKind.Notifications)) return;
+
                 args.Handled = true;
                 args.State = CoreWebView2PermissionState.Allow;
             };
-            var settings = blazorWebView.WebView.CoreWebView2.Settings;
-            if (AppEnvironment.IsDevelopment() is false)
-            {
-                settings.IsZoomControlEnabled = false;
-                settings.AreBrowserAcceleratorKeysEnabled = false;
-            }
             _ = StartBlazor(blazorWebView);
         };
 
@@ -139,10 +140,22 @@ public partial class Program
         else
         {
             var errorMessage = error?.ToString() ?? "Unknown error";
-            Clipboard.SetText(errorMessage);
+            // The dialog first: this branch runs before the DI container exists, so it is the only report a WinForms
+            // process launched from Explorer can make. Clipboard.SetText throws when another process is holding the
+            // clipboard (and off an STA thread), which would otherwise swallow the dialog with it.
             System.Windows.Forms.MessageBox.Show(errorMessage, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            try
+            {
+                Clipboard.SetText(errorMessage); // so the user can paste it into a bug report
+            }
+            catch { }
         }
     }
 
     public static IServiceProvider? Services { get; private set; }
+
+    /// <summary>
+    /// Strong root for the PAGE_DATA_CHANGED subscription, which PubSubService itself only holds weakly.
+    /// </summary>
+    private static Action? pubSubHandlerReferenceToKeepAlive;
 }

@@ -1,6 +1,3 @@
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
-using Bit.TemplatePlayground.Shared.Features.Identity;
-
 namespace Bit.TemplatePlayground.Tests.Features.Identity;
 
 [TestClass, TestCategory("IntegrationTest")]

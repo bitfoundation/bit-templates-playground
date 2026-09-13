@@ -3,7 +3,8 @@ using Android.Runtime;
 
 [assembly: UsesPermission(Android.Manifest.Permission.Internet)]
 [assembly: UsesPermission(Android.Manifest.Permission.AccessNetworkState)]
-
+[assembly: UsesPermission(Android.Manifest.Permission.RecordAudio)]
+[assembly: UsesPermission(Android.Manifest.Permission.ModifyAudioSettings)]
 // https://github.com/thudugala/Plugin.LocalNotification/wiki/1.-Usage-10.0.0--.Net-MAUI#android-specific-setup
 [assembly: UsesPermission(Android.Manifest.Permission.PostNotifications)]
 [assembly: UsesPermission(Android.Manifest.Permission.Vibrate)]

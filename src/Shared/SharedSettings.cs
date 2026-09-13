@@ -1,4 +1,3 @@
-using Microsoft.Extensions.Caching.Memory;
 
 namespace Bit.TemplatePlayground.Shared;
 
@@ -13,4 +12,3 @@ public partial class SharedSettings : IValidatableObject
         return validationResults;
     }
 }
-

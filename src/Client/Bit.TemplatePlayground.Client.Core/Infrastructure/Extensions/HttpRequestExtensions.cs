@@ -1,6 +1,3 @@
-using System.Reflection;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
-
 namespace System.Net.Http;
 
 public static class HttpRequestExtensions

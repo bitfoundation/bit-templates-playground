@@ -1,14 +1,10 @@
-using System.Net;
 using System.Net.Sockets;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
-using Bit.TemplatePlayground.Tests.Infrastructure.Services;
 using Bunit;
 using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Hosting;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure;
 
@@ -21,6 +17,7 @@ public partial class AppTestServer(IBrowserContext? ClientBrowserContext = null)
     private WebApplicationBuilder? builder;
 
     public WebApplication WebApp => webApp ?? throw new InvalidOperationException($"{nameof(WebApp)} is null. Call {nameof(Build)} method first.");
+
     public readonly Uri WebAppServerAddress = new(GenerateServerUrl());
 
     public AppTestServer Build(Action<IServiceCollection>? configureTestServices = null,

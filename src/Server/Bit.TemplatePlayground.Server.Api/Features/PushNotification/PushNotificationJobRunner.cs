@@ -2,11 +2,8 @@ using System.Collections.Concurrent;
 using System.Net;
 using AdsPush;
 using AdsPush.Abstraction;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 using Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
 using Hangfire.Server;
-using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 
@@ -32,11 +29,11 @@ public partial class PushNotificationJobRunner
             Detail = AdsPushText.CreateUsingString(request.Message ?? string.Empty)
         };
 
-        if (string.IsNullOrEmpty(request.Action) is false)
+        if (string.IsNullOrWhiteSpace(request.Action) is false)
         {
             payload.Parameters.Add("action", request.Action);
         }
-        if (string.IsNullOrEmpty(request.PageUrl) is false)
+        if (string.IsNullOrWhiteSpace(request.PageUrl) is false)
         {
             payload.Parameters.Add("pageUrl", request.PageUrl);
         }
@@ -108,12 +105,12 @@ public partial class PushNotificationJobRunner
                 { "FailedItems", failedItems }
             };
 
-            foreach (var (problematicSubscriptionId, errorType, responseStatusCode, exp) in problems.DistinctBy(p => new { p.errorType, p.responseStatusCode })) // DistinctBy to avoid huge error data in case of many same errors
+            foreach (var (problematicSubscriptionId, errorType, responseStatusCode, exp) in problems.DistinctBy(p => new { p.errorType, p.responseStatusCode, ExceptionType = p.exp.GetType() }))
             {
-                errorData[$"Subscription_{problematicSubscriptionId}"] = $"ErrorType: {errorType}, ResponseStatusCode: {responseStatusCode}";
+                errorData[$"Subscription_{problematicSubscriptionId}"] = $"ErrorType: {errorType}, ResponseStatusCode: {responseStatusCode}, Exception: {exp.GetType().Name}: {exp.Message}";
             }
 
-            serverExceptionHandler.Handle(new AggregateException("Failed to send push notifications").WithData(errorData));
+            serverExceptionHandler.Handle(new AggregateException("Failed to send push notifications", problems.Select(p => p.exp)).WithData(errorData));
         }
     }
 }

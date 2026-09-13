@@ -1,5 +1,8 @@
-using Microsoft.Extensions.Logging;
-using Plugin.LocalNotification;
+// [mirror] IPushNotificationService - subscription and permission flow - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/Android/Services/AndroidPushNotificationService.cs
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/MacCatalyst/Services/MacCatalystPushNotificationService.cs
+
+using Bit.TemplatePlayground.Shared.Features.PushNotification;
 using UIKit;
 using UserNotifications;
 
@@ -37,7 +40,7 @@ public partial class iOSPushNotificationService : PushNotificationServiceBase
 
         try
         {
-            while (string.IsNullOrEmpty(Token))
+            while (string.IsNullOrWhiteSpace(Token))
             {
                 // After the NotificationsSupported Task completes with a result of true,
                 // we use UNUserNotificationCenter.Current.Delegate.
@@ -48,6 +51,7 @@ public partial class iOSPushNotificationService : PushNotificationServiceBase
         catch (Exception exp)
         {
             Logger.LogError(exp, "Unable to resolve token for APNS.");
+            return null;
         }
 
         var subscription = new PushNotificationSubscriptionDto

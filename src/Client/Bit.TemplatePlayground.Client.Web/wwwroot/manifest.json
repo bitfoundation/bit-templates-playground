@@ -8,7 +8,7 @@
     "orientation": "any",
     "id": "bitBit.TemplatePlayground",
     "display": "standalone",
-    "theme_color": "#2EA3FF",
+    "theme_color": "#FFFFFF",
     "name": "bit Bit.TemplatePlayground",
     "background_color": "#0D2960",
     "short_name": "bit Bit.TemplatePlayground",
@@ -52,7 +52,7 @@
         },
         {
             "name": "Profile",
-            "url": "/profile"
+            "url": "/settings/profile"
         }
     ]
 }

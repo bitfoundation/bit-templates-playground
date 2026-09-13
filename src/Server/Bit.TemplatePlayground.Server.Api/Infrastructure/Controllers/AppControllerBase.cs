@@ -1,4 +1,3 @@
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Controllers;
 

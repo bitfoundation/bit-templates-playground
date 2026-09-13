@@ -1,7 +1,11 @@
+// [mirror] blazor hybrid DI registrations, logging and OpenTelemetry setup - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/MauiProgram.Services.cs
+
 using System.Diagnostics.Metrics;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
 
@@ -17,10 +21,12 @@ public static partial class Program
             services.AddClientCoreProjectServices(configuration);
 
             services.AddScoped<IWebAuthnService, WindowsWebAuthnService>();
+            services.AddScoped<IExternalNavigationService, WindowsExternalNavigationService>();
             services.AddScoped<ClientExceptionHandlerBase, WindowsExceptionHandler>();
             services.AddScoped<SharedExceptionHandler>(sp => sp.GetRequiredService<ClientExceptionHandlerBase>());
 
             services.AddScoped<IAppUpdateService, WindowsAppUpdateService>();
+            services.AddScoped<IPermissionService, WindowsPermissionService>();
             services.AddScoped<IBitDeviceCoordinator, WindowsDeviceCoordinator>();
 
             services.AddScoped<HttpClient>(sp =>
@@ -41,10 +47,7 @@ public static partial class Program
 
             ClientWindowsSettings settings = new();
             configuration.Bind(settings);
-            services.AddSingleton(sp =>
-            {
-                return settings;
-            });
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<ClientWindowsSettings>>().Value);
             services.AddSingleton(ITelemetryContext.Current!);
             services.AddSingleton<IPushNotificationService, WindowsPushNotificationService>();
 
@@ -82,7 +85,7 @@ public static partial class Program
                 });
 
             var useOtlpExporter = string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]) is false
-                || string.IsNullOrEmpty(configuration["OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"]) is false;
+                || string.IsNullOrWhiteSpace(configuration["OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"]) is false;
 
             if (useOtlpExporter)
             {
