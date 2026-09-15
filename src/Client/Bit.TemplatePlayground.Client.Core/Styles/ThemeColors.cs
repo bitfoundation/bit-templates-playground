@@ -6,10 +6,10 @@ namespace Bit.TemplatePlayground.Client.Core.Styles;
 // visible seam. The same two colors paint the web app's status bar (the theme-color meta tags of the host pages, which
 // Scripts/theme.ts keeps up to date) and, for an installed PWA before those tags apply, manifest.json's theme_color -
 // a manifest cannot be theme aware, so it carries the light color. Keep in sync with:
-// Styles/app.scss, src/Client/Bit.TemplatePlayground.Client.Web/wwwroot/index.html, src/Client/Bit.TemplatePlayground.Client.Maui/wwwroot/index.html,
+// Styles/app.scss, Styles/_snapchat-theme.scss, src/Client/Bit.TemplatePlayground.Client.Web/wwwroot/index.html, src/Client/Bit.TemplatePlayground.Client.Maui/wwwroot/index.html,
 // src/Server/Bit.TemplatePlayground.Server.Web/Components/App.razor, src/Client/Bit.TemplatePlayground.Client.Web/wwwroot/manifest.json.
 public partial class ThemeColors
 {
-    public static readonly string PrimaryDarkBgColor = "#1A1A1A";
+    public static readonly string PrimaryDarkBgColor = "#121314";
     public static readonly string PrimaryLightBgColor = "#FFFFFF";
 }

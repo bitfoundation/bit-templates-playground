@@ -1,11 +1,97 @@
+// Nunito Sans: the free look-alike of Snapchat's (licensed) Avenir Next, used where Avenir Next is not installed.
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:ital,wght@0,300..900;1,300..900&display=swap');
 @import '../Styles/abstracts/_media-queries.scss';
 @import '../Styles/abstracts/_bit-css-variables.scss';
+@import 'snapchat-theme';
 
 // [mirror] Uncomment to override the theme's dark background. If you do, ThemeColors.cs's PrimaryDarkBgColor must
 // change with it - it paints the native chrome around the WebView, which would otherwise meet the page in a seam.
 // Keep in sync with: Styles/ThemeColors.cs.
-:root[bit-theme="dark"] {
-    //--bit-clr-bg-pri: #1A1A1A;
+:root[bit-theme="snapchat-dark"] {
+    //--bit-clr-bg-pri: #121314;
+}
+
+// The parts of the Snapchat look no theme token reaches: action-blue semibold links and the press-to-shrink buttons.
+:root[bit-theme^="snapchat"] {
+    .bit-lnk:not(.bit-dis) {
+        color: $bit-color-secondary;
+        text-decoration: none;
+        font-weight: $bit-typography-font-weight;
+    }
+
+    .bit-btn {
+        transition: color $bit-motion-duration-short $bit-motion-easing,
+                    border-color $bit-motion-duration-short $bit-motion-easing,
+                    background-color $bit-motion-duration-short $bit-motion-easing,
+                    transform $bit-motion-duration-short ease-in-out;
+
+        &:not(.bit-dis):active {
+            transform: scale(0.96);
+        }
+    }
+
+    // Snapchat's 48px text inputs whose focused border turns ink rather than brand yellow
+    .bit-tfl {
+        --bit-tfl-min-height: var(--bit-siz-ctrl-lg);
+    }
+
+    .bit-tfl-pri {
+        --bit-tfl-clr: #{$bit-color-foreground-primary};
+    }
+
+    // Snapchat's search: a borderless grey pill with an ink glyph and demi-bold grey placeholder
+    .bit-srb-cnt {
+        border: none;
+        border-radius: var(--bit-shp-radius-full);
+        background-color: $bit-color-background-tertiary;
+    }
+
+    .bit-srb-iwp,
+    .bit-srb-iwp i {
+        color: $bit-color-foreground-primary;
+    }
+
+    .bit-srb-inp {
+        font-weight: $bit-typography-font-weight;
+
+        &::placeholder {
+            color: $bit-color-foreground-secondary;
+        }
+    }
+}
+
+// Snapchat never paints its yellow as text, strokes or glyphs on a white page (1.1:1), so in the light scheme the
+// primary role's outline/text buttons, text icons and tab indicators fall back to ink. Filled yellow stays yellow.
+:root[bit-theme="snapchat-light"] {
+    .bit-btn-pri:is(.bit-btn-otl, .bit-btn-txt) {
+        --bit-btn-clr: #{$bit-color-tertiary};
+        --bit-btn-clr-txt: #{$bit-color-tertiary-text};
+        --bit-btn-clr-hover: #{$bit-color-tertiary-hover};
+        --bit-btn-clr-active: #{$bit-color-tertiary-active};
+    }
+
+    .bit-ico-pri.bit-ico-txt {
+        --bit-ico-clr: #{$bit-color-tertiary};
+    }
+
+    .bit-srb-pri {
+        --bit-srb-clr: #{$bit-color-tertiary};
+    }
+
+    .bit-nav-pri {
+        --bit-nav-clr: #{$bit-color-tertiary};
+    }
+
+    .bit-acb-pri {
+        --bit-acb-clr-ico: #{$bit-color-tertiary};
+        --bit-acb-clr-hover: #{$bit-color-tertiary-hover};
+        --bit-acb-clr-active: #{$bit-color-tertiary-active};
+    }
+
+    .bit-pvt-pri {
+        --bit-pvt-clr: #{$bit-color-tertiary};
+        --bit-pvt-clr-hover: #{$bit-color-tertiary-hover};
+    }
 }
 
 * {

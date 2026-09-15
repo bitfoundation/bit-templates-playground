@@ -16,11 +16,7 @@ main {
 
     .main-body {
         display: flex;
-        width: calc(100% - 280px);
-
-        @include lt-md {
-            width: 100%;
-        }
+        width: 100%;
     }
 
     &.identity {
@@ -94,7 +90,7 @@ main {
 
             @include lt-md {
                 height: unset;
-                padding-bottom: 4.5rem;
+                padding-bottom: 5rem;
             }
         }
     }
@@ -113,6 +109,39 @@ main {
 
         @include lt-md {
             width: 210px;
+        }
+
+        // Snapchat has no sidebar: the nav panel is an off-canvas drawer at every width, opened by the header's
+        // apps (desktop) and menu (mobile) buttons, the same way bit renders it on small screens.
+        @include gt-sm {
+            top: 0;
+            bottom: 0;
+            height: auto;
+            position: fixed;
+            inset-inline-start: 0;
+            z-index: var(--bit-zin-callout);
+            box-shadow: var(--bit-shd-sheet);
+            transition: transform $bit-motion-duration-short $bit-motion-easing, opacity $bit-motion-duration-short $bit-motion-easing;
+
+            &.bit-npn-cls {
+                opacity: 0;
+                pointer-events: none;
+                transform: translateX(-100%);
+            }
+
+            &.bit-rtl.bit-npn-cls {
+                transform: translateX(100%);
+            }
+
+            .bit-npn-tbn {
+                display: none;
+            }
+        }
+    }
+
+    .bit-npn-ovl {
+        @include gt-sm {
+            display: block;
         }
     }
 

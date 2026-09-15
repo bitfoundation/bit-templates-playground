@@ -24,7 +24,7 @@
       dir="@(CultureInfo.CurrentUICulture.TextInfo.IsRightToLeft ? "rtl" : null)"
       @attributes="BitThemeSsr.BuildRootThemeAttributeMap(HttpContext.Request.Cookies[BitThemeCookie.PreferenceCookieName])"
       bit-theme-system bit-theme-persist bit-theme-persist-cookie bit-theme-view-transition
-      bit-theme-light="@BitExtraThemePresets.Fluent2Light" bit-theme-dark="@BitExtraThemePresets.Fluent2Dark">
+      bit-theme-light="snapchat-light" bit-theme-dark="snapchat-dark">
 
 <head>
     <base href="/" />
@@ -41,7 +41,7 @@
     @* The OS media queries only cover the first paint: Scripts/theme.ts rewrites BOTH tags on every theme change, so a *@
     @* theme pinned against the OS wins as well. Keep in sync with: src/Client/Bit.TemplatePlayground.Client.Core/Styles/ThemeColors.cs *@
     <meta name="theme-color" content="#FFFFFF" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1A1A1A" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#121314" media="(prefers-color-scheme: dark)" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 
     @if (noPrerenderedContent)
@@ -76,7 +76,7 @@
 
     <Link rel="icon" Href="favicon.ico" type="image/x-icon" />
     <HeadOutlet @rendermode=renderMode />
-    <Link rel="apple-touch-icon" sizes="512x512" Href="images/icons/bit-icon-512.png" />
+    <Link rel="apple-touch-icon" sizes="512x512" Href="images/icons/snapchat-icon-512.png" />
     <Link rel="manifest" Href="manifest.json" />
 </head>
 

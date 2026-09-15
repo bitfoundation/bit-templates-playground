@@ -1,4 +1,13 @@
 @import '../../../Styles/abstracts/_media-queries.scss';
+@import '../../../Styles/abstracts/_bit-css-variables.scss';
+
+// The two Snapchat+ page colors that are not part of the snapchat preset: its warm dark backdrop and the chip surface
+// laid over it (measured on snapchat.com/plus). Everything else below reads the scoped snapchat-dark tokens.
+$plus-backdrop: linear-gradient(#120D03 1%, #221E0F 39.86%, #211C10 100%);
+$plus-chip: #322E20;
+$plus-chip-hover: #3D3827;
+$plus-gold: linear-gradient(135deg, #FFE9A3 0%, #F5C542 45%, #B9831C 100%);
+$plus-gold-ink: #3A2A06;
 
 section {
     width: 100%;
@@ -6,7 +15,133 @@ section {
     justify-content: center;
 }
 
+.plus-page {
+    margin: -1rem -1rem 0;
+    width: calc(100% + 2rem);
+    padding: 1.5625rem 1rem 3.5rem;
+    background: $plus-backdrop;
+    color: $bit-color-foreground-primary;
+
+    @include lt-md {
+        padding-top: 0.5rem;
+    }
+}
+
+.plus-features {
+    display: grid;
+    gap: 0.625rem 0.75rem;
+    margin-top: 1.5rem;
+    grid-template-columns: repeat(2, 21.4375rem);
+
+    @include lt-md {
+        width: 100%;
+        max-width: 21.4375rem;
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+.plus-icon {
+    display: flex;
+    width: 3rem;
+    height: 3rem;
+    flex-shrink: 0;
+    font-size: 1.375rem;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    background: $plus-gold;
+    box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.25);
+
+    ::deep i {
+        color: $plus-gold-ink;
+    }
+}
+
+.more-section {
+    padding-top: 2.5rem;
+}
+
 ::deep {
+    .plus-content {
+        width: 100%;
+        max-width: 43.625rem;
+    }
+
+    .plus-logo {
+        flex-shrink: 0;
+    }
+
+    .plus-title {
+        margin-top: 0.875rem;
+        font-size: 2.125rem;
+        font-weight: 600;
+        line-height: 2.5rem;
+        text-align: center;
+        color: $bit-color-foreground-primary;
+    }
+
+    .plus-subtitle {
+        margin-top: 0.5rem;
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.5rem;
+        text-align: center;
+        color: $bit-color-foreground-secondary;
+    }
+
+    .plus-card {
+        border: none;
+        padding: 0.625rem;
+        min-height: 4.75rem;
+        border-radius: 0.75rem;
+        justify-content: center;
+        background-color: $plus-chip;
+        box-shadow: 0 1px 10px rgba(0, 0, 0, 0.1);
+        transition: background-color $bit-motion-duration-short $bit-motion-easing;
+
+        &:hover {
+            background-color: $plus-chip-hover;
+        }
+    }
+
+    // A Snapchat+ chip is one 10px inset around a 48px glyph and two lines of text: drop the card's own section paddings
+    .plus-card-main {
+        padding: 0;
+    }
+
+    .plus-card-header {
+        gap: 0.5rem;
+        padding: 0;
+        align-items: center;
+    }
+
+    .plus-card-text {
+        gap: 0;
+    }
+
+    .plus-card-title {
+        font-size: 1rem;
+        font-weight: 500;
+        line-height: 1.5rem;
+        color: $bit-color-foreground-primary;
+    }
+
+    .plus-card-subtitle {
+        font-size: 0.75rem;
+        font-weight: 500;
+        line-height: 1rem;
+        color: $bit-color-foreground-secondary;
+    }
+
+    .plus-cta {
+        width: 21.4375rem;
+        max-width: 100%;
+        height: 3.25rem;
+        margin-top: 1.5rem;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
     .root-stack {
         max-width: 60rem;
     }

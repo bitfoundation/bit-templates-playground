@@ -22,7 +22,7 @@ public partial class HomePage
             ["@id"] = $"{siteUrl}/#organization",
             ["name"] = "Bit.TemplatePlayground",
             ["url"] = siteUrl,
-            ["logo"] = $"{siteUrl}/images/icons/bit-icon-512.png"
+            ["logo"] = $"{siteUrl}/images/icons/snapchat-icon-512.png"
         };
 
         var webSite = new JsonObject
@@ -47,10 +47,17 @@ public partial class HomePage
     }
 
 
+    /// <summary>
+    /// One perk chip of the Snapchat+ style hero: a gold glyph, a title and a one-line pitch that links to the feature.
+    /// </summary>
+    private sealed record PlusFeature(string Title, string Description, string IconName, string Url);
+
+
     private GitHubStats? gitHubStats;
     private NugetStatsDto? nugetStats;
     private bool isLoadingNuget = true;
     private bool isLoadingGitHub = true;
+    private List<PlusFeature> features = [];
 
 
     [AutoInject] private IStatisticsController statisticsController = default!;
@@ -60,11 +67,21 @@ public partial class HomePage
     {
         await base.OnInitAsync();
 
+        features =
+        [
+            new(Localizer["Smart to-dos"], Localizer["Plan your day with a list that syncs across every device"], BitIconName.ToDoLogoInverse, PageUrls.Todo),
+            new(Localizer["Live dashboard"], Localizer["Watch your products and categories come alive in charts"], BitIconName.BarChartVerticalFill, PageUrls.Dashboard),
+            new(Localizer["Product catalog"], Localizer["Add, search, filter and export your products in seconds"], BitIconName.Product, PageUrls.Products),
+            new(Localizer["Colorful categories"], Localizer["Group products into categories with a color of their own"], BitIconName.BuildQueue, PageUrls.Categories),
+            new(Localizer["Team workspaces"], Localizer["Invite your team into shared tenants with their own data"], BitIconName.Org, PageUrls.ManageMyTenants),
+            new(Localizer["Make it yours"], Localizer["Profile photo, two-factor sign in, sessions and more"], BitIconName.Equalizer, PageUrls.Settings),
+        ];
+
         // If required, you should typically manage the authorization header for external APIs in **AuthDelegatingHandler.cs**,
-        // and error handling in **ExceptionDelegatingHandler.cs**.  
+        // and error handling in **ExceptionDelegatingHandler.cs**.
 
         // These external API calls are provided as sample references for anonymous API usage in anonymous pages,
-        // and comprehensive exception handling is not intended for these examples.  
+        // and comprehensive exception handling is not intended for these examples.
 
         // However, the logic in other HTTP message handlers, such as **LoggingDelegatingHandler** and **RetryDelegatingHandler**,
         // effectively cover all requests regardless of their destination.
@@ -100,7 +117,7 @@ public partial class HomePage
         catch
         {
             // GetGitHubStats method calls the GitHub API directly from the client.
-            // We've intentionally ignored proper exception handling to keep this example simple. 
+            // We've intentionally ignored proper exception handling to keep this example simple.
         }
         finally
         {

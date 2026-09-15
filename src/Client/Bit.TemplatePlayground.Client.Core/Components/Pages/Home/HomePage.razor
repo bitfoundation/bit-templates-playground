@@ -10,35 +10,51 @@
     </Head>
 </AppPageData>
 
-<section>
-    <BitStack Alignment="BitAlignment.Center" Gap="2rem" Class="root-stack">
-        <BitText Typography="BitTypography.H4" Align="BitTextAlign.Center">
-            @Localizer[nameof(AppStrings.HomePanelTitle)]
-            <br />
-            @Localizer[nameof(AppStrings.HomePanelSubtitle)]
+@* Snapchat+ style hero. bit-theme scopes the snapchat-dark preset to this subtree, so it stays dark in the light theme too. *@
+<section class="plus-page" bit-theme="snapchat-dark">
+    <BitStack HorizontalAlign="BitAlignment.Center" Gap="0" Class="plus-content">
+        <BitImage Src="_content/Bit.TemplatePlayground.Client.Core/images/snapchat-plus-logo.svg"
+                  Alt=""
+                  Width="142px"
+                  Height="142px"
+                  ImageFit="BitImageFit.Contain"
+                  Class="plus-logo" />
+
+        <BitText Typography="BitTypography.H1" Class="plus-title">@Localizer["Playground+"]</BitText>
+
+        <BitText Typography="BitTypography.Body1" Class="plus-subtitle">
+            @Localizer["Exclusive, full-stack and cross-platform features"]
         </BitText>
 
-        <BitText Typography="BitTypography.H6" Align="BitTextAlign.Center">
-            @Localizer[nameof(AppStrings.HomeMessage)]
-        </BitText>
-
-        <AuthorizeView Policy="@AuthPolicies.TENANT_SELECTED">
-            <NotAuthorized>
-                <BitCard FullWidth Style="padding:2rem">
-                    <BitStack HorizontalAlign="BitAlignment.Center">
-                        <BitIcon IconName="@BitIconName.Org" Color="BitColor.Primary" />
-                        <BitText Typography="BitTypography.H6" Align="BitTextAlign.Center">
-                            @Localizer[nameof(AppStrings.SelectTenantMessage)]
-                        </BitText>
-                        <BitButton Href="@PageUrls.ManageMyTenants">
-                            @Localizer[nameof(AppStrings.ManageMyTenants)]
-                        </BitButton>
-                    </BitStack>
+        <div class="plus-features">
+            @foreach (var feature in features)
+            {
+                <BitCard Href="@feature.Url"
+                         Title="@feature.Title"
+                         Subtitle="@feature.Description"
+                         Classes="@(new() { Root = "plus-card", Main = "plus-card-main", Header = "plus-card-header", HeaderText = "plus-card-text", Title = "plus-card-title", Subtitle = "plus-card-subtitle" })">
+                    <IconTemplate>
+                        <div class="plus-icon">
+                            <BitIcon IconName="@feature.IconName" />
+                        </div>
+                    </IconTemplate>
                 </BitCard>
+            }
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <BitButton Class="plus-cta" Href="@PageUrls.Dashboard">@Localizer["Open your dashboard"]</BitButton>
+            </Authorized>
+            <NotAuthorized>
+                <BitButton Class="plus-cta" Href="@PageUrls.SignUp">@Localizer["Get started"]</BitButton>
             </NotAuthorized>
         </AuthorizeView>
+    </BitStack>
+</section>
 
-
+<section class="more-section">
+    <BitStack Alignment="BitAlignment.Center" Gap="2rem" Class="root-stack">
         <CascadingValue Value="BitDir.Ltr">
             <BitCard FullWidth Style="padding:2rem">
                 <BitStack>
@@ -115,23 +131,6 @@
                 </BitStack>
             </BitCard>
         </CascadingValue>
-        <br />
-
-        <BitCard FullWidth Style="padding:4rem">
-            <BitStack HorizontalAlign="BitAlignment.Center">
-                <BitText Typography="BitTypography.H5">bit platform</BitText>
-                <BitText Typography="BitTypography.Body1" Align="BitTextAlign.Center">@Localizer[nameof(AppStrings.BitPlatformMessage)]</BitText>
-                <BitLink Href="https://bitplatform.dev" Target="_blank" NoUnderline>
-                    <BitStack Horizontal VerticalAlign="BitAlignment.Baseline" Gap="0.5rem">
-                        @Localizer[nameof(AppStrings.LearnMore)]
-                        <BitIcon Size="BitSize.Small" IconName="@(CurrentDir is BitDir.Rtl ? BitIconName.ChromeBack : BitIconName.ChromeBackMirrored)" />
-                    </BitStack>
-                </BitLink>
-                <BitLink Href="https://www.nuget.org/profiles/bit-foundation" Target="_blank" NoUnderline>
-                    <BitImage Src="https://img.shields.io/badge/packages_download-10M-blue.svg?logo=nuget" Alt="nuget downloads" />
-                </BitLink>
-            </BitStack>
-        </BitCard>
 
         <BitStack Horizontal Gap="2rem" Class="bit-products-stack">
             <BitCard Style="padding:3rem" FullWidth>

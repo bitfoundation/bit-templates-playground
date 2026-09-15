@@ -1,29 +1,91 @@
 @inherits AppComponentBase
 
-<header>
-    <BitStack Horizontal VerticalAlign="BitAlignment.Center" Gap="0.25rem">
-        <BitButton IconOnly FixedColor
-                   Class="menu-btn"
-                   Size="BitSize.Large"
-                   OnClick="OpenNavPanel"
-                   Variant="BitVariant.Text"
-                   Color="BitColor.SecondaryBackground"
-                   IconName="@BitIconName.CollapseMenu"
-                   Title="@Localizer[nameof(AppStrings.OpenNavigationMenuTitle)]"
-                   AriaLabel="@Localizer[nameof(AppStrings.OpenNavigationMenuTitle)]" />
+@* On the home page the bar joins the dark Snapchat+ hero under it, the same way snapchat.com/plus darkens its nav. *@
+<header bit-theme="@(IsHomePage ? "snapchat-dark" : null)">
+    <BitStack Horizontal Class="snap-bar" Gap="1rem" VerticalAlign="BitAlignment.Stretch">
+        <BitStack Horizontal Class="bar-start" Gap="0.5rem" VerticalAlign="BitAlignment.Center">
+            <BitButton IconOnly FixedColor
+                       Class="round-btn mobile-only"
+                       OnClick="OpenNavPanel"
+                       Variant="BitVariant.Fill"
+                       Color="BitColor.TertiaryBackground"
+                       IconName="@BitIconName.GlobalNavButton"
+                       Title="@Localizer[nameof(AppStrings.OpenNavigationMenuTitle)]"
+                       AriaLabel="@Localizer[nameof(AppStrings.OpenNavigationMenuTitle)]" />
 
-        <BitStack VerticalAlign="BitAlignment.Center" Gap="0.5rem" AutoSize>
-            <BitStack VerticalAlign="BitAlignment.Center" Gap="0.25rem" Horizontal>
+            <BitLink Href="@PageUrls.Home" NoUnderline Class="logo-link desktop-only" AriaLabel="@Localizer[nameof(AppStrings.Home)]">
+                <BitImage Src="_content/Bit.TemplatePlayground.Client.Core/images/snapchat-ghost.svg" Alt="" Width="32px" Height="32px" ImageFit="BitImageFit.Contain" />
+            </BitLink>
+
+            <BitSearchBox Class="snap-search desktop-only"
+                          NoBorder
+                          FixedIcon
+                          HighlightSuggestItems
+                          MaxSuggestCount="8"
+                          MinSuggestTriggerChars="1"
+                          SuggestItems="searchItems"
+                          Placeholder="@Localizer["Search"]"
+                          OnSearch="WrapHandled((string? term) => NavigateToSearchResult(term))" />
+
+            <BitButton IconOnly FixedColor
+                       Class="round-btn mobile-only"
+                       OnClick="OpenNavPanel"
+                       Variant="BitVariant.Fill"
+                       Color="BitColor.TertiaryBackground"
+                       IconName="@BitIconName.Search"
+                       Title="@Localizer["Search"]"
+                       AriaLabel="@Localizer["Search"]" />
+
+            <BitButton Class="title-pill mobile-only" Href="@PageUrls.Home" Color="BitColor.Primary">
+                <BitImage Src="_content/Bit.TemplatePlayground.Client.Core/images/snapchat-ghost.svg" Alt="" Width="22px" Height="22px" ImageFit="BitImageFit.Contain" />
+                @pageTitle
+            </BitButton>
+        </BitStack>
+
+        <NavBar InHeader />
+
+        <BitStack Horizontal Class="bar-end" Gap="0.5rem" VerticalAlign="BitAlignment.Center" HorizontalAlign="BitAlignment.End">
+            <BitButton IconOnly FixedColor
+                       Class="round-btn desktop-only"
+                       OnClick="OpenNavPanel"
+                       Variant="BitVariant.Fill"
+                       Color="BitColor.TertiaryBackground"
+                       IconName="@BitIconName.Waffle"
+                       Title="@Localizer[nameof(AppStrings.OpenNavigationMenuTitle)]"
+                       AriaLabel="@Localizer[nameof(AppStrings.OpenNavigationMenuTitle)]" />
+
+            <AuthorizeView>
+                <NotAuthorized>
+                    <BitButton Class="desktop-only" Color="BitColor.Tertiary" Href="@SignInUrl">
+                        @Localizer[nameof(AppStrings.SignIn)]
+                    </BitButton>
+                    <BitButton Class="desktop-only" Color="BitColor.Tertiary" Href="@SignUpUrl">
+                        @Localizer[nameof(AppStrings.SignUp)]
+                    </BitButton>
+                </NotAuthorized>
+            </AuthorizeView>
+
+            <DiagnosticSpacer />
+
+            <AppMenu />
+        </BitStack>
+    </BitStack>
+</header>
+
+@if (string.IsNullOrWhiteSpace(pageTitle) is false && IsHomePage is false)
+{
+    <section class="page-heading">
+        <BitStack Gap="0.25rem">
+            <BitStack Horizontal VerticalAlign="BitAlignment.Center" Gap="0.25rem">
                 @if (showGoBackButton)
                 {
                     <BitButton Variant="BitVariant.Text"
+                               Color="BitColor.Tertiary"
                                IconName="@(CurrentDir is BitDir.Rtl ? BitIconName.ChromeBackMirrored : BitIconName.ChromeBack)"
                                OnClick="GoBack"
                                Title="@Localizer[nameof(AppStrings.Back)]" />
                 }
-                <BitText Typography="BitTypography.H5">
-                    @pageTitle
-                </BitText>
+                <BitText Typography="BitTypography.H3">@pageTitle</BitText>
             </BitStack>
             @if (string.IsNullOrWhiteSpace(pageSubtitle) is false)
             {
@@ -32,9 +94,5 @@
                 </BitText>
             }
         </BitStack>
-
-        <DiagnosticSpacer />
-
-        <AppMenu />
-    </BitStack>
-</header>
+    </section>
+}

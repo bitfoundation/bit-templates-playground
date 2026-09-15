@@ -10,7 +10,7 @@
     "display": "standalone",
     "theme_color": "#FFFFFF",
     "name": "bit Bit.TemplatePlayground",
-    "background_color": "#0D2960",
+    "background_color": "#FFFC00",
     "short_name": "bit Bit.TemplatePlayground",
     "prefer_related_applications": false,
     "display_override": [ "window-controls-overlay" ],
@@ -34,7 +34,7 @@
         {
             "sizes": "512x512",
             "type": "image/png",
-            "src": "images/icons/bit-icon-512.png"
+            "src": "images/icons/snapchat-icon-512.png"
         }
     ],
     "shortcuts": [

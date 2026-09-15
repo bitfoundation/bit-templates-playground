@@ -2,18 +2,69 @@
 @import '../../Styles/abstracts/_bit-css-variables.scss';
 
 section {
-    width: 100%;
     display: flex;
-    height: 3.5rem;
-    position: fixed;
-    align-items: center;
-    bottom: $bit-env-inset-bottom;
-    justify-content: space-around;
-    max-width: $bit-env-width-available;
-    background-color: $bit-color-background-primary;
-    border-top: 1px solid $bit-color-border-tertiary;
 
-    @include gt-sm {
-        display: none;
+    &.at-bottom {
+        z-index: 1;
+        width: 100%;
+        position: fixed;
+        align-items: center;
+        bottom: $bit-env-inset-bottom;
+        max-width: $bit-env-width-available;
+        background-color: $bit-color-background-primary;
+        border-top: 1px solid $bit-color-border-tertiary;
+
+        @include gt-sm {
+            display: none;
+        }
+    }
+
+    &.in-header {
+        height: 100%;
+        align-items: stretch;
+
+        @include lt-md {
+            display: none;
+        }
+
+        ::deep .snap-nav-item {
+            min-width: 4.5rem;
+            min-height: 4.5rem;
+        }
+    }
+}
+
+// Snapchat's consumer nav item: a 24px glyph over a 12px demi-bold label, grey at rest and ink when current
+::deep {
+    .snap-nav-item {
+        --bit-nbr-gap: 0.25rem;
+        --bit-nbr-ico-fs: 1.5rem;
+        --bit-nbr-txt-fs: 0.75rem;
+        border-radius: 0;
+        background-color: transparent;
+        color: $bit-color-foreground-secondary;
+        font-weight: $bit-typography-font-weight;
+
+        &:hover {
+            color: $bit-color-foreground-primary;
+        }
+
+        &.bit-nbr-sel {
+            color: $bit-color-foreground-primary;
+        }
+    }
+
+    // Snapchat's blue "NEW" pill that sits on the top-right of the Chat glyph
+    .snap-new-badge {
+        height: 0.75rem;
+        min-width: 1.625rem;
+        padding: 0 0.3125rem;
+        font-size: 0.5rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        inset-inline-start: 45%;
+        transform: translateY(-50%);
+        color: $bit-color-secondary-text;
+        background-color: $bit-color-secondary;
     }
 }

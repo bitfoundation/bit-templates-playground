@@ -1,28 +1,36 @@
 @inherits AppComponentBase;
 
-<section>
-    <BitNavBar FullWidth TItem="BitNavBarOption">
+<section class="@(InHeader ? "in-header" : "at-bottom")">
+    <BitNavBar TItem="BitNavBarOption"
+               FitWidth="InHeader"
+               FullWidth="@(InHeader is false)"
+               Color="BitColor.Tertiary"
+               Classes="@(new() { Item = "snap-nav-item", ItemText = "snap-nav-text", ItemBadge = "snap-new-badge" })">
 
-        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Home)]" IconName="@BitIconName.Home" Url="@PageUrls.Home" />
+        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Home)]" IconName="@BitIconName.Home" Url="@PageUrls.Home" AdditionalUrls="@CultureUrls(PageUrls.Home)" />
 
         <AuthorizeView Policy="@AppFeatures.Todo.Todo_Manage_Self">
-            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Todo)]" IconName="@BitIconName.ToDoLogoInverse" Url="@PageUrls.Todo" />
+            <BitNavBarOption Text="@Localizer[nameof(AppStrings.Todo)]"
+                             IconName="@BitIconName.ToDoLogoInverse"
+                             Url="@PageUrls.Todo"
+                             AdditionalUrls="@CultureUrls(PageUrls.Todo)"
+                             Badge="@Localizer["NEW"]"
+                             BadgeAriaLabel="@Localizer["New feature"]" />
         </AuthorizeView>
 
         <AuthorizeView Policy="@AppFeatures.AdminPanel.Dashboard_View">
             <AuthorizeView Policy="@AuthPolicies.TENANT_SELECTED" Context="_">
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Dashboard)]" IconName="@BitIconName.BarChartVerticalFill" Url="@PageUrls.Dashboard" />
+                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Dashboard)]" IconName="@BitIconName.BarChartVerticalFill" Url="@PageUrls.Dashboard" AdditionalUrls="@CultureUrls(PageUrls.Dashboard)" />
             </AuthorizeView>
         </AuthorizeView>
         <AuthorizeView Policy="@AppFeatures.AdminPanel.ProductCatalog_Manage">
             <AuthorizeView Policy="@AuthPolicies.TENANT_SELECTED" Context="_">
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Categories)]" IconName="@BitIconName.BuildQueue" Url="@PageUrls.Categories" />
-                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Products)]" IconName="@BitIconName.Product" Url="@PageUrls.Products" />
+                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Categories)]" IconName="@BitIconName.BuildQueue" Url="@PageUrls.Categories" AdditionalUrls="@CultureUrls(PageUrls.Categories)" />
+                <BitNavBarOption Text="@Localizer[nameof(AppStrings.Products)]" IconName="@BitIconName.Product" Url="@PageUrls.Products" AdditionalUrls="@CultureUrls(PageUrls.Products)" />
             </AuthorizeView>
         </AuthorizeView>
 
-        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@PageUrls.Terms" />
-
+        <BitNavBarOption Text="@Localizer[nameof(AppStrings.Terms)]" IconName="@BitIconName.EntityExtraction" Url="@PageUrls.Terms" AdditionalUrls="@CultureUrls(PageUrls.Terms)" />
 
     </BitNavBar>
 </section>

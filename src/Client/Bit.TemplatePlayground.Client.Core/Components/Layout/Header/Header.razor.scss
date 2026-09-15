@@ -1,20 +1,105 @@
 @import '../../../Styles/abstracts/_media-queries.scss';
 @import '../../../Styles/abstracts/_bit-css-variables.scss';
 
+// Snapchat's consumer nav: one 72px white bar with the logo and a search pill on the left, icon-over-label
+// destinations in the middle and round/pill actions on the right. On small screens it becomes Snapchat's mobile
+// header: round grey menu and search buttons next to a yellow pill.
 header {
     top: 0;
-    z-index: 1;
+    z-index: 2;
     width: 100%;
-    padding: 0.5rem;
     position: sticky;
-    padding-block: 0.5rem;
     background-color: $bit-color-background-primary;
+    border-bottom: 1px solid $bit-color-border-tertiary;
+
+    @include lt-md {
+        border-bottom: none;
+    }
+}
+
+.page-heading {
+    padding: 1.5rem 1rem 0;
+
+    @include lt-md {
+        display: none;
+    }
 }
 
 ::deep {
-    .menu-btn {
-        @include gt-sm {
-            display: none;
+    .snap-bar {
+        height: 4.5rem;
+        padding-inline: 0.5rem 1.5rem;
+
+        @include lt-md {
+            height: 3.75rem;
+            padding-inline: 0.5rem;
         }
+    }
+
+    .bar-start,
+    .bar-end {
+        min-width: 0;
+        flex: 1 1 0;
+    }
+
+    .desktop-only {
+        @include lt-md {
+            display: none !important;
+        }
+    }
+
+    .mobile-only {
+        @include gt-sm {
+            display: none !important;
+        }
+    }
+
+    .logo-link {
+        display: flex;
+        width: 3.5rem;
+        height: 3.5rem;
+        flex-shrink: 0;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+
+        &:hover {
+            background-color: $bit-color-background-tertiary;
+        }
+    }
+
+    .snap-search {
+        width: 11rem;
+        flex-shrink: 0;
+        --bit-srb-height: 2.5rem;
+        --bit-srb-fontsize: 0.75rem;
+    }
+
+    .round-btn {
+        width: 2.5rem;
+        height: 2.5rem;
+        flex-shrink: 0;
+        padding: 0;
+        border: none;
+        border-radius: 50%;
+    }
+
+    .title-pill {
+        height: 2.5rem;
+        min-width: 0;
+        max-width: 55vw;
+        font-size: 1rem;
+        white-space: nowrap;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    }
+
+    // BitImage wraps the img in an overflow-hidden box that shrinks to nothing inside a flex row
+    .bit-img {
+        flex-shrink: 0;
+    }
+
+    // Snapchat's header shows the avatar alone, never the account name
+    .menu-displayname {
+        display: none;
     }
 }
