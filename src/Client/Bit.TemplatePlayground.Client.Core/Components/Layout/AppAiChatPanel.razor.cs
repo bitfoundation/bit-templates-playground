@@ -1,7 +1,7 @@
 using System.Threading.Channels;
+using Bit.TemplatePlayground.Client.Core.Components.Layout.AppAiChatPanelCards;
 using Bit.TemplatePlayground.Shared.Features.Chatbot;
 using Microsoft.AspNetCore.Components.Web;
-using Bit.TemplatePlayground.Client.Core.Components.Layout.AppAiChatPanelCards;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 

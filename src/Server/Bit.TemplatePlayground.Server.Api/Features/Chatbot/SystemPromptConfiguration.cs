@@ -1,6 +1,6 @@
 
-using Bit.TemplatePlayground.Shared.Features.Chatbot;
 using Bit.TemplatePlayground.Server.Api.Features.Tenants;
+using Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Chatbot;
 

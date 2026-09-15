@@ -1,6 +1,6 @@
 using System.Diagnostics;
-using System.Text.Json.Nodes;
 using System.Diagnostics.Metrics;
+using System.Text.Json.Nodes;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Chatbot;
 

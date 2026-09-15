@@ -1,6 +1,6 @@
-using Microsoft.AspNetCore.RateLimiting;
-using Microsoft.AspNetCore.Authentication.BearerToken;
 using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Microsoft.AspNetCore.Authentication.BearerToken;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 

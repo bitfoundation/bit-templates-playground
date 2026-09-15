@@ -1,7 +1,7 @@
 using System.ComponentModel;
+using Bit.TemplatePlayground.Server.Api.Features.Identity;
 using Bit.TemplatePlayground.Shared.Features.Chatbot;
 using Bit.TemplatePlayground.Shared.Features.Diagnostic;
-using Bit.TemplatePlayground.Server.Api.Features.Identity;
 using Microsoft.Agents.AI;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;

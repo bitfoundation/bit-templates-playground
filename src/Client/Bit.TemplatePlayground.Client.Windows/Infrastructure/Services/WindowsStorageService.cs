@@ -4,9 +4,8 @@
 // - src/Tests/Infrastructure/Services/TestStorageService.cs
 // IStorageServiceContractTests pins the behaviour all four must share.
 
-using System.IO.IsolatedStorage;
 using System.Collections.Concurrent;
-
+using System.IO.IsolatedStorage;
 using Microsoft.Extensions.Logging;
 
 namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;

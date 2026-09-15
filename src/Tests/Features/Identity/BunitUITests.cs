@@ -1,6 +1,6 @@
+using Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.SignIn;
 using Bunit;
 using Microsoft.AspNetCore.Components.Authorization;
-using Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.SignIn;
 
 namespace Bit.TemplatePlayground.Tests.Features.Identity;
 

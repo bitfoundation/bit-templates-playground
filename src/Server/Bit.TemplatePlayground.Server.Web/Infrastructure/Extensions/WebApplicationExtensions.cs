@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Runtime.Loader;
+using System.Text.RegularExpressions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.Extensions;
-using System.Text.RegularExpressions;
 
 namespace Microsoft.AspNetCore.Builder;
 

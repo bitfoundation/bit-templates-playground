@@ -1,5 +1,5 @@
-using Bit.TemplatePlayground.Tests.Services;
 using Bit.TemplatePlayground.Shared.Features.Statistics;
+using Bit.TemplatePlayground.Tests.Services;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure;
 

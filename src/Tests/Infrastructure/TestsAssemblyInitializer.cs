@@ -1,6 +1,6 @@
 using Aspire.Hosting;
-using Aspire.Hosting.Testing;
 using Aspire.Hosting.ApplicationModel;
+using Aspire.Hosting.Testing;
 using Microsoft.Data.Sqlite;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure;
@@ -79,8 +79,8 @@ public partial class TestsAssemblyInitializer
         {
             await using var scope = testServer.WebApp.Services.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-                connection = new SqliteConnection(dbContext.Database.GetConnectionString());
-                await connection.OpenAsync();
+            connection = new SqliteConnection(dbContext.Database.GetConnectionString());
+            await connection.OpenAsync();
             await dbContext.Database.EnsureCreatedAsync(); // It's recommended to start using ef-core migrations.
         }
     }

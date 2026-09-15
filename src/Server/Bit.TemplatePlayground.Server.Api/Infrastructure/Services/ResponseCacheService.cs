@@ -1,7 +1,7 @@
-using Hangfire.Server;
-using Microsoft.AspNetCore.OutputCaching;
 using Bit.TemplatePlayground.Server.Api.Features.Attachments;
 using Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
+using Hangfire.Server;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 

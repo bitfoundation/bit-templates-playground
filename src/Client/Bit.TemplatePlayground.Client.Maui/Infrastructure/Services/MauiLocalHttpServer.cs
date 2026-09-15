@@ -2,8 +2,8 @@
 // - src/Client/Bit.TemplatePlayground.Client.Windows/Infrastructure/Services/WindowsLocalHttpServer.cs
 
 using System.Net;
-using System.Text;
 using System.Net.Sockets;
+using System.Text;
 using EmbedIO;
 using EmbedIO.Actions;
 

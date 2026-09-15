@@ -1,10 +1,10 @@
+using System.Diagnostics.CodeAnalysis;
+using Bit.TemplatePlayground.Client.Core;
 using BlazorApplicationInsights;
 using BlazorApplicationInsights.Interfaces;
-using Bit.TemplatePlayground.Client.Core;
-using Microsoft.Extensions.Options;
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.AspNetCore.Components.WebAssembly.Services;
 using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.Extensions.Options;
 
 namespace Microsoft.Extensions.DependencyInjection;
 

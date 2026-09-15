@@ -1,9 +1,9 @@
-using ImageMagick;
-using FluentStorage.Storage;
 using System.Diagnostics.Metrics;
 using Bit.TemplatePlayground.Server.Api.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Attachments;
 using Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
+using Bit.TemplatePlayground.Shared.Features.Attachments;
+using FluentStorage.Storage;
+using ImageMagick;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Attachments;
 

@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.RateLimiting;
 using Bit.TemplatePlayground.Server.Api.Features.PersonalData;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 

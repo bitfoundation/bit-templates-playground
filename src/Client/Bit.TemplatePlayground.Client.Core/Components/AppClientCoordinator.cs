@@ -1,7 +1,7 @@
 using System.Web;
-using Microsoft.AspNetCore.SignalR;
-using BlazorApplicationInsights.Interfaces;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.DiagnosticLog;
+using BlazorApplicationInsights.Interfaces;
+using Microsoft.AspNetCore.SignalR;
 
 namespace Bit.TemplatePlayground.Client.Core.Components;
 

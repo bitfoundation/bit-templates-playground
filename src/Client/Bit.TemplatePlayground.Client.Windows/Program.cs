@@ -2,17 +2,14 @@
 // - src/Client/Bit.TemplatePlayground.Client.Maui/MauiProgram.cs (HandlePermissionRequested, inside the Windows target)
 // Only that handler mirrors: the culture bootstrap, LogException and the PAGE_DATA_CHANGED subscription below
 // deliberately differ from their MAUI counterparts, because the APIs available to each host differ.
-using Velopack;
-
 using System.Diagnostics.CodeAnalysis;
-
 using Bit.TemplatePlayground.Client.Core.Components;
 using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
-
-using Microsoft.Extensions.Options;
-using Microsoft.Web.WebView2.Core;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebView.WindowsForms;
+using Microsoft.Extensions.Options;
+using Microsoft.Web.WebView2.Core;
+using Velopack;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 

@@ -1,7 +1,7 @@
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
-using Bit.TemplatePlayground.Shared.Features.Identity.OAuth;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Models;
+using Bit.TemplatePlayground.Shared.Features.Identity.OAuth;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Services;
 

@@ -1,8 +1,8 @@
-using Hangfire;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Components.Web;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.Resources;
+using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
+using Hangfire;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure.Services;
 

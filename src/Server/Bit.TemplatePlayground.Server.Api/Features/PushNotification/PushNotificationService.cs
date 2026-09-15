@@ -1,6 +1,5 @@
-using AdsPush.Vapid;
 using System.Linq.Expressions;
-
+using AdsPush.Vapid;
 using Bit.TemplatePlayground.Shared.Features.PushNotification;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.PushNotification;

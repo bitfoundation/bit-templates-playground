@@ -66,7 +66,7 @@ public partial class App
             base.OnStart();
 
             await deviceCoordinator.ApplyTheme(AppInfo.Current.RequestedTheme is AppTheme.Dark);
-            #if Android
+#if Android
             const int minimumSupportedWebViewVersion = 85;
             // Download link for Android emulator (x86 or x86_64)
             // https://www.apkmirror.com/apk/google-inc/chrome/chrome-85-0-4183-127-release/
@@ -81,7 +81,7 @@ public partial class App
                 await Launcher.OpenAsync($"https://play.google.com/store/apps/details?id={webViewName}");
             }
 #endif
-                    }
+        }
         catch (Exception exp)
         {
             exceptionHandler.Handle(exp);

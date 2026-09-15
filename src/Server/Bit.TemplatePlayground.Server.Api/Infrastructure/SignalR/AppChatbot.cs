@@ -1,9 +1,9 @@
 using System.Threading.Channels;
-using Microsoft.Agents.AI;
-using FluentStorage.Storage;
-using Bit.TemplatePlayground.Shared.Features.Chatbot;
-using Bit.TemplatePlayground.Shared.Features.Attachments;
 using Bit.TemplatePlayground.Server.Api.Features.Attachments;
+using Bit.TemplatePlayground.Shared.Features.Attachments;
+using Bit.TemplatePlayground.Shared.Features.Chatbot;
+using FluentStorage.Storage;
+using Microsoft.Agents.AI;
 using Microsoft.AspNetCore.Authentication.BearerToken;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;

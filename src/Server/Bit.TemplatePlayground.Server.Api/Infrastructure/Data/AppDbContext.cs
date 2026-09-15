@@ -1,16 +1,16 @@
-using Bit.TemplatePlayground.Server.Api.Features.Products;
-using Bit.TemplatePlayground.Server.Api.Features.Categories;
-using Bit.TemplatePlayground.Server.Api.Features.Todo;
 using System.Reflection;
-using Bit.TemplatePlayground.Server.Api.Features.Tenants;
-using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
-using Hangfire.EntityFrameworkCore;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Models;
 using Bit.TemplatePlayground.Server.Api.Features.Attachments;
+using Bit.TemplatePlayground.Server.Api.Features.Categories;
+using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Models;
+using Bit.TemplatePlayground.Server.Api.Features.Products;
+using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
+using Bit.TemplatePlayground.Server.Api.Features.Todo;
+using Hangfire.EntityFrameworkCore;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
 
@@ -127,9 +127,9 @@ public partial class AppDbContext(DbContextOptions<AppDbContext> options)
 
     protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
     {
-            // SQLite does not support expressions of type 'DateTimeOffset' in ORDER BY clauses. Convert the values to a supported type:
-            configurationBuilder.Properties<DateTimeOffset>().HaveConversion<DateTimeOffsetToBinaryConverter>();
-            configurationBuilder.Properties<DateTimeOffset?>().HaveConversion<DateTimeOffsetToBinaryConverter>();
+        // SQLite does not support expressions of type 'DateTimeOffset' in ORDER BY clauses. Convert the values to a supported type:
+        configurationBuilder.Properties<DateTimeOffset>().HaveConversion<DateTimeOffsetToBinaryConverter>();
+        configurationBuilder.Properties<DateTimeOffset?>().HaveConversion<DateTimeOffsetToBinaryConverter>();
 
 
 

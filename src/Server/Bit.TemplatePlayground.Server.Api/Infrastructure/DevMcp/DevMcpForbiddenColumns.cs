@@ -1,5 +1,5 @@
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.DevMcp;
 

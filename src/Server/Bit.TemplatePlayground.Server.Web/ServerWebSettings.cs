@@ -1,5 +1,5 @@
-using Bit.TemplatePlayground.Client.Web;
 using Bit.TemplatePlayground.Client.Core;
+using Bit.TemplatePlayground.Client.Web;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
@@ -50,10 +50,10 @@ public partial class WebAppRenderOptions
             // you can switch between to `DebugBlazorServer` configuration to have optimized build times during development.
             // If `DebugBlazorServer` is selected, `BlazorMode` will be set to `BlazorServer`
             // regardless of its value in appsettings.json
-            #if DebugBlazorServer
+#if DebugBlazorServer
             mode = BlazorWebAppMode.BlazorServer;
 #endif
-            
+
             return mode;
         }
     }

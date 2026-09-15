@@ -1,11 +1,11 @@
-using Microsoft.Identity.Web;
 using AspNet.Security.OAuth.Apple;
 using AspNet.Security.OAuth.GitHub;
-using Microsoft.Extensions.Http.Resilience;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Authentication.Facebook;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.AspNetCore.Authentication.Twitter;
+using Microsoft.Extensions.Http.Resilience;
+using Microsoft.Identity.Web;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 

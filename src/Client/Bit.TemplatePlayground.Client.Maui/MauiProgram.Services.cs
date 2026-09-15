@@ -1,13 +1,13 @@
 // [mirror] blazor hybrid DI registrations, logging and OpenTelemetry setup - keep in sync with:
 // - src/Client/Bit.TemplatePlayground.Client.Windows/Program.Services.cs
 
+using System.Diagnostics.Metrics;
 using Azure.Monitor.OpenTelemetry.Exporter;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
-using System.Diagnostics.Metrics;
-using Microsoft.Extensions.Options;
-using Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Client.Maui;
 
@@ -110,7 +110,7 @@ public static partial class MauiProgram
                 .ValidateDataAnnotations()
                 .ValidateOnStart();
 
-            #if Android
+#if Android
             services.AddClientMauiProjectAndroidServices(builder.Configuration);
 #elif iOS
         services.AddClientMauiProjectIosServices(builder.Configuration);
@@ -119,6 +119,6 @@ public static partial class MauiProgram
 #elif Windows
             services.AddClientMauiProjectWindowsServices(builder.Configuration);
 #endif
-                    }
+        }
     }
 }

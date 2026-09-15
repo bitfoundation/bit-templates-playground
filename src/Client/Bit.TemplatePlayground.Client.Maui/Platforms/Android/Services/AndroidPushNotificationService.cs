@@ -2,10 +2,9 @@
 // - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/iOS/Services/iOSPushNotificationService.cs
 // - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/MacCatalyst/Services/MacCatalystPushNotificationService.cs
 
+using Bit.TemplatePlayground.Shared.Features.PushNotification;
 using Firebase.Messaging;
 using static Android.Provider.Settings;
-
-using Bit.TemplatePlayground.Shared.Features.PushNotification;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android.Services;
 

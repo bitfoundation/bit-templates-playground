@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Components.Web;
 using Bit.TemplatePlayground.Client.Core.Components.Pages.Identity.SignIn;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 

@@ -1,6 +1,6 @@
-using Bit.TemplatePlayground.Shared.Features.Products;
-using Bit.TemplatePlayground.Shared.Features.Categories;
 using Bit.TemplatePlayground.Shared.Features.Attachments;
+using Bit.TemplatePlayground.Shared.Features.Categories;
+using Bit.TemplatePlayground.Shared.Features.Products;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Products;
 

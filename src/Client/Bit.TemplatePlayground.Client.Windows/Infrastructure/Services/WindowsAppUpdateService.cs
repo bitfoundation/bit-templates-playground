@@ -1,6 +1,5 @@
-using Velopack;
-
 using Microsoft.Extensions.Logging;
+using Velopack;
 
 namespace Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
 

@@ -1,5 +1,5 @@
-using Hangfire.Dashboard;
 using Hangfire.Annotations;
+using Hangfire.Dashboard;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.RequestPipeline;
 

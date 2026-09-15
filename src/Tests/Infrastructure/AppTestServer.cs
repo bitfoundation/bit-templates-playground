@@ -1,10 +1,10 @@
+using System.Net.Sockets;
 using Bunit;
 using Hangfire;
-using System.Net.Sockets;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Hosting;
 
 namespace Bit.TemplatePlayground.Tests.Infrastructure;
 

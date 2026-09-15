@@ -1,5 +1,5 @@
-using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Services;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Models;
 

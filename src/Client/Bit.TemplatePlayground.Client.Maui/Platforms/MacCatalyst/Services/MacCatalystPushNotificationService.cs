@@ -2,10 +2,9 @@
 // - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/Android/Services/AndroidPushNotificationService.cs
 // - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/iOS/Services/iOSPushNotificationService.cs
 
+using Bit.TemplatePlayground.Shared.Features.PushNotification;
 using UIKit;
 using UserNotifications;
-
-using Bit.TemplatePlayground.Shared.Features.PushNotification;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst.Services;
 

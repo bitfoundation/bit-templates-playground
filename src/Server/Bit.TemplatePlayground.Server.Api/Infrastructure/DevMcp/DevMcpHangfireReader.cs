@@ -65,5 +65,5 @@ internal static class DevMcpHangfireReader
         }
     }
 
-    public sealed record HangfireJobRow(string Id, Hangfire.Common.Job? Job, DateTime? At, string? Exception, string State);
+    public sealed record HangfireJobRow(string Id, Hangfire.Common.Job? Job, DateTimeOffset? At, string? Exception, string State);
 }

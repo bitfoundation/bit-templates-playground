@@ -1,7 +1,7 @@
-using Ganss.Xss;
-using FluentStorage.Storage;
-using Bit.TemplatePlayground.Shared.Features.Products;
 using Bit.TemplatePlayground.Shared.Features.Attachments;
+using Bit.TemplatePlayground.Shared.Features.Products;
+using FluentStorage.Storage;
+using Ganss.Xss;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Products;
 

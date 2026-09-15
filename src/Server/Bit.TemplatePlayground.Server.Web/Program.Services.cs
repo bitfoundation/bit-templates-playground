@@ -1,12 +1,12 @@
-using Microsoft.Net.Http.Headers;
-using Microsoft.Extensions.Options;
-using Bit.TemplatePlayground.Server.Api;
-using Bit.TemplatePlayground.Client.Web;
-using Bit.TemplatePlayground.Server.Shared;
-using Microsoft.AspNetCore.Antiforgery;
-using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Web;
+using Bit.TemplatePlayground.Server.Api;
+using Bit.TemplatePlayground.Server.Shared;
+using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
+using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.Extensions.Options;
+using Microsoft.Net.Http.Headers;
 
 namespace Bit.TemplatePlayground.Server.Web;
 

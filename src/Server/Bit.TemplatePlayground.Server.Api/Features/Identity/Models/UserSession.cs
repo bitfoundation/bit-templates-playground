@@ -1,6 +1,6 @@
-using Bit.TemplatePlayground.Server.Api.Features.Tenants;
-using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Models;
+using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 

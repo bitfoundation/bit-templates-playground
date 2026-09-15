@@ -1,9 +1,9 @@
-using System.Security.Cryptography;
 using System.Diagnostics.CodeAnalysis;
-using Microsoft.AspNetCore.WebUtilities;
+using System.Security.Cryptography;
+using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Models;
 using Bit.TemplatePlayground.Shared.Features.Identity.OAuth;
 using Bit.TemplatePlayground.Shared.Features.Identity.OAuth.Dtos;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Models;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Services;
 

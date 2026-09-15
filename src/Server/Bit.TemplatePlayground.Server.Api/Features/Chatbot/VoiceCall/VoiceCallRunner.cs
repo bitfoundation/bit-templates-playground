@@ -1,6 +1,6 @@
+using System.Collections.Concurrent;
 using System.Net.WebSockets;
 using System.Text.Json.Nodes;
-using System.Collections.Concurrent;
 using Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Chatbot.VoiceCall;

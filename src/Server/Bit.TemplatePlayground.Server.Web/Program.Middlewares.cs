@@ -1,14 +1,14 @@
 using System.Net;
 using System.Runtime.Loader;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Components.Endpoints;
-using Hangfire;
-using Scalar.AspNetCore;
 using Bit.TemplatePlayground.Server.Api;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Services;
 using Bit.TemplatePlayground.Server.Api.Infrastructure.RequestPipeline;
+using Hangfire;
+using Microsoft.AspNetCore.Components.Endpoints;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+using Scalar.AspNetCore;
 
 namespace Bit.TemplatePlayground.Server.Web;
 

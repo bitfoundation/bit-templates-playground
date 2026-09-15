@@ -1,7 +1,7 @@
-using System.Net;
-using Polly.CircuitBreaker;
-using Microsoft.Net.Http.Headers;
 using System.Data.Common;
+using System.Net;
+using Microsoft.Net.Http.Headers;
+using Polly.CircuitBreaker;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 

@@ -36,10 +36,10 @@ public static partial class Program
 
         app.ConfigureMiddlewares();
 
-        #if Development
+#if Development
         await FileWatcherService.StartAsync(app);
 #endif
-        
+
         await app.RunAsync();
     }
 

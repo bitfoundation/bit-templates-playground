@@ -1,6 +1,6 @@
+using System.Buffers.Text;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
-using System.Buffers.Text;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 

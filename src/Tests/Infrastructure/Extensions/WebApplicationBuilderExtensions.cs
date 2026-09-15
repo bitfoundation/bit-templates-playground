@@ -1,5 +1,5 @@
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 using Hangfire;
 using Hangfire.EntityFrameworkCore;
 

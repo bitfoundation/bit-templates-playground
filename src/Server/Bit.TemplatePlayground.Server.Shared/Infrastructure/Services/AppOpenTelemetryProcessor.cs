@@ -1,6 +1,6 @@
-using OpenTelemetry;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Hosting;
+using OpenTelemetry;
 
 namespace Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
 

@@ -1,8 +1,9 @@
-using System.Net;
-using System.IO.Compression;
 using System.Diagnostics.Metrics;
+using System.IO.Compression;
+using System.Net;
 using Azure.Monitor.OpenTelemetry.Exporter;
 using Bit.TemplatePlayground.Server.Shared;
+using Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Logging;
@@ -12,7 +13,6 @@ using OpenTelemetry.Resources;
 using OpenTelemetry.Trace;
 using ZiggyCreatures.Caching.Fusion;
 using ZiggyCreatures.Caching.Fusion.Serialization.SystemTextJson;
-using Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
 
 namespace Microsoft.Extensions.Hosting;
 

@@ -1,9 +1,9 @@
-using Microsoft.Maui.Platform;
-using Microsoft.Extensions.Options;
-using Microsoft.Maui.LifecycleEvents;
 using Bit.TemplatePlayground.Client.Core.Styles;
 using Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 using Maui.AppStores;
+using Microsoft.Extensions.Options;
+using Microsoft.Maui.LifecycleEvents;
+using Microsoft.Maui.Platform;
 #if iOS || Mac
 using UIKit;
 using WebKit;
@@ -39,16 +39,16 @@ public static partial class MauiProgram
         var builder = MauiApp.CreateBuilder();
         builder.Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Maui");
 
-                builder
-            .UseMauiApp<App>()
-            .UseAppStoreInfo()
-            ;
+        builder
+    .UseMauiApp<App>()
+    .UseAppStoreInfo()
+    ;
 
         if (AppPlatform.IsWindows is false)
         {
             builder.UseLocalNotification();
         }
-        
+
         builder.ConfigureServices();
 
         builder.ConfigureLifecycleEvents(lifecycle =>

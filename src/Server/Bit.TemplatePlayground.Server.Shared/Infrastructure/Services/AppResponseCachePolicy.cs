@@ -1,9 +1,9 @@
-using Microsoft.AspNetCore.Http;
-using Microsoft.Net.Http.Headers;
 using System.Text.RegularExpressions;
-using Microsoft.Extensions.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.OutputCaching;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Net.Http.Headers;
 
 namespace Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
 

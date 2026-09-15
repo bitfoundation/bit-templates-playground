@@ -2,8 +2,8 @@
 // - src/Client/Bit.TemplatePlayground.Client.Maui/Infrastructure/Services/MauiLocalHttpServer.cs
 
 using System.Net;
-using System.Text;
 using System.Net.Sockets;
+using System.Text;
 using EmbedIO;
 using EmbedIO.Actions;
 

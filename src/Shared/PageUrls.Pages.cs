@@ -1,5 +1,5 @@
-using System.Reflection;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace Bit.TemplatePlayground.Shared;
 

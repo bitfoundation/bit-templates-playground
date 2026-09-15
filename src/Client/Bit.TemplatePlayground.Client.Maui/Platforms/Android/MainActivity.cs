@@ -1,11 +1,11 @@
-using Java.Net;
-using Android.OS;
 using Android.App;
 using Android.Content;
 using Android.Content.PM;
 using Android.Gms.Tasks;
-using Plugin.LocalNotification.Core.Models;
+using Android.OS;
 using Bit.TemplatePlayground.Client.Core.Components;
+using Java.Net;
+using Plugin.LocalNotification.Core.Models;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
 

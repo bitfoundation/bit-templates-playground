@@ -1,9 +1,9 @@
 // [mirror] apple app delegate - keep in sync with:
 // - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/iOS/AppDelegate.cs
 
-using UIKit;
-using Foundation;
 using Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst.Services;
+using Foundation;
+using UIKit;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst;
 

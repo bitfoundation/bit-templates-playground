@@ -1,6 +1,6 @@
 using BlazorApplicationInsights;
-using BlazorApplicationInsights.Models;
 using BlazorApplicationInsights.Interfaces;
+using BlazorApplicationInsights.Models;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 

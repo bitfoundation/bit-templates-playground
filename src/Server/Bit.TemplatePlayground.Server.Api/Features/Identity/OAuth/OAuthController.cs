@@ -1,6 +1,6 @@
+using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Services;
 using Bit.TemplatePlayground.Shared.Features.Identity.OAuth;
 using Bit.TemplatePlayground.Shared.Features.Identity.OAuth.Dtos;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Services;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth;
 

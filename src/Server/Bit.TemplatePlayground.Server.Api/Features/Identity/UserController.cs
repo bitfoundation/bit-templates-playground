@@ -1,9 +1,9 @@
 using System.Text.Encodings.Web;
-using QRCoder;
-using Microsoft.AspNetCore.Cors;
+using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 using Bit.TemplatePlayground.Shared.Features.Tenants.Dtos;
-using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Microsoft.AspNetCore.Cors;
+using QRCoder;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 

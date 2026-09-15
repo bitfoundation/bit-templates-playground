@@ -1,12 +1,12 @@
 
-using Hangfire.Storage;
-using Scalar.AspNetCore;
-using Microsoft.IdentityModel.Tokens;
+using Bit.TemplatePlayground.Server.Api.Features.Attachments;
+using Bit.TemplatePlayground.Server.Api.Features.Identity;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth;
 using Bit.TemplatePlayground.Server.Api.Features.Identity.OAuth.Services;
-using Bit.TemplatePlayground.Server.Api.Features.Identity;
-using Bit.TemplatePlayground.Server.Api.Features.Attachments;
 using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Hangfire.Storage;
+using Microsoft.IdentityModel.Tokens;
+using Scalar.AspNetCore;
 
 namespace Bit.TemplatePlayground.Server.Api;
 

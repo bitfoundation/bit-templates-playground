@@ -1,6 +1,6 @@
 using Android.Webkit;
-using Message = Android.OS.Message;
 using AndroidWebView = Android.Webkit.WebView;
+using Message = Android.OS.Message;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android;
 

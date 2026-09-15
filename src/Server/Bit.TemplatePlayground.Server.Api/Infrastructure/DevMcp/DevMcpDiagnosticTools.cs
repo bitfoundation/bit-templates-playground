@@ -1,6 +1,6 @@
 using System.ComponentModel;
-using Bit.TemplatePlayground.Server.Api.Features.Diagnostic;
 using Bit.TemplatePlayground.Server.Api.Features.Attachments;
+using Bit.TemplatePlayground.Server.Api.Features.Diagnostic;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.DevMcp;

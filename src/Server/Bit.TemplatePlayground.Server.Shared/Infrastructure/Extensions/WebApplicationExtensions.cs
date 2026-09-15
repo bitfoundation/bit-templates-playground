@@ -1,12 +1,12 @@
 using System.Net;
 using Bit.TemplatePlayground.Server.Shared;
+using Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
 using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Localization.Routing;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Bit.TemplatePlayground.Server.Shared.Infrastructure.Services;
+using Microsoft.Extensions.Hosting;
 
 namespace Microsoft.AspNetCore.Builder;
 

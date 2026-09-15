@@ -1,5 +1,5 @@
-using Bit.TemplatePlayground.Server.Api.Features.Todo;
 using Bit.TemplatePlayground.Server.Api.Features.Tenants;
+using Bit.TemplatePlayground.Server.Api.Features.Todo;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 

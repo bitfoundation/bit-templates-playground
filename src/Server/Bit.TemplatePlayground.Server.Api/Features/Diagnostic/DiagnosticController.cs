@@ -1,6 +1,6 @@
 using System.Runtime.CompilerServices;
-using Bit.TemplatePlayground.Shared.Features.Diagnostic;
 using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
+using Bit.TemplatePlayground.Shared.Features.Diagnostic;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Diagnostic;
 

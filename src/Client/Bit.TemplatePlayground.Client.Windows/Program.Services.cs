@@ -1,14 +1,14 @@
 // [mirror] blazor hybrid DI registrations, logging and OpenTelemetry setup - keep in sync with:
 // - src/Client/Bit.TemplatePlayground.Client.Maui/MauiProgram.Services.cs
 
+using System.Diagnostics.Metrics;
+using Azure.Monitor.OpenTelemetry.Exporter;
+using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
+using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using OpenTelemetry;
 using OpenTelemetry.Resources;
-using System.Diagnostics.Metrics;
-using Microsoft.Extensions.Options;
-using Microsoft.Extensions.Logging;
-using Azure.Monitor.OpenTelemetry.Exporter;
-using Bit.TemplatePlayground.Client.Windows.Infrastructure.Services;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 

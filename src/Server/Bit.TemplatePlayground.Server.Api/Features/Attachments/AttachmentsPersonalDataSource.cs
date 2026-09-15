@@ -1,9 +1,9 @@
-using ImageMagick;
 using System.Text.Json;
 using System.Text.Json.Nodes;
-using FluentStorage.Storage;
-using Bit.TemplatePlayground.Shared.Features.Attachments;
 using Bit.TemplatePlayground.Server.Api.Features.PersonalData;
+using Bit.TemplatePlayground.Shared.Features.Attachments;
+using FluentStorage.Storage;
+using ImageMagick;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Attachments;
 

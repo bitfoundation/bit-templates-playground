@@ -1,5 +1,5 @@
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Services;
 

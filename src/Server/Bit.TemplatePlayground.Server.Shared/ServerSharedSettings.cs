@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Http;
 
 namespace Bit.TemplatePlayground.Server.Shared;
 
@@ -88,7 +88,7 @@ public partial class ServerSharedSettings : SharedSettings
         return host;
     }
 
-        /// <summary>
+    /// <summary>
     /// Blazor Hybrid's webview, localhost, devtunnels, github codespaces, cloudflare quick tunnels.
     /// </summary>
 #if Development
@@ -96,7 +96,7 @@ public partial class ServerSharedSettings : SharedSettings
 #else
     [GeneratedRegex(@"^(http|https|app):\/\/(localhost|0\.0\.0\.0|0\.0\.0\.1|127\.0\.0\.1)(:\d+)?(\/.*)?$")]
 #endif
-        public partial Regex TrustedOriginsRegex();
+    public partial Regex TrustedOriginsRegex();
 }
 
 public class ResponseCachingOptions
