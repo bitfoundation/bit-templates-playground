@@ -89,5 +89,5 @@ public partial class Routes : ComponentBase, IDisposable
 /// You could simply delete it in your own project and use the base class directly in Routes.razor file.
 /// </summary>
 public class AppRouter :
-    Brouter
+    global::Bit.Brouter.Brouter
 { }
