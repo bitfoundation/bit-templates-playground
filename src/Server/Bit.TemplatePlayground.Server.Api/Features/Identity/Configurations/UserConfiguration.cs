@@ -1,5 +1,3 @@
-﻿using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Configurations;
 
@@ -46,14 +44,58 @@ public partial class UserConfiguration : IEntityTypeConfiguration<User>
             PasswordHash = "AQAAAAIAAYagAAAAEP0v3wxkdWtMkHA3Pp5/JfS+42/Qto9G05p2mta6dncSK37hPxEHa3PGE4aqN30Aag==", // 123456
         }]);
 
-        builder
-            .HasIndex(b => b.Email)
-            .HasFilter($"[{nameof(User.Email)}] IS NOT NULL")
-            .IsUnique();
+        const string storeAdminUserName = "store-admin";
+        const string storeAdminEmail = "store-admin@bitplatform.dev";
 
-        builder
-            .HasIndex(b => b.PhoneNumber)
-            .HasFilter($"[{nameof(User.PhoneNumber)}] IS NOT NULL")
-            .IsUnique();
+        // The default store tenant's admin (See TenantUserConfiguration and UserRoleConfiguration).
+        builder.HasData([new User
+        {
+            Id = Guid.Parse("6ff71671-a1d6-4f97-abb9-d87d7b47d6e5"),
+            EmailConfirmed = true,
+            LockoutEnabled = true,
+            Gender = Gender.Other,
+            BirthDate = new DateTimeOffset(new DateOnly(2023, 1, 1), default, default),
+            FullName = "Store tenant admin",
+            UserName = storeAdminUserName,
+            NormalizedUserName = storeAdminUserName.ToUpperInvariant(),
+            Email = storeAdminEmail,
+            NormalizedEmail = storeAdminEmail.ToUpperInvariant(),
+            EmailTokenRequestedOn = new DateTimeOffset(new DateOnly(2023, 1, 1), default, default),
+            SecurityStamp = "869ff4a9-4b07-4cc1-8141-c5fc033daf82",
+            ConcurrencyStamp = "425e1a26-5b3a-4544-8e91-2760cd28e230",
+            PasswordHash = "AQAAAAIAAYagAAAAEP0v3wxkdWtMkHA3Pp5/JfS+42/Qto9G05p2mta6dncSK37hPxEHa3PGE4aqN30Aag==", // 123456
+        }]);
+
+        const string storeUserUserName = "store-user";
+        const string storeUserEmail = "store-user@bitplatform.dev";
+
+        // A regular (non-admin) member of the default store tenant, assigned to the demo user-group.
+        // (See UserRoleConfiguration and TenantUserConfiguration).
+        builder.HasData([new User
+        {
+            Id = Guid.Parse("4ff71671-a1d6-4f97-abb9-d87d7b47d6e4"),
+            EmailConfirmed = true,
+            LockoutEnabled = true,
+            Gender = Gender.Other,
+            BirthDate = new DateTimeOffset(new DateOnly(2023, 1, 1), default, default),
+            FullName = "Store tenant user",
+            UserName = storeUserUserName,
+            NormalizedUserName = storeUserUserName.ToUpperInvariant(),
+            Email = storeUserEmail,
+            NormalizedEmail = storeUserEmail.ToUpperInvariant(),
+            EmailTokenRequestedOn = new DateTimeOffset(new DateOnly(2023, 1, 1), default, default),
+            SecurityStamp = "469ff4a9-4b07-4cc1-8141-c5fc033daf84",
+            ConcurrencyStamp = "435e1a26-5b3a-4544-8e91-2760cd28e229",
+            PasswordHash = "AQAAAAIAAYagAAAAEP0v3wxkdWtMkHA3Pp5/JfS+42/Qto9G05p2mta6dncSK37hPxEHa3PGE4aqN30Aag==", // 123456
+        }]);
+
+        // Indexed on the NORMALIZED column, because that is the one every lookup uses (UserStore.FindByEmailAsync
+        // queries NormalizedEmail with SingleOrDefaultAsync, and the base EmailIndex is NOT unique). A unique index on
+        // the raw Email column would let `victim@x.com` and `Victim@x.com` both be inserted under a case-sensitive
+        // collation - SQLite's and PostgreSQL's default - after which every FindByEmailAsync for that address throws
+        // "Sequence contains more than one element" for good.
+        builder.HasUniqueIndexOnNullable(b => b.NormalizedEmail);
+
+        builder.HasUniqueIndexOnNullable(b => b.PhoneNumber);
     }
 }

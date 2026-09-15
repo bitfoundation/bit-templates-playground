@@ -1,4 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
+// [mirror] blazor hybrid DI registrations, logging and OpenTelemetry setup - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Windows/Program.Services.cs
+
+using Azure.Monitor.OpenTelemetry.Exporter;
+using OpenTelemetry;
+using OpenTelemetry.Resources;
+using System.Diagnostics.Metrics;
+using Microsoft.Extensions.Options;
 using Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.HttpMessageHandlers;
 
@@ -6,71 +13,112 @@ namespace Bit.TemplatePlayground.Client.Maui;
 
 public static partial class MauiProgram
 {
-    public static void ConfigureServices(this MauiAppBuilder builder)
+    extension(MauiAppBuilder builder)
     {
-        // Services being registered here can get injected in Maui (Android, iOS, macOS, Windows)
-        var services = builder.Services;
-        var configuration = builder.Configuration;
-        services.AddClientCoreProjectServices(builder.Configuration);
-
-        services.AddTransient<MainPage>();
-
-        services.AddScoped<IWebAuthnService, MauiWebAuthnService>();
-        services.AddScoped<IExceptionHandler, MauiExceptionHandler>();
-        services.AddScoped<IAppUpdateService, MauiAppUpdateService>();
-        services.AddScoped<IBitDeviceCoordinator, MauiDeviceCoordinator>();
-        services.AddScoped<IExternalNavigationService, MauiExternalNavigationService>();
-
-        services.AddScoped<HttpClient>(sp =>
+        public void ConfigureServices()
         {
-            var handlerFactory = sp.GetRequiredService<HttpMessageHandlersChainFactory>();
-            var httpClient = new HttpClient(handlerFactory.Invoke())
+            // Services being registered here can get injected in Maui (Android, iOS, macOS, Windows)
+            var services = builder.Services;
+            var configuration = builder.Configuration;
+            services.AddClientCoreProjectServices(builder.Configuration);
+
+            services.AddTransient<MainPage>();
+
+            services.AddScoped<IWebAuthnService, MauiWebAuthnService>();
+            services.AddScoped<ClientExceptionHandlerBase, MauiExceptionHandler>();
+            services.AddScoped<SharedExceptionHandler>(sp => sp.GetRequiredService<ClientExceptionHandlerBase>());
+
+            services.AddScoped<IAppUpdateService, MauiAppUpdateService>();
+            services.AddScoped<IPermissionService, MauiPermissionService>();
+            services.AddScoped<IBitDeviceCoordinator, MauiDeviceCoordinator>();
+            services.AddScoped<IExternalNavigationService, MauiExternalNavigationService>();
+            if (AppPlatform.IsWindows is false)
             {
-                BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
-            };
-            if (sp.GetRequiredService<ClientMauiSettings>().WebAppUrl is Uri origin)
-            {
-                httpClient.DefaultRequestHeaders.Add("X-Origin", origin.ToString());
+                services.AddScoped<FileSaveService, MauiFileSaveService>();
             }
-            return httpClient;
-        });
 
-        services.AddSingleton<IStorageService, MauiStorageService>();
-        var settings = new ClientMauiSettings();
-        configuration.Bind(settings);
-        services.AddSingleton(sp =>
-        {
-            return settings;
-        });
-        services.AddSingleton(ITelemetryContext.Current!);
-        services.AddSingleton<ILocalHttpServer, MauiLocalHttpServer>();
+            services.AddScoped<HttpClient>(sp =>
+            {
+                var handlerFactory = sp.GetRequiredService<HttpMessageHandlersChainFactory>();
+                var httpClient = new HttpClient(handlerFactory.Invoke())
+                {
+                    BaseAddress = new Uri(configuration.GetServerAddress(), UriKind.Absolute)
+                };
+                var origin = sp.GetRequiredService<ClientMauiSettings>().WebAppUrl ?? httpClient.BaseAddress;
+                httpClient.DefaultRequestHeaders.Add("X-Origin", origin.ToString());
+                return httpClient;
+            });
 
-        services.AddMauiBlazorWebView();
-        services.AddBlazorWebViewDeveloperTools();
+            services.AddSingleton<IStorageService, MauiStorageService>();
+            var settings = new ClientMauiSettings();
+            configuration.Bind(settings);
+            services.AddSingleton(sp => sp.GetRequiredService<IOptions<ClientMauiSettings>>().Value);
+            services.AddSingleton(ITelemetryContext.Current!);
+            services.AddSingleton<ILocalHttpServer, MauiLocalHttpServer>();
 
-        builder.Logging.ConfigureLoggers(configuration);
+            services.AddMauiBlazorWebView();
+            services.AddBlazorWebViewDeveloperTools();
 
-        builder.Logging.AddEventSourceLogger();
+            builder.Logging.ConfigureLoggers(configuration);
 
+            builder.Logging.AddEventSourceLogger();
 
-        if (AppPlatform.IsWindows)
-        {
-            builder.Logging.AddEventLog(options => configuration.GetRequiredSection("Logging:EventLog").Bind(options));
-        }
+            builder.Logging.AddOpenTelemetry(options =>
+            {
+                options.IncludeScopes = true;
+                options.IncludeFormattedMessage = true;
+                configuration.Bind("Logging:OpenTelemetry", options);
+            });
 
-        services.AddOptions<ClientMauiSettings>()
-            .Bind(configuration)
-            .ValidateDataAnnotations()
-            .ValidateOnStart();
+            var openTelemetry = services.AddOpenTelemetry()
+                .WithMetrics(metrics =>
+                {
+                    metrics.AddMeter(Meter.Current.Name);
+                })
+                .WithTracing(tracing =>
+                {
+                    tracing.AddSource(ActivitySource.Current.Name);
+                })
+                .ConfigureResource(resource =>
+                {
+                    resource.AddAttributes([new("service.name", builder.Environment.ApplicationName)]);
+                });
 
-        #if Android
-        services.AddClientMauiProjectAndroidServices(builder.Configuration);
+            var useOtlpExporter = string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"]) is false
+                || string.IsNullOrWhiteSpace(builder.Configuration["OTEL_EXPORTER_OTLP_LOGS_ENDPOINT"]) is false;
+
+            if (useOtlpExporter)
+            {
+                openTelemetry.UseOtlpExporter();
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.ApplicationInsights?.ConnectionString) is false)
+            {
+                openTelemetry.UseAzureMonitorExporter(options =>
+                {
+                    configuration.Bind("ApplicationInsights", options);
+                });
+            }
+
+            if (AppPlatform.IsWindows)
+            {
+                builder.Logging.AddEventLog(options => configuration.Bind("Logging:EventLog", options));
+            }
+
+            services.AddOptions<ClientMauiSettings>()
+                .Bind(configuration)
+                .ValidateDataAnnotations()
+                .ValidateOnStart();
+
+            #if Android
+            services.AddClientMauiProjectAndroidServices(builder.Configuration);
 #elif iOS
         services.AddClientMauiProjectIosServices(builder.Configuration);
 #elif Mac
-        services.AddClientMauiProjectMacCatalystServices(builder.Configuration);
+            services.AddClientMauiProjectMacCatalystServices(builder.Configuration);
 #elif Windows
-        services.AddClientMauiProjectWindowsServices(builder.Configuration);
+            services.AddClientMauiProjectWindowsServices(builder.Configuration);
 #endif
-            }
+                    }
+    }
 }

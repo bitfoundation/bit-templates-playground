@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 public abstract partial class WebAuthnServiceBase : IWebAuthnService
 {
@@ -18,7 +18,7 @@ public abstract partial class WebAuthnServiceBase : IWebAuthnService
     {
         var userIdsAsString = await storageService.GetItem(STORE_KEY);
 
-        if (string.IsNullOrEmpty(userIdsAsString))
+        if (string.IsNullOrWhiteSpace(userIdsAsString))
             return [];
 
         return JsonSerializer.Deserialize(userIdsAsString, jsonSerializerOptions.GetTypeInfo<Guid[]>())!;

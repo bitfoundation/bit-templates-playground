@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
+namespace Bit.TemplatePlayground.Client.Core.Components.Layout;
 
 public partial class ContentSecurityPolicy
 {
@@ -31,6 +31,9 @@ public partial class ContentSecurityPolicy
         var frameSrc = new HashSet<string>(ownOrigins);
         var mediaSrc = new HashSet<string>(ownOrigins);
 
+        // --- Add Azure App Insights ---
+        connectSrc.Add("https://dc.services.visualstudio.com https://*.in.applicationinsights.azure.com https://js.monitor.azure.com");
+        scriptSrc.Add("https://js.monitor.azure.com");
 
 
         // --- Add Google reCAPTCHA ---
@@ -38,9 +41,16 @@ public partial class ContentSecurityPolicy
         scriptSrc.Add("https://www.google.com/recaptcha/ https://www.gstatic.com/");
         frameSrc.Add("https://www.google.com/recaptcha/");
 
+        // --- Add Google Ads ---
+        scriptSrc.Add("https://www.googleadservices.com https://googleads.g.doubleclick.net https://securepubads.g.doubleclick.net https://*.adtrafficquality.google https://*.googlesyndication.com");
+        connectSrc.Add("https://securepubads.g.doubleclick.net https://*.adtrafficquality.google https://*.googlesyndication.com https://csi.gstatic.com");
+        imgSrc.Add("https://www.google.com https://googleads.g.doubleclick.net https://*.googlesyndication.com https://www.gstatic.com https://imasdk.googleapis.com https://*.adtrafficquality.google");
+        frameSrc.Add("https://googleads.g.doubleclick.net https://*.googlesyndication.com https://*.adtrafficquality.google");
+        mediaSrc.Add("https://*.gvt1.com");
 
         connectSrc.Add("https://*.service.signalr.net");
         connectSrc.Add(apiUrl.Replace("http:", "ws:").Replace("https:", "wss:"));
+        mediaSrc.Add("blob:");
 
         // --- Add Google Fonts ---
         fontSrc.Add("https://fonts.gstatic.com");
@@ -50,6 +60,8 @@ public partial class ContentSecurityPolicy
         imgSrc.Add("https://img.shields.io");
         connectSrc.Add("https://api.github.com");
 
+        // Inert today - the component only renders the meta tag when the environment is NOT Development - and kept
+        // as the record of what a Development policy would have to allow, for whoever relaxes that guard.
         if (AppEnvironment.IsDevelopment())
         {
             connectSrc.Add("ws://localhost:* wss://localhost:*"); // Allow localhost WebSocket connections during development (hot reload / debugging)
@@ -57,7 +69,9 @@ public partial class ContentSecurityPolicy
             connectSrc.Add("https://cdn.jsdelivr.net/"); // eruda dev tools
         }
 
-        scriptSrc.Add("https://cdn.jsdelivr.net/npm/eruda"); // eruda dev tools
+        // The exact pinned url the diagnostic modal loads, not the jsdelivr host: a host-wide entry would let any
+        // package on that CDN execute here. Keep it in sync with erudaUrl in Scripts/App.ts.
+        scriptSrc.Add("https://cdn.jsdelivr.net/npm/eruda@3.4.3/eruda.min.js"); // eruda dev tools
 
         // Construct the final CSP string
         CspContent = $"default-src {string.Join(" ", ownOrigins)}; " + // Fallback for all directives.

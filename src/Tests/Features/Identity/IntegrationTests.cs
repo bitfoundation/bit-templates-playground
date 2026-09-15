@@ -1,6 +1,3 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
-
 namespace Bit.TemplatePlayground.Tests.Features.Identity;
 
 [TestClass, TestCategory("IntegrationTest")]
@@ -16,6 +13,7 @@ public partial class IntegrationTests
 
         await server.Build(services =>
         {
+            services.AddIntegrationApiOnlyTestsServices();
             // You can override services here for this specific test if needed:
             // services.Replace(ServiceDescriptor.Scoped(sp => fakeAuthTokenProvider));
         }).Start(TestContext.CancellationToken);
@@ -42,7 +40,7 @@ public partial class IntegrationTests
     {
         await using var server = new AppTestServer();
 
-        await server.Build().Start(TestContext.CancellationToken);
+        await server.Build(s => s.AddIntegrationApiOnlyTestsServices()).Start(TestContext.CancellationToken);
 
         await using var scope = server.WebApp.Services.CreateAsyncScope();
 

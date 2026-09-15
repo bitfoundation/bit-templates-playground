@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Products;
+using Bit.TemplatePlayground.Shared.Features.Products;
 using Bit.TemplatePlayground.Shared.Features.Categories;
 using Bit.TemplatePlayground.Shared.Features.Attachments;
 
@@ -11,12 +11,13 @@ public partial class AddOrEditProductPage
     [AutoInject] IAttachmentController attachmentController = default!;
 
     private bool isSaving;
+    private bool loadFailed;
     private bool isManagingFile;
     private bool isLoading = true;
     private ProductDto product = new() { Id = Guid.CreateSequentialGuid() };
     private BitFileUpload fileUploadRef = default!;
+    private BitRichTextEditor bitRichTextEditor = default!;
     private string selectedCategoryId = string.Empty;
-    private BitRichTextEditor richTextEditorRef = default!;
     private List<BitDropdownItem<string>> allCategoryList = [];
     private AppDataAnnotationsValidator validatorRef = default!;
 
@@ -26,6 +27,11 @@ public partial class AddOrEditProductPage
     {
         await base.OnInitAsync();
 
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
         try
         {
             var categoryList = await categoryController.Get(CurrentCancellationToken);
@@ -42,6 +48,11 @@ public partial class AddOrEditProductPage
             product = await productController.Get(Id.Value, CurrentCancellationToken);
             selectedCategoryId = (product.CategoryId ?? default).ToString();
         }
+        catch (Exception exp)
+        {
+            loadFailed = true;
+            ExceptionHandler.Handle(exp);
+        }
         finally
         {
             isLoading = false;
@@ -54,11 +65,10 @@ public partial class AddOrEditProductPage
 
         isSaving = true;
 
-        product.DescriptionHTML = await richTextEditorRef.GetHtml();
-        product.DescriptionText = await richTextEditorRef.GetText();
-
         try
         {
+            product.DescriptionText = await bitRichTextEditor.GetTextAsync();
+
             if (Id == default)
             {
                 await productController.Create(product, CurrentCancellationToken);
@@ -85,17 +95,40 @@ public partial class AddOrEditProductPage
         NavigationManager.NavigateTo(PageUrls.Products);
     }
 
+    private async Task Reload()
+    {
+        loadFailed = false;
+        isLoading = true;
+        product = new() { Id = Guid.CreateSequentialGuid() };
+        selectedCategoryId = string.Empty;
+
+        await LoadAsync();
+    }
+
     private async Task HandleOnUploadComplete(BitFileInfo fileInfo)
     {
-        product.HasPrimaryImage = true;
-        product.PrimaryImageAltText = fileInfo.Message;
-        isManagingFile = false;
+        try
+        {
+            if (Id is not null)
+            {
+                await RefreshImageState();
+            }
+            else
+            {
+                product.HasPrimaryImage = true;
+                product.PrimaryImageAltText = fileInfo.Message;
+            }
+        }
+        finally
+        {
+            isManagingFile = false;
+        }
     }
 
     private async Task HandleOnUploadFailed(BitFileInfo fileInfo)
     {
         isManagingFile = false;
-        SnackBarService.Error(string.IsNullOrEmpty(fileInfo.Message) ? Localizer[nameof(AppStrings.FileUploadFailed)] : fileInfo.Message);
+        SnackBarService.Error(string.IsNullOrWhiteSpace(fileInfo.Message) ? Localizer[nameof(AppStrings.FileUploadFailed)] : fileInfo.Message);
     }
 
     private async Task RemoveProductImage()
@@ -108,7 +141,7 @@ public partial class AddOrEditProductPage
             await attachmentController.DeleteProductPrimaryImage(product.Id, CurrentCancellationToken);
             if (Id is not null)
             {
-                product = await productController.Get(Id.Value, CurrentCancellationToken); // To get latest concurrency stamp and other properties modified by the server.
+                await RefreshImageState();
             }
         }
         catch (KnownException e)
@@ -119,6 +152,20 @@ public partial class AddOrEditProductPage
         {
             isManagingFile = false;
         }
+    }
+
+    /// <summary>
+    /// Uploading or deleting the primary image writes to the Product row server-side, so the form has to pick up the
+    /// new concurrency stamp or the next save conflicts. Only the image fields and that stamp are copied over -
+    /// replacing the whole instance would throw away whatever the user has typed but not saved yet.
+    /// </summary>
+    private async Task RefreshImageState()
+    {
+        var fresh = await productController.Get(Id!.Value, CurrentCancellationToken);
+
+        product.Version = fresh.Version;
+        product.HasPrimaryImage = fresh.HasPrimaryImage;
+        product.PrimaryImageAltText = fresh.PrimaryImageAltText;
     }
 
     private async Task<string> GetUploadUrl()

@@ -1,5 +1,4 @@
-﻿using Plugin.Maui.AppRating;
-using Microsoft.Extensions.Logging;
+using Plugin.Maui.AppRating;
 
 namespace Bit.TemplatePlayground.Client.Maui;
 
@@ -8,7 +7,7 @@ public partial class App
     private readonly Page mainPage;
 
     private readonly ILogger<App> logger;
-    private readonly IExceptionHandler exceptionHandler;
+    private readonly ClientExceptionHandlerBase exceptionHandler;
     private readonly IBitDeviceCoordinator deviceCoordinator;
     private readonly IStringLocalizer<AppStrings> localizer;
     private readonly Action pubSubHandlerReferenceToKeepAlive;
@@ -17,7 +16,7 @@ public partial class App
         PubSubService pubSubService,
         IStorageService storageService,
         ILogger<App> logger,
-        IExceptionHandler exceptionHandler,
+        ClientExceptionHandlerBase exceptionHandler,
         IBitDeviceCoordinator deviceCoordinator,
         IStringLocalizer<AppStrings> localizer)
     {

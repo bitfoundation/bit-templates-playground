@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
+using Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
 
 namespace Bit.TemplatePlayground.Client.Core.Components.Common;
 
@@ -66,7 +66,7 @@ public partial class JobProgress
                 StateHasChanged();
             });
         }
-        catch (TaskCanceledException)
+        catch (OperationCanceledException)
         {
 
         }

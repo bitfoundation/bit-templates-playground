@@ -88,13 +88,14 @@ For tracking **count metrics** (e.g., number of ongoing operations), use **OpenT
 
 ```csharp
 // Define a counter at class level
-private static readonly UpDownCounter<long> ongoingConversationsCount = 
+public static readonly UpDownCounter<long> ActiveConversations =
     Meter.Current.CreateUpDownCounter<long>(
-        "appHub.ongoing_conversations_count", 
-        "Number of ongoing conversations in the chatbot hub.");
+        "chatbot.active_conversations",
+        "{conversation}",
+        "Text chats open in the AI chat panel right now.");
 
 // Increment when operation starts
-ongoingConversationsCount.Add(1);
+ActiveConversations.Add(1);
 
 try
 {
@@ -104,11 +105,15 @@ try
 finally
 {
     // Decrement when operation completes
-    ongoingConversationsCount.Add(-1);
+    ActiveConversations.Add(-1);
 }
 ```
 
-This pattern is used in `AppHub.Chatbot.cs` to track the number of active chatbot conversations in real-time, which can be monitored in the Aspire Dashboard, Azure Application Insights, or other observability tools.
+This pattern is used in `Features/Chatbot/ChatbotMetrics.cs` to track active chatbot conversations and voice calls in real-time, which can be monitored in the Aspire Dashboard, Azure Application Insights, or other observability tools. Name instruments the OpenTelemetry way: a lowercase `area.thing` name, `active_` for a count of things in progress, and the unit in curly braces (`{conversation}`, `{call}`).
+
+### AI token usage
+
+Every `IChatClient`, embedding generator and speech client registered with `.UseOpenTelemetry()` records `gen_ai.client.token.usage` (meter `Experimental.Microsoft.Extensions.AI`) with `gen_ai.token.type` set to `input` or `output`. `ChatbotMetrics` adds what those clients can't see to the same instrument: voice calls (`gen_ai.operation.name` = `realtime`), and the `input_text`, `input_audio`, `input_image`, `input_cached`, `output_text`, `output_audio` and `output_reasoning` split the bill depends on. Token types overlap (`input_cached` is part of `input_text`), so filter by one `gen_ai.token.type` before summing.
 
 ### Benefits
 
@@ -210,68 +215,52 @@ This is implemented in [`src/Server/Bit.TemplatePlayground.Server.Api/Infrastruc
 
 ```csharp
 /// <inheritdoc cref="SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE"/>
-[Authorize(Policy = AppFeatures.System.ManageLogs)]
-public async Task<DiagnosticLogDto[]> GetUserSessionLogs(Guid userSessionId, [FromServices] AppDbContext dbContext)
+[HubMethodName(SharedAppMessages.GetUserSessionLogs)]
+public async Task<DiagnosticLogDto[]> GetUserSessionLogs(Guid userSessionId, [FromServices] AppDbContext dbContext, [FromServices] IAuthorizationService authorizationService)
 {
-    ...
+    var user = Context.GetHttpContext()!.User;
+
+    if ((await authorizationService.AuthorizeAsync(user, AppFeatures.System.Logs_View)).Succeeded is false)
+        throw new HubException(nameof(AppStrings.UnauthorizedException)).WithData("ConnectionId", Context.ConnectionId);
+
+    // ... resolves the session's SignalRConnectionId, scoped to the caller's tenant, then:
+    return await Clients.Client(connectionId).InvokeAsync<DiagnosticLogDto[]>(SharedAppMessages.UPLOAD_DIAGNOSTIC_LOGGER_STORE, Context.ConnectionAborted);
 }
 ```
 
 ---
 
-## 5. Integration with Sentry and Azure Application Insights
+## 5. Supported telemetry platforms:
 
-The project is **pre-configured** for easy integration with popular logging providers.
+### 🖥️ Server Applications
 
-### Sentry Integration
+* **Server.Api**
 
-**Sentry** is a production error tracking service. Configuration in `appsettings.json`:
+    Server.Api uses **OpenTelemetry** for distributed tracing and metrics.
+    
+    Support for Open Telemetry means that all telemetry platforms (Including but not limited to Sentry, Azure Application Insights, Datadog, New Relic etc.) can be used to collect and visualize logs, traces and metrics.
 
-```json
-"Sentry": {
-  "Dsn": "", // Add your Sentry DSN here
-  "SendDefaultPii": true,
-  "EnableScopeSync": true,
-  "LogLevel": {
-    "Default": "Warning"
-  }
-}
-```
+    **Sampling** is enabled to reduce costs: unknown/unhandled exceptions and slow activities are always captured (100%), while known/transient exceptions, warnings, and info logs are sampled at **5%**. See [`AppOpenTelemetryProcessor.cs`](../src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Services/AppOpenTelemetryProcessor.cs) and [`AppLoggingSampler.cs`](../src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Services/AppLoggingSampler.cs).
 
-### Azure Application Insights Integration
+* **Server.Web**
 
-**Application Insights** provides comprehensive telemetry and monitoring. Configuration:
+    Server.Web uses **OpenTelemetry** for distributed tracing and metrics.
 
-```json
-"ApplicationInsights": {
-  "ConnectionString": null // Add your connection string here
-}
-```
+### 📱 Client Applications
 
-### How It Works
+* **Client.Windows**
 
-1- The OpenTelemetry configuration automatically exports to Application Insights if a connection string is provided.
+    Client.Windows uses **OpenTelemetry** for distributed tracing and metrics, and uses Azure Application Insights JavaScript SDK for Blazor Hybrid WebView JavaScript errors, navigation tracking etc.
 
-From [`src/Server/Bit.TemplatePlayground.Server.Shared/Extensions/Infrastructure/WebApplicationBuilderExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationBuilderExtensions.cs):
-2- The Azure Application Insights JavaScript SDK added by `BlazorApplicationInsights` nuget in Client.Core project would collect JavaScript errors and more from
-Browser and Blazor Hybrid's WebView
+* **Client.Maui**
 
-### OpenTelemetry Configuration
+    Client.Maui uses **OpenTelemetry** for distributed tracing and metrics, and uses Azure Application Insights JavaScript SDK for Blazor Hybrid WebView JavaScript errors, navigation tracking etc.
 
-The project tracks:
+* **Client.Web (Blazor WebAssembly)**
 
-**Metrics:**
-- ASP.NET Core instrumentation (HTTP request metrics)
-- HTTP client instrumentation
-- Runtime instrumentation (GC, thread pool, etc.)
-- Custom metrics via `Meter.Current`
+    Client.Web doesn't use Open Telemetry due to size constraints, but uses any Microsoft.Extensions.Logging implementations such as `Sentry.Extensions.Logging`
 
-**Tracing:**
-- ASP.NET Core requests (excluding static files and health checks)
-- HTTP client calls
-- Entity Framework Core queries (excluding Hangfire queries)
-- Hangfire background jobs
-- Custom activities via `ActivitySource.Current`
+    `BlazorApplicationInsights` nuget package implements Microsoft.Extensions.Logging. It also tracks Browser JavaScript errors, navigations etc.
 
 ---
 
@@ -292,7 +281,7 @@ The Aspire Dashboard is a web-based UI that displays:
 When running the project with .NET Aspire (via `Bit.TemplatePlayground.Server.AppHost`), the dashboard is automatically available at:
 
 ```
-https://localhost:2146
+https://localhost:2076
 ```
 
 ### Key Features
@@ -310,98 +299,29 @@ The project includes **health check endpoints** to monitor application health.
 
 ### Available Endpoints
 
-1. **`/health`** - All health checks must pass
-2. **`/alive`** - Only checks tagged with "live" must pass
-3. **`/healthz`** - Detailed health report (UI format)
+1. **`/health`** - readiness. Runs every registered check, and returns 503 only when one of them reports Unhealthy.
+2. **`/alive`** - liveness. Runs only the checks tagged `"live"`, which today is the disk-space check alone.
+3. **`/healthz`** - detailed health report (UI format). **Development only.**
 
-### Health Check Implementation
+`/health` and `/alive` are mapped in **every** environment and are **anonymous** - only `/healthz`, which is the one
+that reveals per-check details, is gated on Development. Adding health check endpoints to a non-development
+deployment has security implications (see <https://aka.ms/dotnet/aspire/healthchecks>): decide deliberately whether to
+expose `/health` publicly or to restrict it to your load balancer's network, because an anonymous caller can drive the
+work behind it. Responses are output-cached for 10 seconds, but that cache does not apply to a failing (non-200)
+response.
 
-From [`src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationExtensions.cs):
+### Registered Checks
 
-```csharp
-public static WebApplication MapAppHealthChecks(this WebApplication app)
-{
-    // Adding health checks endpoints to applications in non-development environments has security implications.
-    // See https://aka.ms/dotnet/aspire/healthchecks for details before enabling these endpoints in non-development environments.
-    if (app.Environment.IsDevelopment())
-    {
-        var healthChecks = app.MapGroup("");
+`AddDefaultHealthChecks` contributes the disk-space check (at least **2 GB** free), which is the only one tagged
+`"live"`. `AddServerApiHealthChecks` adds the database, Hangfire, the user-profile-images blob storage and - when SMS
+is configured - Twilio. The last two reach a remote dependency, so they carry a timeout and report **Degraded** rather
+than Unhealthy: a storage or SMS-provider outage must not take an otherwise healthy instance out of the load balancer.
+Anything you add that a request path genuinely depends on should report Unhealthy; anything external should not.
 
-        healthChecks.CacheOutput("HealthChecks");
+---
 
-        // All health checks must pass for app to be considered ready
-        healthChecks.MapHealthChecks("/health");
+### AI Wiki
 
-        // Only health checks tagged with "live" must pass
-        healthChecks.MapHealthChecks("/alive", new()
-        {
-            Predicate = static r => r.Tags.Contains("live")
-        });
-
-        // Detailed health report with UI
-        healthChecks.MapHealthChecks("/healthz", new HealthCheckOptions
-        {
-            Predicate = _ => true,
-            ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
-        });
-    }
-
-    return app;
-}
-```
-
-### Default Health Checks
-
-From [`src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationBuilderExtensions.cs`](/src/Server/Bit.TemplatePlayground.Server.Shared/Infrastructure/Extensions/WebApplicationBuilderExtensions.cs):
-
-```csharp
-public static IHealthChecksBuilder AddDefaultHealthChecks<TBuilder>(this TBuilder builder)
-    where TBuilder : IHostApplicationBuilder
-{
-    return builder.Services.AddHealthChecks()
-        .AddDiskStorageHealthCheck(options => 
-            options.AddDrive(Path.GetPathRoot(Directory.GetCurrentDirectory())!, 
-            minimumFreeMegabytes: 5 * 1024), 
-            tags: ["live"]);
-}
-```
-
-This checks that at least **5GB of free disk space** is available.
-
-### Custom Health Check Example
-
-The project includes a custom health check for storage in [`src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/Services/AppStorageHealthCheck.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Infrastructure/Services/AppStorageHealthCheck.cs):
-
-```csharp
-/// <summary>
-/// Checks underlying S3, Azure blob storage, or local file system storage is healthy.
-/// </summary>
-public partial class AppStorageHealthCheck : IHealthCheck
-{
-    [AutoInject] private IBlobStorage blobStorage = default!;
-    [AutoInject] private ServerApiSettings settings = default!;
-
-    public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            _ = await blobStorage.ExistsAsync(settings.UserProfileImagesDir, cancellationToken);
-
-            return HealthCheckResult.Healthy("Storage is healthy");
-        }
-        catch (Exception exp)
-        {
-            return HealthCheckResult.Unhealthy("Storage is unhealthy", exp);
-        }
-    }
-}
-```
-
-### Built-in Health Checks
-
-The project automatically configures health checks for all infrastructure components registered in the `AddServerApiProjectServices` method, including:
-- Database connectivity
-- Disk storage availability (minimum 5GB free)
-- Blob storage (S3, Azure Blob, or local file system)
+Ask your own question [here](https://bitplatform.dev/ask)
 
 ---

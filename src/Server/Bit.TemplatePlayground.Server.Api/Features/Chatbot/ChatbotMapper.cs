@@ -1,10 +1,9 @@
-﻿using Riok.Mapperly.Abstractions;
 using Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Chatbot;
 
 /// <summary>
-/// More info at Server/Mappers/README.md
+/// More info at src/Server/Bit.TemplatePlayground.Server.Api/Features/Mappers.md
 /// </summary>
 [Mapper]
 public static partial class ChatbotMapper

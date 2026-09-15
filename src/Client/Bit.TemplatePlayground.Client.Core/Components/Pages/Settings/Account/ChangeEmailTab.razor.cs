@@ -1,6 +1,3 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
-
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Settings.Account;
 
 public partial class ChangeEmailTab
@@ -12,6 +9,8 @@ public partial class ChangeEmailTab
 
     [Parameter, SupplyParameterFromQuery(Name = "emailToken")]
     public string? EmailTokenQueryString { get; set; }
+
+    [CascadingParameter] public UserDto? CurrentUser { get; set; }
 
 
     [AutoInject] private IUserController userController = default!;
@@ -28,13 +27,14 @@ public partial class ChangeEmailTab
     {
         await base.OnInitAsync();
 
-        if (string.IsNullOrEmpty(EmailQueryString) is false)
+        if (string.IsNullOrWhiteSpace(EmailQueryString) is false)
         {
             showConfirmation = true;
             isEmailUnavailable = false;
             changeModel.Email = EmailQueryString;
+            sendModel.Email = EmailQueryString;
 
-            if (string.IsNullOrEmpty(EmailTokenQueryString) is false)
+            if (string.IsNullOrWhiteSpace(EmailTokenQueryString) is false)
             {
                 changeModel.Token = EmailTokenQueryString;
 
@@ -49,7 +49,17 @@ public partial class ChangeEmailTab
 
     private async Task SendToken()
     {
-        if (isWaiting || sendModel.Email == Email) return;
+        if (isWaiting) return;
+
+        if (sendModel.Email == Email)
+        {
+            SnackBarService.Error(Localizer[nameof(AppStrings.SameEmailErrorMessage)]);
+            return;
+        }
+
+        // Proving the NEW address (the code sent below) is only half of it - the server also requires the user to prove
+        // she still holds the CURRENT one, by quoting a code sent to it. That is what elevated access is.
+        if (await AuthManager.TryEnterElevatedAccessMode(CurrentCancellationToken) is false) return;
 
         isWaiting = true;
 
@@ -83,7 +93,17 @@ public partial class ChangeEmailTab
         {
             await userController.ChangeEmail(changeModel, CurrentCancellationToken);
 
-            NavigationManager.NavigateTo($"{PageUrls.Settings}/{PageUrls.SettingsSections.Account}", forceLoad: true);
+            if (CurrentUser is not null)
+            {
+                CurrentUser.Email = changeModel.Email;
+                PubSubService.Publish(ClientAppMessages.PROFILE_UPDATED, CurrentUser);
+            }
+
+            SnackBarService.Warning(Localizer[nameof(AppStrings.SignOutOfAllDevicesWarningMessage)]);
+
+            showConfirmation = false;
+            isEmailUnavailable = true;
+            sendModel.Email = changeModel.Email = changeModel.Token = null;
         }
         catch (KnownException e)
         {

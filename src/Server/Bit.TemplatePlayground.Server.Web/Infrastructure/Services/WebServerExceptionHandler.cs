@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
+using System.Net;
 using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
@@ -8,7 +7,7 @@ public partial class WebServerExceptionHandler : ClientExceptionHandlerBase
 {
     [AutoInject] IHttpContextAccessor httpContextAccessor = default!;
 
-    protected override void Handle(Exception exception, ExceptionDisplayKind displayKind, Dictionary<string, object> parameters)
+    protected override void Handle(Exception exception, ExceptionDisplayKind displayKind, Dictionary<string, object?> parameters)
     {
         exception = UnWrapException(exception);
 

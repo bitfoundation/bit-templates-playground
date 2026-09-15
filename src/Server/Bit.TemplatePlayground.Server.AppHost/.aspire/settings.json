@@ -1,7 +1,0 @@
-{
-    "appHostPath": "../Bit.TemplatePlayground.Server.AppHost.csproj",
-    "features": {
-        "deployCommandEnabled": "true",
-        "execCommandEnabled": "true"
-    }
-}

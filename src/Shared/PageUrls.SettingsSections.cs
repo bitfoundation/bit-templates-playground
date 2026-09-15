@@ -1,13 +1,27 @@
-﻿namespace Bit.TemplatePlayground.Shared;
+using System.ComponentModel;
+
+namespace Bit.TemplatePlayground.Shared;
 
 public static partial class PageUrls
 {
     public static class SettingsSections
     {
+        [Description("Manage personal information: name, profile picture, birthdate and gender. Requires sign-in.")]
         public static readonly string Profile = nameof(Profile).ToLower();
+
+        [Description("Manage email, phone number, passwordless sign-in and account deletion. Requires sign-in.")]
         public static readonly string Account = nameof(Account).ToLower();
+
+        [Description("Two-factor authentication (2FA) settings. Requires sign-in.")]
         public static readonly string Tfa = nameof(Tfa).ToLower();
+
+        [Description("View all devices/browsers you are signed in on and revoke sessions remotely. Requires sign-in.")]
         public static readonly string Sessions = nameof(Sessions).ToLower();
+
+        [Description("Download a copy of everything the app holds about you. Requires sign-in.")]
+        public static readonly string Privacy = nameof(Privacy).ToLower();
+
+        [Description("Upgrade your account. Requires sign-in.")]
         public static readonly string UpgradeAccount = nameof(UpgradeAccount).ToLower();
     }
 }

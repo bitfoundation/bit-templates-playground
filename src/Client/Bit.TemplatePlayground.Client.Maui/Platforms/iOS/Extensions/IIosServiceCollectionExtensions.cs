@@ -1,15 +1,23 @@
+// [mirror] per platform DI registrations of the maui project - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/Android/Extensions/IAndroidServiceCollectionExtensions.cs
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/MacCatalyst/Extensions/IMacServiceCollectionExtensions.cs
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/Windows/Extensions/IWindowsServiceCollectionExtensions.cs
+
 using Bit.TemplatePlayground.Client.Maui.Platforms.iOS.Services;
 
 namespace Microsoft.Extensions.DependencyInjection;
 
 public static partial class IIosServiceCollectionExtensions
 {
-    public static IServiceCollection AddClientMauiProjectIosServices(this IServiceCollection services, IConfiguration configuration)
+    extension(IServiceCollection services)
     {
-        // Services registered in this class can be injected in iOS.
+        public IServiceCollection AddClientMauiProjectIosServices(IConfiguration configuration)
+        {
+            // Services registered in this class can be injected in iOS.
 
-        services.AddSingleton<IPushNotificationService, iOSPushNotificationService>();
+            services.AddSingleton<IPushNotificationService, iOSPushNotificationService>();
 
-        return services;
+            return services;
+        }
     }
 }

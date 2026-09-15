@@ -1,11 +1,9 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
-
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Settings.Account;
 
 public partial class PasswordlessTab
 {
     private bool isConfigured;
+    private bool isAvailable = false;
 
 
     [AutoInject] IUserController userController = default!;
@@ -22,6 +20,7 @@ public partial class PasswordlessTab
 
         if (User?.UserName is null) return;
 
+        isAvailable = await webAuthnService.IsWebAuthnAvailable();
         isConfigured = await webAuthnService.IsWebAuthnConfigured(User.Id);
     }
 
@@ -29,6 +28,12 @@ public partial class PasswordlessTab
     private async Task EnablePasswordless()
     {
         if (User?.UserName is null) return;
+
+        // Elevate BEFORE the ceremony, not after: GetWebAuthnCredentialOptions writes a 3 minute cache entry and
+        // TryEnterElevatedAccessMode rotates the access token, so doing it first means the fresh token is what
+        // CreateWebAuthnCredential travels on and the user is never asked for a code once the passkey already exists.
+        // Short-circuits to true when the session is already elevated, so a two factor sign-in adds no prompt.
+        if (await AuthManager.TryEnterElevatedAccessMode(CurrentCancellationToken) is false) return;
 
         // Only on Android this action will replace the current credential registered on the device,
         // since android won't show the user selection window when there are multiple credentials registered.
@@ -96,7 +101,7 @@ public partial class PasswordlessTab
             isConfigured = false;
         }
 
-        var verifyResult = await identityController
+        await identityController
             .WithQueryIf(AppPlatform.IsBlazorHybrid, "origin", localHttpServer.Origin)
             .VerifyWebAuthAssertion(assertion, CurrentCancellationToken);
 

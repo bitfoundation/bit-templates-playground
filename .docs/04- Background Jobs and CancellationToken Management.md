@@ -2,6 +2,15 @@
 
 Welcome to **Stage 4** of the Bit.TemplatePlayground project tutorial! In this stage, we'll explore how the project handles **cancellation tokens** for request cancellation and **background job processing** with Hangfire.
 
+In modern web applications, managing the lifecycle of an operation is critical for resource efficiency and data integrity. A standard API request is ephemeral-it lives only as long as the client is waiting and the server is running. If a user closes their browser, clicks a cancel button, or if the server undergoes a sudden restart, ongoing HTTP requests are aborted. 
+
+To build a resilient system, developers must handle these scenarios predictably:
+1. **Discarding Unneeded Work:** Automatically tearing down database queries and tasks when a user abandons a request using `CancellationToken`.
+2. **Preventing Accidental Interruption:** Temporarily locking client navigation for short, critical actions via `NavigationLock`.
+3. **Ensuring Execution Guarantees:** Moving long-running or mission-critical operations out of the volatile HTTP request cycle entirely and offloading them to **Background Jobs** (powered by Hangfire). This ensures that even if the client disappears or the server restarts, the task is persisted and guaranteed to complete.
+
+In this stage, we will explore how this bit.templateplayground harmonizes these three pillars to keep your application efficient, safe, and reliable.
+
 ---
 
 ## Table of Contents
@@ -35,7 +44,7 @@ This ensures that server resources are not wasted processing requests that the u
 
 #### Server-Side Example
 
-Let's look at a real controller from the project - [`TodoItemController.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Todo/TodoItemController.cs):
+Let's look at a real controller from the project - [`TodoItemController.cs`](/src/Server/Bit.TemplatePlayground.Server.Api/Features/Todo/TodoItemController.cs)
 
 ```csharp
 [HttpPost]
@@ -45,7 +54,7 @@ public async Task<TodoItemDto> Create(TodoItemDto dto, CancellationToken cancell
 
     entityToAdd.UserId = User.GetUserId();
 
-    entityToAdd.Date = DateTimeOffset.UtcNow;
+    entityToAdd.UpdatedAt = TimeProvider.GetUtcNow();
 
     await DbContext.TodoItems.AddAsync(entityToAdd, cancellationToken);
 
@@ -57,7 +66,9 @@ public async Task<TodoItemDto> Create(TodoItemDto dto, CancellationToken cancell
 [HttpPut]
 public async Task<TodoItemDto> Update(TodoItemDto dto, CancellationToken cancellationToken)
 {
-    var entityToUpdate = await DbContext.TodoItems.FirstOrDefaultAsync(t => t.Id == dto.Id, cancellationToken)
+    var userId = User.GetUserId();
+
+    var entityToUpdate = await DbContext.TodoItems.FirstOrDefaultAsync(t => t.Id == dto.Id && t.UserId == userId, cancellationToken)
         ?? throw new ResourceNotFoundException(Localizer[nameof(AppStrings.ToDoItemCouldNotBeFound)]);
 
     dto.Patch(entityToUpdate);
@@ -68,18 +79,26 @@ public async Task<TodoItemDto> Update(TodoItemDto dto, CancellationToken cancell
 }
 
 [HttpDelete("{id}")]
-public async Task Delete(Guid id, CancellationToken cancellationToken)
+public async Task Delete(string id, CancellationToken cancellationToken)
 {
-    DbContext.TodoItems.Remove(new() { Id = id });
+    var userId = User.GetUserId();
 
-    var affectedRows = await DbContext.SaveChangesAsync(cancellationToken);
-
-    if (affectedRows < 1)
+    // The UserId term is what scopes the delete to the caller; one round trip.
+    if (await DbContext.TodoItems
+        .Where(t => t.Id == id && t.UserId == userId)
+        .ExecuteDeleteAsync(cancellationToken) == 0)
+    {
         throw new ResourceNotFoundException(Localizer[nameof(AppStrings.ToDoItemCouldNotBeFound)]);
+    }
 }
 ```
 
-Notice how every async operation (`AddAsync`, `SaveChangesAsync`, `FirstOrDefaultAsync`) receives the `cancellationToken` parameter. This allows Entity Framework Core to cancel database operations if the user abandons the request.
+Notice how every async operation (`AddAsync`, `SaveChangesAsync`, `FirstOrDefaultAsync`, `ExecuteDeleteAsync`) receives the `cancellationToken` parameter. This allows Entity Framework Core to cancel database operations if the user abandons the request.
+
+**Also notice the `t.UserId == userId` term in `Update` and `Delete`.** A todo item belongs to one user, so every
+write has to be scoped to the caller as well as to the id - otherwise any authenticated user holding the feature
+policy could modify another user's row just by supplying its id. Copy that shape, not just the cancellation
+token, when you write your own per-user controllers.
 
 ---
 
@@ -429,9 +448,8 @@ The job runner is registered as a scoped service so it has access to all the sam
 
 ---
 
-### AI Wiki: Answered Questions
-* [How does the Abort() method in AppComponentBase differ from component disposal, and when should developers explicitly call it versus relying on the DisposeAsync lifecycle?](https://deepwiki.com/search/how-does-the-abort-method-in-a_187b27a3-091b-4e36-9905-0bf5b128b4aa)
+### AI Wiki
 
-Ask your own question [here](https://wiki.bitplatform.dev)
+Ask your own question [here](https://bitplatform.dev/ask)
 
 ---

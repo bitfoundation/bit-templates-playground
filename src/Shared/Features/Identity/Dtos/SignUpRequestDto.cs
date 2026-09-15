@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class SignUpRequestDto : IdentityRequestDto
@@ -19,7 +19,7 @@ public partial class SignUpRequestDto : IdentityRequestDto
 
     public override IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrEmpty(Email) && string.IsNullOrEmpty(PhoneNumber))
+        if (string.IsNullOrWhiteSpace(Email) && string.IsNullOrWhiteSpace(PhoneNumber))
             yield return new ValidationResult(errorMessage: nameof(AppStrings.EitherProvideEmailOrPhoneNumber), [nameof(Email), nameof(PhoneNumber)]);
     }
 }

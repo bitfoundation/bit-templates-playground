@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui.Components.Pages;
+namespace Bit.TemplatePlayground.Client.Maui.Components.Pages;
 
 public partial class AboutPage
 {

@@ -1,5 +1,3 @@
-﻿using System.Runtime.CompilerServices;
-
 namespace Bit.TemplatePlayground.Client.Core.Components;
 
 public partial class AppComponentBase : OwningComponentBase, IAsyncDisposable
@@ -16,8 +14,10 @@ public partial class AppComponentBase : OwningComponentBase, IAsyncDisposable
 
     [AutoInject] protected JsonSerializerOptions JsonSerializerOptions = default!;
 
+    [AutoInject] protected TimeProvider TimeProvider = default!;
+
     /// <summary>
-    /// <inheritdoc cref="Services.PubSubService"/>
+    /// <inheritdoc cref="Infrastructure.Services.PubSubService"/>
     /// </summary>
     [AutoInject] protected PubSubService PubSubService = default!;
 
@@ -29,13 +29,18 @@ public partial class AppComponentBase : OwningComponentBase, IAsyncDisposable
 
     [AutoInject] protected IStringLocalizer<AppStrings> Localizer = default!;
 
-    [AutoInject] protected IExceptionHandler ExceptionHandler = default!;
+    [AutoInject] protected ClientExceptionHandlerBase ExceptionHandler = default!;
 
     [AutoInject] protected AuthManager AuthManager = default!;
 
     [AutoInject] protected SnackBarService SnackBarService = default!;
 
     [AutoInject] protected ITelemetryContext TelemetryContext = default!;
+
+    /// <summary>
+    /// <inheritdoc cref="Infrastructure.Services.TimeZoneService"/>
+    /// </summary>
+    [AutoInject] protected TimeZoneService TimeZoneService = default!;
 
     /// <summary>
     /// <inheritdoc cref="ISharedServiceCollectionExtensions.ConfigureAuthorizationCore"/>
@@ -54,7 +59,7 @@ public partial class AppComponentBase : OwningComponentBase, IAsyncDisposable
         get
         {
             if (cts == null)
-                throw new OperationCanceledException(); // Component already disposed.
+                throw new OperationCanceledException("Component already disposed.");
             cts.Token.ThrowIfCancellationRequested();
             return cts.Token;
         }
@@ -263,8 +268,12 @@ public partial class AppComponentBase : OwningComponentBase, IAsyncDisposable
         await currentCts.TryCancel();
     }
 
+    private bool disposed;
     public async ValueTask DisposeAsync()
     {
+        if (disposed) return;
+        disposed = true;
+
         try
         {
             if (cts != null)
@@ -300,7 +309,7 @@ public partial class AppComponentBase : OwningComponentBase, IAsyncDisposable
         {
             parameters[nameof(InPrerenderSession)] = InPrerenderSession;
         }
-        if (string.IsNullOrEmpty(argExpression) is false)
+        if (string.IsNullOrWhiteSpace(argExpression) is false)
         {
             parameters["Expression"] = argExpression;
         }

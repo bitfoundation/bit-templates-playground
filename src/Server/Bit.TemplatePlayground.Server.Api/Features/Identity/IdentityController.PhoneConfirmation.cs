@@ -1,7 +1,4 @@
-﻿using Humanizer;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 
@@ -9,7 +6,7 @@ public partial class IdentityController
 {
     [AutoInject] private PhoneService phoneService = default!;
 
-    [HttpPost]
+    [HttpPost, EnableRateLimiting(RateLimitOptionsExtensions.IDENTITY)]
     public async Task SendConfirmPhoneToken(SendPhoneTokenRequestDto request, CancellationToken cancellationToken)
     {
         request.PhoneNumber = phoneService.NormalizePhoneNumber(request.PhoneNumber);
@@ -29,15 +26,16 @@ public partial class IdentityController
         var user = await userManager.FindByPhoneNumber(request.PhoneNumber!)
             ?? throw new BadRequestException(Localizer[nameof(AppStrings.UserNotFound)]).WithData("PhoneNumber", request.PhoneNumber);
 
-        var expired = (DateTimeOffset.Now - user.PhoneNumberTokenRequestedOn) > AppSettings.Identity.PhoneNumberTokenLifetime;
+        var expired = user.PhoneNumberTokenRequestedOn is null ||
+                      (TimeProvider.GetUtcNow() - user.PhoneNumberTokenRequestedOn.Value) > AppSettings.Identity.PhoneNumberTokenLifetime;
 
         if (expired)
             throw new BadRequestException(nameof(AppStrings.ExpiredToken)).WithData("UserId", user.Id);
 
         if (await userManager.IsLockedOutAsync(user))
         {
-            var tryAgainIn = (user.LockoutEnd! - DateTimeOffset.UtcNow).Value;
-            throw new BadRequestException(Localizer[nameof(AppStrings.UserLockedOut), (DateTimeOffset.UtcNow - user.LockoutEnd!).Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithData("UserId", user.Id).WithExtensionData("TryAgainIn", tryAgainIn);
+            var tryAgainIn = (user.LockoutEnd! - TimeProvider.GetUtcNow()).Value;
+            throw new BadRequestException(Localizer[nameof(AppStrings.UserLockedOut), (TimeProvider.GetUtcNow() - user.LockoutEnd!).Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithData("UserId", user.Id).WithExtensionData("TryAgainIn", tryAgainIn);
         }
 
         var tokenIsValid = await userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"VerifyPhoneNumber:{request.PhoneNumber},{user.PhoneNumberTokenRequestedOn?.ToUniversalTime()}"), request.Token!);
@@ -58,7 +56,7 @@ public partial class IdentityController
         if (updateResult.Succeeded is false)
             throw new ResourceValidationException(updateResult.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray()).WithData("UserId", user.Id);
 
-        var token = await userManager.GenerateUserTokenAsync(user, TokenOptions.DefaultPhoneProvider, FormattableString.Invariant($"Otp_Sms,{user.OtpRequestedOn?.ToUniversalTime()}"));
+        var (token, _) = await GenerateAutomaticSignInLink(user, returnUrl: null, originalAuthenticationMethod: "Sms");
 
         await SignIn(new() { PhoneNumber = request.PhoneNumber, Otp = token }, cancellationToken);
     }
@@ -66,12 +64,12 @@ public partial class IdentityController
 
     private async Task SendConfirmPhoneToken(User user, CancellationToken cancellationToken)
     {
-        var resendDelay = (DateTimeOffset.Now - user.PhoneNumberTokenRequestedOn) - AppSettings.Identity.PhoneNumberTokenLifetime;
+        var resendDelay = (TimeProvider.GetUtcNow() - user.PhoneNumberTokenRequestedOn) - AppSettings.Identity.PhoneNumberTokenLifetime;
 
         if (resendDelay < TimeSpan.Zero)
             throw new TooManyRequestsException(Localizer[nameof(AppStrings.WaitForPhoneNumberTokenRequestResendDelay), resendDelay.Value.Humanize(culture: CultureInfo.CurrentUICulture)]).WithData("UserId", user.Id).WithExtensionData("TryAgainIn", resendDelay);
 
-        user.PhoneNumberTokenRequestedOn = DateTimeOffset.Now;
+        user.PhoneNumberTokenRequestedOn = TimeProvider.GetUtcNow();
         var result = await userManager.UpdateAsync(user);
 
         if (result.Succeeded is false)

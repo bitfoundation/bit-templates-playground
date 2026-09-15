@@ -1,15 +1,12 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
-using Bit.TemplatePlayground.Shared.Features.Identity;
-using Microsoft.AspNetCore.SignalR;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 using Bit.TemplatePlayground.Server.Api.Features.PushNotification;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 
 [ApiVersion(1)]
 [ApiController, Route("api/v{v:apiVersion}/[controller]/[action]")]
-[Authorize(Policy = AppFeatures.Management.ManageRoles)]
+[Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS),
+    Authorize(Policy = AuthPolicies.TENANT_SELECTED),
+    Authorize(Policy = AppFeatures.Management.Roles_Manage)]
 public partial class RoleManagementController : AppControllerBase, IRoleManagementController
 {
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
@@ -23,31 +20,64 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     [HttpGet, EnableQuery]
     public IQueryable<RoleDto> GetAllRoles()
     {
-        var isUserSuperAdmin = User.IsInRole(AppRoles.SuperAdmin);
+        var currentTenantId = User.GetTenantId();
+        var canManageAllTenants = User.HasFeature(AppFeatures.Management.Tenants_Manage_Global);
 
         return roleManager.Roles
-                          .WhereIf(isUserSuperAdmin is false, r => r.Name != AppRoles.SuperAdmin)
+                          // Non Global admins may only see the roles of the current tenant.
+                          .WhereIf(canManageAllTenants is false, r => r.TenantId == currentTenantId)
+                          // A global admin sees every tenant's roles only while NO tenant is selected; once one is, the
+                          // list narrows to that tenant's roles plus the global ones (g-admin), which is the same
+                          // scoping UserClaimsService applies when it builds a token. Otherwise the page grows by one
+                          // t-admin (and one demo, ...) per tenant and stops being usable.
+                          .WhereIf(canManageAllTenants && currentTenantId is not null, r => r.TenantId == null || r.TenantId == currentTenantId)
                           .Project();
     }
 
     [HttpGet, EnableQuery]
     public IQueryable<UserDto> GetAllUsers()
     {
-        return userManager.Users
-                          .Where(u => u.EmailConfirmed || u.PhoneNumberConfirmed || u.Logins.Any() /*External sign-in*/)
-                          .Project();
+        var query = userManager.Users
+                          .Where(u => u.EmailConfirmed || u.PhoneNumberConfirmed || u.Logins.Any() /*External sign-in*/);
+
+        if (User.HasFeature(AppFeatures.Management.Tenants_Manage_Global) is false)
+        {
+            // Non Global admins may only see the users of the current tenant that have accepted their invitation.
+            var tenantId = User.GetTenantId();
+            query = query.Where(u => u.Tenants.Any(tu => tu.TenantId == tenantId && tu.AcceptedOn != null));
+        }
+
+        return query.Project();
     }
 
     [HttpGet("{roleId}"), EnableQuery]
     public IQueryable<UserDto> GetUsers(Guid roleId)
     {
-        return userManager.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId)).Project();
+        var query = userManager.Users.Where(u => u.Roles.Any(r => r.RoleId == roleId));
+
+        if (User.HasFeature(AppFeatures.Management.Tenants_Manage_Global) is false)
+        {
+            var tenantId = User.GetTenantId();
+            query = query.Where(u => u.Roles.Any(r => r.RoleId == roleId && r.Role!.TenantId == tenantId)
+                                     && u.Tenants.Any(tu => tu.TenantId == tenantId && tu.AcceptedOn != null));
+        }
+
+        return query.Project();
     }
 
     [HttpGet("{roleId}"), EnableQuery]
     public IQueryable<ClaimDto> GetClaims(Guid roleId)
     {
-        return DbContext.RoleClaims.Where(rc => rc.RoleId == roleId).Project();
+        var query = DbContext.RoleClaims.Where(rc => rc.RoleId == roleId);
+
+        if (User.HasFeature(AppFeatures.Management.Tenants_Manage_Global) is false)
+        {
+            // Non Global admins may only see the roles of the current tenant.
+            var tenantId = User.GetTenantId();
+            query = query.Where(rc => rc.Role!.TenantId == tenantId);
+        }
+
+        return query.Project();
     }
 
     [HttpPost]
@@ -55,6 +85,11 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     public async Task<RoleDto> Create(RoleDto roleDto, CancellationToken cancellationToken)
     {
         var role = roleDto.Map();
+
+        if (AppRoles.IsBuiltInRole(role.Name!))
+            throw new BadRequestException(Localizer[nameof(AppStrings.CanNotChangeBuiltInRole), role.Name!]);
+
+        role.TenantId = User.GetTenantId();
 
         var result = await roleManager.CreateAsync(role);
 
@@ -70,7 +105,11 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = await GetRoleById(roleDto.Id, cancellationToken);
 
-        if (AppRoles.IsBuiltInRole(role.Name!))
+        // Checked BEFORE Patch, against BOTH names: role.Name blocks editing/renaming an existing built-in role (e.g.
+        // renaming t-admin/g-admin away, which would strip everyone's admin features), and roleDto.Name blocks renaming a
+        // custom role TO a reserved built-in name (which would escalate to global admin, since built-in names become
+        // elevated feature grants at token-read time - See AppJwtSecureDataFormat.Unprotect).
+        if (AppRoles.IsBuiltInRole(role.Name!) || AppRoles.IsBuiltInRole(roleDto.Name!))
             throw new BadRequestException(Localizer[nameof(AppStrings.CanNotChangeBuiltInRole), role.Name!]);
 
         roleDto.Patch(role);
@@ -103,8 +142,32 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
 
         var role = await GetRoleById(roleId, cancellationToken);
 
-        if (role.Name == AppRoles.SuperAdmin)
-            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
+        EnsureRoleClaimsAreEditable(role);
+
+        EnsureCallerCanGrantClaims(claims);
+
+        // A role may hold at most one row of a single valued claim type, which is what lets every reader (and the roles
+        // page) treat it as a single value. Two rows have to be rejected rather than silently accepted - the unique
+        // index on (RoleId, ClaimType, ClaimValue) only stops an identical duplicate, not two different values.
+        // Both sources have to be checked: what the role already holds, AND what this one request carries twice.
+        EnsureSingleValuedClaimsAreNotRepeated(claims);
+
+        foreach (var claimType in SingleValuedClaimTypesIn(claims))
+        {
+            if (await DbContext.RoleClaims.AnyAsync(rc => rc.RoleId == role.Id && rc.ClaimType == claimType, cancellationToken))
+                throw new BadRequestException().WithData("Reason", $"The role already has a '{claimType}' claim. Use UpdateClaims to change its value.");
+        }
+
+        var duplicatePairInRequest = claims.GroupBy(c => (c.ClaimType, c.ClaimValue)).FirstOrDefault(g => g.Count() > 1);
+
+        if (duplicatePairInRequest is not null)
+            throw new BadRequestException().WithData("Reason", $"The claim '{duplicatePairInRequest.Key.ClaimType}' with value '{duplicatePairInRequest.Key.ClaimValue}' is listed more than once.");
+
+        foreach (var claim in claims)
+        {
+            if (await DbContext.RoleClaims.AnyAsync(rc => rc.RoleId == role.Id && rc.ClaimType == claim.ClaimType && rc.ClaimValue == claim.ClaimValue, cancellationToken))
+                throw new BadRequestException().WithData("Reason", $"The role already has the claim '{claim.ClaimType}' with value '{claim.ClaimValue}'.");
+        }
 
         foreach (var claim in claims)
         {
@@ -121,21 +184,46 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = await GetRoleById(roleId, cancellationToken);
 
-        if (role.Name == AppRoles.SuperAdmin)
-            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
+        EnsureRoleClaimsAreEditable(role);
+
+        EnsureCallerCanGrantClaims(claims);
+
+        EnsureSingleValuedClaimsAreNotRepeated(claims);
 
         foreach (var claim in claims)
         {
-            var result = await roleManager.RemoveClaimAsync(role, new(claim.ClaimType!, claim.ClaimValue!));
-
-            if (result.Succeeded is false)
-                throw new ResourceValidationException(result.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray());
-
-            result = await roleManager.AddClaimAsync(role, new(claim.ClaimType!, claim.ClaimValue!));
-
-            if (result.Succeeded is false)
-                throw new ResourceValidationException(result.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray());
+            await DbContext.RoleClaims.AddAsync(new()
+            {
+                RoleId = role.Id,
+                ClaimType = claim.ClaimType,
+                ClaimValue = claim.ClaimValue
+            }, cancellationToken);
         }
+
+        await DbContext.Database.CreateExecutionStrategy().ExecuteAsync(async () =>
+        {
+            await using var transaction = await DbContext.Database.BeginTransactionAsync(cancellationToken);
+
+            foreach (var claim in claims)
+            {
+                if (singleValuedClaimTypes.Contains(claim.ClaimType))
+                {
+                    await DbContext.RoleClaims
+                        .Where(rc => rc.RoleId == role.Id && rc.ClaimType == claim.ClaimType)
+                        .ExecuteDeleteAsync(cancellationToken);
+                }
+                else
+                {
+                    await DbContext.RoleClaims
+                        .Where(rc => rc.RoleId == role.Id && rc.ClaimType == claim.ClaimType && rc.ClaimValue == claim.ClaimValue)
+                        .ExecuteDeleteAsync(cancellationToken);
+                }
+            }
+
+            await DbContext.SaveChangesAsync(cancellationToken); // Saves Added role claims above.
+
+            await transaction.CommitAsync(cancellationToken);
+        });
     }
 
     [HttpPost("{roleId}")]
@@ -144,8 +232,13 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = await GetRoleById(roleId, cancellationToken);
 
-        if (role.Name == AppRoles.SuperAdmin)
-            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
+        EnsureRoleClaimsAreEditable(role);
+
+        foreach (var claim in claims)
+        {
+            if (grantableClaimTypes.Contains(claim.ClaimType) is false || claim.ClaimValue is null)
+                throw new BadRequestException().WithData("Reason", $"'{claim.ClaimType}' is not a claim type this endpoint manages.");
+        }
 
         foreach (var claim in claims)
         {
@@ -161,36 +254,47 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     public async Task ToggleUserRole(UserRoleDto dto, CancellationToken cancellationToken)
     {
         var user = await userManager.FindByIdAsync(dto.UserId.ToString())
-            ?? throw new ResourceNotFoundException();
+            ?? throw new ResourceNotFoundException().WithData("Reason", "User not found.");
 
-        var role = await roleManager.FindByIdAsync(dto.RoleId.ToString())
-            ?? throw new ResourceNotFoundException();
+        var role = await GetRoleById(dto.RoleId, cancellationToken);
 
-        var isSuperAdminRole = role.Name == AppRoles.SuperAdmin;
-        var isSuperAdminUser = User.IsInRole(AppRoles.SuperAdmin);
+        var isGlobalAdminRole = role.Name == AppRoles.GlobalAdmin;
+        var isGlobalAdminUser = User.IsInRole(AppRoles.GlobalAdmin);
 
-        if (isSuperAdminRole && isSuperAdminUser is false)
+        if (isGlobalAdminRole && isGlobalAdminUser is false)
             throw new UnauthorizedException();
 
-        if (await userManager.IsInRoleAsync(user, role.Name!))
+        // Non Global admins may only toggle roles on users of the current tenant that have accepted their invitation.
+        if (User.HasFeature(AppFeatures.Management.Tenants_Manage_Global) is false)
         {
-            if (isSuperAdminRole)
-            {
-                var otherSuperAdminsCount = await userManager.Users.CountAsync(u => u.Roles.Any(r => r.RoleId == role.Id) && u.Id != user.Id, cancellationToken);
+            var tenantId = User.GetTenantId();
 
-                if (otherSuperAdminsCount == 0)
+            if (await DbContext.TenantUsers.AnyAsync(tu => tu.UserId == user.Id && tu.TenantId == tenantId && tu.AcceptedOn != null, cancellationToken) is false)
+                throw new ResourceNotFoundException().WithData("Reason", "User not found in the current tenant.");
+        }
+
+        // userManager.AddToRoleAsync/RemoveFromRoleAsync find the role by its name which is not unique under multi-tenant
+        // (each tenant has its own t-admin role for example), so the UserRoles are managed directly here.
+        var userRole = await DbContext.UserRoles.FirstOrDefaultAsync(ur => ur.UserId == user.Id && ur.RoleId == role.Id, cancellationToken);
+
+        if (userRole is not null)
+        {
+            if (isGlobalAdminRole)
+            {
+                var otherGlobalAdminsCount = await userManager.Users.CountAsync(u => u.Roles.Any(r => r.RoleId == role.Id) && u.Id != user.Id, cancellationToken);
+
+                if (otherGlobalAdminsCount == 0)
                     throw new BadRequestException(Localizer[nameof(AppStrings.UserCantUnassignAllSuperAdminsErrorMessage)]);
             }
-            var result = await userManager.RemoveFromRoleAsync(user, role.Name!);
-            if (result.Succeeded is false)
-                throw new ResourceValidationException(result.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray());
+
+            DbContext.UserRoles.Remove(userRole);
         }
         else
         {
-            var result = await userManager.AddToRoleAsync(user, role.Name!);
-            if (result.Succeeded is false)
-                throw new ResourceValidationException(result.Errors.Select(e => new LocalizedString(e.Code, e.Description)).ToArray());
+            await DbContext.UserRoles.AddAsync(new() { UserId = user.Id, RoleId = role.Id, TenantId = role.TenantId }, cancellationToken);
         }
+
+        await DbContext.SaveChangesAsync(cancellationToken);
     }
 
     [HttpPost("{roleId}")]
@@ -199,16 +303,41 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
     {
         var role = await GetRoleById(roleId, cancellationToken);
 
-        await DbContext.UserRoles.Where(ur => ur.RoleId == roleId).ExecuteDeleteAsync(cancellationToken);
+        // Emptying any other role - including demo and t-admin - is a legitimate bulk operation. g-admin is not: this
+        // deletes every assignment at once, so it always removes the LAST global admin, which is exactly what
+        // ToggleUserRole refuses to do one row at a time. Afterwards nobody can grant g-admin back either, because
+        // doing so itself requires being a global admin - so the deployment is locked out with no in-app way back.
+        if (role.Name == AppRoles.GlobalAdmin)
+        {
+            if (User.IsInRole(AppRoles.GlobalAdmin) is false)
+                throw new UnauthorizedException();
+
+            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantUnassignAllSuperAdminsErrorMessage)]);
+        }
+
+        await DbContext.UserRoles.Where(ur => ur.RoleId == role.Id).ExecuteDeleteAsync(cancellationToken);
     }
 
     [HttpPost]
     [Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task SendNotification(SendNotificationToRoleDto dto, CancellationToken cancellationToken)
     {
+        // Ensure the target role exists and (for non global admins) belongs to the caller's tenant before broadcasting
+        // to its users - otherwise a tenant admin could push an in-app notification to another tenant's users.
+        var role = await GetRoleById(dto.RoleId, cancellationToken);
+
+        // The page url ends up in a push notification payload, and clicking that notification navigates the app
+        // (or opens a window) at it. An absolute url would take the user off origin, inside the app's own chrome
+        // and carrying the app's own name and icon, which is a phishing primitive - so keep it app relative.
+        if (dto.PageUrl is not null && Uri.IsAppRelativeUrl(dto.PageUrl) is false)
+            throw new BadRequestException(Localizer[nameof(AppStrings.InvalidPageUrl)]);
+
         var signalRConnectionIds = await DbContext.UserSessions.Where(us => us.NotificationStatus == UserSessionNotificationStatus.Allowed &&
                                                                             us.SignalRConnectionId != null &&
                                                                             us.User!.Roles.Any(r => r.RoleId == dto.RoleId))
+                                                               // A tenant scoped role only notifies the sessions currently signed into that tenant, so a user holding
+                                                               // tenant A's role but signed into tenant B doesn't receive it on her tenant B session (global roles notify all).
+                                                               .Where(us => role.TenantId == null || us.TenantId == role.TenantId)
                                                                .Select(us => us.SignalRConnectionId!).ToArrayAsync(cancellationToken);
 
         await appHubContext.Clients.Clients(signalRConnectionIds)
@@ -220,16 +349,97 @@ public partial class RoleManagementController : AppControllerBase, IRoleManageme
             PageUrl = dto.PageUrl,
             UserRelatedPush = true,
             RequesterUserSessionId = User.GetSessionId()
-        }, customSubscriptionFilter: s => s.UserSession!.User!.Roles.Any(r => r.RoleId == dto.RoleId),
-                                                  cancellationToken: cancellationToken);
+        }, customSubscriptionFilter: s => s.UserSession!.User!.Roles.Any(r => r.RoleId == dto.RoleId)
+                                          // Same tenant scoping as the SignalR recipients above: a tenant scoped role only pushes to the sessions signed into that tenant.
+                                          && (role.TenantId == null || s.UserSession!.TenantId == role.TenantId)
+                                          , cancellationToken: cancellationToken);
     }
 
 
     private async Task<Role> GetRoleById(Guid id, CancellationToken cancellationToken)
     {
         var role = await roleManager.Roles.FirstOrDefaultAsync(r => r.Id == id, cancellationToken)
-                    ?? throw new ResourceNotFoundException();
+                    ?? throw new ResourceNotFoundException().WithData("Reason", "Role not found.");
+
+        // Non Global admins may only manage the roles of the current tenant.
+        if (User.HasFeature(AppFeatures.Management.Tenants_Manage_Global) is false && role.TenantId != User.GetTenantId())
+            throw new ResourceNotFoundException().WithData("Reason", "Role not found in the current tenant.");
 
         return role;
     }
+
+    private void EnsureRoleClaimsAreEditable(Role role)
+    {
+        if (role.Name is AppRoles.GlobalAdmin
+            or AppRoles.TenantAdmin
+            )
+            throw new BadRequestException(Localizer[nameof(AppStrings.UserCantChangeSuperAdminRoleClaimsErrorMessage)]);
+    }
+
+    /// <summary>
+    /// The only claim types the role management UI (RolesPage) ever sets: a feature, or the max number of privileged
+    /// sessions. There is no reason to accept anything else, so this is an allow-list rather than a block-list.
+    /// Accepting an arbitrary claim type would be dangerous: role claims are copied verbatim into the access token
+    /// (AppUserClaimsPrincipalFactory.GenerateClaims), so a caller could set ClaimType = ClaimTypes.Role,
+    /// ClaimValue = "g-admin" on a role and be granted every feature at token-read time
+    /// (See AppJwtSecureDataFormat.Unprotect) - a full privilege escalation.
+    /// </summary>
+    private static readonly string[] grantableClaimTypes = [AppClaimTypes.FEATURES, AppClaimTypes.MAX_PRIVILEGED_SESSIONS];
+
+    /// <summary>
+    /// Claim types a role may hold at most one of, so <see cref="UpdateClaims"/> replaces them by type rather than by
+    /// (type, value). <see cref="AppClaimTypes.FEATURES"/> is deliberately absent: a role holds one row per feature.
+    /// </summary>
+    private static readonly string[] singleValuedClaimTypes = [AppClaimTypes.MAX_PRIVILEGED_SESSIONS];
+
+    private static IEnumerable<string?> SingleValuedClaimTypesIn(List<ClaimDto> claims)
+    {
+        return claims.Where(c => singleValuedClaimTypes.Contains(c.ClaimType)).Select(c => c.ClaimType).Distinct();
+    }
+
+    /// <summary>
+    /// A role holds a single value for these claim types, so one request may not carry the same type twice - otherwise
+    /// which of the two values ends up stored is decided by the order they happen to appear in.
+    /// </summary>
+    private static void EnsureSingleValuedClaimsAreNotRepeated(List<ClaimDto> claims)
+    {
+        foreach (var claimType in SingleValuedClaimTypesIn(claims))
+        {
+            if (claims.Count(c => c.ClaimType == claimType) > 1)
+                throw new BadRequestException().WithData("Reason", $"'{claimType}' may only be sent once - a role holds a single value for it.");
+        }
+    }
+
+    /// <summary>
+    /// A role manager may only grant the claim types in <see cref="grantableClaimTypes"/>, and may only grant feature
+    /// claims they themselves possess - so they cannot escalate privileges by assigning a feature they lack, for example
+    /// a <see cref="AppFeatures.System"/> feature or (under multi-tenant) the global-admin-only Tenants_Manage_Global.
+    /// </summary>
+    private void EnsureCallerCanGrantClaims(IEnumerable<ClaimDto> claims)
+    {
+        foreach (var claim in claims)
+        {
+            if (grantableClaimTypes.Contains(claim.ClaimType) is false)
+                throw new UnauthorizedException().WithData("Reason", $"The claim type '{claim.ClaimType}' cannot be granted to a role.");
+
+            if (claim.ClaimType is AppClaimTypes.FEATURES && User.HasFeature(claim.ClaimValue!) is false)
+                throw new UnauthorizedException().WithData("Reason", $"Caller does not have the feature claim '{claim.ClaimValue}' and cannot grant it to a role.");
+
+            if (claim.ClaimType is AppClaimTypes.MAX_PRIVILEGED_SESSIONS)
+            {
+                if (int.TryParse(claim.ClaimValue, CultureInfo.InvariantCulture, out var maxPrivilegedSessions) is false)
+                    throw new BadRequestException().WithData("Reason", $"The claim '{AppClaimTypes.MAX_PRIVILEGED_SESSIONS}' must be a number.");
+
+                var callerMaxPrivilegedSessions = User.GetClaimValue<int?>(AppClaimTypes.MAX_PRIVILEGED_SESSIONS) ?? AppSettings.Identity.MaxPrivilegedSessionsCount;
+
+                if (maxPrivilegedSessions is not AppClaimTypes.UNLIMITED_PRIVILEGED_SESSIONS && maxPrivilegedSessions < 1)
+                    throw new BadRequestException().WithData("Reason", $"The claim '{AppClaimTypes.MAX_PRIVILEGED_SESSIONS}' must be a positive number or {AppClaimTypes.UNLIMITED_PRIVILEGED_SESSIONS} (unlimited).");
+
+                if (callerMaxPrivilegedSessions is not AppClaimTypes.UNLIMITED_PRIVILEGED_SESSIONS &&
+                    (maxPrivilegedSessions is AppClaimTypes.UNLIMITED_PRIVILEGED_SESSIONS || maxPrivilegedSessions > callerMaxPrivilegedSessions))
+                    throw new UnauthorizedException().WithData("Reason", $"Caller cannot grant a '{AppClaimTypes.MAX_PRIVILEGED_SESSIONS}' value higher than their own.");
+            }
+        }
+    }
 }
+

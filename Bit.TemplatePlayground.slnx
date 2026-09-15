@@ -21,10 +21,11 @@
   </Folder>
   <Folder Name="/.SolutionItems/.github/" />
   <Folder Name="/.SolutionItems/.github/agents/">
-    <File Path=".github/agents/resx.agent.md" />
-	<File Path=".github/agents/code-reviewer.agent.md" />
-    <File Path=".github/agents/bitify.agent.md" />
-    <File Path=".github/agents/scaffold.agent.md" />
+    <File Path=".github/agents/ai-dlc.agent.md" />
+    <File Path=".github/agents/bitify-ui.agent.md" />
+    <File Path=".github/agents/localize-strings.agent.md" />
+    <File Path=".github/agents/review.agent.md" />
+    <File Path=".github/agents/scaffold-entity.agent.md" />
   </Folder>
   <Folder Name="/.SolutionItems/.docs/">
     <File Path=".docs/00- Wiki.md" />
@@ -45,7 +46,7 @@
     <File Path=".docs/15- Logging, OpenTelemetry and Health Checks.md" />
     <File Path=".docs/16- CI-CD Pipeline and Environments.md" />
     <File Path=".docs/17- Automated Testing (Unitigration Tests).md" />
-    <File Path=".docs/18- Other Available Prompt Templates.md" />
+    <File Path=".docs/18- Available Agent Skills.md" />
     <File Path=".docs/19- Project Miscellaneous Files.md" />
     <File Path=".docs/20- .NET Aspire.md" />
     <File Path=".docs/21- .NET MAUI - Blazor Hybrid.md" />
@@ -64,6 +65,10 @@
     <Project Path="src/Server/Bit.TemplatePlayground.Server.Api/Bit.TemplatePlayground.Server.Api.csproj" />
     <Project Path="src/Server/Bit.TemplatePlayground.Server.Shared/Bit.TemplatePlayground.Server.Shared.csproj" />
     <Project Path="src/Server/Bit.TemplatePlayground.Server.AppHost/Bit.TemplatePlayground.Server.AppHost.csproj" />
+  </Folder>
+  <Folder Name="/.SolutionItems/.grafana/">
+    <File Path=".grafana/dashboard.json" />
+    <File Path=".grafana/README.md" />
   </Folder>
   <Folder Name="/Client/">
     <Project Path="src/Client/Bit.TemplatePlayground.Client.Core/Bit.TemplatePlayground.Client.Core.csproj" />

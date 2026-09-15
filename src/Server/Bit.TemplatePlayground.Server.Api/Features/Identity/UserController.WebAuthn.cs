@@ -1,7 +1,5 @@
-﻿using System.Text;
 using Fido2NetLib;
 using Fido2NetLib.Objects;
-using Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity;
 
@@ -16,9 +14,11 @@ public partial class UserController
     {
         var userId = User.GetUserId();
         var user = await userManager.FindByIdAsync(userId.ToString())
-                    ?? throw new ResourceNotFoundException();
+                    ?? throw new ResourceNotFoundException().WithData("Reason", "User not found.");
 
-        var existingCredentials = DbContext.WebAuthnCredential.Where(c => c.UserId == userId);
+        var existingCredentials = await DbContext.WebAuthnCredential.Where(c => c.UserId == userId)
+                                                                    .Select(c => new { c.Id, c.Transports })
+                                                                    .ToArrayAsync(cancellationToken);
         var existingKeys = existingCredentials.Select(c => new PublicKeyCredentialDescriptor(PublicKeyCredentialType.PublicKey, c.Id, c.Transports));
         var fidoUser = new Fido2User
         {
@@ -45,6 +45,10 @@ public partial class UserController
         var options = fido2.RequestNewCredential(new RequestNewCredentialParams
         {
             User = fidoUser,
+            // Deliberately EMPTY. A user is expected to enrol a passkey on several devices, and existingKeys holds
+            // the credentials from ALL of them - passing it would make the authenticator answer InvalidStateError
+            // whenever this device already holds one, permanently blocking re-enrolment for anyone whose local
+            // flag was cleared (reinstall, cleared storage) while the server row survived.
             ExcludeCredentials = [], //[.. existingKeys],
             AuthenticatorSelection = authenticatorSelection,
             AttestationPreference = AttestationConveyancePreference.None,
@@ -53,22 +57,28 @@ public partial class UserController
 
         var key = GetWebAuthnCacheKey(userId);
         await cache.SetAsync(key, options,
-            options => options.Duration = TimeSpan.FromMinutes(3),
+            options => options.SetDuration(TimeSpan.FromMinutes(3)).SetPriority(CacheItemPriority.NeverRemove),
             cancellationToken);
 
         return options;
     }
 
-    [HttpPut]
+    /// <summary>
+    /// Enrolling a passkey adds a NEW way to sign in, so it belongs with the other account-factor changes behind elevated
+    /// access (compare <see cref="Delete"/>, <see cref="ChangeUserName"/> and <see cref="RevokeSession"/>). Without this,
+    /// an access token stolen for a few minutes buys a credential that survives a password change AND revoking every
+    /// session, because nothing on those paths touches WebAuthnCredential - and the account owner has no UI that lists it.
+    /// </summary>
+    [HttpPut, Authorize(Policy = AuthPolicies.ELEVATED_ACCESS)]
     public async Task CreateWebAuthnCredential(AuthenticatorAttestationRawResponse attestationResponse, CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
         var user = await userManager.FindByIdAsync(userId.ToString())
-                    ?? throw new ResourceNotFoundException();
+                    ?? throw new ResourceNotFoundException().WithData("Reason", "User not found.");
 
         var key = GetWebAuthnCacheKey(userId);
         var options = await cache.GetOrSetAsync<CredentialCreateOptions>(key,
-            async _ => throw new ResourceNotFoundException(),
+            async _ => throw new ResourceNotFoundException().WithData("Reason", "WebAuthn credential options not found."),
             token: cancellationToken);
 
 
@@ -88,7 +98,7 @@ public partial class UserController
             PublicKey = credential.PublicKey,
             UserHandle = credential.User.Id,
             SignCount = credential.SignCount,
-            RegDate = DateTimeOffset.UtcNow,
+            RegDate = TimeProvider.GetUtcNow(),
             AaGuid = credential.AaGuid,
             Transports = credential.Transports,
             AttestationFormat = credential.AttestationFormat,
@@ -109,15 +119,13 @@ public partial class UserController
     public async Task DeleteWebAuthnCredential(AuthenticatorAssertionRawResponse assertionResponse, CancellationToken cancellationToken)
     {
         var userId = User.GetUserId();
-        var user = await userManager.FindByIdAsync(userId.ToString())
-                    ?? throw new ResourceNotFoundException();
 
         var affectedRows = await DbContext.WebAuthnCredential
-            .Where(webAuthCred => webAuthCred.Id == assertionResponse.RawId)
+            .Where(webAuthCred => webAuthCred.Id == assertionResponse.RawId && webAuthCred.UserId == userId)
             .ExecuteDeleteAsync(cancellationToken);
 
         if (affectedRows == 0)
-            throw new ResourceNotFoundException();
+            throw new ResourceNotFoundException().WithData("Reason", "WebAuthn credential not found.");
     }
 
     private static string GetWebAuthnCacheKey(Guid userId) => $"WebAuthn_Options_{userId}";

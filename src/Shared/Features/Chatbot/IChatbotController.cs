@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
+namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 [AuthorizedApi]
 [Route("api/v1/[controller]/[action]/")]
@@ -9,4 +9,7 @@ public interface IChatbotController : IAppController
 
     [HttpPost]
     Task<SystemPromptDto> UpdateSystemPrompt(SystemPromptDto dto, CancellationToken cancellationToken);
+
+    [HttpPost]
+    Task<StartVoiceCallResponseDto> StartVoiceCall(StartVoiceCallRequestDto request, CancellationToken cancellationToken);
 }

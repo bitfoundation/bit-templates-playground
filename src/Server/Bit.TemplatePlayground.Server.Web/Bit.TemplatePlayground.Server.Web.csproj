@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
-        <UserSecretsId>E2CB5677-5539-49C9-AFFA-977AA706B293</UserSecretsId>
+        <UserSecretsId>ACCF4E6A-05F7-420E-AFED-9BF9179430F9</UserSecretsId>
         <ValidateExecutableReferencesMatchSelfContained>false</ValidateExecutableReferencesMatchSelfContained>
     </PropertyGroup>
 
@@ -11,6 +11,10 @@
         <PublishReadyToRun>true</PublishReadyToRun>
         <PublishReadyToRunComposite>true</PublishReadyToRunComposite>
     </PropertyGroup>
+
+    <ItemGroup>
+        <Using Include="Bit.TemplatePlayground.Client.Core.Infrastructure.Services" />
+    </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Bit.BlazorES2019" />
@@ -25,12 +29,8 @@
         <!-- By referencing Client.Core in Server.Web project, you can build the Client.Web project just once and then unload it during development with Blazor Server, which significantly speeds up build times. -->
     </ItemGroup>
 
-    <ItemGroup Condition="'$(Environment)' == 'Development'">
-        <!-- Check out  ScssCompilerService.cs source code. -->
-        <PackageReference Include="Meziantou.Framework.Win32.Jobs" />
-    </ItemGroup>
     <ItemGroup Condition="'$(Environment)' != 'Development'">
-        <Compile Remove="Infrastructure\Services\ScssCompilerService.cs" />
+        <Compile Remove="Infrastructure\Services\FileWatcherService.cs" />
     </ItemGroup>
 
     <ItemGroup>

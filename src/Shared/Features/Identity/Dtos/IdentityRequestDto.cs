@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class IdentityRequestDto : IValidatableObject
@@ -24,7 +24,7 @@ public partial class IdentityRequestDto : IValidatableObject
 
     public virtual IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrEmpty(UserName) && string.IsNullOrEmpty(Email) && string.IsNullOrEmpty(PhoneNumber))
+        if (string.IsNullOrWhiteSpace(UserName) && string.IsNullOrWhiteSpace(Email) && string.IsNullOrWhiteSpace(PhoneNumber))
         {
             yield return new ValidationResult(
                 errorMessage: nameof(AppStrings.EitherProvideUserNameOrEmailOrPhoneNumber),

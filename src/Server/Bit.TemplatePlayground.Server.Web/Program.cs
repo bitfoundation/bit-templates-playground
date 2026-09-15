@@ -1,6 +1,5 @@
-﻿using Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
+using Bit.TemplatePlayground.Server.Api.Infrastructure.Data;
 using Bit.TemplatePlayground.Server.Web.Infrastructure.Services;
-using Bit.TemplatePlayground.Client.Core.Infrastructure.Services.Contracts;
 
 namespace Bit.TemplatePlayground.Server.Web;
 
@@ -38,7 +37,7 @@ public static partial class Program
         app.ConfigureMiddlewares();
 
         #if Development
-        _ = ScssCompilerService.WatchScssFiles(app);
+        await FileWatcherService.StartAsync(app);
 #endif
         
         await app.RunAsync();
@@ -49,10 +48,10 @@ public static partial class Program
         if (error is Exception exp)
         {
             using var scope = app.Services.CreateScope();
-            scope.ServiceProvider.GetRequiredService<IExceptionHandler>().Handle(exp, parameters: new()
+            scope.ServiceProvider.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
-            }, displayKind: AppEnvironment.IsDevelopment() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);
+            }, displayKind: ExceptionDisplayKind.None);
         }
         else
         {

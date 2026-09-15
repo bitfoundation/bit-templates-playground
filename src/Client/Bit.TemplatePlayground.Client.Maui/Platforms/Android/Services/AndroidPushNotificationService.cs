@@ -1,7 +1,11 @@
-﻿using Firebase.Messaging;
-using Plugin.LocalNotification;
-using Microsoft.Extensions.Logging;
+// [mirror] IPushNotificationService - subscription and permission flow - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/iOS/Services/iOSPushNotificationService.cs
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/MacCatalyst/Services/MacCatalystPushNotificationService.cs
+
+using Firebase.Messaging;
 using static Android.Provider.Settings;
+
+using Bit.TemplatePlayground.Shared.Features.PushNotification;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.Android.Services;
 
@@ -37,7 +41,7 @@ public partial class AndroidPushNotificationService : PushNotificationServiceBas
             using CancellationTokenSource cts = new(TimeSpan.FromSeconds(15));
             using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, cts.Token);
 
-            while (string.IsNullOrEmpty(Token))
+            while (string.IsNullOrWhiteSpace(Token))
             {
                 // After the NotificationsSupported Task completes with a result of true,
                 // we use FirebaseMessaging.Instance.GetToken.
@@ -66,7 +70,20 @@ public partial class AndroidPushNotificationService : PushNotificationServiceBas
     {
         if (_isConfigured)
             return;
+
+        FirebaseMessaging.Instance.GetToken()
+            .AddOnSuccessListener((MainActivity)Platform.CurrentActivity!)
+            .AddOnFailureListener(new ConfigureFailureListener());
+
         _isConfigured = true;
-        FirebaseMessaging.Instance.GetToken().AddOnSuccessListener((MainActivity)Platform.CurrentActivity!);
+    }
+
+    private sealed class ConfigureFailureListener : Java.Lang.Object, global::Android.Gms.Tasks.IOnFailureListener
+    {
+        public void OnFailure(Java.Lang.Exception e)
+        {
+            _isConfigured = false;
+            MauiProgram.LogException(new InvalidOperationException(e.ToString()), reportedBy: nameof(Configure));
+        }
     }
 }

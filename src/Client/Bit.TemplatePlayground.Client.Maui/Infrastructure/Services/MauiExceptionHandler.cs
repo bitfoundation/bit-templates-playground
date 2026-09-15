@@ -1,4 +1,7 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
+// [mirror] blazor hybrid exception handling - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Windows/Infrastructure/Services/WindowsExceptionHandler.cs
+
+namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 
 /// <summary>
 /// Instead of Client.Core, install Firebase Crashlytics and similar packages in Client.Maui, so the web version of the app won't download unnecessary packages.
@@ -8,7 +11,7 @@
 /// </summary>
 public partial class MauiExceptionHandler : ClientExceptionHandlerBase
 {
-    protected override void Handle(Exception exception, ExceptionDisplayKind displayKind, Dictionary<string, object> parameters)
+    protected override void Handle(Exception exception, ExceptionDisplayKind displayKind, Dictionary<string, object?> parameters)
     {
         exception = UnWrapException(exception);
 
