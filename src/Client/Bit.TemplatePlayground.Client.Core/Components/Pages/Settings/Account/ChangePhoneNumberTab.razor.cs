@@ -1,6 +1,3 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
-
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Settings.Account;
 
 public partial class ChangePhoneNumberTab
@@ -12,6 +9,8 @@ public partial class ChangePhoneNumberTab
 
     [Parameter, SupplyParameterFromQuery(Name = "phoneToken")]
     public string? PhoneNumberTokenQueryString { get; set; }
+
+    [CascadingParameter] public UserDto? CurrentUser { get; set; }
 
 
     [AutoInject] private IUserController userController = default!;
@@ -28,13 +27,14 @@ public partial class ChangePhoneNumberTab
     {
         await base.OnInitAsync();
 
-        if (string.IsNullOrEmpty(PhoneNumberQueryString) is false)
+        if (string.IsNullOrWhiteSpace(PhoneNumberQueryString) is false)
         {
             showConfirmation = true;
             isPhoneNumberUnavailable = false;
             changeModel.PhoneNumber = PhoneNumberQueryString;
+            sendModel.PhoneNumber = PhoneNumberQueryString;
 
-            if (string.IsNullOrEmpty(PhoneNumberTokenQueryString) is false)
+            if (string.IsNullOrWhiteSpace(PhoneNumberTokenQueryString) is false)
             {
                 changeModel.Token = PhoneNumberTokenQueryString;
 
@@ -49,7 +49,17 @@ public partial class ChangePhoneNumberTab
 
     private async Task SendToken()
     {
-        if (isWaiting || sendModel.PhoneNumber == PhoneNumber) return;
+        if (isWaiting) return;
+
+        if (sendModel.PhoneNumber == PhoneNumber)
+        {
+            SnackBarService.Error(Localizer[nameof(AppStrings.SamePhoneNumberErrorMessage)]);
+            return;
+        }
+
+        // Proving the NEW number (the code sent below) is only half of it - the server also requires the user to prove
+        // she still holds the CURRENT identifiers, by quoting a code sent to them. That is what elevated access is.
+        if (await AuthManager.TryEnterElevatedAccessMode(CurrentCancellationToken) is false) return;
 
         isWaiting = true;
 
@@ -83,7 +93,21 @@ public partial class ChangePhoneNumberTab
         {
             await userController.ChangePhoneNumber(changeModel, CurrentCancellationToken);
 
-            NavigationManager.NavigateTo($"{PageUrls.Settings}/{PageUrls.SettingsSections.Account}", forceLoad: true);
+            // Changing the phone number regenerates the security stamp on the server, which signs the user out of every
+            // device (including this one) on the next token refresh. Refresh the cached user so the UI reflects the new
+            // number, then warn about the imminent sign-out. A soft navigation (instead of a forced reload) is used here
+            // so the warning snackbar survives to be seen by the user.
+            SnackBarService.Warning(Localizer[nameof(AppStrings.SignOutOfAllDevicesWarningMessage)]);
+
+            if (CurrentUser is not null)
+            {
+                CurrentUser.PhoneNumber = changeModel.PhoneNumber;
+                PubSubService.Publish(ClientAppMessages.PROFILE_UPDATED, CurrentUser);
+            }
+
+            showConfirmation = false;
+            isPhoneNumberUnavailable = true;
+            sendModel.PhoneNumber = changeModel.PhoneNumber = changeModel.Token = null;
         }
         catch (KnownException e)
         {

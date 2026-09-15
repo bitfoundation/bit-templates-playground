@@ -1,5 +1,5 @@
-﻿using Twilio.Rest.Api.V2010;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
+using Twilio.Rest.Api.V2010;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 
@@ -15,9 +15,9 @@ public partial class TwilioHealthCheck : IHealthCheck
         try
         {
             if (settings.Sms?.Configured is not true)
-                return HealthCheckResult.Healthy("Twilio SMS is not configured — skipping check.");
+                return HealthCheckResult.Healthy("Twilio SMS is not configured - skipping check.");
 
-            var account = await AccountResource.FetchAsync();
+            var account = await AccountResource.FetchAsync().WaitAsync(cancellationToken);
 
             return account.Status == AccountResource.StatusEnum.Active
                 ? HealthCheckResult.Healthy("Twilio account is active.")
@@ -25,7 +25,7 @@ public partial class TwilioHealthCheck : IHealthCheck
         }
         catch (Exception exp)
         {
-            return HealthCheckResult.Unhealthy("Twilio SMS health check failed.", exp);
+            return new HealthCheckResult(context.Registration.FailureStatus, "Twilio SMS health check failed.", exp);
         }
     }
 }

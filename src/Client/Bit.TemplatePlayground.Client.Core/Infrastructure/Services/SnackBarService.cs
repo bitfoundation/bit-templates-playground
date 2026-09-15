@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 public partial class SnackBarService
 {
@@ -10,6 +10,8 @@ public partial class SnackBarService
         pubSubService.Publish(ClientAppMessages.SHOW_SNACK, (title, body, color), persistent: true);
     }
 
-    public void Error(string title, string body = "") => Show(title, body, BitColor.Error);
+    public void Info(string title, string body = "") => Show(title, body, BitColor.Info);
     public void Success(string title, string body = "") => Show(title, body, BitColor.Success);
+    public void Warning(string title, string body = "") => Show(title, body, BitColor.Warning);
+    public void Error(string title, string body = "") => Show(title, body, BitColor.Error);
 }

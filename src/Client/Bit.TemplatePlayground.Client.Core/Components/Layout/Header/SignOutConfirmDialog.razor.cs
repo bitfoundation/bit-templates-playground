@@ -1,5 +1,3 @@
-﻿using Microsoft.AspNetCore.Components.Routing;
-
 namespace Bit.TemplatePlayground.Client.Core.Components.Layout.Header;
 
 public partial class SignOutConfirmDialog
@@ -44,7 +42,7 @@ public partial class SignOutConfirmDialog
 
         if (isSigningOut) return;
 
-        IsOpen = false; 
+        IsOpen = false;
         await IsOpenChanged.InvokeAsync(false);
     }
 }

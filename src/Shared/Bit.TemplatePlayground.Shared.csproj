@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
         <TargetFramework>net10.0</TargetFramework>
@@ -21,8 +21,10 @@
 
     <ItemGroup>
         <SupportedPlatform Include="browser" />
+        <Using Include="System.Net" />
         <Using Include="Riok.Mapperly.Abstractions" />
         <Using Include="Bit.TemplatePlayground.Shared.Infrastructure.Attributes" />
+        <Using Include="Bit.TemplatePlayground.Shared.Features.Identity.Dtos" />
     </ItemGroup>
 
     <ItemGroup>

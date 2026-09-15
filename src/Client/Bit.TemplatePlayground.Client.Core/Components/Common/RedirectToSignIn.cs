@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Common;
+namespace Bit.TemplatePlayground.Client.Core.Components.Common;
 
 public partial class RedirectToSignIn : AppComponentBase
 {
@@ -9,7 +9,7 @@ public partial class RedirectToSignIn : AppComponentBase
         await base.OnAfterFirstRenderAsync();
 
         await AuthManager.SignOut(CurrentCancellationToken);
-        var returnUrl = ReturnUrl ?? NavigationManager.GetRelativePath();
+        var returnUrl = Uri.IsAppRelativeUrl(ReturnUrl, requireLeadingSlash: false) ? ReturnUrl : NavigationManager.GetRelativePath();
         NavigationManager.NavigateTo($"{PageUrls.SignIn}?return-url={Uri.EscapeDataString(returnUrl)}");
     }
 }

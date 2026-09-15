@@ -1,5 +1,3 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
@@ -13,11 +11,10 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     [AutoInject] private IUserController userController = default!;
     [AutoInject] private ILogger<AuthManager> authLogger = default!;
     [AutoInject] private IAuthTokenProvider tokenProvider = default!;
-    [AutoInject] private IExceptionHandler exceptionHandler = default!;
+    [AutoInject] private ClientExceptionHandlerBase exceptionHandler = default!;
     [AutoInject] private IStringLocalizer<AppStrings> localizer = default!;
     [AutoInject] private IIdentityController identityController = default!;
     [AutoInject] private IAuthorizationService authorizationService = default!;
-    [AutoInject] private AbsoluteServerAddressProvider absoluteServerAddress = default!;
 
     public void OnInit()
     {
@@ -43,10 +40,19 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
 
     public async Task StoreTokens(TokenResponseDto response, bool? rememberMe = null)
     {
+        // A response without an access token means the sign-in did not complete - typically a two-factor challenge.
+        // ConfirmEmail / ConfirmPhone can answer with one: register with both an e-mail and a phone, confirm one of
+        // them, turn 2FA on, then come back to confirm the other, and that confirmation's automatic sign-in is stopped
+        // by the second factor it has no way to ask for. Not being signed in there is fine - the user signs in again -
+        // but storing the empty response is not: on the Web client the null crosses JS interop as the string "null",
+        // which is non-empty enough to get past the token provider's guard and then throws while being parsed.
+        if (string.IsNullOrWhiteSpace(response.AccessToken))
+            return;
+
         rememberMe ??= await storageService.IsPersistent("refresh_token");
 
-        await storageService.SetItem("access_token", response!.AccessToken);
         await storageService.SetItem("refresh_token", response!.RefreshToken, rememberMe is true);
+        await storageService.SetItem("access_token", response!.AccessToken, rememberMe is true);
 
         NotifyAuthenticationStateChanged(Task.FromResult(await GetAuthenticationStateAsync()));
     }
@@ -57,7 +63,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
         {
             await userController.SignOut(cancellationToken);
         }
-        catch (Exception exp) when (exp is ServerConnectionException or UnauthorizedException or ResourceNotFoundException or ClientNotSupportedException)
+        catch (Exception exp) when (exp is TransientException or UnauthorizedException or ResourceNotFoundException or ClientNotSupportedException)
         {
             // If the client's access token is expired, the client would attempt to refresh it,
             // but if the client is offline or outdated, the refresh token request will fail.
@@ -75,17 +81,56 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
     private SemaphoreSlim semaphore = new(1, 1);
     private TaskCompletionSource<string?>? accessTokenTsc = null;
 
-    public Task<string?> RefreshToken(string requestedBy, string? elevatedAccessToken = null, bool ignoreServerConnectionException = false)
+    /// <summary>
+    /// Gets a new access token from the server, and is the way the app performs <b>anything that changes the user's
+    /// claims without signing in again</b> - not only renewing an expired token:
+    /// <list type="bullet">
+    /// <item>a plain renewal, when the current access token is expired or about to be (See AuthDelegatingHandler).</item>
+    /// <item>raising the session to an <b>elevated (privileged)</b> one, by passing the token the user received by
+    /// e-mail / sms (See <see cref="RequestElevatedAccess"/>).</item>
+    /// <item><b>switching the active tenant</b>, by passing the id of the tenant to enter (See SwitchTenant).</item>
+    /// </list>
+    /// They all go through this one method because the server answers all of them from the same endpoint: it validates
+    /// the refresh token, applies whatever the request asked for, and returns a new access token carrying the resulting
+    /// claims - which is also why the returned token, not the boolean the caller gets back, is the source of truth for
+    /// what actually happened. Anything added later that changes the claims of a signed-in user belongs here too.
+    /// <para>
+    /// Concurrent callers are de-duplicated: while a plain refresh is in flight, another plain refresh joins it instead
+    /// of issuing a second request. A call that carries arguments of its own never joins one, because it would
+    /// otherwise be handed an answer to somebody else's question - reporting success while its arguments were silently
+    /// dropped.
+    /// </para>
+    /// </summary>
+    /// <param name="requestedBy">Free text, for logs and error reports only. It has no effect on the request.</param>
+    public Task<string?> RefreshToken(string requestedBy, string? elevatedAccessToken = null, bool ignoreTransientException = false
+        , Guid? requestedTenantId = null // The id of the tenant the user is trying to switch into.
+        )
     {
-        if (accessTokenTsc is null)
+        // Only an argument-less refresh may be de-duplicated. A caller asking for something SPECIFIC - a tenant to
+        // switch into, or an elevated access token - must get its own request, otherwise its arguments are silently
+        // dropped and it is handed the result of somebody else's plain refresh (and told it succeeded).
+        var hasRequestOfItsOwn = elevatedAccessToken is not null
+            || requestedTenantId is not null
+            ;
+
+        if (hasRequestOfItsOwn is false && accessTokenTsc is not null)
+            return accessTokenTsc.Task;
+
+        // RunContinuationsAsynchronously is load bearing: without it SetResult below resumes the awaiting caller
+        // synchronously, in the middle of this method, so the `finally` that clears the field has not run yet - and a
+        // caller that awaits one refresh and immediately starts another finds a non-null, already-completed field.
+        var tsc = new TaskCompletionSource<string?>(TaskCreationOptions.RunContinuationsAsynchronously);
+
+        if (hasRequestOfItsOwn is false)
         {
-            accessTokenTsc = new();
-            _ = RefreshTokenImplementation();
+            accessTokenTsc = tsc;
         }
 
-        return accessTokenTsc.Task;
+        _ = RefreshTokenImplementation(tsc);
 
-        async Task RefreshTokenImplementation()
+        return tsc.Task;
+
+        async Task RefreshTokenImplementation(TaskCompletionSource<string?> currentTsc)
         {
             try
             {
@@ -94,20 +139,21 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
                 string? refreshToken = await storageService.GetItem("refresh_token");
                 try
                 {
-                    if (string.IsNullOrEmpty(refreshToken))
+                    if (string.IsNullOrWhiteSpace(refreshToken))
                         throw new UnauthorizedException(localizer[nameof(AppStrings.YouNeedToSignIn)]);
 
                     var refreshTokenResponse = await identityController.Refresh(new()
                     {
                         RefreshToken = refreshToken,
-                        ElevatedAccessToken = elevatedAccessToken
+                        ElevatedAccessToken = elevatedAccessToken,
+                        RequestedTenantId = requestedTenantId,
                     }, default);
                     await StoreTokens(refreshTokenResponse);
-                    accessTokenTsc.SetResult(refreshTokenResponse.AccessToken!);
+                    currentTsc.TrySetResult(refreshTokenResponse.AccessToken!);
                 }
                 catch (Exception exp)
                 {
-                    if (exp is not ServerConnectionException || ignoreServerConnectionException is false)
+                    if (exp is not TransientException || ignoreTransientException is false)
                     {
                         exceptionHandler.Handle(exp, parameters: new()
                         {
@@ -121,12 +167,20 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
                         await ClearTokens();
                     }
 
-                    accessTokenTsc.SetResult(null);
+                    currentTsc.TrySetResult(null);
                 }
             }
             finally
             {
-                accessTokenTsc = null;
+                // Only if this call is still the one the field points at - a request with arguments of its own never
+                // owned the field, and must not clear a plain refresh that started in the meantime.
+                if (ReferenceEquals(accessTokenTsc, currentTsc))
+                {
+                    accessTokenTsc = null;
+                }
+
+                currentTsc.TrySetResult(null);
+
                 semaphore.Release();
             }
         }
@@ -134,7 +188,7 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
 
     /// <summary>
     /// Handles the process of determining the user's authentication state based on the availability of access and refresh tokens.
-    /// 
+    ///
     /// - If no access / refresh token exists, an anonymous user object is returned to Blazor.
     /// - If an access token exists, a ClaimsPrincipal is created from it regardless of its expiration status. This ensures:
     ///   - Users can access anonymous-allowed pages without unnecessary delays caused by token refresh attempts **during app startup**.
@@ -172,30 +226,37 @@ public partial class AuthManager : AuthenticationStateProvider, IAsyncDisposable
             exceptionHandler.Handle(exp, displayKind: ExceptionDisplayKind.NonInterrupting); // Let's show prompt anyway.
         }
 
-        var token = await promptService.Show(localizer[AppStrings.EnterElevatedAccessToken], title: "Bit.TemplatePlayground", otpInput: true);
-        if (string.IsNullOrEmpty(token))
+        var token = await promptService.Show(localizer[nameof(AppStrings.EnterElevatedAccessToken)], title: "Bit.TemplatePlayground", otpInput: true);
+        if (string.IsNullOrWhiteSpace(token))
             return false;
 
-        if (accessTokenTsc != null)
-        {
-            await accessTokenTsc.Task; // Wait for any ongoing token refresh to complete.
-        }
         var accessToken = await RefreshToken(requestedBy: "RequestElevatedAccess", token);
-        return string.IsNullOrEmpty(accessToken) is false;
+        return string.IsNullOrWhiteSpace(accessToken) is false;
     }
 
-    public async Task<string?> GetFreshAccessToken(string requestedBy, bool ignoreServerConnectionException = false)
+    /// <summary>
+    /// Switches the user into the given tenant by refreshing the access token (See RefreshTokenRequestDto.TenantId).
+    /// Passing the id of a tenant that the user doesn't have access to (or is not active) ends up kicking the user out.
+    /// </summary>
+    public async Task<bool> SwitchTenant(Guid tenantId, CancellationToken cancellationToken)
+    {
+        var accessToken = await RefreshToken(requestedBy: "SwitchTenant", requestedTenantId: tenantId);
+
+        return string.IsNullOrWhiteSpace(accessToken) is false;
+    }
+
+    public async Task<string?> GetFreshAccessToken(string requestedBy, bool ignoreTransientException = false)
     {
         var accessToken = await tokenProvider.GetAccessToken();
 
-        if (string.IsNullOrEmpty(accessToken))
+        if (string.IsNullOrWhiteSpace(accessToken))
             return null;
 
         var isValid = IAuthTokenProvider.ParseAccessToken(accessToken, validateExpiry: true).IsAuthenticated();
 
         if (isValid) return accessToken;
 
-        return await RefreshToken(requestedBy, ignoreServerConnectionException: ignoreServerConnectionException);
+        return await RefreshToken(requestedBy, ignoreTransientException: ignoreTransientException);
     }
 
     private async Task ClearTokens()

@@ -1,4 +1,5 @@
-﻿namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Controllers;
+
+namespace Bit.TemplatePlayground.Server.Api.Infrastructure.Controllers;
 
 public partial class AppControllerBase : ControllerBase
 {
@@ -7,4 +8,8 @@ public partial class AppControllerBase : ControllerBase
     [AutoInject] protected AppDbContext DbContext = default!;
 
     [AutoInject] protected IStringLocalizer<AppStrings> Localizer = default!;
+
+    [AutoInject] protected TimeProvider TimeProvider = default!;
+
+    [AutoInject] protected TenantProvider TenantProvider = default!;
 }

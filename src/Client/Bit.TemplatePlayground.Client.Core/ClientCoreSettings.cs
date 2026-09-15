@@ -1,4 +1,4 @@
-﻿
+
 namespace Bit.TemplatePlayground.Client.Core;
 
 public partial class ClientCoreSettings : SharedSettings
@@ -12,6 +12,11 @@ public partial class ClientCoreSettings : SharedSettings
     [Required]
     public string GoogleRecaptchaSiteKey { get; set; } = default!;
 
+    /// <summary>
+    /// The advertisement's unit path of the google ads from the Google Ad Manager panel.
+    /// </summary>
+    [Required]
+    public string AdUnitPath { get; set; } = default!;
 
     /// <summary>
     /// When the Blazor Hybrid app sends a request to the API server, and the API server and web app are hosted on different URLs,

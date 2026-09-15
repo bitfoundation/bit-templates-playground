@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
+namespace Bit.TemplatePlayground.Shared.Features.Chatbot;
 
 [Mapper(UseDeepCloning = true)]
 public static partial class SystemPromptsMapper

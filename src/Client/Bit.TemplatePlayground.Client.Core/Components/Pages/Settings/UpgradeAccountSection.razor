@@ -1,0 +1,53 @@
+@inherits AppComponentBase
+
+<section>
+    <BitStack>
+        @if (adInitResult is null)
+        {
+            <BitRollingSquareLoading />
+        }
+        else if (adInitResult is AdInitResult.ConsentRequired)
+        {
+            @* Not a failure - an unanswered question, asked here too because this is where it is specific. *@
+            <BitMessage Color="BitColor.Info" Multiline>
+                <Content>
+                    @Localizer[nameof(AppStrings.AdsConsentMessage)]
+                </Content>
+                <Actions>
+                    <BitButton Size="BitSize.Small" AutoLoading OnClick="WrapHandled(GrantAdvertisingConsent)">
+                        @Localizer[nameof(AppStrings.AdsConsentAgree)]
+                    </BitButton>
+                </Actions>
+            </BitMessage>
+        }
+        else if (adInitResult is not AdInitResult.Ready)
+        {
+            <BitMessage Color="BitColor.Warning">@Localizer[nameof(AppStrings.UpgradeAdNotAvailableMessage)]</BitMessage>
+        }
+        else if (adIsShown is false)
+        {
+            <BitButton OnClick="WrapHandled(WatchAd)">
+                @Localizer[nameof(AppStrings.Upgrade)]
+            </BitButton>
+        }
+        else
+        {
+            @if (watchResult is AdWatchResult.Rewarded)
+            {
+                <BitMessage Color="BitColor.Success">@Localizer[nameof(AppStrings.UpgradeSuccessMessage)]</BitMessage>
+            }
+
+            @if (watchResult is AdWatchResult.Failed)
+            {
+                <BitMessage Color="BitColor.Error">@Localizer[nameof(AppStrings.UpgradeFailMessage)]</BitMessage>
+            }
+        }
+
+        @if (showTroubleButton)
+        {
+            <BitButton OnClick="WrapHandled(HandleAdTrouble)">
+                @Localizer[nameof(AppStrings.UpgradeAdHaveTrouble)]
+            </BitButton>
+        }
+    </BitStack>
+</section>

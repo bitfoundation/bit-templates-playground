@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Bit.TemplatePlayground.Shared.Features.Tenants.Dtos;
 
 namespace Bit.TemplatePlayground.Shared.Features.Identity;
 
@@ -44,6 +44,12 @@ public interface IUserController : IAppController
     [HttpDelete]
     Task Delete(CancellationToken cancellationToken);
 
+    /// <summary>
+    /// Articles 15 and 20 - downloads a zip, so it is called with the HttpClient directly rather than through the
+    /// generated proxy, which speaks json only. Requires <c>ELEVATED_ACCESS</c>, like <see cref="Delete"/>.
+    /// </summary>
+    public const string ExportPersonalDataUri = "api/v1/User/ExportPersonalData";
+
     [HttpPost]
     [Route("~/api/v1/[controller]/2fa")]
     Task<TwoFactorAuthResponseDto> TwoFactorAuth(TwoFactorAuthRequestDto request, CancellationToken cancellationToken) => default!;
@@ -60,6 +66,23 @@ public interface IUserController : IAppController
     [HttpDelete]
     Task DeleteWebAuthnCredential(JsonElement clientResponse, CancellationToken cancellationToken) => default!;
 
-    [HttpPost("{userSessionId}")]
-    Task<UserSessionNotificationStatus> ToggleNotification(Guid userSessionId, CancellationToken cancellationToken);
+    /// <summary>
+    /// AppMenu's notifications switch, for the current session. Unlike the same status carried by
+    /// <see cref="UpdateSession"/>, a change made here is answered with the welcome notification.
+    /// </summary>
+    [HttpPost("{enabled}")]
+    Task SetNotificationEnabled(bool enabled, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Returns the active tenants the user can switch into.
+    /// Returns all active tenants if the user has the <see cref="AppFeatures.Management.Tenants_Manage_Global"/> feature.
+    /// </summary>
+    [HttpGet]
+    Task<List<TenantDto>> GetTenants(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Leaves the tenant the user is currently signed into by clearing TenantUser's AcceptedOn.
+    /// </summary>
+    [HttpPost("{tenantId}")]
+    Task LeaveTenant(Guid tenantId, CancellationToken cancellationToken);
 }

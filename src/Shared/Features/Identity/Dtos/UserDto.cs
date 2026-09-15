@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Attachments;
+using Bit.TemplatePlayground.Shared.Features.Attachments;
 
 namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
@@ -18,10 +18,6 @@ public partial class UserDto : IValidatableObject
     [Phone(ErrorMessage = nameof(AppStrings.PhoneAttribute_ValidationError))]
     [Display(Name = nameof(AppStrings.PhoneNumber))]
     public string? PhoneNumber { get; set; }
-
-    [Required(ErrorMessage = nameof(AppStrings.RequiredAttribute_ValidationError))]
-    [Display(Name = nameof(AppStrings.Password))]
-    public string? Password { get; set; }
 
     [Required(ErrorMessage = nameof(AppStrings.RequiredAttribute_ValidationError))]
     [Display(Name = nameof(AppStrings.FullName))]
@@ -49,7 +45,7 @@ public partial class UserDto : IValidatableObject
 
     public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
     {
-        if (string.IsNullOrEmpty(Email) && string.IsNullOrEmpty(PhoneNumber))
+        if (string.IsNullOrWhiteSpace(Email) && string.IsNullOrWhiteSpace(PhoneNumber))
             yield return new ValidationResult(
                 errorMessage: nameof(AppStrings.EitherProvideEmailOrPhoneNumber),
                 memberNames: [nameof(Email), nameof(PhoneNumber)]

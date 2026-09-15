@@ -1,7 +1,8 @@
-﻿using Microsoft.AspNetCore.Components;
+using Bit.Butil;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
-using Bit.Butil;
+using Microsoft.Extensions.Options;
 
 namespace Bit.TemplatePlayground.Client.Web;
 
@@ -11,14 +12,15 @@ public static partial class Program
     {
         var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
+
         AppEnvironment.Set(builder.HostEnvironment.Environment);
 
         builder.Configuration.AddClientConfigurations(clientEntryAssemblyName: "Bit.TemplatePlayground.Client.Web");
 
         if (Environment.GetEnvironmentVariable("__BLAZOR_WEBASSEMBLY_WAIT_FOR_ROOT_COMPONENTS") != "true")
         {
-            // By default, App.razor adds Routes and HeadOutlet.
-            // The following is only required for blazor webassembly standalone.
+            AppPlatform.IsWasmStandalone = true;
+
             builder.RootComponents.Add<HeadOutlet>("head::after");
             builder.RootComponents.Add<Routes>("#app-container");
         }
@@ -26,6 +28,8 @@ public static partial class Program
         builder.ConfigureServices();
 
         var host = builder.Build();
+
+        host.Services.GetService<IStartupValidator>()?.Validate();
 
         AppDomain.CurrentDomain.UnhandledException += (_, e) => LogException(e.ExceptionObject, reportedBy: nameof(AppDomain.UnhandledException), host);
         TaskScheduler.UnobservedTaskException += (_, e) =>
@@ -36,13 +40,7 @@ public static partial class Program
 
         if (CultureInfoManager.InvariantGlobalization is false)
         {
-            var cultureCookie = await host.Services.GetRequiredService<Cookie>().GetValue(".AspNetCore.Culture");
-
-            if (cultureCookie is not null)
-            {
-                cultureCookie = Uri.UnescapeDataString(cultureCookie);
-                cultureCookie = cultureCookie[(cultureCookie.IndexOf("|uic=") + 5)..];
-            }
+            var cultureCookie = CultureService.ExtractUiCulture(await host.Services.GetRequiredService<Cookie>().GetValue(CultureService.CultureCookieName));
 
             var navigationManager = host.Services.GetRequiredService<NavigationManager>();
 
@@ -60,7 +58,7 @@ public static partial class Program
     {
         if (host.Services is IServiceProvider services && error is Exception exp)
         {
-            services.GetRequiredService<IExceptionHandler>().Handle(exp, parameters: new()
+            services.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp, parameters: new()
             {
                 { nameof(reportedBy), reportedBy }
             }, displayKind: AppEnvironment.IsDevelopment() ? ExceptionDisplayKind.NonInterrupting : ExceptionDisplayKind.None);

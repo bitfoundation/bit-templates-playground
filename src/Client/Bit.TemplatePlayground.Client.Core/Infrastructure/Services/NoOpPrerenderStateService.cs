@@ -1,5 +1,3 @@
-﻿using System.Runtime.CompilerServices;
-
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 /// <summary>
@@ -7,9 +5,9 @@ namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 /// </summary>
 public class NoOpPrerenderStateService : IPrerenderStateService
 {
-    public Task<T?> GetValue<T>(Func<Task<T?>> factory, 
-        [CallerLineNumber] int lineNumber = 0, 
-        [CallerMemberName] string memberName = "", 
+    public Task<T?> GetValue<T>(Func<Task<T?>> factory,
+        [CallerLineNumber] int lineNumber = 0,
+        [CallerMemberName] string memberName = "",
         [CallerFilePath] string filePath = "")
     {
         return factory();

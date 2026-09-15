@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.Categories;
+namespace Bit.TemplatePlayground.Shared.Features.Categories;
 
 [DtoResourceType(typeof(AppStrings))]
 public partial class CategoryDto
@@ -11,6 +11,7 @@ public partial class CategoryDto
     public string? Name { get; set; }
 
     [Display(Name = nameof(AppStrings.Color))]
+    [MaxLength(16, ErrorMessage = nameof(AppStrings.MaxLengthAttribute_InvalidMaxLength))]
     public string? Color { get; set; } = "#FFFFFF";
 
     public int ProductsCount { get; set; }

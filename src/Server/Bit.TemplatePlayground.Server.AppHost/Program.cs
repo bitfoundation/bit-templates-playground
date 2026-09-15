@@ -5,14 +5,10 @@ var builder = DistributedApplication.CreateBuilder(args);
 // Check out appsettings.Development.json for credentials/passwords settings.
 
 
-var sqlite = builder.AddSqlite("sqlite", databaseFileName: "Bit.TemplatePlaygroundDb.db")
-    .WithSqliteWeb();
+var sqlite = builder.AddSqlite();
 
-// https://aspire.dev/integrations/security/keycloak/
-var keycloak = builder.AddKeycloak("keycloak", 8080)
-    .WithOtlpExporter()
-    .WithDataVolume()
-    .WithRealmImport("./Infrastructure/Realms");
+
+var keycloak = builder.AddKeycloak();
 
 var serverWebProject = builder.AddProject("serverweb", "../Bit.TemplatePlayground.Server.Web/Bit.TemplatePlayground.Server.Web.csproj")
     .WithExternalHttpEndpoints();
@@ -28,6 +24,10 @@ if (builder.Environment.IsDevelopment())
 serverWebProject.WithReference(sqlite).WaitFor(sqlite);
 serverWebProject.WithReference(keycloak);
 
+// cloudflared connects straight to the projects (no reverse proxy) - possible now that RemoveWildcardEndpoints drops http2.
+builder.AddCloudflareTunnels(serverWebProject
+    );
+
 if (builder.ExecutionContext.IsRunMode) // The following project is only added for testing purposes.
 {
     // Blazor WebAssembly Standalone project.
@@ -35,14 +35,10 @@ if (builder.ExecutionContext.IsRunMode) // The following project is only added f
         .WithExplicitStart();
 
     var mailpit = builder.AddMailPit("smtp") // For testing purposes only, in production, you would use a real SMTP server.
+        .WithOtlpExporter()
         .WithDataVolume("mailpit");
 
     serverWebProject.WithReference(mailpit);
-
-
-    var tunnel = builder.AddDevTunnel("web-dev-tunnel")
-        .WithAnonymousAccess()
-        .WithReference(serverWebProject.WithHttpEndpoint(name: "devTunnel", port: 5000).GetEndpoint("devTunnel"));
 
     if (OperatingSystem.IsWindows())
     {
@@ -51,47 +47,22 @@ if (builder.ExecutionContext.IsRunMode) // The following project is only added f
             .WithExplicitStart();
     }
 
-    // Blazor Hybrid MAUI project.
-    var mauiapp = builder.AddMauiProject("mauiapp", @"../../Client/Bit.TemplatePlayground.Client.Maui/Bit.TemplatePlayground.Client.Maui.csproj");
+    // By default every container is created from scratch on each run and is destroyed as soon as the app host stops.
+    // UsePersistentContainers keeps them alive and reuses them instead, which makes starting the project
+    // (F5 / `aspire start`) and running the automated tests considerably faster, at the cost of the memory they keep
+    // consuming while you're not debugging (stop them from Docker Desktop whenever you need it back).
+    // Inside a Dev Container / GitHub Codespaces it is always on: the containers run in its docker-in-docker, so they
+    // never outlive the dev container itself. To have it on your own machine as well, remove the `if` below and keep the `builder.UsePersistentContainers();`.
+    // Check out the `.docs/20- .NET Aspire.md` file for more details.
 
-    if (OperatingSystem.IsWindows())
+    var inDevContainer = Environment.GetEnvironmentVariable("REMOTE_CONTAINERS") is "true" || Environment.GetEnvironmentVariable("CODESPACES") is "true";
+    if (inDevContainer)
     {
-        mauiapp.AddWindowsDevice()
-            .WithExplicitStart()
-            .WithReference(serverWebProject);
+        builder.UsePersistentContainers();
     }
 
-    if (OperatingSystem.IsMacOS())
-    {
-        mauiapp.AddMacCatalystDevice()
-            .WithExplicitStart()
-            .WithReference(serverWebProject);
-    }
 
-    if (OperatingSystem.IsMacOS())
-    {
-        // Windows supports iOS Simulator and Physical devices if there's a mac connected to network, but the following runners only work on macOS for now.
-
-        mauiapp.AddiOSDevice()
-            .WithExplicitStart()
-            .WithOtlpDevTunnel() // Required for OpenTelemetry data collection
-            .WithReference(serverWebProject, tunnel);
-
-        mauiapp.AddiOSSimulator()
-            .WithExplicitStart()
-            .WithOtlpDevTunnel() // Required for OpenTelemetry data collection
-            .WithReference(serverWebProject, tunnel);
-    }
-
-    mauiapp.AddAndroidDevice()
-        .WithExplicitStart()
-        .WithOtlpDevTunnel() // Required for OpenTelemetry data collection
-        .WithReference(serverWebProject, tunnel);
-
-    mauiapp.AddAndroidEmulator()
-        .WithExplicitStart()
-        .WithOtlpDevTunnel() // Required for OpenTelemetry data collection
-        .WithReference(serverWebProject, tunnel);
+    builder.RemoveWildcardEndpoints();
 }
 
 await builder

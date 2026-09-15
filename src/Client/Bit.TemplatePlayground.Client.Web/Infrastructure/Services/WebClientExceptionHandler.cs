@@ -1,8 +1,8 @@
-﻿namespace Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Web.Infrastructure.Services;
 
 public partial class WebClientExceptionHandler : ClientExceptionHandlerBase
 {
-    protected override void Handle(Exception exception, ExceptionDisplayKind displayKind, Dictionary<string, object> parameters)
+    protected override void Handle(Exception exception, ExceptionDisplayKind displayKind, Dictionary<string, object?> parameters)
     {
         exception = UnWrapException(exception);
 

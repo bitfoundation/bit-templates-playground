@@ -1,4 +1,6 @@
 {
+    // [mirror] the Docker profile is kept in sync with:
+    // - src/Server/Bit.TemplatePlayground.Server.Web/Properties/launchSettings.json
     "profiles": {
         "Bit.TemplatePlayground.Server.Api": {
             "commandName": "Project",
@@ -8,7 +10,7 @@
                 "ASPNETCORE_ENVIRONMENT": "Development"
             },
             "dotnetRunMessages": true,
-            "applicationUrl": "http://*:5250"
+            "applicationUrl": "http://localhost:5044;http://*:5044"
         },
         "WSL": {
             "commandName": "WSL2",
@@ -16,21 +18,21 @@
             "launchUrl": "scalar",
             "environmentVariables": {
                 "ASPNETCORE_ENVIRONMENT": "Development",
-                "ASPNETCORE_URLS": "http://*:5250"
+                "ASPNETCORE_URLS": "http://localhost:5044;http://*:5044"
             }
         },
         "Docker": {
             "commandName": "SdkContainer",
             "launchBrowser": true,
             "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/scalar",
-            "DockerfileRunArguments": "-v C:\\DockerVolumes\\E2CB5677-5539-49C9-AFFA-977AA706B293:/container_volume",
+            "DockerfileRunArguments": "-v C:\\DockerVolumes\\ACCF4E6A-05F7-420E-AFED-9BF9179430F9:/container_volume",
             "environmentVariables": {
-                "ASPNETCORE_HTTP_PORTS": "5250",
-                "ConnectionStrings__sqlite": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;"
+                "ConnectionStrings__sqlite": "Data Source=/container_volume/App_Data/Bit.TemplatePlaygroundDb.db;",
+                "ASPNETCORE_HTTP_PORTS": "5044"
             },
             "publishAllPorts": true,
             "useSSL": false,
-            "httpPort": 5250
+            "httpPort": 5044
         },
         "IIS Express": {
             "commandName": "IISExpress",
@@ -52,10 +54,10 @@
         "windowsAuthentication": false,
         "anonymousAuthentication": true,
         "iis": {
-            "applicationUrl": "http://localhost:5250/"
+            "applicationUrl": "http://localhost:5044/"
         },
         "iisExpress": {
-            "applicationUrl": "http://localhost:5250/"
+            "applicationUrl": "http://localhost:5044/"
         }
     },
     "$schema": "http://json.schemastore.org/launchsettings.json"

@@ -1,16 +1,10 @@
-﻿using System.Diagnostics.Metrics;
-using Microsoft.AspNetCore.SignalR;
 using System.Runtime.CompilerServices;
 using Bit.TemplatePlayground.Shared.Features.Chatbot;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.Services;
 
 namespace Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 
 public partial class AppHub
 {
-    // For open telemetry metrics.
-    private static readonly UpDownCounter<long> ongoingConversationsCount = Meter.Current.CreateUpDownCounter<long>("appHub.ongoing_conversations_count", "Number of ongoing conversations in the chatbot hub.");
-
     /// <summary>
     /// This method is accepting stream of user messages and returning stream of string charecters of AI chatbot responses.
     /// The basic implementation idea is brought from here: https://learn.microsoft.com/en-us/aspnet/core/signalr/streaming?view=aspnetcore-10.0
@@ -26,16 +20,26 @@ public partial class AppHub
     /// 
     /// The above 3 reasons are the main motivations of this design/implementation using SignalR instead of using SSE or other techniques.
     /// Checkout <see cref="AppChatbot"/> for more details.
+    ///
+    /// What does NOT travel on this stream is audio. Dictation and read aloud are ordinary requests to
+    /// <c>ChatbotController</c> instead: a recording or a synthesised answer is megabytes rather than a sentence, and
+    /// a new incoming message cancels whatever is being processed - so an upload sharing this stream would both stall
+    /// the conversation and be cancelled by the very message it was meant to become. Only the image a user attaches
+    /// travels here, and only as the id it was stored under.
     /// </summary>
     [HubMethodName(SharedAppMessages.StartChat)]
     public async IAsyncEnumerable<string> StartChat(
         StartChatRequest request,
-        IAsyncEnumerable<string> incomingMessages,
+        IAsyncEnumerable<AiChatMessage> incomingMessages,
         [EnumeratorCancellation] CancellationToken cancellationToken,
         [FromServices] AppChatbot chatbotService)
     {
         try
         {
+            // Azure SignalR runs the hub on a persistent connection with no ambient ASP.NET Core request, so it
+            // never sets the IHttpContextAccessor AsyncLocal
+            serviceProvider.GetRequiredService<IHttpContextAccessor>().HttpContext = Context.GetHttpContext();
+
             await chatbotService.StartChat(request,
                 Context.ConnectionId,
                 cancellationToken);
@@ -60,17 +64,22 @@ public partial class AppHub
 
                     messageSpecificCancellationTokenSrc = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
                     _ = chatbotService.ProcessNewMessage(
-                        generateFollowUpSuggestions: true,
                         incomingMessage,
-                        request.ServerApiAddress,
                         Context.GetHttpContext()!.User,
                         messageSpecificCancellationTokenSrc.Token);
                 }
             }
+            catch (Exception exp) when (exp is HubException or OperationCanceledException)
+            {
+                // The client cancelled its stream or disconnected, and nothing awaits this task to observe that.
+            }
             finally
             {
-                messageSpecificCancellationTokenSrc?.Dispose();
-                chatbotService.Stop();
+                if (messageSpecificCancellationTokenSrc is not null)
+                {
+                    await messageSpecificCancellationTokenSrc.TryCancel();
+                    messageSpecificCancellationTokenSrc.Dispose();
+                }
             }
         }
 
@@ -78,7 +87,7 @@ public partial class AppHub
 
         try
         {
-            ongoingConversationsCount.Add(1);
+            ChatbotMetrics.ActiveConversations.Add(1);
 
             await foreach (var str in chatbotService.GetStreamingChannel().ReadAllAsync(cancellationToken).WithCancellation(cancellationToken))
             {
@@ -87,16 +96,16 @@ public partial class AppHub
         }
         finally
         {
-            ongoingConversationsCount.Add(-1);
+            ChatbotMetrics.ActiveConversations.Add(-1);
         }
     }
 
     private async Task HandleException(Exception exp, CancellationToken cancellationToken)
     {
         await using var scope = serviceProvider.CreateAsyncScope();
-        var serverExceptionHandler = scope.ServiceProvider.GetRequiredService<ServerExceptionHandler>();
+        var serverExceptionHandler = scope.ServiceProvider.GetRequiredService<ApiServerExceptionHandler>();
         var problemDetails = serverExceptionHandler.Handle(exp);
-        if (problemDetails is null || serverExceptionHandler.IgnoreException(serverExceptionHandler.UnWrapException(exp)))
+        if (serverExceptionHandler.IgnoreException(serverExceptionHandler.UnWrapException(exp)))
             return;
         try
         {

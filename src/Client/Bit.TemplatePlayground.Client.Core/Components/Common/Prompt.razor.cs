@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Components.Common;
+namespace Bit.TemplatePlayground.Client.Core.Components.Common;
 
 public partial class Prompt
 {
@@ -19,7 +19,7 @@ public partial class Prompt
 
     private void OnOkClick()
     {
-        if (string.IsNullOrEmpty(value)) return;
+        if (string.IsNullOrWhiteSpace(value)) return;
 
         OnOk?.Invoke(value);
     }

@@ -1,4 +1,7 @@
-﻿namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
+// [mirror] telemetry context properties - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Windows/Infrastructure/Services/WindowsTelemetryContext.cs
+
+namespace Bit.TemplatePlayground.Client.Maui.Infrastructure.Services;
 
 public class MauiTelemetryContext : AppTelemetryContext
 {
@@ -6,9 +9,9 @@ public class MauiTelemetryContext : AppTelemetryContext
 
     public override string? AppVersion { get; set; } = VersionTracking.CurrentVersion;
 
-        public override string? WebView { get; set; } =
+    public override string? WebView { get; set; } =
 #if Android
-        $"{Android.Webkit.WebView.CurrentWebViewPackage?.PackageName} {Android.Webkit.WebView.CurrentWebViewPackage?.VersionName}";
+    $"{Android.Webkit.WebView.CurrentWebViewPackage?.PackageName} {Android.Webkit.WebView.CurrentWebViewPackage?.VersionName}";
 #elif Windows
         $"EdgeWebView2 {Microsoft.Web.WebView2.Core.CoreWebView2Environment.GetAvailableBrowserVersionString()}";
 #else

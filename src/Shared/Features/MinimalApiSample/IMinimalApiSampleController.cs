@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Features.MinimalApiSample;
+namespace Bit.TemplatePlayground.Shared.Features.MinimalApiSample;
 
 public interface IMinimalApiSampleController : IAppController
 {

@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Shared.Infrastructure.Exceptions;
+namespace Bit.TemplatePlayground.Shared.Infrastructure.Exceptions;
 
 public partial class UnknownException : Exception
 {

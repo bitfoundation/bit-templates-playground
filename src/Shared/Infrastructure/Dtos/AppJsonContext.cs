@@ -1,10 +1,14 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Dashboard;
-using Bit.TemplatePlayground.Shared.Features.Products;
 using Bit.TemplatePlayground.Shared.Features.Categories;
 using Bit.TemplatePlayground.Shared.Features.Chatbot;
-using Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
-using Bit.TemplatePlayground.Shared.Features.Statistics;
+using Bit.TemplatePlayground.Shared.Features.Dashboard;
 using Bit.TemplatePlayground.Shared.Features.Diagnostic;
+using Bit.TemplatePlayground.Shared.Features.Identity.OAuth.Dtos;
+using Bit.TemplatePlayground.Shared.Features.Products;
+using Bit.TemplatePlayground.Shared.Features.PushNotification;
+using Bit.TemplatePlayground.Shared.Features.Statistics;
+using Bit.TemplatePlayground.Shared.Features.Tenants.Dtos;
+using Bit.TemplatePlayground.Shared.Features.Todo;
+using Bit.TemplatePlayground.Shared.Infrastructure.Dtos.SignalR;
 
 namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
 
@@ -17,7 +21,6 @@ namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
   AllowTrailingCommas = true,
   PropertyNameCaseInsensitive = true,
   GenerationMode = JsonSourceGenerationMode.Default,
-  DictionaryKeyPolicy = JsonKnownNamingPolicy.CamelCase,
   PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase
 
 )]
@@ -28,10 +31,20 @@ namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
 [JsonSerializable(typeof(TimeSpan))]
 [JsonSerializable(typeof(string[]))]
 [JsonSerializable(typeof(Guid[]))]
+[JsonSerializable(typeof(IAsyncEnumerable<string>))] // DiagnosticController.PerformDiagnostic
 [JsonSerializable(typeof(GitHubStats))]
 [JsonSerializable(typeof(NugetStatsDto))]
 [JsonSerializable(typeof(AppProblemDetails))]
+[JsonSerializable(typeof(OAuthAuthorizeRequestDto))]
+[JsonSerializable(typeof(OAuthConsentDto))]
+[JsonSerializable(typeof(OAuthApprovalDto))]
+[JsonSerializable(typeof(OAuthClientDto))]
+[JsonSerializable(typeof(List<OAuthClientDto>))]
+[JsonSerializable(typeof(RevokeOAuthClientRequestDto))]
 [JsonSerializable(typeof(PushNotificationSubscriptionDto))]
+[JsonSerializable(typeof(TodoItemDto))]
+[JsonSerializable(typeof(PagedResponse<TodoItemDto>))]
+[JsonSerializable(typeof(List<TodoItemDto>))]
 [JsonSerializable(typeof(CategoryDto))]
 [JsonSerializable(typeof(List<CategoryDto>))]
 [JsonSerializable(typeof(PagedResponse<CategoryDto>))]
@@ -42,10 +55,21 @@ namespace Bit.TemplatePlayground.Shared.Infrastructure.Dtos;
 [JsonSerializable(typeof(OverallAnalyticsStatsDataResponseDto))]
 [JsonSerializable(typeof(List<ProductPercentagePerCategoryResponseDto>))]
 
+[JsonSerializable(typeof(TenantDto))]
+[JsonSerializable(typeof(List<TenantDto>))]
+[JsonSerializable(typeof(PagedResponse<TenantDto>))]
+[JsonSerializable(typeof(InviteUserToTenantRequestDto))]
 [JsonSerializable(typeof(DiagnosticLogDto[]))]
 [JsonSerializable(typeof(StartChatRequest))]
+[JsonSerializable(typeof(AiChatMessage))]
+[JsonSerializable(typeof(AiChatCard))]
+[JsonSerializable(typeof(AssistantTurn))]
 [JsonSerializable(typeof(List<SystemPromptDto>))]
 [JsonSerializable(typeof(BackgroundJobProgressDto))]
+[JsonSerializable(typeof(SynthesizeSpeechRequestDto))]
+[JsonSerializable(typeof(TranscribeSpeechResponseDto))]
+[JsonSerializable(typeof(StartVoiceCallRequestDto))]
+[JsonSerializable(typeof(StartVoiceCallResponseDto))]
 public partial class AppJsonContext : JsonSerializerContext
 {
 }

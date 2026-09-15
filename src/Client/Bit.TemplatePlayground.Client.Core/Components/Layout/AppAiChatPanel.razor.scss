@@ -4,23 +4,52 @@
 ::deep {
     .open-panel-button {
         padding: 0;
-        left: unset;
-        right: unset;
-        inset-inline-end: 2rem;
-
-        &:hover, &:active {
-            background-color: transparent;
-        }
+        width: 2.5rem;
+        height: 2.5rem;
+        border-radius: 50%;
 
         @include lt-md {
             bottom: 4rem;
             inset-inline-end: 1rem;
         }
 
-        img {
-            width: 2.5rem;
-            height: 2.5rem;
+        i {
+            font-size: 1.5rem;
             pointer-events: none;
+        }
+
+        // A call goes on while the panel is closed.
+        &.in-call {
+            animation: open-panel-in-call 1.6s ease-out infinite;
+        }
+
+        // A card waits for the user's answer.
+        &.needs-answer::after {
+            top: 0;
+            content: "";
+            width: 0.75rem;
+            height: 0.75rem;
+            position: absolute;
+            border-radius: 50%;
+            inset-inline-end: 0;
+            background: $bit-color-warning;
+            box-shadow: 0 0 0 2px $bit-color-background-primary;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &.in-call {
+                animation: none;
+            }
+        }
+    }
+
+    @keyframes open-panel-in-call {
+        from {
+            box-shadow: 0 0 0 0 $bit-color-error;
+        }
+
+        to {
+            box-shadow: 0 0 0 0.75rem transparent;
         }
     }
 
@@ -28,6 +57,15 @@
         top: $bit-env-inset-top;
         bottom: $bit-env-inset-bottom;
         height: $bit-env-height-available;
+    }
+
+    .panel-cnt.maximized {
+        width: 100%;
+        max-width: 100%;
+
+        .body {
+            width: 100%;
+        }
     }
 
     .scr-container {
@@ -58,6 +96,54 @@
         max-width: 100%;
     }
 
+    .message-row {
+        width: 100%;
+        align-items: flex-start;
+        padding-bottom: 0.25rem; // Separates two messages; the parent stack has no gap of its own.
+
+        &.user {
+            align-items: flex-end;
+        }
+
+        &:hover .message-actions, &:focus-within .message-actions {
+            opacity: 1;
+        }
+    }
+
+    .message-actions {
+        opacity: 0;
+        width: fit-content;
+        min-height: 1.25rem;
+        transition: opacity 0.15s ease-in-out;
+
+        // Something is being fetched for this message, so the row stays put instead of fading out from under it.
+        &.busy {
+            opacity: 1;
+        }
+
+        button {
+            width: 1.25rem;
+            height: 1.25rem;
+            border: none;
+            background: none;
+
+            i {
+                font-size: 0.7rem;
+                color: $bit-color-foreground-secondary;
+            }
+
+            &:hover i {
+                color: $bit-color-foreground-primary;
+            }
+
+            // Matches the icon it stands in for; the preset spinner is wider than this button.
+            .bit-btn-spn {
+                width: 0.7rem;
+                height: 0.7rem;
+            }
+        }
+    }
+
     .user-message {
         align-self: end;
         padding: 0.5rem 1rem;
@@ -78,9 +164,110 @@
         height: 100%;
     }
 
-    .send-message-button {
-        left: unset;
-        right: unset;
-        inset-inline-end: 0.5rem;
+    .dictate-button {
+        inset-inline-end: 3rem;
     }
+
+    // Floats inside the field just before the microphone or call button, with the time left written on it. The
+    // field's own end padding is widened while it is there so no text ends up underneath.
+    .speech-timer {
+        width: 4rem;
+        bottom: 0.75rem;
+        position: absolute;
+        pointer-events: none;
+        inset-inline-end: 5.25rem;
+
+        // The stack aligns to flex-start, and a bar of absolutely positioned parts has no width of its own.
+        .speech-timer-progress {
+            width: 100%;
+        }
+
+        // Faded so the time on top stays readable in every phase color.
+        .speech-timer-bar {
+            opacity: 0.45;
+        }
+
+        .speech-timer-text {
+            inset: 0;
+            display: grid;
+            position: absolute;
+            place-items: center;
+            color: $bit-color-foreground-primary;
+        }
+
+        &.ending {
+            animation: speech-timer-ending 1.2s ease-in-out infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            &.ending {
+                animation: none;
+            }
+        }
+    }
+
+    @keyframes speech-timer-ending {
+        50% {
+            opacity: 0.55;
+        }
+    }
+
+    // Beside the microphone button, or in its place while that is hidden.
+    .voice-call-button {
+        inset-inline-end: 5.5rem;
+
+        &.no-dictation {
+            inset-inline-end: 3rem;
+        }
+    }
+
+    // The file upload wraps the message box, so it is the composer rather than a control of its own size.
+    .composer {
+        width: 100%;
+        max-width: unset;
+        gap: 0.3rem;
+
+        // The file list is drawn after the label the box lives in, and the pending thumbnail belongs above the box.
+        flex-flow: column-reverse nowrap;
+    }
+
+    .message-box {
+        border-radius: 0.25rem;
+    }
+
+    // While an image is over the box, the box says it is what will catch it. The uploader puts this class on its own
+    // root for exactly that.
+    .composer.bit-upl-drg .message-box {
+        outline: 1px dashed $bit-color-primary;
+        outline-offset: 0.25rem;
+    }
+
+    // Only as wide as the picture, and what the cross on its corner is positioned against.
+    .pending-attachment {
+        position: relative;
+        width: fit-content;
+    }
+
+    // A badge on a thumbnail rather than a control of its own, so it is smaller than the smallest preset and carries
+    // no surface - under the pointer no more than at rest, since a plate lighting up over a picture reads as the
+    // picture changing. The shadow is the page background, keeping the cross legible over a photograph of any color.
+    .remove-attachment {
+        width: 1.25rem;
+        height: 1.25rem;
+        filter: drop-shadow(0 0 1px $bit-color-background-primary) drop-shadow(0 0 1px $bit-color-background-primary);
+
+        &, &:hover, &:active, &:focus {
+            background: none;
+        }
+
+        i {
+            font-size: 0.75rem;
+        }
+    }
+}
+
+// Playback has no visible surface of its own: the element exists for the `ended` event that chains one read aloud
+// segment to the next, and a hidden media element still plays.
+.read-aloud-audio {
+    display: none;
 }

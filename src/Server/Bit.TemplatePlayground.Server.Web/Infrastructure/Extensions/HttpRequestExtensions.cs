@@ -1,29 +1,18 @@
-﻿namespace Microsoft.AspNetCore.Http;
+namespace Microsoft.AspNetCore.Http;
 
 public static partial class HttpRequestExtensions
 {
-    public static bool IsStreamPrerenderingSuppressed(this HttpRequest request)
+    extension(HttpRequest request)
     {
-        if (request.HttpContext.IsSharedResponseCacheEnabled())
-            return true; // The response from streaming pre-rendering is not suitable for caching in ASP.NET Core's output caching mechanism or on CDN edge servers.
+        public bool IsStreamPrerenderingSuppressed()
+        {
+            if (request.HttpContext.IsSharedResponseCacheEnabled())
+                return true; // The response from streaming pre-rendering is not suitable for caching in ASP.NET Core's output caching mechanism or on CDN edge servers.
 
-        return request.IsCrawlerClient();
-    }
-
-    public static bool IsCrawlerClient(this HttpRequest request)
-    {
-        var agent = request.GetLoweredUserAgent();
-
-        if (agent.Contains("google")) return true;
-
-        if (agent.Contains("bing")) return true;
-
-        if (agent.Contains("yahoo")) return true;
-
-        if (agent.Contains("duckduck")) return true;
-
-        if (agent.Contains("yandex")) return true;
-
-        return false;
+            // Both predicates, because App.razor omits the scripts for both - and everything streaming defers is
+            // delivered in <blazor-ssr> blocks that only the scripts can apply. A caller without them would be handed
+            // a document whose deferred half never arrives.
+            return request.IsCrawlerClient() || request.IsLightHouseRequest();
+        }
     }
 }

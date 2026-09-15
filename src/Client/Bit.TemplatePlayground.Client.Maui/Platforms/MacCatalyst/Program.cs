@@ -1,3 +1,6 @@
+// [mirror] apple entry point - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/iOS/Program.cs
+
 using UIKit;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.MacCatalyst;

@@ -1,53 +1,25 @@
-﻿using System.Reflection;
-
 namespace Microsoft.JSInterop;
 
 public static partial class IJSRuntimeExtensions
 {
-    public static ValueTask<string> GetTimeZone(this IJSRuntime jsRuntime)
+    extension(IJSRuntime jsRuntime)
     {
-        return jsRuntime.InvokeAsync<string>("App.getTimeZone");
-    }
-
-    public static ValueTask<string> GoogleRecaptchaGetResponse(this IJSRuntime jsRuntime)
-    {
-        return jsRuntime.InvokeAsync<string>("grecaptcha.getResponse");
-    }
-
-    public static ValueTask<string> GoogleRecaptchaReset(this IJSRuntime jsRuntime)
-    {
-        return jsRuntime.InvokeAsync<string>("grecaptcha.reset");
-    }
-
-    public static async ValueTask<PushNotificationSubscriptionDto> GetPushNotificationSubscription(this IJSRuntime jsRuntime, string vapidPublicKey)
-    {
-        return await jsRuntime.InvokeAsync<PushNotificationSubscriptionDto>("App.getPushNotificationSubscription", vapidPublicKey);
-    }
-
-    /// <summary>
-    /// The return value would be false during pre-rendering
-    /// </summary>
-    public static bool IsInitialized(this IJSRuntime jsRuntime)
-    {
-        if (jsRuntime is null)
-            return false;
-
-        var type = jsRuntime.GetType();
-
-        return type.Name switch
+        public ValueTask<string> GoogleRecaptchaGetResponse()
         {
-            "UnsupportedJavaScriptRuntime" => false, // pre-rendering
-            "RemoteJSRuntime" /* blazor server */ => (bool)type.GetProperty("IsInitialized")!.GetValue(jsRuntime)!,
-            "WebViewJSRuntime" /* blazor hybrid */ => type.GetField("_ipcSender", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(jsRuntime) is not null,
-            _ => true // blazor wasm
-        };
-    }
+            return jsRuntime.InvokeAsync<string>("grecaptcha.getResponse");
+        }
 
-    /// <summary>
-    /// Clears web browser / web view storages
-    /// </summary>
-    public static async Task ClearWebStorages(this IJSRuntime jsRuntime)
-    {
-        await jsRuntime.InvokeVoidAsync("App.clearWebStorages");
+        public ValueTask<string> GoogleRecaptchaReset()
+        {
+            return jsRuntime.InvokeAsync<string>("grecaptcha.reset");
+        }
+
+        /// <summary>
+        /// The return value would be false during pre-rendering
+        /// </summary>
+        public bool IsInitialized()
+        {
+            return jsRuntime is not null && jsRuntime.IsRuntimeInvalid() is false;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core;
+using Bit.TemplatePlayground.Client.Core;
 
 namespace Bit.TemplatePlayground.Client.Windows;
 

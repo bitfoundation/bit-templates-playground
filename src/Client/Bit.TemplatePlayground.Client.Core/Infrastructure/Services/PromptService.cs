@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Components.Web;
+using Microsoft.AspNetCore.Components.Web;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
@@ -15,14 +15,14 @@ public partial class PromptService
             { nameof(Prompt.Title), title },
             { nameof(Prompt.Body), message },
             { nameof(Prompt.OtpInput), otpInput },
-            { nameof(Prompt.OnCancel), () => { tcs.SetResult(null); modalReference?.Close(); } },
-            { nameof(Prompt.OnOk), (string value) => { tcs.SetResult(value); modalReference?.Close(); } }
+            { nameof(Prompt.OnCancel), () => { tcs.TrySetResult(null); modalReference?.Close(); } },
+            { nameof(Prompt.OnOk), (string value) => { tcs.TrySetResult(value); modalReference?.Close(); } }
         };
         var modalParameters = new BitModalParameters()
         {
             Draggable = true,
             DragElementSelector = ".header-stack",
-            OnOverlayClick = EventCallback.Factory.Create<MouseEventArgs>(this, () => tcs.SetResult(null))
+            OnOverlayClick = EventCallback.Factory.Create<MouseEventArgs>(this, () => tcs.TrySetResult(null))
         };
         modalReference = await modalService.Show<Prompt>(promptParameters, modalParameters);
         return await tcs.Task;

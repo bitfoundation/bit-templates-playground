@@ -1,4 +1,5 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
+using Bit.TemplatePlayground.Server.Api.Features.Todo;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Identity.Models;
 
@@ -15,6 +16,8 @@ public partial class User : IdentityUser<Guid>
 
     [PersonalData]
     public DateTimeOffset? BirthDate { get; set; }
+
+    public DateTimeOffset CreatedOn { get; set; }
 
     /// <summary>
     /// The date and time of the last token request. Ensures only the latest generated token is valid and can only be used once.
@@ -36,8 +39,11 @@ public partial class User : IdentityUser<Guid>
 
     public List<UserSession> Sessions { get; set; } = [];
 
+    public List<TodoItem> TodoItems { get; set; } = [];
 
     public List<WebAuthnCredential> WebAuthnCredentials { get; set; } = [];
+
+    public List<TenantUser> Tenants { get; set; } = [];
 
     public List<UserRole> Roles { get; set; } = [];
     public List<UserClaim> Claims { get; set; } = [];

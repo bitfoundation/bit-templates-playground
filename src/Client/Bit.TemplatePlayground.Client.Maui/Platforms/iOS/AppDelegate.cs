@@ -1,6 +1,9 @@
-﻿using UIKit;
-using Foundation;
+// [mirror] apple app delegate - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Maui/Platforms/MacCatalyst/AppDelegate.cs
+
 using Bit.TemplatePlayground.Client.Maui.Platforms.iOS.Services;
+using Foundation;
+using UIKit;
 
 namespace Bit.TemplatePlayground.Client.Maui.Platforms.iOS;
 
@@ -14,13 +17,25 @@ public partial class AppDelegate : MauiUIApplicationDelegate
     [Export("application:didFinishLaunchingWithOptions:")]
     public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
     {
-        NotificationService.IsAvailable(default).ContinueWith(async task =>
+        NotificationService.IsAvailable(default).ContinueWith(task =>
         {
-            if (task.Result)
+            if (task.IsFaulted)
             {
-                await iOSPushNotificationService.Configure();
+                MauiProgram.LogException(task.Exception, reportedBy: nameof(NotificationService.IsAvailable));
+                return;
             }
-        });
+
+            if (task.Result is false)
+                return;
+
+            _ = iOSPushNotificationService.Configure().ContinueWith(configure =>
+            {
+                if (configure.IsFaulted)
+                {
+                    MauiProgram.LogException(configure.Exception, reportedBy: nameof(iOSPushNotificationService.Configure));
+                }
+            }, TaskScheduler.Default);
+        }, TaskScheduler.Default);
 
         // Use the following code the get the action value from the push notification when the app is launched by tapping on the push notification.
         using var userInfo = launchOptions?.ObjectForKey(UIApplication.LaunchOptionsRemoteNotificationKey) as NSDictionary;
@@ -44,13 +59,13 @@ public partial class AppDelegate : MauiUIApplicationDelegate
         }
         catch (Exception exp)
         {
-            IPlatformApplication.Current!.Services.GetRequiredService<IExceptionHandler>().Handle(exp);
+            IPlatformApplication.Current!.Services.GetRequiredService<ClientExceptionHandlerBase>().Handle(exp);
         }
     }
 
     [Export("application:didFailToRegisterForRemoteNotificationsWithError:")]
     public void FailedToRegisterForRemoteNotifications(UIApplication application, NSError error)
     {
-        IPlatformApplication.Current!.Services.GetRequiredService<IExceptionHandler>().Handle(new InvalidOperationException(error.Description.ToString()));
+        IPlatformApplication.Current!.Services.GetRequiredService<ClientExceptionHandlerBase>().Handle(new InvalidOperationException(error.Description.ToString()));
     }
 }

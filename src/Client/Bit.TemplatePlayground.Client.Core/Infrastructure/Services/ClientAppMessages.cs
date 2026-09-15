@@ -1,4 +1,4 @@
-﻿using Bit.TemplatePlayground.Client.Core.Components;
+using Bit.TemplatePlayground.Client.Core.Components;
 
 namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
@@ -40,6 +40,11 @@ public partial class ClientAppMessages
     public const string SHOW_DIAGNOSTIC_MODAL = nameof(SHOW_DIAGNOSTIC_MODAL);
 
 
+    /// <summary>
+    /// A publisher that sends this message announces that the subscriber should open the AI chat panel with ad help prompt.
+    /// When a user has trouble with ads, this message is published to open the AI chat panel with ad help prompt.
+    /// </summary>
+    public const string AD_HAVE_TROUBLE = nameof(AD_HAVE_TROUBLE);
 
     /// <summary>
     /// A publisher that sends this message announces that the subscriber should force the app to check for updates and install them.
@@ -54,9 +59,16 @@ public partial class ClientAppMessages
     public const string THEME_CHANGED = nameof(THEME_CHANGED);
 
     /// <summary>
-    /// A publisher that publishes this message notifies that the app culture has changed.
+    /// A publisher that sends this message announces that the whole app - the router, the layout, the app menu and
+    /// the current page - should be torn down and built again, so a change reaching all of them at once (a new
+    /// culture, time zone or tenant) lands everywhere without each of them listening for it.
+    /// <para>
+    /// SOFT: only the component tree is rebuilt, while the .NET and blazor webassembly/hybrid runtimes and every
+    /// service keep running - far cheaper than a <c>forceLoad</c> navigation. <c>Routes</c> is the one subscriber,
+    /// keying the tree on a counter this message increments (See <c>Routes.razor</c>).
+    /// </para>
     /// </summary>
-    public const string CULTURE_CHANGED = nameof(CULTURE_CHANGED);
+    public const string SOFT_RESTART = nameof(SOFT_RESTART);
 
     /// <summary>
     /// A publisher that publishes this message notifies that the online status of the app has changed.
@@ -80,4 +92,10 @@ public partial class ClientAppMessages
     /// When a user completes external sign-in in a separate window, this message is published to notify the app.
     /// </summary>
     public const string EXTERNAL_SIGN_IN_CALLBACK = nameof(EXTERNAL_SIGN_IN_CALLBACK);
+
+    /// <summary>
+    /// A publisher that publishes this message notifies that the user's consent decisions have changed, so whatever
+    /// acted on them has to act again.
+    /// </summary>
+    public const string CONSENT_CHANGED = nameof(CONSENT_CHANGED);
 }

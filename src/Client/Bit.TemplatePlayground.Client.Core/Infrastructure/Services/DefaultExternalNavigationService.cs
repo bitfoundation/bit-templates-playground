@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 public partial class DefaultExternalNavigationService : IExternalNavigationService, IAsyncDisposable
 {
@@ -15,12 +15,7 @@ public partial class DefaultExternalNavigationService : IExternalNavigationServi
 
     public async Task NavigateTo(string url)
     {
-        if (AppPlatform.IsBlazorHybrid)
-        {
-            // Client.Windows:
-            navigationManager.NavigateTo(url, forceLoad: true, replace: true);
-            return;
-        }
+        // Client.Windows and Client.Maui register services of their own
 
         // Client.Web:
         if (lastOpenedWindowId is not null)

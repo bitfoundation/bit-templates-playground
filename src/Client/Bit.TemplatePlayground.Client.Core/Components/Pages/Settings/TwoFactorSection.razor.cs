@@ -1,12 +1,10 @@
-﻿using Bit.TemplatePlayground.Shared.Features.Identity;
-using Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
-
 namespace Bit.TemplatePlayground.Client.Core.Components.Pages.Settings;
 
 public partial class TwoFactorSection
 {
     private string? qrCode;
     private bool isWaiting;
+    private bool isLoading = true;
     private string? sharedKey;
     private int recoveryCodesLeft;
     private bool isKeyCopiedShown;
@@ -30,7 +28,11 @@ public partial class TwoFactorSection
 
     private async Task EnableTwoFactorAuth()
     {
-        if (string.IsNullOrWhiteSpace(verificationCode)) return;
+        if (string.IsNullOrWhiteSpace(verificationCode))
+        {
+            SnackBarService.Error(Localizer[nameof(AppStrings.TfaVerificationCodeRequiredMessage)]);
+            return;
+        }
 
         // Strip spaces and hyphens
         var twoFactorCode = verificationCode.Replace(" ", string.Empty).Replace("-", string.Empty);
@@ -38,19 +40,37 @@ public partial class TwoFactorSection
         var request = new TwoFactorAuthRequestDto { Enable = true, TwoFactorCode = twoFactorCode };
         var response = await SendTwoFactorAuthRequest(request);
 
-        recoveryCodes = response?.RecoveryCodes;
+        if (response is null) return; // The request failed and the error was already reported to the user.
+
+        recoveryCodes = response.RecoveryCodes;
         SnackBarService.Success(Localizer[nameof(AppStrings.TwoFactorAuthenticationEnabled)]);
+        // Enabling 2fa regenerates the security stamp on the server, so every active session gets signed out on its next token refresh.
+        SnackBarService.Warning(Localizer[nameof(AppStrings.SignOutOfAllDevicesWarningMessage)]);
     }
 
     private async Task DisableTwoFactorAuth()
     {
+        // Anything that weakens the second factor needs elevated access on the server (See UserController.TwoFactorAuth);
+        // enabling does not, because it already requires a valid code from the authenticator.
+        if (await AuthManager.TryEnterElevatedAccessMode(CurrentCancellationToken) is false) return;
+
         var request = new TwoFactorAuthRequestDto { Enable = false };
-        await SendTwoFactorAuthRequest(request);
+        var response = await SendTwoFactorAuthRequest(request);
+
+        if (response is null) return; // The request failed and the error was already reported to the user.
+
         SnackBarService.Success(Localizer[nameof(AppStrings.TwoFactorAuthenticationDisabled)]);
+        // Disabling 2fa regenerates the security stamp on the server, so every active session gets signed out on its next token refresh.
+        SnackBarService.Warning(Localizer[nameof(AppStrings.SignOutOfAllDevicesWarningMessage)]);
+
+        recoveryCodes = [];
     }
 
     private async Task GenerateRecoveryCode()
     {
+        // Same elevated-access rule as DisableTwoFactorAuth.
+        if (await AuthManager.TryEnterElevatedAccessMode(CurrentCancellationToken) is false) return;
+
         var request = new TwoFactorAuthRequestDto { ResetRecoveryCodes = true };
         var response = await SendTwoFactorAuthRequest(request);
 
@@ -59,8 +79,17 @@ public partial class TwoFactorSection
 
     private async Task ResetAuthenticatorKey()
     {
+        // Same elevated-access rule as DisableTwoFactorAuth - resetting the shared key also turns 2fa off.
+        if (await AuthManager.TryEnterElevatedAccessMode(CurrentCancellationToken) is false) return;
+
         var request = new TwoFactorAuthRequestDto { ResetSharedKey = true };
-        await SendTwoFactorAuthRequest(request);
+        var response = await SendTwoFactorAuthRequest(request);
+
+        if (response is null) return; // The request failed and the error was already reported to the user.
+
+        // Resetting the authenticator key (and disabling 2fa) regenerates the security stamp on the server,
+        // so every active session gets signed out on its next token refresh.
+        SnackBarService.Warning(Localizer[nameof(AppStrings.SignOutOfAllDevicesWarningMessage)]);
     }
 
     //private async Task ForgetMachine()
@@ -84,6 +113,7 @@ public partial class TwoFactorSection
             authenticatorUri = response.AuthenticatorUri;
             recoveryCodesLeft = response.RecoveryCodesLeft;
             isTwoFactorAuthEnabled = response.IsTwoFactorEnabled;
+            isLoading = false;
 
             return response;
         }

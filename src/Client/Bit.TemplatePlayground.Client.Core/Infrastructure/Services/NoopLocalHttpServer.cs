@@ -1,4 +1,4 @@
-﻿namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
+namespace Bit.TemplatePlayground.Client.Core.Infrastructure.Services;
 
 // Checkout Client.web/wwwroot/web-interop-app.html's comments.
 public partial class NoOpLocalHttpServer : ILocalHttpServer
@@ -6,6 +6,8 @@ public partial class NoOpLocalHttpServer : ILocalHttpServer
     public int EnsureStarted() => -1;
 
     public string Origin => $"http://localhost:{Port}";
+
+    public string SessionToken => string.Empty;
 
     public int Port => -1;
 

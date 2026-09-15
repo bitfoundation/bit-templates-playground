@@ -1,8 +1,10 @@
-﻿using Bit.TemplatePlayground.Server.Api.Features.Categories;
+using Bit.TemplatePlayground.Server.Api.Features.Categories;
+using Bit.TemplatePlayground.Server.Api.Features.Tenants;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Products;
 
 public partial class Product
+    : ITenantAware
 {
     public Guid Id { get; set; }
 
@@ -11,7 +13,7 @@ public partial class Product
     /// </summary>
     [Range(0, int.MaxValue)]
     public int ShortId { get; set; }
-        = Environment.TickCount; // Using a database sequence for this is recommended.
+        = (int)(Environment.TickCount64 / 4_000); // Using a database sequence for this is recommended.
 
     [Required, MaxLength(64)]
     public string? Name { get; set; }
@@ -19,13 +21,27 @@ public partial class Product
     [Range(0, double.MaxValue)]
     public decimal Price { get; set; }
 
+    /// <summary>
+    /// The ISO 4217 code of the currency <see cref="Price"/> is an amount of (See ProductDto.FormattedPrice).
+    /// Null falls back to USD.
+    /// </summary>
+    [MaxLength(3)]
+    public string? CurrencyIso { get; set; }
+
+    /// <summary>
+    /// The symbol <see cref="Price"/> renders with (See ProductDto.FormattedPrice) - stored alongside
+    /// <see cref="CurrencyIso"/> so no currency-to-symbol table has to live in code. Null falls back to $.
+    /// </summary>
+    [MaxLength(8)]
+    public string? CurrencySymbol { get; set; }
+
     [MaxLength(4096)]
     public string? DescriptionHTML { get; set; }
 
     [MaxLength(4096)]
     public string? DescriptionText { get; set; }
 
-    public DateTimeOffset CreatedOn { get; set; } = DateTimeOffset.UtcNow;
+    public DateTimeOffset CreatedOn { get; set; }
 
     [ForeignKey(nameof(CategoryId))]
     public Category? Category { get; set; }
@@ -33,6 +49,11 @@ public partial class Product
     public Guid CategoryId { get; set; }
 
     public long Version { get; set; }
+
+    [ForeignKey(nameof(TenantId))]
+    public Tenant? Tenant { get; set; }
+
+    public Guid TenantId { get; set; }
 
     public bool HasPrimaryImage { get; set; } = false;
 

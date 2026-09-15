@@ -1,4 +1,4 @@
-﻿
+
 namespace Bit.TemplatePlayground.Shared.Features.Identity.Dtos;
 
 [DtoResourceType(typeof(AppStrings))]
@@ -31,7 +31,7 @@ public partial class SignInRequestDto : IdentityRequestDto
     {
         var result = base.Validate(validationContext).ToList();
 
-        if (string.IsNullOrEmpty(Password) && string.IsNullOrEmpty(Otp))
+        if (string.IsNullOrEmpty(Password) && string.IsNullOrWhiteSpace(Otp))
         {
             result.Add(new ValidationResult(
                 errorMessage: nameof(AppStrings.EitherProvidePasswordOrOtp),

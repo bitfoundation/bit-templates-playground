@@ -1,4 +1,7 @@
-// bit version: 10.4.4
+// [mirror] push notification and notificationclick handlers - keep in sync with:
+// - src/Client/Bit.TemplatePlayground.Client.Web/wwwroot/service-worker.js
+
+// bit version: 10.6.0
 // https://github.com/bitfoundation/bitplatform/tree/develop/src/Bswup
 
 
@@ -6,20 +9,28 @@ self.addEventListener('push', function (event) {
 
     const eventData = event.data.json();
 
-    self.registration.showNotification(eventData.title, {
+    event.waitUntil(self.registration.showNotification(eventData.title, {
 
         data: eventData.data,
         body: eventData.message,
         icon: '/images/icons/bit-icon-512.png'
 
-    });
+    }));
 
 });
+
+function isAppRelativeUrl(pageUrl) {
+    try {
+        return new URL(pageUrl, self.registration.scope).href.startsWith(self.registration.scope);
+    } catch {
+        return false;
+    }
+}
 
 self.addEventListener('notificationclick', function (event) {
     event.notification.close();
     const pageUrl = event.notification.data.pageUrl;
-    if (pageUrl != null) {
+    if (pageUrl != null && isAppRelativeUrl(pageUrl)) {
         event.waitUntil(
             clients
                 .matchAll({
@@ -39,33 +50,42 @@ self.addEventListener('notificationclick', function (event) {
 });
 
 
+// One worker serves two hosts: Server.Web's App.razor registers it as service-worker.js?host=server-web-project, the standalone
+// app's index.html without the query. Each host serves assets the other does not, and caching those would only 404.
+const isServerHosted = new URL(self.location.href).searchParams.get('host') === 'server-web-project';
+
 self.assetsInclude = [];
 self.assetsExclude = [
     /bit\.blazorui\.fluent\.css$/,
     /bit\.blazorui\.fluent-dark\.css$/,
     /bit\.blazorui\.fluent-light\.css$/,
 
-    // If a PDF reader (https://blazorui.bitplatform.dev/components/pdfreader) is needed in the PWA, remove these two lines:
-    /pdfjs-4\.7\.76\.js$/,
-    /pdfjs-4\.7\.76-worker\.js$/,
-
-
     // country flags
-    /_content\/Bit\.BlazorUI\.Extras\/flags/
+    /_content\/Bit\.BlazorUI\.Extras\/flags/,
+    /_content\/Bit\.BlazorUI\.Assets\/flags/,
+
+    // Host configuration, not app assets: the host consumes them and answers 404, which stalls the offline install.
+    /staticwebapp\.config\.json$/,
+    /_headers$/,
+
+    // The standalone app's css bundle; Server.Web serves that css inside its own bundle below instead.
+    ...(isServerHosted ? [/Bit.TemplatePlayground\.Client\.Web\.styles\.css$/] : [])
 ];
 self.externalAssets = [
     {
         "url": "/"
     },
-    {
-        url: "_framework/bit.blazor.web.es2019.js"
-    },
-    {
-        "url": "Bit.TemplatePlayground.Server.Web.styles.css"
-    },
-    {
-        "url": "Bit.TemplatePlayground.Client.Web.bundle.scp.css"
-    }
+    ...(isServerHosted ? [
+        {
+            url: "_framework/bit.blazor.web.es2019.js"
+        },
+        {
+            "url": "Bit.TemplatePlayground.Server.Web.styles.css"
+        },
+        {
+            "url": "Bit.TemplatePlayground.Client.Web.bundle.scp.css"
+        }
+    ] : [])
 ];
 
 self.serverHandledUrls = [
@@ -80,9 +100,11 @@ self.serverHandledUrls = [
     /\/swagger/,
     /\/scalar/,
     /\/signin-/,
+    /\/oauth\//,
     /\/.well-known/,
     /\/sitemap.xml/,
     /\/sitemap_index.xml/,
+    /\/llms.txt/,
     /\/web-interop-app.html/
 ];
 

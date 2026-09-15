@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.SignalR;
-using Bit.TemplatePlayground.Server.Api.Infrastructure.SignalR;
 using Bit.TemplatePlayground.Shared.Features.Categories;
 
 namespace Bit.TemplatePlayground.Server.Api.Features.Categories;
 
 [ApiVersion(1)]
 [ApiController, Route("api/v{v:apiVersion}/[controller]/[action]"),
+    Authorize(Policy = AuthPolicies.TENANT_SELECTED),
     Authorize(Policy = AuthPolicies.PRIVILEGED_ACCESS),
-    Authorize(Policy = AppFeatures.AdminPanel.ManageProductCatalog)]
+    Authorize(Policy = AppFeatures.AdminPanel.ProductCatalog_Manage)]
 public partial class CategoryController : AppControllerBase, ICategoryController
 {
     [AutoInject] private IHubContext<AppHub> appHubContext = default!;
@@ -73,7 +72,7 @@ public partial class CategoryController : AppControllerBase, ICategoryController
 
         await PublishDashboardDataChanged(cancellationToken);
 
-        return entityToUpdate.Map();
+        return await Get(entityToUpdate.Id, cancellationToken);
     }
 
     [HttpDelete("{id}/{version}")]
@@ -84,9 +83,14 @@ public partial class CategoryController : AppControllerBase, ICategoryController
             throw new BadRequestException(Localizer[nameof(AppStrings.CategoryNotEmpty)]);
         }
 
-        DbContext.Categories.Remove(new() { Id = id, Version = version });
-
-        await DbContext.SaveChangesAsync(cancellationToken);
+        if (await DbContext.Categories
+            .Where(c => c.Id == id && c.Version == version)
+            .ExecuteDeleteAsync(cancellationToken) == 0)
+        {
+            // This could be also because of Conflict, when another user has updated the entity in the meantime,
+            // but it doesn't worth to check for that
+            throw new ResourceNotFoundException(Localizer[nameof(AppStrings.CategoryCouldNotBeFound)]);
+        }
 
         await PublishDashboardDataChanged(cancellationToken);
     }
@@ -95,15 +99,18 @@ public partial class CategoryController : AppControllerBase, ICategoryController
     {
         // Check out AppHub's comments for more info.
         // In order to exclude current user session, gets its signalR connection id from database and use GroupExcept instead.
-        await appHubContext.Clients.Group("AuthenticatedClients").Publish(SharedAppMessages.DASHBOARD_DATA_CHANGED, null, cancellationToken);
+        // Only this tenant: "AuthenticatedClients" spans every tenant.
+        await appHubContext.Clients.Group(AppHub.TenantGroupName(TenantProvider.GetCurrentTenantId())).Publish(SharedAppMessages.DASHBOARD_DATA_CHANGED, null, cancellationToken);
     }
 
     private async Task Validate(Category category, CancellationToken cancellationToken)
     {
         var entry = DbContext.Entry(category);
         // Remote validation example: Any errors thrown here will be displayed in the client's edit form component.
+        // The `p.Id != category.Id` term matters on a case or accent insensitive collation: IsModified compares
+        // ordinally, so renaming "BMW" to "Bmw" reaches this query, and without it the row matches itself.
         if ((entry.State is EntityState.Added || entry.Property(c => c.Name).IsModified)
-            && await DbContext.Categories.AnyAsync(p => p.Name == category.Name, cancellationToken))
+            && await DbContext.Categories.AnyAsync(p => p.Id != category.Id && p.Name == category.Name, cancellationToken))
             throw new ResourceValidationException((nameof(CategoryDto.Name), [Localizer[nameof(AppStrings.DuplicateCategoryName), category.Name!]]));
     }
 }
